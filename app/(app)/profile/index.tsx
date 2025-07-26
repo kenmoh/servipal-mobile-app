@@ -1,0 +1,291 @@
+import ProfileCard from "@/components/ProfileCard";
+import {
+    KeyRound,
+    LogOutIcon,
+    Store,
+    UserRound,
+    UsersRound,
+    Wallet,
+} from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
+
+
+import { logOutUser } from "@/api/auth";
+import {
+    ImageData,
+    ImageUpload,
+    uploadProfileImage
+} from "@/api/user";
+import ProfileImagePicker from "@/components/ProfileImagePicker";
+import { useAuth } from "@/context/authContext";
+import authStorage from "@/storage/authStorage";
+import { ImageType } from "@/types/order-types";
+import { ImageUrl } from "@/types/user-types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { router } from "expo-router";
+import { Notifier, NotifierComponents } from "react-native-notifier";
+
+const BACKDROP_IMAGE_HEIGHT = Dimensions.get("window").height * 0.2;
+const BACKDROP_IMAGE_WIDTH = Dimensions.get("window").width;
+
+const profile = () => {
+    const [backdropUri, setBackdropUri] = useState<
+        ImageType | ImageUpload | null | string
+    >(null);
+    const [profileUri, setProfileUri] = useState<ImageUrl | null | string>(null);
+    const { user, profile, setImages } = useAuth();
+    const queryClient = useQueryClient();
+
+
+    // Load stored images on component mount
+    useEffect(() => {
+        const loadStoredImages = async () => {
+            const storedImages = await authStorage.getImageUrl();
+            if (storedImages) {
+                setImages(storedImages);
+            }
+        };
+        loadStoredImages();
+    }, []);
+
+    // Logout user (server side)
+    const { mutate } = useMutation({
+        mutationKey: ["logout"],
+        mutationFn: logOutUser,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["profile", user?.sub] });
+
+        },
+    });
+
+    const handleProfileScreen = () => {
+        if (
+            user?.user_type === "laundry_vendor" ||
+            user?.user_type === "dispatch" ||
+            user?.user_type === "restaurant_vendor"
+        ) {
+            router.push({ pathname: "/profile/vendorProfile" });
+        } else {
+            router.push({ pathname: "/profile/customerProfile" });
+        }
+    };
+
+    const handleAddItem = () => {
+        if (user?.user_type === "restaurant_vendor") {
+            router.push({
+                pathname: "/restaurant-detail/[restaurantId]", params: {
+                    restaurantId: user.sub,
+                    companyName: profile?.profile?.business_name,
+                    backDrop: profile?.profile?.backdrop_image_url,
+                    profileImage: profile?.profile?.profile_image_url,
+                    openingHour: profile?.profile?.opening_hours,
+                    closingHour: profile?.profile?.closing_hours,
+                    address: profile?.profile?.business_address,
+                    // rating: profile?.profile?.bank_name,
+                    // numberOfReviews: profile?.profile?.number_of_reviews,
+
+
+                }
+            });
+        } else if (user?.user_type === "laundry_vendor") {
+            router.push({
+                pathname: "/laundry-detail/[laundryId]", params: {
+                    laundryId: user.sub,
+                    companyName: profile?.profile?.business_name,
+                    backDrop: profile?.profile?.backdrop_image_url,
+                    profileImage: profile?.profile?.profile_image_url,
+                    openingHour: profile?.profile?.opening_hours,
+                    closingHour: profile?.profile?.closing_hours,
+                    address: profile?.profile?.business_address,
+                }
+            });
+        }
+    };
+
+
+
+    // Single mutation for uploading images
+    const uploadMutation = useMutation({
+        mutationFn: uploadProfileImage,
+        onSuccess: async (data) => {
+            const newImages = {
+                profile_image_url:
+                    typeof data?.profile_image_url === "object" &&
+                        data?.profile_image_url !== null
+                        ? data.profile_image_url.uri
+                        : data?.profile_image_url ??
+                        profile?.profile?.profile_image_url ??
+                        undefined,
+                backdrop_image_url:
+                    typeof data?.backdrop_image_url === "object" &&
+                        data?.backdrop_image_url !== null
+                        ? data.backdrop_image_url.uri
+                        : data?.backdrop_image_url ??
+                        profile?.profile?.backdrop_image_url ??
+                        undefined,
+            };
+
+            // Update context
+            setImages(newImages);
+
+            // Store in secure storage
+            await authStorage.storeImageUrl(newImages);
+
+            // Invalidate queries
+            queryClient.invalidateQueries({ queryKey: ["user"] });
+            queryClient.invalidateQueries({ queryKey: ["profile"] });
+            queryClient.invalidateQueries({ queryKey: ["deliveries"] });
+
+            Notifier.showNotification({
+                title: "Success",
+                description: "Images uploaded successfully",
+                Component: NotifierComponents.Alert,
+                duration: 1000,
+                componentProps: {
+                    alertType: "success",
+                },
+            });
+        },
+        onError: (error) => {
+            Notifier.showNotification({
+                title: "Failed to upload images",
+                description:
+                    "There was an error uploading the images. Please try again.",
+                Component: NotifierComponents.Alert,
+                duration: 1000,
+                componentProps: {
+                    alertType: "error",
+                },
+            });
+        },
+    });
+
+    const handleProfileImageSelect = (imageData: ImageData) => {
+        setProfileUri(imageData.uri);
+        uploadMutation.mutate({
+            profile_image_url: imageData,
+        });
+    };
+
+    const handleBackdropImageSelect = (imageData: ImageData) => {
+        setBackdropUri(imageData.uri);
+        uploadMutation.mutate({
+            backdrop_image_url: imageData,
+        });
+    };
+
+    const { signOut } = useAuth();
+
+    const handleLogout = async () => {
+        try {
+            await authStorage.removeProfile();
+            signOut();
+            mutate();
+        } catch (error) { }
+    };
+
+    return (
+        <>
+            <View className="flex-1 bg-background">
+                <View>
+                    <View>
+                        <ProfileImagePicker
+                            onImageSelect={handleBackdropImageSelect}
+                            width={BACKDROP_IMAGE_WIDTH}
+                            height={BACKDROP_IMAGE_HEIGHT}
+                            borderRadius={0}
+                            isBackdropImage
+                            initialImage={profile?.profile?.backdrop_image_url || null}
+                        />
+                    </View>
+
+                    <View className="items-center -mt-12">
+                        <ProfileImagePicker
+                            onImageSelect={handleProfileImageSelect}
+                            width={100}
+                            height={100}
+                            borderRadius={50}
+                            initialImage={profile?.profile?.profile_image_url || null}
+                        />
+                    </View>
+
+                    <View className="items-center mt-2">
+                        <Text className="capitalize tracking-wide text-lg font-bold text-primary text-center">
+                            {profile?.profile?.full_name || profile?.profile?.business_name}
+                        </Text>
+                        <Text className="text-center text-muted">{profile?.profile?.phone_number}</Text>
+                        <Text className="text-center text-muted">{profile?.email}</Text>
+                    </View>
+                    <View className="mt-10">
+                        {user?.user_type !== "rider" && (
+                            <Animated.View entering={FadeInDown.duration(300).delay(100)}>
+                                <ProfileCard
+                                    name={"Profile"}
+                                    onPress={handleProfileScreen}
+                                    bgColor={"rgba(0,128, 128, 0.3)"}
+                                    icon={<UserRound color={"white"} />}
+                                />
+                            </Animated.View>
+                        )}
+                        {(user?.user_type === "restaurant_vendor" || user?.user_type === "laundry_vendor") && (
+                            <Animated.View entering={FadeInDown.duration(300).delay(100)}>
+                                <ProfileCard
+                                    name={"Store"}
+                                    onPress={handleAddItem}
+                                    bgColor={"rgba(9, 3, 94, 0.3)"}
+                                    icon={<Store color={"white"} />}
+                                />
+                            </Animated.View>
+                        )}
+                        {user?.user_type !== "rider" && (
+                            <Animated.View entering={FadeInDown.duration(300).delay(100)}>
+                                <ProfileCard
+                                    name={"Wallet"}
+                                    onPress={() => router.push({ pathname: "/profile/wallet" })}
+                                    bgColor={"rgba(241, 121, 8, 0.5)"}
+                                    icon={<Wallet color={"white"} />}
+                                />
+                            </Animated.View>
+                        )}
+                        {user?.user_type === "dispatch" && (
+                            <Animated.View entering={FadeInDown.duration(300).delay(100)}>
+                                <ProfileCard
+                                    name={"Riders"}
+                                    onPress={() => router.push({ pathname: "/profile/riders" })}
+                                    bgColor={"rgba(5, 90, 247, 0.3)"}
+                                    icon={<UsersRound color={"white"} />}
+                                />
+                            </Animated.View>
+                        )}
+
+                        <Animated.View entering={FadeInDown.duration(300).delay(100)}>
+                            <ProfileCard
+                                name={"Change Password"}
+                                onPress={() =>
+                                    router.push({ pathname: "/profile/changePassword" })
+                                }
+                                bgColor={"rgba(221, 218, 11, 0.7)"}
+                                icon={<KeyRound color={"white"} />}
+                            />
+                        </Animated.View>
+                        <Animated.View entering={FadeInDown.duration(300).delay(100)}>
+                            <ProfileCard
+                                name={"Logout"}
+                                onPress={handleLogout}
+                                bgColor={"rgba(255, 0, 0, 0.3)"}
+                                icon={<LogOutIcon color={"white"} />}
+                            />
+                        </Animated.View>
+                    </View>
+                </View>
+
+            </View>
+        </>
+    );
+};
+
+export default profile;
+
+const styles = StyleSheet.create({});

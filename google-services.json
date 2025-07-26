@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "278389563944",
+    "project_id": "servipal-moh",
+    "storage_bucket": "servipal-moh.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:278389563944:android:4fa8e86aa31e6b25318b1d",
+        "android_client_info": {
+          "package_name": "com.kenmoh.servipal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGk7OA0sIENfiWFbG7vPZdktDo_xI6i30"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
