@@ -10,6 +10,9 @@ import {
 } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
+
+
+
 interface GoogleTextInputProps {
   placeholder: string;
   handlePress: (lat: number, lng: number, address: string) => void;
@@ -44,8 +47,8 @@ const GoogleTextInput = ({
   }, [value]);
 
   return (
-    <View className="w-[90%] self-center">
-      <Text className="text-primary mb-2">{placeholder}</Text>
+    <View style={styles.container}>
+      {/*<Text className="text-primary mb-2">{placeholder}</Text>*/}
       <GooglePlacesAutocomplete
         ref={ref}
         placeholder={placeholder}
@@ -54,22 +57,17 @@ const GoogleTextInput = ({
         debounce={300}
         predefinedPlaces={[]}
         enablePoweredByContainer={false}
-        query={{
+         query={{
           key: process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY,
-          language: "en",
-          components: "country:ng",
-          types: "(cities)",
-          radius: 50000,
-          strictbounds: false,
-          inputtype: "address",
+          language: 'en',
+          components: 'country:ng',
         }}
         onPress={(data, details = null) => {
           // Remove trailing ", Nigeria" (with or without comma/space)
+          console.log(data)
           let address = data?.description.replace(/,? ?Nigeria$/i, "");
           if (details?.geometry?.location) {
             const { lat, lng } = details?.geometry?.location;
-            onChangeText(address);
-            ref.current?.setAddressText(address);
             handlePress(lat, lng, address);
             Keyboard.dismiss();
           }
@@ -145,17 +143,31 @@ const GoogleTextInput = ({
 
 const styles = StyleSheet.create({
   container: {
-    position: "relative",
-    width: "90%",
-    alignSelf: "center",
+    position: 'relative',
+    width: '90%',
+    alignSelf: 'center',
     zIndex: 1,
   },
 
   loader: {
-    position: "absolute",
+    position: 'absolute',
     right: 15,
     top: 15,
-  },
+  }
 });
+// const styles = StyleSheet.create({
+//   container: {
+//     position: "relative",
+//     width: "90%",
+//     alignSelf: "center",
+//     zIndex: 1,
+//   },
+
+//   loader: {
+//     position: "absolute",
+//     right: 15,
+//     top: 15,
+//   },
+// });
 
 export default GoogleTextInput;

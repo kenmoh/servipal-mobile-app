@@ -1,27 +1,38 @@
-import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
-import { ChatWrapper } from '@/components/ChatWrapper';
-import { ChatProvider } from '@/context/chatContext';
-import { Stack } from 'expo-router';
-
+import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
+import { Stack } from "expo-router";
+import React from "react";
+import { StyleSheet, useColorScheme } from "react-native";
 
 const ChatRootLayout = () => {
-    return (
-        <ChatWrapper>
-            <ChatProvider>
+  const theme = useColorScheme();
+  const HEADER_BG = theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
+  return (
+    <Stack
+      screenOptions={{
+        headerTintColor: theme === "dark" ? "white" : "black",
 
-                <Stack>
+        headerStyle: {
+          backgroundColor: HEADER_BG,
+        },
+      }}
+    >
+      <Stack.Screen name="[cid]" />
+      <Stack.Screen
+        name="index"
+        options={{
+          headerShadowVisible: false,
+          title: "Messages",
+          headerTintColor: theme === "dark" ? "white" : "black",
+          headerStyle: {
+            backgroundColor: HEADER_BG,
+          },
+        }}
+      />
+      <Stack.Screen name="thread/[cid]" />
+    </Stack>
+  );
+};
 
-                    <Stack.Screen name='[cid]' />
-                    <Stack.Screen name='thread/[cid]' />
+export default ChatRootLayout;
 
-
-                </Stack>
-            </ChatProvider>
-        </ChatWrapper>
-    )
-}
-
-export default ChatRootLayout
-
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});

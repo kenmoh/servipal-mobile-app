@@ -119,6 +119,12 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   useProtectedRoute(user);
+
+  useEffect(() => {
+    if (user) {
+      // Not a fan of this
+    }
+  }, [user]);
   return (
     <AuthContext.Provider value={{ signOut, setUser, user, images, setImages, setProfile, profile }}>
       {children}

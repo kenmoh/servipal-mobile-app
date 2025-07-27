@@ -7,6 +7,7 @@ const imageKey = "imageKey";
 const key = "authToken";
 const pushTokenKey = "pushToken";
 const emailKey = "userEmail";
+const themeKey = "themeKey";
 
 interface JWTPayload {
   exp: number;
@@ -178,6 +179,25 @@ const removeEmail = async () => {
   }
 };
 
+const storeTheme = async (theme: "light" | "dark") => {
+  try {
+    await SecureStore.setItemAsync(themeKey, theme);
+  } catch (error) {
+    console.error("Error storing theme:", error);
+    throw new Error("Error storing theme");
+  }
+};
+
+const getTheme = async (): Promise<"light" | "dark" | null> => {
+  try {
+    const theme = await SecureStore.getItemAsync(themeKey);
+    return theme as "light" | "dark" | null;
+  } catch (error) {
+    console.error("Error getting theme:", error);
+    return null;
+  }
+};
+
 export default {
   getToken,
   getUser,
@@ -195,4 +215,6 @@ export default {
   storeEmail,
   getEmail,
   removeEmail,
+  storeTheme,
+  getTheme,
 };

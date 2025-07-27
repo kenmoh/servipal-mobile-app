@@ -255,25 +255,21 @@ const ItemInfo = () => {
     <>
       <KeyboardAwareScrollView>
         <View className="px-[20px] gap-5">
-          <View className="items-center gap-10" >
-            <View className="w-[10px] h-[10px] rounded-[3px] bg-gray-10" />
+          <View className="flex-row items-center gap-5" >
+            <View className="w-[10px] h-[10px] rounded-[3px] bg-gray-500" />
             <Text className="text-primary text-[12px] font-poppins">
               {origin}{" "}
             </Text>
           </View>
-          <HDivider />
-          <View className="items-center gap-10">
-            <Feather name="map-pin" className="bg-icon-default" size={10} />
+
+          <View className="flex-row items-center gap-5">
+            <Feather name="map-pin" color="gray" size={10} />
             <Text className="text-primary text-[12px] font-poppins">
               {destination}{" "}
             </Text>
           </View>
-          <View className="items-center gap-10">
-            <View className="w-[10px] h-[10px] rounded-[3px] bg-gray-10" />
-            <Text className="text-primary text-[12px] font-poppins">
-              {origin}{" "}
-            </Text>
-          </View>
+        <View className='flex-row gap-10'>
+           <View className='flex-row gap-5 items-center'>
           <MaterialCommunityIcons
             name="road-variant"
             size={10}
@@ -283,7 +279,7 @@ const ItemInfo = () => {
             {distance} km
           </Text>
         </View>
-        <View className="items-center justify-center gap-5">
+        <View className="items-center flex-row items-center gap-5">
           <Clock className="text-icon-default" size={10} />
 
           <Text className="text-icon-default text-[12px]">
@@ -291,6 +287,10 @@ const ItemInfo = () => {
             {duration}{" "}
           </Text>
         </View>
+         </View>
+        </View>
+          <HDivider />
+          
         <View className="mt-5">
           <Controller
             control={control}
@@ -305,105 +305,6 @@ const ItemInfo = () => {
               />
             )}
           />
-
-          <View style={{ display: "none" }}>
-            <Controller
-              control={control}
-              name="origin"
-              render={({ field }) => (
-                <AppTextInput
-                  placeholder="Pickup Location"
-                  onBlur={field.onBlur}
-                  value={formValues.origin}
-                  errorMessage={errors.origin?.message}
-                  editable={false}
-                />
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="destination"
-              render={({ field }) => (
-                <AppTextInput
-                  placeholder="Destination"
-                  onBlur={field.onBlur}
-                  value={formValues.destination}
-                  errorMessage={errors.destination?.message}
-                  editable={false}
-                />
-              )}
-            />
-          </View>
-
-          <View className="display-none w-[95%] self-center">
-
-            <View className="w-[50%]">
-              <Controller
-                control={control}
-                name="distance"
-                render={({ field }) => (
-                  <AppTextInput
-                    editable={false}
-                    placeholder="Distance"
-                    onBlur={field.onBlur}
-                    value={
-                      formValues.distance ? formValues?.distance?.toString() : ""
-                    }
-                    errorMessage={errors.distance?.message}
-                  />
-                )}
-              />
-            </View>
-            <View className="w-50">
-              <Controller
-                control={control}
-                name="duration"
-                render={({ field }) => (
-                  <AppTextInput
-                    placeholder="Duration"
-                    onBlur={field.onBlur}
-                    editable={false}
-                    value={formatCoords(formValues.pickup_coordinates)}
-                    errorMessage={errors.duration?.message}
-                  />
-                )}
-              />
-            </View>
-          </View>
-
-          <View className="display-none w-[95%] self-center">
-            <View className="w-[50%]">
-              <Controller
-                control={control}
-                name="pickup_coordinates"
-                render={({ field }) => (
-                  <AppTextInput
-                    placeholder="Origin Coords"
-                    onBlur={field.onBlur}
-                    editable={false}
-                    value={formatCoords(formValues.pickup_coordinates)}
-                    errorMessage={errors.pickup_coordinates?.message}
-                  />
-                )}
-              />
-            </View>
-            <View className="w-[50%]">
-              <Controller
-                control={control}
-                name="dropoff_coordinates"
-                render={({ field }) => (
-                  <AppTextInput
-                    editable={false}
-                    placeholder="Dest Coords"
-                    onBlur={field.onBlur}
-                    value={formatCoords(formValues.dropoff_coordinates)}
-                    errorMessage={errors.dropoff_coordinates?.message}
-                  />
-                )}
-              />
-            </View>
-          </View>
 
           <Controller
             control={control}
@@ -443,8 +344,6 @@ const ItemInfo = () => {
               "Send"
             )}
           />
-
-
         </View>
       </KeyboardAwareScrollView >
     </>

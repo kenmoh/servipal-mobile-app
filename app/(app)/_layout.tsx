@@ -1,20 +1,20 @@
 // import { Tabs } from 'expo-router';
-import React, { useMemo } from 'react';
+import React, { useMemo } from "react";
 
+import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
+import { useColorScheme, View } from "react-native";
 
-import { HEADER_BG_DARK, HEADER_BG_LIGHT } from '@/constants/theme';
-import { useColorScheme, View } from 'react-native';
-
+import { useAuth } from "@/context/authContext";
 import {
   createNativeBottomTabNavigator,
   NativeBottomTabNavigationEventMap,
   NativeBottomTabNavigationOptions,
-} from '@bottom-tabs/react-navigation';
-import { ParamListBase, TabNavigationState } from '@react-navigation/native';
-import { withLayoutContext } from 'expo-router';
+} from "@bottom-tabs/react-navigation";
+import { ParamListBase, TabNavigationState } from "@react-navigation/native";
+import { Redirect, withLayoutContext } from "expo-router";
+import AppChatProvider from "../../context/chatContext";
 
 const BottomTabNavigator = createNativeBottomTabNavigator().Navigator;
-
 
 export const Tabs = withLayoutContext<
   NativeBottomTabNavigationOptions,
@@ -23,62 +23,65 @@ export const Tabs = withLayoutContext<
   NativeBottomTabNavigationEventMap
 >(BottomTabNavigator);
 
-
 export default function TabLayout() {
+  const { user } = useAuth();
 
+  if (!user?.sub) {
+    return <Redirect href="/(auth)/sign-in" />;
+  }
 
-  const theme = useColorScheme()
-  const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
+  const theme = useColorScheme();
+  const BG_COLOR = theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
 
   // Memoize tab bar style to prevent re-creation
-  const tabBarStyle = useMemo(() => ({
-    backgroundColor: BG_COLOR
-  }), [BG_COLOR]);
+  const tabBarStyle = useMemo(
+    () => ({
+      backgroundColor: BG_COLOR,
+    }),
+    [BG_COLOR]
+  );
 
   return (
-
-    <View className='flex-1 bg-background'>
-
-      <Tabs
-
-        tabBarStyle={tabBarStyle}
-        tabBarActiveTintColor={'orange'}
-        labeled={true}
-      >
-        <Tabs.Screen
-          name="delivery"
-          options={{
-            title: "Delivery",
-            tabBarIcon: () => require('@/assets/images/bike.svg'),
-          }}
-        />
-        <Tabs.Screen
-          name="food"
-          options={{
-            title: "Food",
-            tabBarIcon: () => require('@/assets/images/utensils.svg'),
-          }}
-        />
-        <Tabs.Screen
-          name="laundry"
-          options={{
-            title: "Laundry",
-            tabBarIcon: () => require('@/assets/images/washing-machine.svg'),
-          }}
-        />
-        <Tabs.Screen
-          name="profile"
-          options={{
-            title: "Profile",
-            tabBarIcon: () => require('@/assets/images/user-round.svg'),
-          }}
-        />
-      </Tabs>
+    <View className="flex-1 bg-background">
+      <AppChatProvider>
+        <Tabs
+          tabBarStyle={tabBarStyle}
+          tabBarActiveTintColor={"orange"}
+          labeled={true}
+        >
+          <Tabs.Screen
+            name="delivery"
+            options={{
+              title: "Delivery",
+              tabBarIcon: () => require("@/assets/images/bike.svg"),
+            }}
+          />
+          <Tabs.Screen
+            name="food"
+            options={{
+              title: "Food",
+              tabBarIcon: () => require("@/assets/images/utensils.svg"),
+            }}
+          />
+          <Tabs.Screen
+            name="laundry"
+            options={{
+              title: "Laundry",
+              tabBarIcon: () => require("@/assets/images/washing-machine.svg"),
+            }}
+          />
+          <Tabs.Screen
+            name="profile"
+            options={{
+              title: "Profile",
+              tabBarIcon: () => require("@/assets/images/user-round.svg"),
+            }}
+          />
+        </Tabs>
+      </AppChatProvider>
     </View>
   );
 }
-
-
 
 // const TabBarLayout = () => {
 //     const theme = useColorScheme()
@@ -131,10 +134,7 @@ export default function TabLayout() {
 //                 tabBarItemStyle: tabBarItemStyle,
 //                 tabBarBadgeStyle: tabBarBadgeStyle,
 
-
-
 //             }}
-
 
 //         >
 //             <Tabs.Screen name='delivery' options={{
@@ -161,9 +161,6 @@ export default function TabLayout() {
 //                 ),
 //             }} />
 
-
-
-
 //             <Tabs.Screen name='profile' options={{
 //                 title: '',
 
@@ -172,10 +169,8 @@ export default function TabLayout() {
 //                 ),
 //             }} />
 
-
 //         </Tabs>
 //     )
 // }
 
 // export default TabBarLayout
-

@@ -1,14 +1,14 @@
 import React from "react";
 import {
-    Dimensions,
-    ScrollView,
-    Text,
-    useColorScheme,
-    View,
+  Dimensions,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  useColorScheme,
+  View,
 } from "react-native";
 
 import { fetchDelivery } from "@/api/order";
-import AppButton from "@/components/AppButton";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 import { useQuery } from "@tanstack/react-query";
@@ -21,34 +21,33 @@ import { Download, Share2 } from "lucide-react-native";
 import { Notifier, NotifierComponents } from "react-native-notifier";
 
 const ReceiptPage = () => {
-    const { deliveryId } = useLocalSearchParams();
-    const screenWidth = Dimensions.get("window").width;
-    const theme = useColorScheme()
+  const { deliveryId } = useLocalSearchParams();
+  const screenWidth = Dimensions.get("window").width;
+  const theme = useColorScheme();
 
-    const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
+  const BG_COLOR = theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
 
+  const { data, isLoading } = useQuery({
+    queryKey: ["delivery", deliveryId],
+    queryFn: () => fetchDelivery(deliveryId as string),
+  });
 
-    const { data, isLoading } = useQuery({
-        queryKey: ["delivery", deliveryId],
-        queryFn: () => fetchDelivery(deliveryId as string),
-    });
+  const generateReceiptHTML = () => {
+    if (!data) return "";
 
-    const generateReceiptHTML = () => {
-        if (!data) return "";
+    // Function to truncate long text
+    const truncateText = (text: string, maxLength: number = 150) => {
+      if (!text) return "";
+      if (text.length <= maxLength) return text;
+      return text.substring(0, maxLength) + "...";
+    };
 
-        // Function to truncate long text
-        const truncateText = (text: string, maxLength: number = 150) => {
-            if (!text) return "";
-            if (text.length <= maxLength) return text;
-            return text.substring(0, maxLength) + "...";
-        };
+    // Calculate total: sum of items total and delivery fee if present
+    const itemsTotal = Number(data.order?.total_price || 0);
+    const deliveryFee = Number(data.delivery?.delivery_fee || 0);
+    const total = itemsTotal + deliveryFee;
 
-        // Calculate total: sum of items total and delivery fee if present
-        const itemsTotal = Number(data.order?.total_price || 0);
-        const deliveryFee = Number(data.delivery?.delivery_fee || 0);
-        const total = itemsTotal + deliveryFee;
-
-        return `
+    return `
             <html>
                 <head>
                     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
@@ -216,85 +215,90 @@ const ReceiptPage = () => {
                             <div class="row">
                                 <span>Date</span>
                                 <span>${format(
-            new Date(data.delivery?.created_at || ""),
-            "PPP"
-        )}</span>
+                                  new Date(data.delivery?.created_at || ""),
+                                  "PPP"
+                                )}</span>
                             </div>
-                            ${data.order?.order_items &&
-                data.order.order_items.length > 0
-                ? `
+                            ${
+                              data.order?.order_items &&
+                              data.order.order_items.length > 0
+                                ? `
                                 <div class="row">
                                     <span>Items Total</span>
                                     <span class="amount">₦${itemsTotal.toFixed(
-                    2
-                )}</span>
+                                      2
+                                    )}</span>
                                 </div>
                             `
-                : ""
-            }
-                            ${data.delivery?.delivery_fee
-                ? `
+                                : ""
+                            }
+                            ${
+                              data.delivery?.delivery_fee
+                                ? `
                                 <div class="row">
                                     <span>Delivery Fee</span>
                                     <span class="amount">₦${deliveryFee.toFixed(
-                    2
-                )}</span>
+                                      2
+                                    )}</span>
                                 </div>
                             `
-                : ""
-            }
+                                : ""
+                            }
                             <div class="row total">
                                 <span>Total Amount</span>
                                 <span class="amount">₦${total.toFixed(2)}</span>
                             </div>
                             <div class="row">
                                 <span>Payment Status</span>
-                                <span class="status-${data.order?.order_payment_status === "paid"
-                ? "paid"
-                : "unpaid"
-            }">
+                                <span class="status-${
+                                  data.order?.order_payment_status === "paid"
+                                    ? "paid"
+                                    : "unpaid"
+                                }">
                                     ${data.order?.order_payment_status?.toUpperCase()}
                                 </span>
                             </div>
                         </div>
 
-                        ${data.order?.order_items &&
-                data?.order?.order_type !== "package" &&
-                data.order.order_items.length > 0
-                ? `
+                        ${
+                          data.order?.order_items &&
+                          data?.order?.order_type !== "package" &&
+                          data.order.order_items.length > 0
+                            ? `
                             <div class="section">
                                 <h2>Order Items</h2>
                                 ${data.order.order_items
-                    .map(
-                        (item: any) => `
+                                  .map(
+                                    (item: any) => `
                                     <div class="row">
-                                        <span>${item.quantity}X  ${item.name
-                            }</span>
+                                        <span>${item.quantity}X  ${
+                                          item.name
+                                        }</span>
                                         <span class="amount">₦${Number(
-                                item.price * item.quantity
-                            ).toFixed(2)}</span>
+                                          item.price * item.quantity
+                                        ).toFixed(2)}</span>
                                     </div>
                                 `
-                    )
-                    .join("")}
+                                  )
+                                  .join("")}
                             </div>
                         `
-                : ""
-            }
+                            : ""
+                        }
 
                         <div class="section">
                             <h2>Delivery Details</h2>
                             <div class="address-info">
                                 <div class="address-label">From</div>
                                 <div class="address-value">${truncateText(
-                data.delivery?.origin || ""
-            )}</div>
+                                  data.delivery?.origin || ""
+                                )}</div>
                             </div>
                             <div class="address-info">
                                 <div class="address-label">To</div>
                                 <div class="address-value">${truncateText(
-                data.delivery?.destination || ""
-            )}</div>
+                                  data.delivery?.destination || ""
+                                )}</div>
                             </div>
                             <div class="row" style="margin-top: 12px;">
                                 <span>Status</span>
@@ -310,221 +314,239 @@ const ReceiptPage = () => {
                 </body>
             </html>
         `;
-    };
+  };
 
-    const handleDownload = async () => {
-        try {
-            const html = generateReceiptHTML();
-            const { uri } = await Print.printToFileAsync({
-                html,
-                width: screenWidth,
-                height: screenWidth * 1.4,
-                base64: false,
-            });
+  const handleDownload = async () => {
+    try {
+      const html = generateReceiptHTML();
+      const { uri } = await Print.printToFileAsync({
+        html,
+        width: screenWidth,
+        height: screenWidth * 1.4,
+        base64: false,
+      });
 
-            // Create a filename for the PDF
-            const fileName = `Receipt_${data?.order?.order_number || "unknown"}.pdf`;
-            const destinationUri = `${FileSystem.documentDirectory}${fileName}`;
+      // Create a filename for the PDF
+      const fileName = `Receipt_${data?.order?.order_number || "unknown"}.pdf`;
+      const destinationUri = `${FileSystem.documentDirectory}${fileName}`;
 
-            // Copy the PDF to the documents directory
-            await FileSystem.copyAsync({
-                from: uri,
-                to: destinationUri,
-            });
+      // Copy the PDF to the documents directory
+      await FileSystem.copyAsync({
+        from: uri,
+        to: destinationUri,
+      });
 
-            Notifier.showNotification({
-                title: "Success",
-                description: "Receipt downloaded successfully",
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: "success" },
-            });
-        } catch (error) {
-            console.error("Download error:", error);
-            Notifier.showNotification({
-                title: "Error",
-                description: "Failed to download receipt",
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: "error" },
-            });
-        }
-    };
-
-    const handleShare = async () => {
-        try {
-            const html = generateReceiptHTML();
-            const { uri } = await Print.printToFileAsync({
-                html,
-                width: screenWidth,
-                height: screenWidth * 1.4,
-                base64: false,
-            });
-
-            if (await Sharing.isAvailableAsync()) {
-                await Sharing.shareAsync(uri, {
-                    mimeType: "application/pdf",
-                    dialogTitle: `Receipt #${data?.order?.order_number}`,
-                    UTI: "com.adobe.pdf",
-                });
-            } else {
-                Notifier.showNotification({
-                    title: "Error",
-                    description: "Sharing is not available on this device",
-                    Component: NotifierComponents.Alert,
-                    componentProps: { alertType: "error" },
-                });
-            }
-        } catch (error) {
-            Notifier.showNotification({
-                title: "Error",
-                description: "Failed to share receipt",
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: "error" },
-            });
-        }
-    };
-
-    if (isLoading) {
-        return <LoadingIndicator />;
+      Notifier.showNotification({
+        title: "Success",
+        description: "Receipt downloaded successfully",
+        Component: NotifierComponents.Alert,
+        componentProps: { alertType: "success" },
+      });
+    } catch (error) {
+      console.error("Download error:", error);
+      Notifier.showNotification({
+        title: "Error",
+        description: "Failed to download receipt",
+        Component: NotifierComponents.Alert,
+        componentProps: { alertType: "error" },
+      });
     }
+  };
 
-    if (!data) {
-        return null;
+  const handleShare = async () => {
+    try {
+      const html = generateReceiptHTML();
+      const { uri } = await Print.printToFileAsync({
+        html,
+        width: screenWidth,
+        height: screenWidth * 1.4,
+        base64: false,
+      });
+
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri, {
+          mimeType: "application/pdf",
+          dialogTitle: `Receipt #${data?.order?.order_number}`,
+          UTI: "com.adobe.pdf",
+        });
+      } else {
+        Notifier.showNotification({
+          title: "Error",
+          description: "Sharing is not available on this device",
+          Component: NotifierComponents.Alert,
+          componentProps: { alertType: "error" },
+        });
+      }
+    } catch (error) {
+      Notifier.showNotification({
+        title: "Error",
+        description: "Failed to share receipt",
+        Component: NotifierComponents.Alert,
+        componentProps: { alertType: "error" },
+      });
     }
+  };
 
-    return (
-        <ScrollView
-            style={{
-                flex: 1,
-                backgroundColor: BG_COLOR,
-                alignContent: "center",
-            }}
-        >
-            <View className="gap-1 flex-1 overflow-scroll p-2">
-                {/* <Text fontSize={20} fontWeight="bold" textAlign="center">Receipt</Text> */}
+  if (isLoading) {
+    return <LoadingIndicator />;
+  }
 
-                <View className="p-1 bg-background border border-border-subtle">
-                    <View className="gap-1">
-                        <View className="flex-row justify-between">
-                            <Text className="text-primary" >Order Number</Text>
-                            <Text className="text-primary font-poppins-bold">#{data?.order?.order_number}</Text>
-                        </View>
+  if (!data) {
+    return null;
+  }
 
-                        <View className="flex-row justify-between">
-                            <Text className="text-primary">Date</Text>
-                            <Text>
-                                {format(new Date(data?.delivery?.created_at || ""), "PPP")}
-                            </Text>
-                        </View>
+  return (
+    <ScrollView
+      style={{
+        flex: 1,
+        backgroundColor: BG_COLOR,
+        alignContent: "center",
+      }}
+    >
+      <View className="gap-4 flex-1 overflow-scroll ">
+        {/* <Text fontSize={20} fontWeight="bold" textAlign="center">Receipt</Text> */}
 
-                        {data?.order?.order_items &&
-                            data?.order?.order_type !== "package" &&
-                            data.order.order_items.length > 0 && (
-                                <View className="flex-row justify-between">
-                                    <Text className="text-primary" >Items Total</Text>
-                                    <Text>
-                                        ₦{Number(data.order?.total_price || 0).toFixed(2)}
-                                    </Text>
-                                </View>
-                            )}
-
-                        {data?.delivery?.delivery_fee && (
-                            <View className="flex-row justify-between">
-                                <Text className="text-primary">Delivery Fee</Text>
-                                <Text>₦{Number(data.delivery.delivery_fee).toFixed(2)}</Text>
-                            </View>
-                        )}
-
-                        <View className="flex-row justify-between">
-                            <Text className="text-primary">Total Amount</Text>
-                            {data?.order?.order_type !== "package" ? <Text className="font-poppins-bold">
-                                ₦
-                                {(
-                                    Number(data.order?.total_price || 0) +
-                                    Number(data.delivery?.delivery_fee || 0)
-                                ).toFixed(2)}
-                            </Text> : <Text>₦{data?.delivery?.delivery_fee}</Text>}
-                        </View>
-
-                        <View className="flex-row justify-between" >
-                            <Text className="text-primary">Payment Status</Text>
-                            <Text
-                                className={`${data?.order?.order_payment_status === "paid" ? "text-green-400" : "text-red-400"}}`}
-
-                            >
-                                {data?.order?.order_payment_status?.toUpperCase()}
-                            </Text>
-                        </View>
-                    </View>
-                </View>
-
-                {data?.order?.order_items &&
-                    data?.order?.order_type !== "package" &&
-                    data.order.order_items.length > 0 && (
-                        <View className="p-2 bg-input border border-border-subtle">
-                            <View className="gap-1">
-                                <Text className="text-primary font-poppins-bold" >Order Items</Text>
-                                {data.order.order_items.map((item: any) => (
-                                    <View className="flex-row justify-between" key={item.id}>
-                                        <Text className="text-icon-default" >
-                                            {item.quantity}X {item.name}
-                                        </Text>
-                                        <Text>
-                                            ₦{Number(item.price * item.quantity).toFixed(2)}
-                                        </Text>
-                                    </View>
-                                ))}
-                            </View>
-                        </View>
-                    )}
-
-                <View className="p-2 bg-input border border-border-subtle" >
-                    <View className="gap-1">
-                        <Text className="text-primary font-poppins-bold">Delivery Details</Text>
-
-                        <View className="gap-1">
-                            <Text className="text-gray-400">From</Text>
-                            <Text numberOfLines={2} ellipsizeMode="tail">
-                                {data?.delivery?.origin}
-                            </Text>
-                        </View>
-
-                        <View className="gap-1">
-                            <Text className="text-gray-400">To</Text>
-                            <Text numberOfLines={2} ellipsizeMode="tail">
-                                {data?.delivery?.destination}
-                            </Text>
-                        </View>
-
-                        <View className="justify-between flex-row" >
-
-                            <Text>Status</Text>
-                            <Text>{data?.delivery?.delivery_status?.toUpperCase()}</Text>
-                        </View>
-                    </View>
-                </View>
-
-                <View
-                    className="gap-1 flex-row justify-between mb-2 w-full items-center"
-
-                >
-                    <AppButton
-
-                        title="Download PDF"
-                        icon={<Download color="white" />}
-                        onPress={handleDownload}
-                    />
-                    <AppButton
-                        title="Share PDF"
-
-                        backgroundColor={"bg-input"}
-                        icon={<Share2 color="white" />}
-                        onPress={handleShare}
-                    />
-
-                </View>
+        <View className="p-1 bg-background border border-border-subtle px-5 py-3 mt-5 rounded-lg w-[95%] self-center">
+          <View className="gap-1">
+            <View className="flex-row justify-between">
+              <Text className="text-primary">Payment Status</Text>
+              <Text
+                className={`${data?.order?.order_payment_status === "paid" ? "text-green-400" : "text-red-400"}}`}
+              >
+                {data?.order?.order_payment_status?.toUpperCase()}
+              </Text>
             </View>
-        </ScrollView>
-    );
+            <View className="flex-row justify-between">
+              <Text className="text-primary font-poppins">Order Number</Text>
+              <Text className="text-primary font-poppins-bold">
+                #{data?.order?.order_number}
+              </Text>
+            </View>
+
+            <View className="flex-row justify-between">
+              <Text className="text-primary font-poppins">Date</Text>
+              <Text className="text-primary">
+                {format(new Date(data?.delivery?.created_at || ""), "PPP")}
+              </Text>
+            </View>
+
+            {data?.order?.order_items &&
+              data?.order?.order_type !== "package" &&
+              data.order.order_items.length > 0 && (
+                <View className="flex-row justify-between">
+                  <Text className="text-primary font-poppins">Items Total</Text>
+                  <Text className="font-poppins text-primary">
+                    ₦{Number(data.order?.total_price || 0).toFixed(2)}
+                  </Text>
+                </View>
+              )}
+
+            {data?.delivery?.delivery_fee && (
+              <View className="flex-row justify-between">
+                <Text className="text-primary font-poppins">Delivery Fee</Text>
+                <Text className="font-poppins text-primary">
+                  ₦{Number(data.delivery.delivery_fee).toFixed(2)}
+                </Text>
+              </View>
+            )}
+
+            <View className="flex-row justify-between">
+              <Text className="text-primary font-poppins-bold">
+                Total Amount
+              </Text>
+              {data?.order?.order_type !== "package" ? (
+                <Text className="font-poppins-bold text-primary">
+                  ₦
+                  {(
+                    Number(data.order?.total_price || 0) +
+                    Number(data.delivery?.delivery_fee || 0)
+                  ).toFixed(2)}
+                </Text>
+              ) : (
+                <Text className="font-poppins-bold text-primary">
+                  ₦{data?.delivery?.delivery_fee}
+                </Text>
+              )}
+            </View>
+          </View>
+        </View>
+
+        {data?.order?.order_items &&
+          data?.order?.order_type !== "package" &&
+          data.order.order_items.length > 0 && (
+            <View className="p-2 bg-input border border-border-subtle px-5 py-3 w-[95%] self-center rounded-lg">
+              <View className="gap-1">
+                <Text className="text-primary font-poppins-bold">
+                  Order Items
+                </Text>
+                {data.order.order_items.map((item: any) => (
+                  <View className="flex-row justify-between" key={item.id}>
+                    <Text className="text-primary font-poppins">
+                      {item.quantity}X {item.name}
+                    </Text>
+                    <Text className="text-primary font-poppins-bold">
+                      ₦{Number(item.price * item.quantity).toFixed(2)}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+        <View className="p-2 bg-input border border-border-subtle self-center rounded-lg w-[95%] px-5 py-3">
+          <View className="gap-1">
+            <Text className="text-primary font-poppins-bold">
+              Delivery Details
+            </Text>
+
+            <View className="gap-1">
+              <Text className="text-gray-400 font-poppins">From</Text>
+              <Text
+                className="text-primary font-poppins"
+                numberOfLines={2}
+                ellipsizeMode="tail"
+              >
+                {data?.delivery?.origin}
+              </Text>
+            </View>
+
+            <View className="gap-1">
+              <Text className="text-gray-400 font-poppins">To</Text>
+              <Text
+                className="text-primary font-poppins-light text-sm"
+                numberOfLines={2}
+                ellipsizeMode="tail"
+              >
+                {data?.delivery?.destination}
+              </Text>
+            </View>
+
+            <View className="justify-between flex-row">
+              <Text className="text-gray-400">Status</Text>
+              <Text className="text-primary">
+                {data?.delivery?.delivery_status?.toUpperCase()}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <View className="flex-row items-center justify-center mt-6 gap-6 ">
+          <TouchableOpacity
+            onPress={handleDownload}
+            className="bg-gray-700/30 p-5 rounded-full"
+          >
+            <Download color={"white"} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleShare}
+            className="bg-gray-700/30 p-5 rounded-full"
+          >
+            <Share2 color={"white"} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
+  );
 };
 
 export default ReceiptPage;

@@ -47,11 +47,11 @@ const SendItem = () => {
   }, [origin, destination]);
 
   return (
-    <KeyboardAvoidingView
-      behavior={"padding"}
-      keyboardVerticalOffset={100}
-      style={{ flex: 1, maxHeight: 600 }}
-    >
+    // <KeyboardAvoidingView
+    //   behavior={"padding"}
+    //   keyboardVerticalOffset={100}
+    //   style={{ flex: 1, maxHeight: 600 }}
+    // >
       <View className="bg-background flex-1">
         <View className="my-6 gap-6 ">
           <CurrentLocationButton
@@ -93,8 +93,23 @@ const SendItem = () => {
           title="Next"
         />
       </View>
-    </KeyboardAvoidingView>
+    // </KeyboardAvoidingView>
   );
 };
 
 export default SendItem;
+
+
+// const testApiKey = async () => {
+//   const testUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=Ajah&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY}`;
+//   try {
+//     const response = await fetch(testUrl);
+//     const data = await response.json();
+//     console.log('API Test Result:', data);
+//   } catch (error) {
+//     console.error('API Test Error:', error);
+//   }
+// };
+
+
+// testApiKey().then(k=> console.log(k))

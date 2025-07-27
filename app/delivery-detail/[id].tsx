@@ -17,6 +17,7 @@ import {
   senderConfirmDeliveryReceived,
 } from "@/api/order";
 import AppButton from "@/components/AppButton";
+import AppVariantButton from "@/components/core/AppVariantButton";
 import DeliveryWrapper from "@/components/DeliveryWrapper";
 import { Status } from "@/components/ItemCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
@@ -270,7 +271,7 @@ const ItemDetails = () => {
       user?.sub !== data?.delivery?.sender_id
     ) {
       return {
-        label: "Accept Delivery",
+        label: "Pickup",
         onPress: () => {
           acceptDeliveryMutation.mutate();
         },
@@ -464,7 +465,7 @@ const ItemDetails = () => {
               </Text>
             </View>
           </View>
-          <View className="justify-center items-center gap-3 self-center mt-4">
+          <View className="justify-center w-full items-center gap-3 self-center mt-4">
             {actionButton && (
               <AppButton
                 title={actionButton.label}
@@ -488,20 +489,6 @@ const ItemDetails = () => {
                 }
               />
             )}
-
-            {/*   {showCancel && (
-                            <>
-                                <AppButton
-                                    title="Cancel"
-                                    width={showFullBtnSize ? "90%" : "40%"}
-
-                                    icon={cancelDeliveryMutation.isPending && <ActivityIndicator color="#ccc" />}
-                                    onPress={() => cancelDeliveryMutation.mutate()}
-                                    disabled={cancelDeliveryMutation.isPending}
-                                />
-
-                            </>
-                        )}*/}
           </View>
 
           {/* Additional Action Buttons */}
@@ -511,9 +498,10 @@ const ItemDetails = () => {
               (data?.order?.order_status === "received" ||
                 data?.delivery?.delivery_status === "delivered" ||
                 data?.delivery?.delivery_status === "received") && (
-                <AppButton
-                  title="Revie"
-                  backgroundColor={"bg-input"}
+                <AppVariantButton
+                  label="Review"
+                  filled={false}
+                  outline={true}
                   width="32%"
                   onPress={() => {
                     router.push({
@@ -528,9 +516,10 @@ const ItemDetails = () => {
             {(data?.order?.order_status === "received" ||
               data?.delivery?.delivery_status === "delivered" ||
               data?.delivery?.delivery_status === "received") && (
-              <AppButton
-                title="Report"
-                backgroundColor={"bg-input"}
+              <AppVariantButton
+                label="Report"
+                filled={false}
+                outline={true}
                 width="32%"
                 onPress={() => {
                   router.push({
@@ -545,9 +534,10 @@ const ItemDetails = () => {
               (data?.order?.owner_id === user?.sub ||
                 data?.order?.user_id === user?.sub ||
                 data?.order?.vendor_id === user?.sub) && (
-                <AppButton
-                  title="Receipt"
-                  backgroundColor={"bg-input"}
+                <AppVariantButton
+                  label="Receipt"
+                  filled={false}
+                  outline={true}
                   width={
                     data?.delivery?.delivery_status === "received"
                       ? "32%"

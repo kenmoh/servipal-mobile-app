@@ -31,41 +31,36 @@ export function useAuth() {
 
 // This hook will protect the route access based on user authentication.
 export function useProtectedRoute(user: {} | null) {
-  const [isFirstLaunch, setIsFirstLaunch] = useState<boolean | null>(null);
   const segments = useSegments();
   const router = useRouter();
   const navigationState = useRootNavigationState();
+  const [isFirstLaunch, setIsFirstLaunch] = useState<boolean | null>(null);
 
-  const checkFirstLaunch = async () => {
-    const hasLaunched = await SecureStore.getItemAsync("hasLaunched");
-    if (!hasLaunched) {
-      setIsFirstLaunch(true);
-      await SecureStore.setItemAsync("hasLaunched", "true");
-    } else {
-      setIsFirstLaunch(false);
-    }
-  };
   useEffect(() => {
-    if (!navigationState?.key) return;
+    const checkFirstLaunch = async () => {
+      const hasLaunched = await SecureStore.getItemAsync("hasLaunched");
+      if (hasLaunched === null) {
+        setIsFirstLaunch(true);
+        await SecureStore.setItemAsync("hasLaunched", "true");
+      } else {
+        setIsFirstLaunch(false);
+      }
+    };
+
     checkFirstLaunch();
+  }, []);
+
+  useEffect(() => {
+    if (!navigationState?.key || isFirstLaunch === null) return;
 
     const inAuthGroup = segments[0] === "(auth)";
 
-    // If isFirstLaunch, display onboarding
     if (isFirstLaunch) {
-      router.replace({ pathname: "/(auth)/onboarding" });
-    } else if (
-      // If the user is not signed in and the initial segment is not anything in the auth group.
-      !user &&
-      !inAuthGroup
-    ) {
-      // Redirect to the sign-in or sign-up screen.
-      isFirstLaunch
-        ? router.replace({ pathname: "/sign-up" })
-        : router.replace({ pathname: "/sign-in" });
+      router.replace("/(auth)/onboarding");
+    } else if (!user && !inAuthGroup) {
+      router.replace("/(auth)/sign-in");
     } else if (user && inAuthGroup) {
-      // Redirect away from the sign-in screen.
-      router.replace({ pathname: "/(app)/delivery/(topTabs)" });
+      router.replace("/(app)/delivery/(topTabs)");
     }
   }, [user, segments, isFirstLaunch, navigationState?.key]);
 }

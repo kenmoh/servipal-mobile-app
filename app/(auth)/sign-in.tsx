@@ -16,7 +16,9 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { z } from "zod";
 
 const signInSchema = z.object({
-  username: z.email({ message: "Enter a valid email" }).nonempty("Email is required"),
+  username: z
+    .email({ message: "Enter a valid email" })
+    .nonempty("Email is required"),
   password: z.string().nonempty("Password is required"),
 });
 
@@ -26,7 +28,11 @@ const SignIn = () => {
   const theme = useColorScheme();
   const authContext = useAuth();
 
-  const { control, handleSubmit, formState: { errors } } = useForm<SignInFormValues>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
       username: "",
@@ -37,7 +43,6 @@ const SignIn = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: ({ username, password }: Login) => loginApi(username, password),
     onError: (error) => {
-
       Notifier.showNotification({
         title: "Error",
         description: `${error.message}`,
@@ -50,6 +55,8 @@ const SignIn = () => {
     },
     onSuccess: async (data) => {
       const user = jwtDecode(data?.access_token) as User;
+
+      console.log(user);
 
       if (user?.account_status === "pending") {
         await authStorage.storeToken(data?.access_token);
@@ -66,7 +73,6 @@ const SignIn = () => {
       }
 
       if (user?.account_status === "confirmed") {
-
         try {
           await authStorage.storeToken(data?.access_token);
           authContext.setUser(user);
@@ -89,28 +95,20 @@ const SignIn = () => {
 
   return (
     <>
-
       <KeyboardAwareScrollView
         className="flex-1 w-full bg-background"
-
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        <View
-          className="flex-1 mt-[70px] w-full bg-background h-[100%] items-center content-center justify-center"
-        >
+        <View className="flex-1 mt-[70px] w-full bg-background h-[100%] items-center content-center justify-center">
           <View className="self-center w-[90%] mb-10">
-            <Text
-              className="self-start font-bold text-[20px] text-primary"
-            >
+            <Text className="self-start font-bold text-[20px] text-primary">
               Welcome back!
             </Text>
-            <Text
-              className="self-start font-normal text-[12px] text-primary"
-            >
+            <Text className="self-start font-normal text-[12px] text-primary">
               Login to continue
             </Text>
           </View>
@@ -152,44 +150,36 @@ const SignIn = () => {
 
             <View className="mt-10 w-[90%] self-center">
               <Text
-                className="self-end font-normal text-[14px] text-button-primary underline"
+                className="self-end font-poppins-medium font-normal mb-5 text-[14px] text-button-primary underline"
                 onPress={() => router.push("./forgot-password")}
-
               >
                 Forgot password
               </Text>
             </View>
             <AppButton
               disabled={isPending}
-
               width={"90%"}
-              icon={isPending && <ActivityIndicator size={"large"} />}
+              icon={
+                isPending && <ActivityIndicator color="white" size={"large"} />
+              }
               title={isPending ? "Logging in..." : "Login"}
-
               onPress={handleSubmit((values) => mutate(values))}
             />
-
           </View>
-          <View
-            className="items-center self-center justify-center w-[90%] mb-[30px] mt-[25px]"
-
-          >
+          <View className="items-center self-center justify-center w-[90%] mb-[30px] mt-[25px]">
             <Text className="text-primary font-normal text-[14px]">
-              Don't have an account?{" "}
-            </Text>
-            <Text
-              className="font-normal text-[14px] text-button-primary underline"
-
-              onPress={() => router.navigate("/sign-up")}
-
-            >
-              Register
+              Don't have an account?{"   "}
+              <Text
+                className="font-poppins-medium text-[14px] text-button-primary underline"
+                onPress={() => router.navigate("/sign-up")}
+              >
+                Register
+              </Text>
             </Text>
           </View>
         </View>
       </KeyboardAwareScrollView>
     </>
-
   );
 };
 
