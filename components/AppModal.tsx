@@ -16,6 +16,7 @@ const AppModal = ({ visible, onClose, children, height = '70%' }: AppModalProps)
 
     return (
         <Modal
+
             visible={visible}
             transparent
             animationType="slide"

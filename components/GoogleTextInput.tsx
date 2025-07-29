@@ -1,38 +1,28 @@
-import { CARD_BG } from "@/constants/theme";
-import { useEffect, useRef, useState } from "react";
+import GooglePlacesTextInput from 'react-native-google-places-textinput';
+
+import { useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Keyboard,
   StyleSheet,
   Text,
   useColorScheme,
-  View,
+  View
 } from "react-native";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-
 
 
 
 interface GoogleTextInputProps {
   placeholder: string;
-  handlePress: (lat: number, lng: number, address: string) => void;
+  onPlaceSelect: (lat: number, lng: number, address: string) => void;
   value: string | null;
-  isLoading?: boolean;
-
   onChangeText?: (text: string) => void;
-  errorMessage?: string;
-  disableScroll?: boolean;
+  error?: string
+
 }
 
-const GoogleTextInput = ({
-  placeholder,
-  handlePress,
-  onChangeText,
-  value,
-  errorMessage,
-  disableScroll = false,
-  isLoading = false,
-}: GoogleTextInputProps) => {
+
+const GoogleTextInput = ({ placeholder, onPlaceSelect, value, error }: GoogleTextInputProps) => {
+
+
   const theme = useColorScheme();
   const [isFocused, setIsFocused] = useState(false);
   const ref = useRef<any>(null);
@@ -40,134 +30,104 @@ const GoogleTextInput = ({
   const TEXT = theme === "dark" ? "white" : "gray";
   const BG_COLOR = theme === "dark" ? "rgba(30, 33, 39, 0.5)" : "#eee";
 
-  useEffect(() => {
-    if (value && ref.current) {
-      ref.current.setAddressText(value);
+  // useEffect(() => {
+  //   if (value && ref.current) {
+  //     ref.current.setAddressText(value);
+  //   }
+  // }, [value]);
+
+
+  const styles = StyleSheet.create({
+    container: {
+      width: '90%',
+      marginHorizontal: 16,
+      alignSelf: 'center',
+
+    },
+    suggestionsContainer: {
+      backgroundColor: BG_COLOR,
+      maxHeight: 350,
+      padding: 10,
+
+    },
+    suggestionItem: {
+      padding: 5,
+
+    },
+    suggestionText: {
+      main: {
+        fontSize: 14,
+        color: theme === 'dark' ? 'white' : 'black',
+        fontFamily: 'Poppins-Regular'
+      },
+      secondary: {
+        fontSize: 12,
+        color: '#888888',
+        fontFamily: 'Poppins-Light',
+      }
+    },
+
+    input: {
+      height: 50,
+      borderRadius: 8,
+      borderWidth: StyleSheet.hairlineWidth,
+      color: TEXT,
+      fontFamily: 'Poppins-Regular',
+      borderColor: isFocused ? 'orange' : BG_COLOR,
+      paddingHorizontal: 12,
+      fontSize: 14,
+      backgroundColor: BG_COLOR,
+
+    },
+    loadingIndicator: {
+      color: '#aaa'
+    },
+    placeholder: {
+      color: '#888888',
+    },
+    clearButtonText: {
+      color: '#aaa',
+      fontSize: 20,
     }
-  }, [value]);
+  });
 
   return (
-    <View style={styles.container}>
-      {/*<Text className="text-primary mb-2">{placeholder}</Text>*/}
-      <GooglePlacesAutocomplete
+    <View className='gpa-2'>
+
+      <GooglePlacesTextInput
+        apiKey={`${process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY}`}
+        // onPlaceSelect={handlePlaceSelect}
         ref={ref}
-        placeholder={placeholder}
-        disableScroll={disableScroll}
+        languageCode="en"
+        placeHolderText={placeholder}
+        includedRegionCodes={['ng']}
+        minCharsToFetch={3}
+        style={styles}
         fetchDetails={true}
-        debounce={300}
-        predefinedPlaces={[]}
-        enablePoweredByContainer={false}
-         query={{
-          key: process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY,
-          language: 'en',
-          components: 'country:ng',
-        }}
-        onPress={(data, details = null) => {
-          // Remove trailing ", Nigeria" (with or without comma/space)
-          console.log(data)
-          let address = data?.description.replace(/,? ?Nigeria$/i, "");
-          if (details?.geometry?.location) {
-            const { lat, lng } = details?.geometry?.location;
-            handlePress(lat, lng, address);
-            Keyboard.dismiss();
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        onPlaceSelect={(data) => {
+          if (data?.details) {
+            // Remove trailing ", Nigeria" (with or without comma/space)
+            const text = data.details.displayName.text;
+            const secondaryText = data.details.formattedAddress.replace(/,? ?Nigeria$/i, "");
+            const address = text + ' ' + secondaryText;
+
+            if (data.details.location) {
+              const { latitude: lat, longitude: lng } = data.details.location;
+              onPlaceSelect(lat, lng, address);
+            }
           }
         }}
-        keyboardShouldPersistTaps="handled"
-        textInputProps={{
-          placeholderTextColor: "#aaa",
-
-          onChangeText: onChangeText,
-          onFocus: () => setIsFocused(true),
-          onBlur: () => setIsFocused(false),
-        }}
-        styles={{
-          container: {
-            flex: 0,
-            width: "100%",
-            zIndex: 1,
-          },
-          textInput: {
-            height: 50,
-            backgroundColor: BG_COLOR,
-            borderRadius: 12,
-            paddingHorizontal: 15,
-            fontSize: 14,
-            color: TEXT,
-            fontFamily: "Poppins-Regular",
-            opacity: isLoading ? 0.5 : 1,
-            borderWidth: 1,
-            borderColor: errorMessage
-              ? "red"
-              : isFocused
-                ? "orange"
-                : "transparent",
-          },
-          listView: {
-            backgroundColor: CARD_BG,
-            borderRadius: 12,
-            marginTop: 0,
-          },
-          row: {
-            backgroundColor: CARD_BG,
-            padding: 13,
-            height: 50,
-            flexDirection: "row",
-          },
-          separator: {
-            height: 0.5,
-            width: "95%",
-            alignSelf: "center",
-            backgroundColor: "#aaa",
-          },
-          description: {
-            color: TEXT,
-            fontSize: 11,
-            fontFamily: "Poppins-Regular",
-          },
-        }}
       />
-
-      {isLoading && (
-        <ActivityIndicator
-          size="small"
-          color={"orange"}
-          style={styles.loader}
-        />
-      )}
-      {errorMessage && (
-        <Text className="text-status-error text-xs mt-1">{errorMessage}</Text>
-      )}
+      {error && <Text className="text-red-500">{error}</Text>}
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'relative',
-    width: '90%',
-    alignSelf: 'center',
-    zIndex: 1,
-  },
 
-  loader: {
-    position: 'absolute',
-    right: 15,
-    top: 15,
-  }
-});
-// const styles = StyleSheet.create({
-//   container: {
-//     position: "relative",
-//     width: "90%",
-//     alignSelf: "center",
-//     zIndex: 1,
-//   },
 
-//   loader: {
-//     position: "absolute",
-//     right: 15,
-//     top: 15,
-//   },
-// });
 
 export default GoogleTextInput;
+
+

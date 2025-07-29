@@ -377,11 +377,10 @@ const ItemDetails = () => {
                     orderId: data?.order.id ?? "",
                     deliveryFee: data?.delivery?.delivery_fee,
                     orderNumber: data?.order?.order_number,
-                    deliveryType: `${
-                      data?.order?.require_delivery === "delivery"
-                        ? data?.delivery?.delivery_type
-                        : data?.order?.order_type
-                    }`,
+                    deliveryType: `${data?.order?.require_delivery === "delivery"
+                      ? data?.delivery?.delivery_type
+                      : data?.order?.order_type
+                      }`,
                     orderItems: JSON.stringify(data?.order.order_items ?? []),
                     paymentLink: data?.order.payment_link,
                     orderType:
@@ -438,19 +437,19 @@ const ItemDetails = () => {
             {(user?.sub === data?.delivery?.sender_id ||
               user?.sub === data?.delivery?.rider_id ||
               user?.sub === data?.delivery?.dispatch_id) && (
-              <View className="flex-row justify-between">
-                <View className="flex-row gap-3">
-                  <Phone color="orange" size={15} />
+                <View className="flex-row justify-between">
+                  <View className="flex-row gap-3">
+                    <Phone color="orange" size={15} />
 
-                  <Text className="font-poppins-light text-primary text-sm">
-                    Sender Phone
+                    <Text className="font-poppins-light text-primary text-sm">
+                      Sender Phone
+                    </Text>
+                  </View>
+                  <Text className="font-[500] text-primary text-[12px] font-poppins-semibold">
+                    {data?.delivery?.sender_phone_number}
                   </Text>
                 </View>
-                <Text className="font-[500] text-primary text-[12px] font-poppins-semibold">
-                  {data?.delivery?.sender_phone_number}
-                </Text>
-              </View>
-            )}
+              )}
 
             <View>
               <View className="flex-row gap-3">
@@ -502,6 +501,7 @@ const ItemDetails = () => {
                   label="Review"
                   filled={false}
                   outline={true}
+                  borderRadius={50}
                   width="32%"
                   onPress={() => {
                     router.push({
@@ -516,19 +516,20 @@ const ItemDetails = () => {
             {(data?.order?.order_status === "received" ||
               data?.delivery?.delivery_status === "delivered" ||
               data?.delivery?.delivery_status === "received") && (
-              <AppVariantButton
-                label="Report"
-                filled={false}
-                outline={true}
-                width="32%"
-                onPress={() => {
-                  router.push({
-                    pathname: "/report/[deliveryId]",
-                    params: { deliveryId: id as string },
-                  });
-                }}
-              />
-            )}
+                <AppVariantButton
+                  label="Report"
+                  filled={false}
+                  outline={true}
+                  borderRadius={50}
+                  width="32%"
+                  onPress={() => {
+                    router.push({
+                      pathname: "/report/[deliveryId]",
+                      params: { deliveryId: id as string },
+                    });
+                  }}
+                />
+              )}
 
             {data?.order?.order_payment_status === "paid" &&
               (data?.order?.owner_id === user?.sub ||
@@ -536,6 +537,7 @@ const ItemDetails = () => {
                 data?.order?.vendor_id === user?.sub) && (
                 <AppVariantButton
                   label="Receipt"
+                  borderRadius={50}
                   filled={false}
                   outline={true}
                   width={

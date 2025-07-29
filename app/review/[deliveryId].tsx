@@ -12,12 +12,7 @@ import { ScrollView, Text, TextInput, useColorScheme, View } from "react-native"
 import { Notifier, NotifierComponents } from "react-native-notifier";
 import { z } from "zod";
 
-// order_id ?: string;
-// item_id ?: string;
-// reviewee_id: string;
-// rating: number;
-// comment: string;
-// review_type: ReviewerType;
+
 
 const reviewSchema = z.object({
     orderId: z.string().optional(),
@@ -42,6 +37,7 @@ const ReviewPage = () => {
     const { revieweeId, deliveryId, orderId, itemId, orderType } = useLocalSearchParams();
     const queryClient = useQueryClient();
     const theme = useColorScheme()
+    const COLOR = theme === 'dark' ? "rgba(30, 33, 39, 0.5)" : '#ddd'
 
 
 
@@ -158,7 +154,7 @@ const ReviewPage = () => {
                 </View>
 
                 <View className="flex-row items-center w-full">
-                    <View className="w-p45%]">
+                    <View className="w-[70%]">
                         <Controller
                             control={control}
                             name="rating"
@@ -184,6 +180,7 @@ const ReviewPage = () => {
                             name="reviewType"
                             render={({ field: { onChange, value } }) => (
                                 <AppTextInput
+
                                     label="Review Type"
                                     value={`${orderType}`}
                                     onChangeText={onChange}
@@ -206,17 +203,19 @@ const ReviewPage = () => {
                         control={control}
                         name="description"
                         render={({ field: { onChange, value } }) => (
-                            <View className="gap-2">
-                                <Text className="text-sm font-poppins-medium" >
+                            <View className="gap-2 w-[95%] self-center ">
+                                <Text className="text-sm text-primary font-poppins-bold" >
                                     Comment
                                 </Text>
                                 <TextInput
                                     multiline={true}
+
                                     numberOfLines={4}
                                     placeholder="Write your review..."
                                     value={value}
+                                    placeholderTextColor={theme === "dark" ? "white" : "black"}
                                     onChangeText={onChange}
-                                    className="bg-profile-car"
+                                    className="bg-input rounded-lg text-primary"
 
                                 />
                                 {errors.description && (
@@ -236,6 +235,7 @@ const ReviewPage = () => {
                     title={isPending ? "Submitting..." : "Submit Review"}
                     onPress={handleSubmit(onSubmit)}
                     disabled={isPending || !isValid}
+
 
                 />
 

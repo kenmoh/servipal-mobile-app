@@ -46,7 +46,7 @@ const ImagePickerInput = ({
     return (
         <TouchableOpacity onPress={pickImage}>
 
-            <View className='w-[95%] border border-red-400 p-3 self-center items-center'>
+            <View className='w-[90%] self-center items-center'>
                 {/* Preview Image or Placeholder */}
                 {value ? (
                     <Image
@@ -60,11 +60,12 @@ const ImagePickerInput = ({
                     />
                 ) : (
                     <View
-                        className={`w-full bg-profile-card h-${imageHeight} items-center justify-center} mb-[10px] rounded-lg overflow-hidden`}
+                        style={{ height: imageHeight }}
+                        className={`w-full bg-input  items-center justify-center mb-[10px] rounded-lg overflow-hidden`}
 
 
                     >
-                        <Camera className='text-icon-default' size={iconSize} />
+                        <Camera color='gray' size={iconSize} />
                     </View>
                 )}
 

@@ -1,3 +1,4 @@
+import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 import { Picker } from "@react-native-picker/picker";
 import React from "react";
 import { StyleSheet, Text, useColorScheme, View } from "react-native";
@@ -32,15 +33,18 @@ const AppPicker = ({
 }: PickerProps) => {
   const theme = useColorScheme();
   const CARD_BG =
-    theme === "dark" ? "rgba(30, 33, 39, 0.5)" : "rgba(249, 242, 245, 0.5)";
+    theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
   const TEXT = theme === "dark" ? "white" : "black";
+  const COLOR = theme === 'dark' ? "rgba(30, 33, 39, 0.5)" : '#ddd'
+
+
   return (
-    <View className={`w-[${width}] overflow-hidden my-2  self-center`}>
+    <View className={`w-[${width}]  overflow-hidden my-2  self-center`}>
       {label && <Text className="text-primary font-poppins-bold">{label}</Text>}
-      <View className="rounded-lg bg-profile-card overflow-hidden">
+      <View className="rounded-lg bg-input overflow-hidden">
         <Picker
           style={{
-            backgroundColor: CARD_BG,
+            backgroundColor: COLOR,
             borderRadius: 10,
             width: "100%",
             color: TEXT,
@@ -55,7 +59,7 @@ const AppPicker = ({
           <Picker.Item
             key="default"
             color={TEXT}
-            style={{ backgroundColor: CARD_BG }}
+            style={{ backgroundColor: COLOR }}
             label={placeholder || "Select"}
             value=""
           />

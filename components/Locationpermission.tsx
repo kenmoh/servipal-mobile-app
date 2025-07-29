@@ -1,7 +1,7 @@
 import * as Linking from 'expo-linking'
 import { MapPin } from 'lucide-react-native'
 import { Text, View } from 'react-native'
-import AppButton from './AppButton'
+import AppVariantButton from './core/AppVariantButton'
 // import { Linking } from 'react-native'
 
 interface LocationPermissionProps {
@@ -17,7 +17,7 @@ const LocationPermission = ({ onRetry }: LocationPermissionProps) => {
 
     return (
         <View
-            className='bg-background flex-1 justify-center items-center p-3 gap-4'
+            className='bg-background  flex-1 justify-center items-center p-3 gap-4'
 
         >
             <MapPin size={50} color={'orange'} />
@@ -34,16 +34,21 @@ const LocationPermission = ({ onRetry }: LocationPermissionProps) => {
                 Please enable location services to see available deliveries within 30km of your location
             </Text>
             <View className='gap-2 w-full px-6' >
-                <AppButton
-                    title='Open Settings'
+                <AppVariantButton
+                    outline={true}
+                    filled={false}
+
+                    borderRadius={50}
+                    label='Open Settings'
                     onPress={handleOpenSettings}
 
                 />
 
-                <AppButton
-                    backgroundColor="gray"
+                <AppVariantButton
+
                     onPress={onRetry}
-                    title='Retry'
+                    label='Retry'
+                    borderRadius={50}
 
                 />
 

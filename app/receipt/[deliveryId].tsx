@@ -215,90 +215,85 @@ const ReceiptPage = () => {
                             <div class="row">
                                 <span>Date</span>
                                 <span>${format(
-                                  new Date(data.delivery?.created_at || ""),
-                                  "PPP"
-                                )}</span>
+      new Date(data.delivery?.created_at || ""),
+      "PPP"
+    )}</span>
                             </div>
-                            ${
-                              data.order?.order_items &&
-                              data.order.order_items.length > 0
-                                ? `
+                            ${data.order?.order_items &&
+        data.order.order_items.length > 0
+        ? `
                                 <div class="row">
                                     <span>Items Total</span>
                                     <span class="amount">₦${itemsTotal.toFixed(
-                                      2
-                                    )}</span>
+          2
+        )}</span>
                                 </div>
                             `
-                                : ""
-                            }
-                            ${
-                              data.delivery?.delivery_fee
-                                ? `
+        : ""
+      }
+                            ${data.delivery?.delivery_fee
+        ? `
                                 <div class="row">
                                     <span>Delivery Fee</span>
                                     <span class="amount">₦${deliveryFee.toFixed(
-                                      2
-                                    )}</span>
+          2
+        )}</span>
                                 </div>
                             `
-                                : ""
-                            }
+        : ""
+      }
                             <div class="row total">
                                 <span>Total Amount</span>
                                 <span class="amount">₦${total.toFixed(2)}</span>
                             </div>
                             <div class="row">
                                 <span>Payment Status</span>
-                                <span class="status-${
-                                  data.order?.order_payment_status === "paid"
-                                    ? "paid"
-                                    : "unpaid"
-                                }">
+                                <span class="status-${data.order?.order_payment_status === "paid"
+        ? "paid"
+        : "unpaid"
+      }">
                                     ${data.order?.order_payment_status?.toUpperCase()}
                                 </span>
                             </div>
                         </div>
 
-                        ${
-                          data.order?.order_items &&
-                          data?.order?.order_type !== "package" &&
-                          data.order.order_items.length > 0
-                            ? `
+                        ${data.order?.order_items &&
+        data?.order?.order_type !== "package" &&
+        data.order.order_items.length > 0
+        ? `
                             <div class="section">
                                 <h2>Order Items</h2>
                                 ${data.order.order_items
-                                  .map(
-                                    (item: any) => `
+          .map(
+            (item: any) => `
                                     <div class="row">
-                                        <span>${item.quantity}X  ${
-                                          item.name
-                                        }</span>
+                                        <span>${item.quantity}X  ${item.name
+              }</span>
                                         <span class="amount">₦${Number(
-                                          item.price * item.quantity
-                                        ).toFixed(2)}</span>
+                item.price * item.quantity
+              ).toFixed(2)}</span>
                                     </div>
                                 `
-                                  )
-                                  .join("")}
+          )
+          .join("")}
                             </div>
                         `
-                            : ""
-                        }
+        : ""
+      }
 
                         <div class="section">
                             <h2>Delivery Details</h2>
                             <div class="address-info">
                                 <div class="address-label">From</div>
                                 <div class="address-value">${truncateText(
-                                  data.delivery?.origin || ""
-                                )}</div>
+        data.delivery?.origin || ""
+      )}</div>
                             </div>
                             <div class="address-info">
                                 <div class="address-label">To</div>
                                 <div class="address-value">${truncateText(
-                                  data.delivery?.destination || ""
-                                )}</div>
+        data.delivery?.destination || ""
+      )}</div>
                             </div>
                             <div class="row" style="margin-top: 12px;">
                                 <span>Status</span>
@@ -411,7 +406,7 @@ const ReceiptPage = () => {
             <View className="flex-row justify-between">
               <Text className="text-primary">Payment Status</Text>
               <Text
-                className={`${data?.order?.order_payment_status === "paid" ? "text-green-400" : "text-red-400"}}`}
+                className={`${data?.order?.order_payment_status === "paid" ? "text-green-700 bg-green-600/20" : "text-red-700 bg-red-600/20"} px-3 py-1 rounded-full`}
               >
                 {data?.order?.order_payment_status?.toUpperCase()}
               </Text>

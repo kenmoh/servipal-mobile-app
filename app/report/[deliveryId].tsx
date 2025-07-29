@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, Platform, ScrollView, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Platform, ScrollView, Text, TextInput, useColorScheme, View } from "react-native";
 
 import { createReport } from "@/api/report";
 import AppButton from "@/components/AppButton";
@@ -9,9 +9,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { Notifier, NotifierComponents } from "react-native-notifier";
 import { z } from "zod";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 
 
 const ISSUE_TYPES = [
@@ -40,6 +40,11 @@ type ReportFormData = z.infer<typeof reportSchema>;
 const ReportPage = () => {
     const { deliveryId } = useLocalSearchParams();
     const queryClient = useQueryClient();
+    const theme = useColorScheme();
+
+    const COLOR = theme === 'dark' ? "rgba(30, 33, 39, 0.5)" : '#ddd'
+    const TEXT = theme === 'dark' ? '#fff' : '#aaa'
+
 
     const {
         control,
@@ -98,51 +103,49 @@ const ReportPage = () => {
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
-                <View className="bg-background flex-1 p-1" >
-                    <View className="p-1" >
-                        <View className="gap-1">
-                            <Text>Issue</Text>
-                            <Controller
-                                control={control}
-                                name="report_type"
-                                render={({ field: { onChange, value } }) => (
-                                    <AppPicker
-                                        width="100%"
-                                        items={ISSUE_TYPES}
-                                        value={value}
-                                        onValueChange={onChange}
-                                        placeholder="Select issue type"
-                                    />
-                                )}
-                            />
-                            {errors.report_type && (
-                                <Text className="text-status-error">{errors.report_type.message}</Text>
+
+                <View className="flex-1 bg-background" >
+                    <View className="gap-1 w-full self-center">
+                        <Text className="font-poppins px-[5%] text-primary">Issue Type</Text>
+
+                        <Controller
+                            control={control}
+                            name="report_type"
+                            render={({ field: { onChange, value } }) => (
+                                <AppPicker
+                                    items={ISSUE_TYPES}
+                                    isBank={false}
+                                    value={value}
+                                    onValueChange={onChange}
+                                />
                             )}
-                        </View>
-                        <View className="gap-1 p-0" >
-                            <Text>Against</Text>
-                            <Controller
-                                control={control}
-                                name="reported_user_type"
-                                render={({ field: { onChange, value } }) => (
-                                    <AppPicker
-                                        width="100%"
-                                        items={REPORTED_USER_TYPE}
-                                        value={value}
-                                        onValueChange={onChange}
-                                        placeholder="Select user type"
-                                    />
-                                )}
-                            />
-                            {errors.reported_user_type && (
-                                <Text className="text-status-error">{errors.reported_user_type.message}</Text>
+                        />
+
+                        {errors.report_type && (
+                            <Text className="text-status-error px-[5%]">{errors.report_type.message}</Text>
+                        )}
+                        <Text className="font-poppins px-[5%] text-primary">User Type</Text>
+                        <Controller
+                            control={control}
+                            name="reported_user_type"
+                            render={({ field: { onChange, value } }) => (
+                                <AppPicker
+                                    items={REPORTED_USER_TYPE}
+                                    isBank={false}
+                                    value={value}
+                                    onValueChange={onChange}
+                                />
                             )}
-                        </View>
+                        />
+                        {errors.reported_user_type && (
+                            <Text className="text-status-error px-[5%]">{errors.reported_user_type.message}</Text>
+                        )}
 
 
 
-                        <View className="gap-1">
-                            <Text>Description</Text>
+
+                        <View className="gap-1 self-center items-center w-[90%]">
+                            <Text className='self-start text-primary font-poppins'>Description</Text>
                             <Controller
                                 control={control}
                                 name="description"
@@ -153,20 +156,30 @@ const ReportPage = () => {
                                         onChangeText={onChange}
                                         numberOfLines={4}
                                         multiline={true}
+                                        style={{
+                                            backgroundColor: COLOR,
+                                            borderRadius: 8,
+                                            color: TEXT,
+
+                                            width: '100%',
+
+                                        }}
                                     />
                                 )}
                             />
                             {errors.description && (
-                                <Text className="text-status-error">{errors.description.message}</Text>
+                                <Text className="text-status-error font-poppins self-start">{errors.description.message}</Text>
                             )}
                         </View>
+                        <View className="my-6">
 
-                        <AppButton
-                            title="Submit Report"
-                            icon={submitReportMutation.isPending && <ActivityIndicator color="#ccc" />}
-                            onPress={handleSubmit((data) => submitReportMutation.mutate(data))}
-                            disabled={submitReportMutation.isPending}
-                        />
+                            <AppButton
+                                title="Submit Report"
+                                icon={submitReportMutation.isPending && <ActivityIndicator color="#ccc" />}
+                                onPress={handleSubmit((data) => submitReportMutation.mutate(data))}
+                                disabled={submitReportMutation.isPending}
+                            />
+                        </View>
 
 
                     </View>

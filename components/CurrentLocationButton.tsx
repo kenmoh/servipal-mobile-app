@@ -34,7 +34,7 @@ const CurrentLocationButton = ({
 
   return (
     <TouchableOpacity onPress={handlePress} disabled={loading}>
-      <View className="flex-row items-center justify-center bg-profile-card ml-5 gap-2 p-3 rounded-full w-[50%]">
+      <View className="flex-row items-center justify-center bg-input ml-5 gap-2 p-3 rounded-full w-[50%]">
         <MapPin size={16} color={"orange"} />
         {loading ? (
           <ActivityIndicator size="small" color={"orange"} />

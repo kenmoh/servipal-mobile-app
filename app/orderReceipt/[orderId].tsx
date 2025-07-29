@@ -10,6 +10,7 @@ import {
 
 import { fetchDelivery, updateOrderStatus } from "@/api/order";
 import AppButton from "@/components/AppButton";
+import AppVariantButton from "@/components/core/AppVariantButton";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { useAuth } from "@/context/authContext";
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
@@ -26,7 +27,7 @@ const OrderReceiptPage = () => {
     const screenWidth = Dimensions.get("window").width;
     const theme = useColorScheme();
     const { user } = useAuth()
-
+    const ICON_COLOR = theme === 'dark' ? 'white' : 'black'
     const { data, isLoading } = useQuery({
         queryKey: ["order", orderId],
         queryFn: () => fetchDelivery(orderId as string),
@@ -494,34 +495,34 @@ const OrderReceiptPage = () => {
             className="flex-1 bg-background content-center"
 
         >
-            <View className="gap-4 px-3 flex-1 overflow-scroll" >
+            <View className="gap-4 px-5 flex-1 overflow-scroll" >
                 {/* <Text fontSize={20} fontWeight="bold" textAlign="center">Receipt</Text> */}
 
-                <View className="p-4 bg-background border border-border-subtle" >
+                <View className="p-4 bg-background border border-border-subtle rounded-lg" >
                     <View className="gap-3" >
                         <View className="flex-row justify-between">
-                            <Text>Order Number</Text>
-                            <Text className="font-bold">#{data?.order?.order_number}</Text>
+                            <Text className="font-poppins text-primary">Order Number</Text>
+                            <Text className="font-poppins text-primary">#{data?.order?.order_number}</Text>
                         </View>
 
                         <View className="flex-row justify-between" >
-                            <Text>Date</Text>
-                            <Text>
+                            <Text className="font-poppins text-primary">Date</Text>
+                            <Text className="font-poppins text-primary">
                                 {format(new Date(data?.order?.created_at || ""), "PPP")}
                             </Text>
                         </View>
 
                         <View className="flex-row justify-between" >
-                            <Text>Total Amount</Text>
-                            <Text className="font-bold">
+                            <Text className="font-poppins text-primary">Total Amount</Text>
+                            <Text className="font-poppins text-primary">
                                 ₦{Number(data?.order?.total_price).toFixed(2)}
                             </Text>
                         </View>
 
                         <View className="flex-row justify-between" >
-                            <Text>Payment Status</Text>
+                            <Text className="font-poppins text-primary">Payment Status</Text>
                             <Text
-                                className={`${data?.order?.order_payment_status === "paid" ? "text-green-400" : "text-red-400"}`}
+                                className={`${data?.order?.order_payment_status === "paid" ? "text-green-700 bg-green-600/20 " : "text-red-700 bg-red-600/25"} rounded-full px-3 py-1`}
 
                             >
                                 {data?.order?.order_payment_status?.toUpperCase()}
@@ -531,34 +532,34 @@ const OrderReceiptPage = () => {
                 </View>
 
                 {data?.order?.order_items && data.order.order_items.length > 0 && (
-                    <View className="p-4 bg-input border border-border-subtle">
+                    <View className="p-4 bg-input border border-border-subtle rounded-lg">
                         <View className="gap-3" >
-                            <Text className="font-poppins-bold">Order Items</Text>
+                            <Text className="font-poppins-bold text-primary">Order Items</Text>
                             {data.order.order_items.map((item: any) => (
-                                <View className="flex-row justify-between" key={item.id} >
-                                    <Text>
+                                <View className="flex-row justify-between " key={item.id} >
+                                    <Text className="font-poppins text-primary">
                                         {item.quantity}X {item.name}
                                     </Text>
-                                    <Text>₦{Number(item.price * item.quantity).toFixed(2)}</Text>
+                                    <Text className="font-poppins text-primary">₦{Number(item.price * item.quantity).toFixed(2)}</Text>
                                 </View>
                             ))}
                         </View>
                     </View>
                 )}
 
-                <View className="p-4 bg-input border border-border-subtle" >
+                <View className="p-4 bg-input border border-border-subtle rounded-lg" >
                     <View className="gap-3">
-                        <Text className="font-poppins-bold">Delivery Details</Text>
+                        <Text className="font-poppins-bold text-primary">Delivery Details</Text>
 
                         <View className="flex-row justify-between">
                             <Text className="text-gray-300" >Delivery Type</Text>
-                            <Text numberOfLines={2} ellipsizeMode="tail">
+                            <Text className="font-poppins text-primary" numberOfLines={2} ellipsizeMode="tail">
                                 {data?.order?.require_delivery?.toUpperCase()}
                             </Text>
                         </View>
                         <View className="flex-row justify-between">
-                            <Text>Status</Text>
-                            <Text>{data?.order?.order_status?.toUpperCase()}</Text>
+                            <Text className="font-poppins text-primary">Status</Text>
+                            <Text className="font-poppins text-primary">{data?.order?.order_status?.toUpperCase()}</Text>
                         </View>
                     </View>
                 </View>
@@ -578,7 +579,7 @@ const OrderReceiptPage = () => {
                 {paymentStatus !== "paid" && <AppButton
 
                     backgroundColor={"bg-background"}
-                    width="90%"
+                    width="100%"
                     title="P A Y"
                     icon={<CreditCard color={'white'} />}
                     onPress={handleGotoPayment}
@@ -586,36 +587,50 @@ const OrderReceiptPage = () => {
                 }
 
                 <View
-                    className="flex-row gap-2 justify-between w-[90%] self-center mb-3"
+                    className="flex-row justify-between items-center w-full self-center mb-3"
                 >
-                    <AppButton
-                        title="Download PDF"
-                        backgroundColor={"flex-1 bg-button-transparent"}
-                        icon={<Download color="white" />}
+
+                    <AppVariantButton
+                        outline={true}
+                        filled={false}
+                        borderRadius={50}
+                        width={'47.5%'}
+                        label="Download"
+                        icon={<Download color={ICON_COLOR} />}
                         onPress={handleDownload}
+
+                    />
+                    <AppVariantButton
+                        outline={true}
+                        filled={false}
+                        borderRadius={50}
+                        width={'47.5%'}
+                        label="Share"
+                        icon={<Share2 color={ICON_COLOR} />}
+                        onPress={handleShare}
+
                     />
 
-                    <AppButton
-                        title="Share PDF"
-                        backgroundColor={"bg-input flex-1"}
-                        icon={<Share2 color="white" />}
-                        onPress={handleShare}
-                    />
+
+
 
                 </View>
 
             </View>
             <View
-                className="mt-4 w-[90%] flex-row justify-between self-center gap-2"
+                className="mt-4 w-[90%] flex-row justify-between self-center"
 
             >
                 <>
-                    <AppButton
 
-                        width="42.5%"
-                        backgroundColor={"bg-input"}
 
-                        title="Review"
+                    <AppVariantButton
+                        outline={true}
+                        filled={false}
+                        borderRadius={50}
+                        width={'47.5%'}
+                        label="Review"
+
                         onPress={() => {
                             router.push({
                                 pathname: "/review/[deliveryId]",
@@ -629,21 +644,25 @@ const OrderReceiptPage = () => {
                                 },
                             });
                         }}
+
                     />
 
-
-                    <AppButton
-                        title="Report"
-                        backgroundColor={"bg-input "}
-                        width="42.5%"
-
+                    <AppVariantButton
+                        outline={true}
+                        filled={false}
+                        borderRadius={50}
+                        width={'47.5%'}
+                        label="Report"
                         onPress={() => {
                             router.push({
                                 pathname: "/report/[deliveryId]",
                                 params: { deliveryId: data?.order?.id as string },
                             });
                         }}
+
                     />
+
+
 
                 </>
             </View>

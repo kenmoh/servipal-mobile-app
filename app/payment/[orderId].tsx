@@ -238,7 +238,7 @@ const Payment = () => {
         <View className=" rounded-md bg-input p-4 mt-4">
           <View className="flex-row justify-center items-center">
             <Text className="text-[16px] text-primary font-poppins">
-              Total Amount
+              Total Amount {' '}
             </Text>
             <Text className="font-poppins-medium text-primary text-[18px]">
               ₦{Number(deliveryFee).toFixed(2)}
@@ -332,7 +332,7 @@ const Payment = () => {
 
         {/* Payment Button */}
         <View className="mt-6">
-          <Text className="text-primary text-lg font-poppins-medium">
+          <Text className="text-primary text-lg mb-4 font-poppins-medium">
             Pay with:
           </Text>
 
@@ -343,13 +343,16 @@ const Payment = () => {
             icon={<CreditCard size={20} color={"white"} />}
           />
 
-          <View className="flex-row w-full justify-between my-3 self-center">
-            <AppButton
-              backgroundColor="black"
-              onPress={() => payWithWalletMutation()}
-              title={isPending ? "" : "Wallet"}
+          <View className="flex-row w-full justify-between my-5 self-center">
+
+
+            <AppVariantButton
+              filled={false}
               disabled={isPending}
-              width={"45%"}
+              outline={true}
+              onPress={() => payWithWalletMutation()}
+              width={"47.5%"}
+              label="Wallet"
               icon={
                 isPending ? (
                   <ActivityIndicator size="small" color={"white"} />
@@ -358,15 +361,14 @@ const Payment = () => {
                 )
               }
             />
-
             <AppVariantButton
               filled={false}
-              backgroundColor="black"
+
               outline={true}
               onPress={() => mutate()}
-              width={"45%"}
+              width={"47.5%"}
               label="Transfer"
-              icon={<ArrowLeftRight size={20} color={"white"} />}
+              icon={<ArrowLeftRight size={20} color={theme === 'dark' ? 'white' : 'black'} />}
             />
           </View>
         </View>

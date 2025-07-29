@@ -3,9 +3,9 @@ import { ActivityIndicator, StyleSheet, Text, useColorScheme, View } from "react
 import React, { useEffect, useState } from "react";
 
 import { sendItem } from "@/api/order";
-import AppButton from "@/components/AppButton";
 import ImagePickerInput from "@/components/AppImagePicker";
 import AppTextInput from "@/components/AppInput";
+import AppVariantButton from "@/components/core/AppVariantButton";
 import HDivider from "@/components/HDivider";
 import { useAuth } from "@/context/authContext";
 import { useLocationStore } from "@/store/locationStore";
@@ -16,9 +16,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { Clock } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { Notifier, NotifierComponents } from "react-native-notifier";
 import { z } from "zod";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 const coordinatesSchema = z.tuple([
   z.number({ message: "Required" }).nullable(),
@@ -254,7 +254,7 @@ const ItemInfo = () => {
   return (
     <>
       <KeyboardAwareScrollView>
-        <View className="px-[20px] gap-5">
+        <View className="px-[20px] gap-3 mb-2">
           <View className="flex-row items-center gap-5" >
             <View className="w-[10px] h-[10px] rounded-[3px] bg-gray-500" />
             <Text className="text-primary text-[12px] font-poppins">
@@ -268,29 +268,29 @@ const ItemInfo = () => {
               {destination}{" "}
             </Text>
           </View>
-        <View className='flex-row gap-10'>
-           <View className='flex-row gap-5 items-center'>
-          <MaterialCommunityIcons
-            name="road-variant"
-            size={10}
-            className="text-icon-default"
-          />
-          <Text className="text-icon-default text-[12px]">
-            {distance} km
-          </Text>
-        </View>
-        <View className="items-center flex-row items-center gap-5">
-          <Clock className="text-icon-default" size={10} />
+          <View className='flex-row gap-10'>
+            <View className='flex-row gap-5 items-center'>
+              <MaterialCommunityIcons
+                name="road-variant"
+                size={12}
+                color={'gray'}
+              />
+              <Text className="text-primary text-[12px]">
+                {distance} km
+              </Text>
+            </View>
+            <View className="items-center flex-row gap-5">
+              <Clock color="gray" size={12} />
 
-          <Text className="text-icon-default text-[12px]">
-            {" "}
-            {duration}{" "}
-          </Text>
+              <Text className="text-primary text-[12px]">
+                {" "}
+                {duration}{" "}
+              </Text>
+            </View>
+          </View>
         </View>
-         </View>
-        </View>
-          <HDivider />
-          
+        <HDivider />
+
         <View className="mt-5">
           <Controller
             control={control}
@@ -326,6 +326,8 @@ const ItemInfo = () => {
             name="imageUrl"
             render={({ field: { onChange, value } }) => (
               <ImagePickerInput
+                // imageHeight={1000}
+                iconSize={50}
                 value={value}
                 onChange={onChange}
                 errorMessage={errors.imageUrl?.message?.toString()}
@@ -333,7 +335,17 @@ const ItemInfo = () => {
             )}
           />
 
-          <AppButton
+
+          <View className="self-center w-full items-center mt-4">
+            <AppVariantButton
+              label="Send"
+              width={'90%'}
+              icon={isPending && <ActivityIndicator size={"large"} className="text-background" />}
+              onPress={handleSubmit(onSubmit)}
+              disabled={isPending}
+            />
+          </View>
+          {/* <AppButton
             title={isPending ? "Sending Item..." : "Send Item"}
             disabled={isPending}
             width={"90%"}
@@ -343,7 +355,7 @@ const ItemInfo = () => {
             ) : (
               "Send"
             )}
-          />
+          /> */}
         </View>
       </KeyboardAwareScrollView >
     </>

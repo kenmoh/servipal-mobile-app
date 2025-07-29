@@ -5,7 +5,6 @@ import { useLocationStore } from "@/store/locationStore";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 
 const SendItem = () => {
   const { origin, destination, setOrigin, setDestination } = useLocationStore();
@@ -47,69 +46,48 @@ const SendItem = () => {
   }, [origin, destination]);
 
   return (
-    // <KeyboardAvoidingView
-    //   behavior={"padding"}
-    //   keyboardVerticalOffset={100}
-    //   style={{ flex: 1, maxHeight: 600 }}
-    // >
-      <View className="bg-background flex-1">
-        <View className="my-6 gap-6 ">
-          <CurrentLocationButton
-            onLocationSet={(address, coords) => {
-              setOrigin(address, coords);
-              setErrors((prev) => ({ ...prev, origin: "" }));
-              setIsDisabled(false);
-            }}
-          />
-          <GoogleTextInput
-            placeholder="Pickup Location"
-            errorMessage={errors.origin}
-            value={origin}
-            onChangeText={() => {}}
-            handlePress={(lat, lng, address) => {
-              setOrigin(address, [lat, lng]);
-              setErrors((prev) => ({ ...prev, origin: "" }));
-              setIsDisabled(false);
-            }}
-          />
 
-          <GoogleTextInput
-            placeholder="Dropoff Location"
-            value={destination}
-            errorMessage={errors.destination}
-            onChangeText={() => {}}
-            handlePress={(lat, lng, address) => {
-              setDestination(address, [lat, lng]);
-              setErrors((prev) => ({ ...prev, destination: "" }));
-              setIsDisabled(false);
-            }}
-          />
-        </View>
+    <View className="bg-background flex-1">
+      <View className="my-6 gap-6 ">
+        <CurrentLocationButton
+          onLocationSet={(address, coords) => {
+            setOrigin(address, coords);
+            setErrors((prev) => ({ ...prev, origin: "" }));
+            setIsDisabled(false);
+          }}
+        />
+        <GoogleTextInput
+          placeholder="Pickup Location"
+          value={origin}
+          error={errors.origin}
+          onPlaceSelect={(lat, lng, address) => {
+            setOrigin(address, [lat, lng]);
+            setErrors((prev) => ({ ...prev, origin: "" }));
+            setIsDisabled(false);
+          }}
+        />
 
-        <AppButton
-          disabled={isDisabled}
-          onPress={handleNext}
-          width="90%"
-          title="Next"
+        <GoogleTextInput
+          placeholder="Dropoff Location"
+          value={destination}
+          error={errors.destination}
+          onPlaceSelect={(lat, lng, address) => {
+            setDestination(address, [lat, lng]);
+            setErrors((prev) => ({ ...prev, destination: "" }));
+            setIsDisabled(false);
+          }}
         />
       </View>
-    // </KeyboardAvoidingView>
+
+      <AppButton
+        disabled={isDisabled}
+        backgroundColor={isDisabled ? "gray" : "orange"}
+        onPress={handleNext}
+        width="90%"
+        title="Next"
+      />
+    </View>
   );
 };
 
 export default SendItem;
-
-
-// const testApiKey = async () => {
-//   const testUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=Ajah&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY}`;
-//   try {
-//     const response = await fetch(testUrl);
-//     const data = await response.json();
-//     console.log('API Test Result:', data);
-//   } catch (error) {
-//     console.error('API Test Error:', error);
-//   }
-// };
-
-
-// testApiKey().then(k=> console.log(k))

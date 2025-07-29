@@ -13,6 +13,7 @@ interface AppButtonProps {
     icon?: React.ReactNode;
     isLoading?: boolean;
     disabled?: boolean;
+    borderRadius?: number
 }
 
 const AppVariantButton: React.FC<AppButtonProps> = ({
@@ -27,11 +28,13 @@ const AppVariantButton: React.FC<AppButtonProps> = ({
     icon,
     isLoading = false,
     disabled = false,
+    borderRadius = 8
 }) => {
     const buttonStyle: ViewStyle = {
         backgroundColor: filled ? backgroundColor : 'transparent',
         height,
         width,
+        borderRadius,
         borderWidth: outline ? 1 : 0,
         borderColor: outline ? outlineColor : 'transparent',
     };
@@ -60,7 +63,7 @@ const AppVariantButton: React.FC<AppButtonProps> = ({
 
 const styles = StyleSheet.create({
     button: {
-        borderRadius: 8,
+
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',

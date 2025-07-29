@@ -78,9 +78,15 @@ export default function RootLayout() {
                     <AuthProvider>
                       <Stack
                         screenOptions={{
+
                           headerTintColor:
                             colorScheme === "dark" ? "white" : "black",
+                          headerShadowVisible: false,
+                          headerStyle: {
+                            backgroundColor: BG_COLOR,
+                          },
                         }}
+
                       >
                         <Stack.Screen
                           name="(app)"
@@ -130,35 +136,35 @@ export default function RootLayout() {
                             title: "Download Receipt",
                             headerShadowVisible: false,
 
-                            headerStyle: {
-                              backgroundColor: BG_COLOR,
-                            },
+
                           }}
                         />
                         <Stack.Screen
                           name="orderReceipt/[orderId]"
                           options={{
                             title: "Download Receipt",
-                            headerStyle: {
-                              backgroundColor: BG_COLOR,
-                            },
+                            // headerStyle: {
+                            //   backgroundColor: BG_COLOR,
+                            // },
                           }}
                         />
                         <Stack.Screen
                           name="notification-detail/[notificationId]"
                           options={{
                             title: "Notification Details",
-                            headerStyle: {
-                              backgroundColor: BG_COLOR,
-                            },
+                            // headerStyle: {
+                            //   backgroundColor: BG_COLOR,
+                            // },
                           }}
                         />
                         <Stack.Screen
                           name="report/[deliveryId]"
                           options={{
                             title: "Report an Issue",
+
                             headerStyle: {
                               backgroundColor: BG_COLOR,
+
                             },
                           }}
                         />
@@ -166,9 +172,9 @@ export default function RootLayout() {
                           name="review/[deliveryId]"
                           options={{
                             title: "Leave a Review",
-                            headerStyle: {
-                              backgroundColor: BG_COLOR,
-                            },
+                            // headerStyle: {
+                            //   backgroundColor: BG_COLOR,
+                            // },
                           }}
                         />
                         <Stack.Screen
@@ -176,9 +182,9 @@ export default function RootLayout() {
                           options={{
                             title: "Cart",
                             headerShadowVisible: false,
-                            headerStyle: {
-                              backgroundColor: BG_COLOR,
-                            },
+                            // headerStyle: {
+                            //   backgroundColor: BG_COLOR,
+                            // },
                             headerRight: () => (
                               <AddItemBtn
                                 icon={<Trash size={18} color={"white"} />}

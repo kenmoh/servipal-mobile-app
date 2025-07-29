@@ -64,6 +64,7 @@
     "react-native-gesture-handler": "~2.24.0",
     "react-native-get-random-values": "~1.11.0",
     "react-native-google-places-autocomplete": "^2.5.7",
+    "react-native-google-places-textinput": "^0.8.0",
     "react-native-keyboard-controller": "^1.18.1",
     "react-native-maps": "1.20.1",
     "react-native-notifier": "^2.0.0",
@@ -86,8 +87,8 @@
     "@types/react": "~19.0.10",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~9.2.0",
-    "typescript": "~5.8.3",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "typescript": "~5.8.3"
   },
   "private": true
 }

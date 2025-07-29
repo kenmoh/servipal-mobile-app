@@ -1,10 +1,12 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { Check, Download, Home, X } from "lucide-react-native";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
 
 const PaymentComplete = () => {
   const params = useLocalSearchParams();
+  const theme = useColorScheme();
+
 
   const paymentStatus = params.paymentStatus as string;
   const txRef = params.txRef as string;
@@ -17,14 +19,14 @@ const PaymentComplete = () => {
       {/* Status Icon */}
       <View style={styles.iconContainer}>
         {isSuccess ? (
-          <Check color="white" size={40} />
+          <Check color="green" size={40} />
         ) : (
-          <X color="white" size={40} />
+          <X color="red" size={40} />
         )}
       </View>
 
       {/* Status text */}
-      <view className="gap-6 items-center mt-10">
+      <View className="gap-6 items-center mt-10">
         <Text className="text-primary text-[28px] font-poppins-bold">
           {isSuccess ? "Payment Successful!" : "Payment Failed"}
         </Text>
@@ -33,7 +35,7 @@ const PaymentComplete = () => {
             ? "Great! Your payment has been processed successfully."
             : "Oops! There was an error processing your payment. Please try again."}
         </Text>
-      </view>
+      </View>
 
       {/* Action buttons */}
       <View className="flex-row gap-4 mt-5 items-center">

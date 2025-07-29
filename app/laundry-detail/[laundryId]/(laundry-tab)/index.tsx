@@ -16,7 +16,7 @@ import { Menu } from "lucide-react-native";
 
 const StoreDetails = () => {
     const { user } = useAuth();
-    const { laundryId, storeId } = useLocalSearchParams();
+    const { laundryId, storeId, address } = useLocalSearchParams();
     const { cart, addItem, totalCost, removeItem } = useCartStore();
 
     const laundryVendorId = storeId || laundryId;
@@ -82,7 +82,7 @@ const StoreDetails = () => {
                 label="View Cart"
                 totalCost={totalCost?.toString()!}
                 totalItem={cart.order_items.length}
-                onPress={() => router.push({ pathname: "/cart" })}
+                onPress={() => router.push({ pathname: "/cart", params: { address } })}
             />
 
             {user?.user_type === "laundry_vendor" && laundryVendorId === user?.sub && data && data?.length > 0 && (

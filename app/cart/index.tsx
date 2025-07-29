@@ -1,7 +1,8 @@
 import { createOrder } from "@/api/order";
-import AppButton from "@/components/AppButton";
 import AppTextInput from "@/components/AppInput";
+import AppModal from "@/components/AppModal";
 import Item from "@/components/CartItem";
+import AppVariantButton from "@/components/core/AppVariantButton";
 import RadioButton from "@/components/core/RadioButton";
 import GoogleTextInput from "@/components/GoogleTextInput";
 import { useAuth } from "@/context/authContext";
@@ -9,7 +10,7 @@ import { useCartStore } from "@/store/cartStore";
 import { useLocationStore } from "@/store/locationStore";
 import { OrderFoodOLaundry } from "@/types/order-types";
 import { useMutation } from "@tanstack/react-query";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { ShoppingCart } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
@@ -21,13 +22,14 @@ import {
   View,
 } from "react-native";
 import { Notifier, NotifierComponents } from "react-native-notifier";
-import Animated, { FadeInUp } from "react-native-reanimated";
 
 const Cart = () => {
   const [duration, setDuration] = useState("");
   const [distance, setDistance] = useState(0);
+  const { address } = useLocalSearchParams();
   const [error, setError] = useState({ origin: "", destination: "" });
   const [infoText, setInfoText] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
   const theme = useColorScheme();
   const { user } = useAuth();
   const {
@@ -45,7 +47,6 @@ const Cart = () => {
     distance: storeDistance,
   } = useCartStore((state) => state.cart);
   const {
-    setOrigin,
     setDestination,
     origin,
     destination,
@@ -53,12 +54,18 @@ const Cart = () => {
     destinationCoords,
   } = useLocationStore();
 
-  useEffect(() => {
-    setDeliveryOption("delivery");
-  }, []);
+
 
   const handleDeliveryOptionChange = (option: "delivery" | "pickup") => {
     setDeliveryOption(option);
+    if (option === "delivery") {
+      setModalVisible(true);
+    }
+  };
+
+  const handleNext = () => {
+    setAdditionalInfo(infoText);
+    setModalVisible(false);
   };
 
   const prepareOrderForServer = (): OrderFoodOLaundry => {
@@ -73,7 +80,7 @@ const Cart = () => {
       distance: cart.distance,
       require_delivery: cart.require_delivery,
       duration: cart.duration,
-      origin: origin ?? undefined,
+      origin: address! ?? undefined,
       destination: destination ?? undefined,
       ...(cart.additional_info && { additional_info: cart.additional_info }),
     };
@@ -153,7 +160,7 @@ const Cart = () => {
     <>
       {cart?.order_items.length === 0 ? (
         <View className="flex-1 items-center justify-center bg-background">
-          <ShoppingCart className="text-icon-default" size={100} />
+          <ShoppingCart color={theme === 'dark' ? 'white' : 'black'} size={100} />
           <Text className="text-[12px] text-center text-icon-default">
             Your cart is empty!
           </Text>
@@ -201,35 +208,8 @@ const Cart = () => {
               />
             </View>
 
-            {require_delivery === "delivery" && (
-              <Animated.View
-                className="mt-5"
-                entering={FadeInUp.duration(300).delay(300)}
-              >
-                <View className="w-full self-center">
-                  <AppTextInput
-                    label="Pickup Location"
-                    value={origin || ""}
-                    editable={false}
-                  />
-                  <View className="my-2 w-full" />
-                  <GoogleTextInput
-                    placeholder="Destination"
-                    disableScroll={true}
-                    value={destination}
-                    errorMessage={error.destination}
-                    onChangeText={() => {}}
-                    handlePress={(lat, lng, address) => {
-                      setDestination(address, [lat, lng]);
-                      setError((prev) => ({ ...prev, destination: "" }));
-                    }}
-                  />
-                  <View className="my-2" />
-                </View>
-              </Animated.View>
-            )}
-            {require_delivery === "delivery" && destination && (
-              <View className="w-[85%] rounded-lg bg-input self-center my-3  p-5">
+            {require_delivery === "delivery" && destination && !modalVisible && (
+              <View className="w-[90%] rounded-lg bg-input self-center my-3  p-5">
                 {/* DELIVERY INFO */}
                 <View className="flex-row">
                   <Text
@@ -294,16 +274,60 @@ const Cart = () => {
               </View>
             )}
 
-            <AppButton
-              disabled={isPending}
-              width={"90%"}
-              title="Proceed to Payment"
-              onPress={() => mutate()}
-              icon={
-                isPending && <ActivityIndicator size="large" color="white" />
-              }
-            />
+            {!modalVisible && (
+              <View className="w-full self-center items-center bg-background mb-10">
+                <AppVariantButton
+                  disabled={isPending}
+                  width={"90%"}
+                  label="Proceed to Payment"
+                  onPress={() => mutate()}
+                  icon={
+                    isPending && <ActivityIndicator size="large" color="white" />
+                  }
+                />
+              </View>
+            )}
           </ScrollView>
+          <AppModal
+            visible={modalVisible}
+            onClose={() => setModalVisible(false)}
+            height="80%"
+          >
+
+            <View className="w-full self-center">
+              <AppTextInput
+                label="Pickup Location"
+                value={address || ""}
+                editable={false}
+              />
+              <View className="my-2 w-full" />
+              <GoogleTextInput
+                placeholder="Destination"
+
+                value={destination}
+                error={error.destination}
+                onChangeText={() => { }}
+                onPlaceSelect={(lat, lng, address) => {
+                  setDestination(address, [lat, lng]);
+                  setError((prev) => ({ ...prev, destination: "" }));
+                }}
+              />
+              <View className="my-2" />
+            </View>
+
+            <View className="self-center items-center w-full">
+              <AppVariantButton
+
+                width={"90%"}
+                label="Ok"
+
+
+                onPress={handleNext}
+              />
+            </View>
+
+
+          </AppModal>
         </>
       )}
     </>

@@ -90,6 +90,7 @@ const DeliveryLayout = () => {
     <Stack
       screenOptions={{
         headerShadowVisible: false,
+        headerTintColor: theme === "dark" ? "white" : "black",
         headerStyle: {
           backgroundColor: theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT,
         },

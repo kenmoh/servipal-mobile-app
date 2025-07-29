@@ -17,6 +17,8 @@ import { router } from "expo-router";
 import { useColorScheme } from "nativewind";
 import { Notifier, NotifierComponents } from "react-native-notifier";
 
+
+
 const BACKDROP_IMAGE_HEIGHT = Dimensions.get("window").height * 0.2;
 const BACKDROP_IMAGE_WIDTH = Dimensions.get("window").width;
 
@@ -119,19 +121,19 @@ const profile = () => {
     mutationFn: uploadProfileImage,
     onSuccess: async (data) => {
       const newImages = {
-        profile_image_url: 
+        profile_image_url:
           typeof data?.profile_image_url === "object" &&
-          data?.profile_image_url !== null
+            data?.profile_image_url !== null
             ? data.profile_image_url.uri
-            : (data?.profile_image_url ?? 
-              profile?.profile?.profile_image_url ?? 
+            : (data?.profile_image_url ??
+              profile?.profile?.profile_image_url ??
               undefined),
-        backdrop_image_url: 
+        backdrop_image_url:
           typeof data?.backdrop_image_url === "object" &&
-          data?.backdrop_image_url !== null
+            data?.backdrop_image_url !== null
             ? data.backdrop_image_url.uri
-            : (data?.backdrop_image_url ?? 
-              profile?.profile?.backdrop_image_url ?? 
+            : (data?.backdrop_image_url ??
+              profile?.profile?.backdrop_image_url ??
               undefined),
       };
 
@@ -159,7 +161,7 @@ const profile = () => {
     onError: (error) => {
       Notifier.showNotification({
         title: "Failed to upload images",
-        description: 
+        description:
           "There was an error uploading the images. Please try again.",
         Component: NotifierComponents.Alert,
         duration: 1000,
@@ -191,7 +193,7 @@ const profile = () => {
       await authStorage.removeProfile();
       signOut();
       mutate();
-    } catch (error) {}
+    } catch (error) { }
   };
 
   return (
@@ -228,6 +230,7 @@ const profile = () => {
             </Text>
             <Text className="text-center text-muted">{profile?.email}</Text>
           </View>
+
           <View className="mt-10">
             {user?.user_type !== "rider" && (
               <Animated.View entering={FadeInDown.duration(300).delay(100)}>
@@ -241,15 +244,15 @@ const profile = () => {
             )}
             {(user?.user_type === "restaurant_vendor" ||
               user?.user_type === "laundry_vendor") && (
-              <Animated.View entering={FadeInDown.duration(300).delay(100)}>
-                <ProfileCard
-                  name={"Store"}
-                  onPress={handleAddItem}
-                  bgColor={"rgba(9, 3, 94, 0.3)"}
-                  icon={<Store color={"white"} />}
-                />
-              </Animated.View>
-            )}
+                <Animated.View entering={FadeInDown.duration(300).delay(100)}>
+                  <ProfileCard
+                    name={"Store"}
+                    onPress={handleAddItem}
+                    bgColor={"rgba(9, 3, 94, 0.3)"}
+                    icon={<Store color={"white"} />}
+                  />
+                </Animated.View>
+              )}
             {user?.user_type !== "rider" && (
               <Animated.View entering={FadeInDown.duration(300).delay(100)}>
                 <ProfileCard
