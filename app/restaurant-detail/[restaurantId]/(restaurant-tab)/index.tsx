@@ -6,7 +6,7 @@ import { useAuth } from "@/context/authContext";
 import { useCartStore } from "@/store/cartStore";
 import { FoodGroup, MenuItem } from "@/types/item-types";
 import { useQuery } from "@tanstack/react-query";
-import { router, useLocalSearchParams, Stack } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
 import { FlatList, View } from "react-native";
 
@@ -64,7 +64,7 @@ const StoreDetails = () => {
 
     return (
         <View className="flex-1 bg-background p-2">
-          
+
             <View className="flex-1" >
                 <FlatList
                     data={data ?? []}
@@ -87,8 +87,8 @@ const StoreDetails = () => {
                         !isFetching ? (
                             <EmptyList
                                 title="No Menu Items"
-                                description="Add your first menu item to start selling"
-                                buttonTitle="Add Menu Item"
+                                description="Add your first menu item to start selling. Click the button below"
+                                buttonTitle="Add Menu"
                                 route="/restaurant-detail/addMenu"
                             />
                         ) : null
@@ -102,6 +102,7 @@ const StoreDetails = () => {
             </View>
             <CartInfoBtn
                 label="View Cart"
+
                 totalCost={totalCost?.toString()!}
                 totalItem={cart.order_items.length}
                 onPress={() => router.push({ pathname: "/cart" })}

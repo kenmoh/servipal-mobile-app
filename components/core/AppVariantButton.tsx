@@ -45,6 +45,7 @@ const AppVariantButton: React.FC<AppButtonProps> = ({
 
     return (
         <TouchableOpacity
+
             onPress={onPress}
             style={[styles.button, buttonStyle]}
             disabled={disabled || isLoading}
@@ -67,10 +68,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
+        alignSelf: 'center',
+
+
+
     },
     content: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center'
     },
     iconContainer: {
         marginRight: 8,

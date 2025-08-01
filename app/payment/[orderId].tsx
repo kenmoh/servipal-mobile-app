@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -8,17 +8,14 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { WebView } from "react-native-webview";
+import { WebView, WebViewNavigation } from "react-native-webview";
 
 import { OrderItemResponse } from "@/types/order-types";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   ArrowLeftRight,
   CreditCard,
-  Package,
-  Shirt,
-  Utensils,
-  Wallet,
+  Wallet
 } from "lucide-react-native";
 import { Notifier, NotifierComponents } from "react-native-notifier";
 
@@ -154,61 +151,38 @@ const Payment = () => {
     return deliveryFee ? Number(deliveryFee) + itemsTotal : itemsTotal;
   };
 
-  useEffect(() => {
-    if (!status) return;
+  const handleShouldStartLoad = (event: WebViewNavigation) => {
 
-    // Add paymentStatus to the redirect
-    if (status[0] === "status=successful") {
-      router.replace({
-        pathname: "/payment/payment-complete",
-        params: { paymentStatus: "success" },
-      });
 
-      queryClient.invalidateQueries({
-        queryKey: ["order", orderId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["order", orderId],
-      });
+    const { url } = event;
+    if (url.includes("https://servipalbackend.onrender.com/api/payment/order-payment-callback")) {
+      const urlParams = new URLSearchParams(url.split('?')[1]);
+      const status = urlParams.get('status');
+      const txRef = urlParams.get('tx_ref');
+      const transactionId = urlParams.get('transaction_id');
+      console.log(url, urlParams, status, txRef, transactionId)
 
-      queryClient.invalidateQueries({
-        queryKey: ["orders"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["orders", user?.sub],
-      });
-
-      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-      queryClient.refetchQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
-      });
+      if (status === 'successful') {
+        router.replace({
+          pathname: "/payment/payment-complete",
+          params: { paymentStatus: "success", txRef, transactionId },
+        });
+      } else {
+        router.replace({
+          pathname: "/payment/payment-complete",
+          params: { paymentStatus: "failed", txRef, transactionId },
+        });
+      }
+      return false;
     }
-    if (status[0] === "status=failed" || status[0] === "status=cancelled") {
-      router.replace({
-        pathname: "/payment/payment-complete",
-        params: { paymentStatus: "failed" },
-      });
-    }
-  }, [status]);
-
-  const renderIcon = () => {
-    switch (deliveryType) {
-      case "food":
-        return <Utensils size={24} color="gold" />;
-      case "laundry":
-        return <Shirt size={24} color="skyblue" />;
-      default:
-        return <Package size={24} color="green" />;
-    }
+    return true;
   };
 
   const renderWebView = () => (
     <View className="bg-background" style={[styles.webviewContainer]}>
       <View className="p-4">
         <View className="flex-row items-center gap-10">
-          {renderIcon()}
+          {/* {renderIcon()} */}
           <Text className="text-[20px] font-poppins-medium text-primary">
             Processing Payment
           </Text>
@@ -222,7 +196,7 @@ const Payment = () => {
             ? paymentLink[0]
             : (paymentLink as string),
         }}
-        onNavigationStateChange={setRedirectedUrl}
+        onShouldStartLoadWithRequest={handleShouldStartLoad}
         onLoadStart={() => setIsLoading(true)}
         onLoadEnd={() => setIsLoading(false)}
       />
@@ -308,7 +282,7 @@ const Payment = () => {
       <View className="p-4 gap-[15px]">
         {/* Header */}
         <View className="flex-row items-center gap-[10px]">
-          {renderIcon()}
+          {/* {renderIcon()} */}
           <Text className="text-[20px] font-poppins-medium text-primary">
             Payment Details
           </Text>

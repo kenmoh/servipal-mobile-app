@@ -32,7 +32,6 @@ const StoreHeader = () => {
 
     return (
         <View className="bg-background">
-            <BackButton />
             <View className="bg-background">
                 <Image
                     source={{ uri: backDrop || require("@/assets/images/Burge.jpg") }}
@@ -42,6 +41,9 @@ const StoreHeader = () => {
                         objectFit: "cover",
                     }}
                 />
+
+                <BackButton />
+
                 <View className="bg-background p-4">
                     <View className="absolute top-[-35px] left-[20px]">
                         <Image
@@ -72,9 +74,9 @@ const StoreHeader = () => {
                                 {address}
                             </Text>
                         </View>
-                        <View className="flex-row justify-between items-baseline">
-                            <View>
-                                <View className="flex-row items-center gap-2 mt-2">
+                        <View className="flex-row justify-between mt-2">
+                            <View className="flex-row">
+                                <View className="flex-row items-center gap-2">
                                     <Star size={12} color='orange' />
                                     <Text className="text-gray-500  font-poppins text-sm">
                                         {rating}

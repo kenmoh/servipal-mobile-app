@@ -51,7 +51,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
             host: "api.servi-pal.com",
             pathPrefix: "/api/payment/order-payment-callback",
           },
-           {
+          {
             scheme: "https",
             host: "api.servi-pal.com",
             pathPrefix: "/api/auth/",
@@ -82,7 +82,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-font",
     [
       "expo-splash-screen",
-     
+
       {
         image: "./assets/images/android-icon.png",
         imageWidth: 150,
@@ -96,8 +96,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         android: {
           parentTheme: "Default",
           enforceNavigationBarContrast: false,
-        }
-      }
+        },
+      },
     ],
     [
       "expo-notifications",
@@ -108,7 +108,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         enableBackgroundRemoteNotifications: false,
       },
     ],
-   ["react-native-bottom-tabs", { "theme": "material2" }],
+    ["react-native-bottom-tabs", { theme: "material2" }],
     [
       "expo-build-properties",
       {
