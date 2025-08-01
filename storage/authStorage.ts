@@ -1,4 +1,4 @@
-import { Profile, UserDetails, ImageUrl } from "@/types/user-types";
+import { ImageUrl, UserDetails } from "@/types/user-types";
 import * as SecureStore from "expo-secure-store";
 import { jwtDecode } from "jwt-decode";
 

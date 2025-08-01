@@ -51,6 +51,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
             host: "api.servi-pal.com",
             pathPrefix: "/api/payment/order-payment-callback",
           },
+           {
+            scheme: "https",
+            host: "api.servi-pal.com",
+            pathPrefix: "/api/auth/",
+          },
         ],
         category: ["BROWSABLE", "DEFAULT"],
       },

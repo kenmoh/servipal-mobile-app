@@ -12,7 +12,6 @@ import {
 } from "@bottom-tabs/react-navigation";
 import { ParamListBase, TabNavigationState } from "@react-navigation/native";
 import { Redirect, withLayoutContext } from "expo-router";
-import AppChatProvider from "../../context/chatContext";
 
 const BottomTabNavigator = createNativeBottomTabNavigator().Navigator;
 
@@ -43,42 +42,42 @@ export default function TabLayout() {
 
   return (
     <View className="flex-1 bg-background">
-      <AppChatProvider>
-        <Tabs
-          tabBarStyle={tabBarStyle}
-          tabBarActiveTintColor={"orange"}
-          labeled={true}
-        >
-          <Tabs.Screen
-            name="delivery"
-            options={{
-              title: "Delivery",
-              tabBarIcon: () => require("@/assets/images/bike.svg"),
-            }}
-          />
-          <Tabs.Screen
-            name="food"
-            options={{
-              title: "Food",
-              tabBarIcon: () => require("@/assets/images/utensils.svg"),
-            }}
-          />
-          <Tabs.Screen
-            name="laundry"
-            options={{
-              title: "Laundry",
-              tabBarIcon: () => require("@/assets/images/washing-machine.svg"),
-            }}
-          />
-          <Tabs.Screen
-            name="profile"
-            options={{
-              title: "Profile",
-              tabBarIcon: () => require("@/assets/images/user-round.svg"),
-            }}
-          />
-        </Tabs>
-      </AppChatProvider>
+      {/* <AppChatProvider> */}
+      <Tabs
+        tabBarStyle={tabBarStyle}
+        tabBarActiveTintColor={"orange"}
+        labeled={true}
+      >
+        <Tabs.Screen
+          name="delivery"
+          options={{
+            title: "Delivery",
+            tabBarIcon: () => require("@/assets/images/bike.svg"),
+          }}
+        />
+        <Tabs.Screen
+          name="food"
+          options={{
+            title: "Food",
+            tabBarIcon: () => require("@/assets/images/utensils.svg"),
+          }}
+        />
+        <Tabs.Screen
+          name="laundry"
+          options={{
+            title: "Laundry",
+            tabBarIcon: () => require("@/assets/images/washing-machine.svg"),
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: "Profile",
+            tabBarIcon: () => require("@/assets/images/user-round.svg"),
+          }}
+        />
+      </Tabs>
+      {/* </AppChatProvider> */}
     </View>
   );
 }

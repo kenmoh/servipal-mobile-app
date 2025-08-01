@@ -12,7 +12,7 @@ interface InputProp extends TextInputProps {
     onPressIn?: () => void;
     showPasswordToggle?: boolean;
 }
-const AppTextInput = ({ label, value, onPressIn, placeholder, onBlur, onChangeText, errorMessage, width = '100%', borderRadius = 10, height = 45, keyboardType = 'default', editable = true, secureTextEntry = false, showPasswordToggle = false }: InputProp) => {
+const AppTextInput = ({ label, value, onPressIn, placeholder, onBlur, onChangeText, errorMessage, borderRadius = 10, height = 45, keyboardType = 'default', editable = true, secureTextEntry = false, showPasswordToggle = false }: InputProp) => {
     const [showPassword, setShowPassword] = useState(false);
 
     const togglePasswordVisibility = () => {

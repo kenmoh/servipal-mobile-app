@@ -8,6 +8,8 @@ const DeepLinkHandler = () => {
 
     const params = useLocalSearchParams();
 
+    console.log(params, '=================PARAMS==================')
+
     useEffect(() => {
 
 

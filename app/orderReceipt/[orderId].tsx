@@ -8,7 +8,7 @@ import {
     View,
 } from "react-native";
 
-import { fetchDelivery, updateOrderStatus } from "@/api/order";
+import { fetchOrder, updateOrderStatus } from "@/api/order";
 import AppButton from "@/components/AppButton";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import LoadingIndicator from "@/components/LoadingIndicator";
@@ -30,8 +30,10 @@ const OrderReceiptPage = () => {
     const ICON_COLOR = theme === 'dark' ? 'white' : 'black'
     const { data, isLoading } = useQuery({
         queryKey: ["order", orderId],
-        queryFn: () => fetchDelivery(orderId as string),
+        queryFn: () => fetchOrder(orderId as string),
     });
+
+    console.log(data)
 
     const handleGotoPayment = () => {
         router.push({
@@ -228,10 +230,10 @@ const OrderReceiptPage = () => {
                             </div>
                             <div class="row">
                                 <span>Date</span>
-                                <span>${format(
-            new Date(data.order?.created_at || ""),
-            "PPP"
-        )}</span>
+                                <span>${data.order?.created_at
+            ? format(new Date(data.order.created_at), "PPP")
+            : "N/A"
+          }</span>
                             </div>
                             ${data?.order.order_items.length > 0
                 ? `
@@ -508,7 +510,7 @@ const OrderReceiptPage = () => {
                         <View className="flex-row justify-between" >
                             <Text className="font-poppins text-primary">Date</Text>
                             <Text className="font-poppins text-primary">
-                                {format(new Date(data?.order?.created_at || ""), "PPP")}
+                                {data?.order?.created_at ? format(new Date(data.order.created_at), "PPP") : "N/A"}
                             </Text>
                         </View>
 
@@ -579,6 +581,7 @@ const OrderReceiptPage = () => {
                 {paymentStatus !== "paid" && <AppButton
 
                     backgroundColor={"bg-background"}
+                    borderRadius={50}
                     width="100%"
                     title="P A Y"
                     icon={<CreditCard color={'white'} />}

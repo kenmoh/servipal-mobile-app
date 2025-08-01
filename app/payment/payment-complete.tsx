@@ -7,7 +7,6 @@ const PaymentComplete = () => {
   const params = useLocalSearchParams();
   const theme = useColorScheme();
 
-
   const paymentStatus = params.paymentStatus as string;
   const txRef = params.txRef as string;
   const transactionId = params.transactionId as string;

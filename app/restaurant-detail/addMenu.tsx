@@ -372,19 +372,21 @@ const addMenu = () => {
                             />
                         )}
                     />
-                    <AppButton
-                        title={(isCreating || isUpdating) ? 'Sending...' : (isEditing ? "Update" : "Submit")}
+                    <View className="my-4">
+                        <AppButton
+                            title={(isCreating || isUpdating) ? 'Sending...' : (isEditing ? "Update" : "Submit")}
 
 
-                        disabled={isCreating || isUpdating}
-                        icon={(isCreating || isUpdating) && <ActivityIndicator color="#ccc" />}
+                            disabled={isCreating || isUpdating}
+                            icon={(isCreating || isUpdating) && <ActivityIndicator color="#ccc" />}
 
-                        backgroundColor={isCreating || isUpdating ? "bg-input" : "$bg-button-primary"}
-                        width={"90%"}
-                        onPress={handleSubmit(onSubmit)}
-                    >
+                            backgroundColor={isCreating || isUpdating ? "bg-input" : "$bg-button-primary"}
+                            width={"90%"}
+                            onPress={handleSubmit(onSubmit)}
+                        >
 
-                    </AppButton>
+                        </AppButton>
+                    </View>
                 </View>
 
 

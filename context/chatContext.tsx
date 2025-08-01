@@ -7,7 +7,7 @@
  */
 import { User } from "@/types/user-types";
 import { PropsWithChildren, useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, useColorScheme, View } from "react-native";
 import { StreamChat } from "stream-chat";
 import { Chat, OverlayProvider } from "stream-chat-expo";
 import { useAuth } from "./authContext";
@@ -39,6 +39,7 @@ export default function AppChatProvider({ children }: PropsWithChildren) {
   // Get authentication state from AuthProvider
   const { user, profile } = useAuth();
   const typedUser = user as User | null;
+  const theme = useColorScheme()
 
   // Connect to Stream Chat when the user is authenticated
   useEffect(() => {
@@ -82,7 +83,7 @@ export default function AppChatProvider({ children }: PropsWithChildren) {
   if (!isReady) {
     return (
       <View className="flex-1 justify-center items-center">
-        <ActivityIndicator />
+        <ActivityIndicator size={'large'} color={theme === 'dark' ? 'white' : 'gray'} />
       </View>
     );
   }

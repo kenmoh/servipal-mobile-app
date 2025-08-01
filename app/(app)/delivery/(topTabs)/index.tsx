@@ -105,7 +105,7 @@ const DeliveryScreen = () => {
 
 
   const { data, isLoading, error, refetch, isFetching, isPending, isFetched } = useQuery({
-    queryKey: ["deliveries"],
+    queryKey: ["orders"],
     queryFn: () => fetchPaidPendingDeliveries(),
     refetchOnWindowFocus: true,
     refetchOnMount: true,

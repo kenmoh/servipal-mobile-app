@@ -56,8 +56,6 @@ const SignIn = () => {
     onSuccess: async (data) => {
       const user = jwtDecode(data?.access_token) as User;
 
-      console.log(user);
-
       if (user?.account_status === "pending") {
         await authStorage.storeToken(data?.access_token);
         Notifier.showNotification({
@@ -87,7 +85,7 @@ const SignIn = () => {
 
           router.replace("/(app)/delivery/(topTabs)");
         } catch (error) {
-          console.error("Error storing token:", error);
+          throw new Error(`Error storing token: ${error}`);
         }
       }
     },

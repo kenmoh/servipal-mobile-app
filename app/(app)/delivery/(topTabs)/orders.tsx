@@ -24,7 +24,7 @@ const UserOrders = () => {
     const { user } = useAuth();
 
     const { data, isLoading, error, refetch, isFetching, isPending, isFetched } = useQuery({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
         queryFn: () => fetchUserRelatedOrders(user?.sub as string),
         refetchOnWindowFocus: true,
         refetchOnMount: true,

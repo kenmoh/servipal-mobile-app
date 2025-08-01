@@ -12,7 +12,9 @@ const PaymentStatusLayout = () => {
 
             <Stack.Screen name='[orderId]' options={{
 
-                title: '',
+                title: 'Payment',
+                headerTintColor: theme === 'dark' ? 'white' : 'black',
+                headerShadowVisible: false,
                 animation: 'slide_from_bottom',
                 headerStyle: {
                     backgroundColor: theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT,

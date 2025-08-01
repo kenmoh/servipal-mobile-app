@@ -129,6 +129,8 @@ const Page = () => {
         queryFn: () => fetchRestaurants(selectedCategory ?? undefined),
     });
 
+
+
     const { data: categories } = useQuery({
         queryKey: ["categories"],
         queryFn: fetchCategories,
@@ -338,17 +340,11 @@ export const FeaturedRestaurants = () => {
                 containerStyle={{ paddingHorizontal: 10 }}
             >
                 {featuredRestaurants?.map((restaurant) => (
-                    <View className='w-[90px] p-2' key={restaurant.id} >
+                    <View className='w-[90%] overflow-hidden' key={restaurant.id} >
                         <Card
-                        // width="100%"
-                        // height={160}
-                        // overflow="hidden"
-                        // backgroundColor="$cardBackground"
-                        // elevation={3}
-                        // shadowColor="$shadowColor"
-                        // shadowOffset={{ width: 0, height: 2 }}
-                        // shadowOpacity={0.25}
-                        // shadowRadius={3.84}
+                            style={{
+                                width: '100%'
+                            }}
                         >
                             <Image
                                 source={{ uri: restaurant.company_logo }}

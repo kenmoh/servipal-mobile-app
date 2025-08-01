@@ -16,7 +16,7 @@ const ChatRootLayout = () => {
         },
       }}
     >
-      <Stack.Screen name="[cid]" />
+      <Stack.Screen name="[cid]/index" />
       <Stack.Screen
         name="index"
         options={{
@@ -28,7 +28,8 @@ const ChatRootLayout = () => {
           },
         }}
       />
-      <Stack.Screen name="thread/[cid]" />
+      <Stack.Screen name="[cid]/thread/[cid]/index"
+      />
     </Stack>
   );
 };

@@ -80,7 +80,7 @@ const Cart = () => {
       distance: cart.distance,
       require_delivery: cart.require_delivery,
       duration: cart.duration,
-      origin: address! ?? undefined,
+      origin: Array.isArray(address) ? address[0] : address,
       destination: destination ?? undefined,
       ...(cart.additional_info && { additional_info: cart.additional_info }),
     };
@@ -121,12 +121,13 @@ const Cart = () => {
   useEffect(() => {
     const fetchAndUseTravelInfo = async () => {
       // Only proceed if we have both origin and destination
-      if (!origin || !destination) {
+
+      if (!address || !destination) {
         return;
       }
 
       // Use origin from store for originQuery
-      const originQuery = encodeURIComponent(origin);
+      const originQuery = encodeURIComponent(Array.isArray(address) ? address[0] : address);
       const destinationQuery = encodeURIComponent(destination);
 
       const url = `https://maps.googleapis.com/maps/api/distancematrix/json?destinations=${destinationQuery}&origins=${originQuery}&units=metric&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY}`;
@@ -297,7 +298,7 @@ const Cart = () => {
             <View className="w-full self-center">
               <AppTextInput
                 label="Pickup Location"
-                value={address || ""}
+                value={Array.isArray(address) ? address[0] : address}
                 editable={false}
               />
               <View className="my-2 w-full" />
@@ -325,8 +326,6 @@ const Cart = () => {
                 onPress={handleNext}
               />
             </View>
-
-
           </AppModal>
         </>
       )}

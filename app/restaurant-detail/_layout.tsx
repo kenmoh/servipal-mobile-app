@@ -11,6 +11,7 @@ const StoreDetailLayout = () => {
         <Stack
             screenOptions={{
                 headerShadowVisible: false,
+                headerTintColor: theme==='dark' ? 'white': 'black',
                 headerStyle: {
                     backgroundColor: BG_COLOR,
                 },

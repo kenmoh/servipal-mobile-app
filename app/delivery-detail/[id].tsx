@@ -4,13 +4,12 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
-  View,
+  View
 } from "react-native";
 
 import {
   cancelDelivery,
-  fetchDelivery,
+  fetchOrder,
   markLaundryReceived,
   riderAcceptDelivery,
   riderMarkDelivered,
@@ -29,19 +28,18 @@ import {
   Info,
   MapPin,
   Phone,
-  User,
-  Wallet,
+  Wallet
 } from "lucide-react-native";
 import { Notifier, NotifierComponents } from "react-native-notifier";
+import { User } from "stream-chat-expo";
 
 const ItemDetails = () => {
   const { id } = useLocalSearchParams();
-  const theme = useColorScheme();
   const { user } = useAuth();
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["delivery", id],
-    queryFn: () => fetchDelivery(id as string),
+    queryKey: ["order", id],
+    queryFn: () => fetchOrder(id as string),
     refetchOnWindowFocus: true,
     refetchOnMount: true,
   });
@@ -53,22 +51,22 @@ const ItemDetails = () => {
       senderConfirmDeliveryReceived(data?.delivery?.id as string),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["delivery", id],
+        queryKey: ["order", id],
         exact: false,
       });
       queryClient.invalidateQueries({
-        queryKey: ["deliveries"],
+        queryKey: ["orders"],
         exact: false,
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
         exact: false,
       });
 
-      queryClient.refetchQueries({ queryKey: ["deliveries"], exact: false });
+      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
       queryClient.refetchQueries({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
         exact: false,
       });
 
@@ -97,24 +95,24 @@ const ItemDetails = () => {
     mutationFn: () => markLaundryReceived(data?.delivery?.id as string),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["delivery", id],
+        queryKey: ["order", id],
         exact: false,
       });
       queryClient.invalidateQueries({
-        queryKey: ["deliveries"],
+        queryKey: ["orders"],
         exact: false,
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
         exact: false,
       });
       refetch();
       router.back();
 
-      queryClient.refetchQueries({ queryKey: ["deliveries"], exact: false });
+      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
       queryClient.refetchQueries({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
         exact: false,
       });
 
@@ -139,21 +137,21 @@ const ItemDetails = () => {
     mutationFn: () => riderAcceptDelivery(data?.delivery?.id as string),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["delivery", id],
+        queryKey: ["order", id],
         exact: false,
       });
       queryClient.invalidateQueries({
-        queryKey: ["deliveries"],
+        queryKey: ["orders"],
         exact: false,
       });
       queryClient.invalidateQueries({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
         exact: false,
       });
 
-      queryClient.refetchQueries({ queryKey: ["deliveries"], exact: false });
+      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
       queryClient.refetchQueries({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
         exact: false,
       });
 
@@ -181,21 +179,21 @@ const ItemDetails = () => {
     mutationFn: () => riderMarkDelivered(data?.delivery?.id as string),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["delivery", id],
+        queryKey: ["order", id],
         exact: false,
       });
       queryClient.invalidateQueries({
-        queryKey: ["deliveries"],
+        queryKey: ["orders"],
         exact: false,
       });
       queryClient.invalidateQueries({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
         exact: false,
       });
 
-      queryClient.refetchQueries({ queryKey: ["deliveries"], exact: false });
+      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
       queryClient.refetchQueries({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
         exact: false,
       });
 
@@ -220,24 +218,24 @@ const ItemDetails = () => {
   });
 
   const cancelDeliveryMutation = useMutation({
-    mutationFn: () => cancelDelivery(data?.delivery?.id as string),
+    mutationFn: () => cancelDelivery(id as string),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["delivery", id],
+        queryKey: ["order", id],
         exact: false,
       });
       queryClient.invalidateQueries({
-        queryKey: ["deliveries"],
+        queryKey: ["orders"],
         exact: false,
       });
       queryClient.invalidateQueries({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
         exact: false,
       });
 
-      queryClient.refetchQueries({ queryKey: ["deliveries"], exact: false });
+      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
       queryClient.refetchQueries({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
         exact: false,
       });
 
@@ -325,9 +323,6 @@ const ItemDetails = () => {
   };
 
   const actionButton = getActionButton();
-  const showFullBtnSize =
-    data?.delivery?.delivery_status === "pending" &&
-    user?.sub === data?.delivery?.sender_id;
   const showCancel =
     (user?.sub === data?.delivery?.sender_id ||
       user?.sub === data?.delivery?.rider_id) &&
@@ -344,25 +339,18 @@ const ItemDetails = () => {
           data?.delivery?.sender_id &&
           data?.delivery?.delivery_status !== "pending" &&
           data?.delivery?.delivery_status !== "received" && (
-            <TouchableOpacity
-              className="bg-background my-[10px] border rounded-[8px] border-border-subtle h-[40px] w-[85%] self-center justify-center items-center"
-              style={{
-                borderWidth: 1,
-              }}
-              onPressIn={() =>
+
+            <View className="self-center w-full justify-center items-center">
+              <AppVariantButton icon={<User color={'white'} />} width={"85%"} borderRadius={50} label="Contact Rider" onPress={() =>
                 router.push({
                   pathname: "/user-details/[userId]",
                   params: {
                     userId: data?.delivery?.rider_id!,
                   },
                 })
-              }
-            >
-              <View className="gap-10">
-                <User color={"white"} size={20} />
-                <Text className="text-primary">CONTACT RIDER</Text>
-              </View>
-            </TouchableOpacity>
+              } />
+            </View>
+
           )}
         {user?.sub === data?.delivery?.sender_id &&
           data?.order.order_payment_status !== "paid" && (
@@ -467,6 +455,7 @@ const ItemDetails = () => {
           <View className="justify-center w-full items-center gap-3 self-center mt-4">
             {actionButton && (
               <AppButton
+                borderRadius={50}
                 title={actionButton.label}
                 backgroundColor={
                   data?.delivery?.delivery_status === "received"
@@ -563,3 +552,6 @@ const ItemDetails = () => {
 export default ItemDetails;
 
 const styles = StyleSheet.create({});
+
+
+// https://www.termsfeed.com/live/c69b90e9-8735-4d3f-81d5-c3a07bcbddeb

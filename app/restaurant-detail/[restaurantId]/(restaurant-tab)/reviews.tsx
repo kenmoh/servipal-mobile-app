@@ -3,9 +3,8 @@ import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { FlatList, Image, Text, View } from 'react-native';
 
-import Card from '@/components/Card';
 import { format } from 'date-fns';
-import { CheckCircle2, Star } from 'lucide-react-native';
+import { Star } from 'lucide-react-native';
 import { dummyReviews } from './dummyReviews';
 
 const reviews = () => {
@@ -32,9 +31,9 @@ const ReviewCard = ({ data }: { data: Review }) => {
         return Array.from({ length: 5 }).map((_, index) => (
             <Star
                 key={index}
-                size={16}
-                fill={index < rating ? "#FFD700" : "transparent"}
-                color={index < rating ? "#FFD700" : "#D3D3D3"}
+                size={10}
+                // fill={index < rating ? "orange" : "transparent"}
+                color={index < rating ? "orange" : "#D3D3D3"}
             />
         ));
     };
@@ -48,12 +47,9 @@ const ReviewCard = ({ data }: { data: Review }) => {
     };
 
     return (
-        <Card
-        // marginVertical={'$2'}
-        // backgroundColor={'$cardBackground'}
-        // borderWidth={StyleSheet.hairlineWidth}
-        // borderColor={'$borderColor'}
-        // borderRadius={'$4'}
+        <View
+
+            className='bg-input py-2 px-3 w-full self-center rounded-lg mb-2'
         >
 
             <View className='flex-row items-center gap-3 mb-2'>
@@ -65,14 +61,14 @@ const ReviewCard = ({ data }: { data: Review }) => {
                     />
                 </View>
                 <View className='flex-1'>
-                    <View className='flex-row  items-center gap-2'>
+                    <View className='gap-2'>
                         <Text
                             className='font-poppins-medium text-sm text-primary'
 
                         >
                             {data.user.full_name}
                         </Text>
-                        <CheckCircle2 size={16} color="#4CAF50" />
+
                     </View>
                     <Text className='text-xs text-primary' >
                         {formatDate(data.created_at)}
@@ -80,7 +76,7 @@ const ReviewCard = ({ data }: { data: Review }) => {
                 </View>
             </View>
 
-            <View className='gap-1 mb-2'>
+            <View className='gap-2 mb-2 flex-row'>
                 {renderStars(data.rating)}
             </View>
 
@@ -90,6 +86,6 @@ const ReviewCard = ({ data }: { data: Review }) => {
                 {data.comment}
             </Text>
 
-        </Card>
+        </View>
     )
 }

@@ -6,7 +6,7 @@ import { useAuth } from "@/context/authContext";
 import { useCartStore } from "@/store/cartStore";
 import { FoodGroup, MenuItem } from "@/types/item-types";
 import { useQuery } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, Stack } from "expo-router";
 import { useCallback, useState } from "react";
 import { FlatList, View } from "react-native";
 
@@ -64,6 +64,7 @@ const StoreDetails = () => {
 
     return (
         <View className="flex-1 bg-background p-2">
+          
             <View className="flex-1" >
                 <FlatList
                     data={data ?? []}

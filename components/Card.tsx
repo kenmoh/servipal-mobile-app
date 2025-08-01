@@ -1,12 +1,13 @@
 import { CARD_BG } from '@/constants/theme'
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, ViewStyle } from 'react-native'
 
-const Card = ({ children, title, bordered = false }: { children: React.ReactNode, title?: string, bordered?: boolean }) => {
+const Card = ({ children, title, style, bordered = false }: { children: React.ReactNode, title?: string, bordered?: boolean, style?: ViewStyle }) => {
     return (
         <View style={{
             borderWidth: bordered ? StyleSheet.hairlineWidth : 0,
-            borderColor: bordered ? CARD_BG : ''
+            borderColor: bordered ? CARD_BG : '',
+            ...style
 
         }} className='bg-input w-[95%] rounded-[15px] mb-1 overflow-hidden elevation-md self-center'>
             {title && <Text className='text-primary'>{title}</Text>}

@@ -1,15 +1,12 @@
-import { apiClient } from "@/utils/client";
-import { ApiResponse } from "apisauce";
-import { ErrorResponse } from "./auth";
 import {
   CreateReview,
   DeliveryDetail,
   OrderFoodOLaundry,
-  RiderDeliveryStatus,
   SendItem,
-  DeliveryStatus,
-  OrderType,
 } from "@/types/order-types";
+import { apiClient } from "@/utils/client";
+import { ApiResponse } from "apisauce";
+import { ErrorResponse } from "./auth";
 
 const BASE_URL = "/orders";
 
@@ -122,12 +119,10 @@ export const fetchDeliveries = async ({
 };
 
 // Fetch Delivery
-export const fetchDelivery = async (
-  deliveryId: string
-): Promise<DeliveryDetail> => {
+export const fetchOrder = async (orderId: string): Promise<DeliveryDetail> => {
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
-      await apiClient.get(`${BASE_URL}/${deliveryId}`, {
+      await apiClient.get(`${BASE_URL}/${orderId}`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -396,15 +391,14 @@ export const riderMarkDelivered = async (
   }
 };
 
-// Cancel delivery (can only be done by rider when in-transit and sender when pending)
 export const cancelDelivery = async (
-  deliveryId: string,
+  orderId: string,
   reason?: string
 ): Promise<DeliveryDetail> => {
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${deliveryId}/cancel-delivery`,
+        `${BASE_URL}/${orderId}/cancel-order`,
         { reason },
         {
           headers: {
@@ -486,7 +480,6 @@ export const getTravelDistance = async (
 
     return null;
   } catch (error) {
-    console.error("Error calculating travel distance:", error);
-    return null;
+    throw new Error(`Error calculating travel distance: ${error}`);
   }
 };

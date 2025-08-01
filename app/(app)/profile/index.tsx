@@ -1,6 +1,6 @@
 import ProfileCard from "@/components/ProfileCard";
 import RadioButton from "@/components/core/RadioButton";
-import { SunIcon, MoonIcon, KeyRound, LogOutIcon, Store, UserRound, UsersRound, Wallet } from "lucide-react-native";
+import { KeyRound, LogOutIcon, MoonIcon, Store, SunIcon, UserRound, UsersRound, Wallet } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -200,7 +200,7 @@ const profile = () => {
     <>
       <View className="flex-1 bg-background">
         <View>
-          <View>
+          <View className="'w-full">
             <ProfileImagePicker
               onImageSelect={handleBackdropImageSelect}
               width={BACKDROP_IMAGE_WIDTH}
@@ -211,24 +211,26 @@ const profile = () => {
             />
           </View>
 
-          <View className="items-center -mt-12">
-            <ProfileImagePicker
-              onImageSelect={handleProfileImageSelect}
-              width={100}
-              height={100}
-              borderRadius={50}
-              initialImage={profile?.profile?.profile_image_url || null}
-            />
-          </View>
+          <View className="flex-row">
+            <View className="items-center -mt-12 ml-4">
+              <ProfileImagePicker
+                onImageSelect={handleProfileImageSelect}
+                width={100}
+                height={100}
+                borderRadius={50}
+                initialImage={profile?.profile?.profile_image_url || null}
+              />
+            </View>
 
-          <View className="items-center mt-2">
-            <Text className="capitalize tracking-wide text-lg font-bold text-primary text-center">
-              {profile?.profile?.full_name || profile?.profile?.business_name}
-            </Text>
-            <Text className="text-center text-muted">
-              {profile?.profile?.phone_number}
-            </Text>
-            <Text className="text-center text-muted">{profile?.email}</Text>
+            <View className="items-center mt-2">
+              <Text className="capitalize tracking-wide text-lg font-bold text-primary text-center">
+                {profile?.profile?.full_name || profile?.profile?.business_name}
+              </Text>
+              <Text className="text-center text-muted">
+                {profile?.profile?.phone_number}
+              </Text>
+              <Text className="text-center text-muted">{profile?.email}</Text>
+            </View>
           </View>
 
           <View className="mt-10">

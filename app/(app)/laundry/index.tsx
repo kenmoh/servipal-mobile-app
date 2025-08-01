@@ -323,8 +323,11 @@ export const FeaturedLaundryVendors = () => {
                 containerStyle={{ paddingHorizontal: 10 }}
             >
                 {featuredLaundryVendors?.map((laundry) => (
-                    <View className='mx-2 w-[90%]' key={laundry.id}>
+                    <View className='mx-2 w-[90%] overflow-hidden' key={laundry.id}>
                         <Card
+                            style={{
+                                width: '100%'
+                            }}
 
                         >
                             <Image

@@ -100,23 +100,23 @@ const Payment = () => {
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["delivery", deliveryId],
+        queryKey: ["order", orderId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["delivery", orderId],
+        queryKey: ["order", orderId],
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["deliveries"],
+        queryKey: ["orders"],
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
       });
 
-      queryClient.refetchQueries({ queryKey: ["deliveries"], exact: false });
+      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
       queryClient.refetchQueries({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
         exact: false,
       });
 
@@ -165,23 +165,23 @@ const Payment = () => {
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["delivery", deliveryId],
+        queryKey: ["order", orderId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["delivery", orderId],
+        queryKey: ["order", orderId],
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["deliveries"],
+        queryKey: ["orders"],
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
       });
 
-      queryClient.refetchQueries({ queryKey: ["deliveries"], exact: false });
+      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
       queryClient.refetchQueries({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
         exact: false,
       });
     }
