@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -8,7 +8,7 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { WebView, WebViewNavigation } from "react-native-webview";
+import { WebView } from "react-native-webview";
 
 import { OrderItemResponse } from "@/types/order-types";
 import { router, useLocalSearchParams } from "expo-router";
@@ -151,32 +151,50 @@ const Payment = () => {
     return deliveryFee ? Number(deliveryFee) + itemsTotal : itemsTotal;
   };
 
-  const handleShouldStartLoad = (event: WebViewNavigation) => {
 
 
-    const { url } = event;
-    if (url.includes("https://servipalbackend.onrender.com/api/payment/order-payment-callback")) {
-      const urlParams = new URLSearchParams(url.split('?')[1]);
-      const status = urlParams.get('status');
-      const txRef = urlParams.get('tx_ref');
-      const transactionId = urlParams.get('transaction_id');
-      console.log(url, urlParams, status, txRef, transactionId)
+  useEffect(() => {
+    if (!status) return;
 
-      if (status === 'successful') {
+    const timer = setTimeout(() => {
+      // Add paymentStatus to the redirect
+      if (status[0] === "status=successful") {
         router.replace({
-          pathname: "/payment/payment-complete",
-          params: { paymentStatus: "success", txRef, transactionId },
+          pathname: "/(app)/delivery/(topTabs)",
+          params: { paymentStatus: 'success' }
         });
-      } else {
+
+        queryClient.invalidateQueries({
+          queryKey: ["order", deliveryId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["order", orderId],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ["orders"],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ["orders", user?.sub],
+        });
+
+        queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
+        queryClient.refetchQueries({ queryKey: ["orders", user?.sub], exact: false });
+
+
+      }
+      if (status[0] === "status=failed" || status[0] === "status=cancelled") {
         router.replace({
-          pathname: "/payment/payment-complete",
-          params: { paymentStatus: "failed", txRef, transactionId },
+          pathname: "/(app)/delivery/(topTabs)/orders",
+          params: { paymentStatus: 'failed' }
         });
       }
-      return false;
-    }
-    return true;
-  };
+    }, 3000); // 3-second delay
+
+    // Cleanup the timer if the component unmounts or the status changes
+    return () => clearTimeout(timer);
+  }, [status]);
 
   const renderWebView = () => (
     <View className="bg-background" style={[styles.webviewContainer]}>
@@ -196,7 +214,7 @@ const Payment = () => {
             ? paymentLink[0]
             : (paymentLink as string),
         }}
-        onShouldStartLoadWithRequest={handleShouldStartLoad}
+        onNavigationStateChange={setRedirectedUrl}
         onLoadStart={() => setIsLoading(true)}
         onLoadEnd={() => setIsLoading(false)}
       />

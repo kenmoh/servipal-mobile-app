@@ -1,0 +1,79 @@
+import { Product } from "@/types/marketplace";
+import { router } from "expo-router";
+import { Store } from "lucide-react-native";
+import React from "react";
+import {
+    Dimensions,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+
+const CARD_HEIGHT = Dimensions.get("screen").height * 0.28;
+
+const ProductCard = ({ product }: { product: Product }) => {
+    const handlePress = () => {
+        router.push({
+            pathname: "/product-detail/[productId]",
+            params: {
+                productId: product.id,
+                name: product.name,
+                imageUrls: JSON.stringify(product.image_urls),
+                price: product.price,
+                seller: product.seller.username,
+            },
+        });
+    };
+
+    return (
+        <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={handlePress}
+            className="my-2"
+        >
+            <View
+                style={styles.container}
+                className="w-[95%] rounded-lg bg-input self-center overflow-hidden"
+            >
+                <Image
+                    source={{
+                        uri: product.image_urls[0] || "https://via.placeholder.com/150",
+                    }}
+                    className="w-full h-full object-cover"
+                />
+            </View>
+            <View className="bg-background w-[95%] self-center p-2 rounded-b-lg">
+                <View className="flex-row justify-between">
+                    <Text
+                        className="text-primary text-base font-poppins-medium flex-1"
+                        numberOfLines={1}
+                    >
+                        {product.name}
+                    </Text>
+                    <Text className="text-primary text-base font-poppins-medium">
+                        ₦{product?.price}
+                    </Text>
+                </View>
+                <View className="flex-row justify-between mt-1">
+                    <View className="flex-row gap-2 items-center">
+                        <Store size={16} color="gray" />
+                        <Text className="text-muted text-sm font-poppins">
+                            {product?.seller?.username}
+                        </Text>
+                    </View>
+                    <View className="flex-row gap-2 items-center"></View>
+                </View>
+            </View>
+        </TouchableOpacity>
+    );
+};
+
+export default ProductCard;
+
+const styles = StyleSheet.create({
+    container: {
+        height: CARD_HEIGHT,
+    },
+});

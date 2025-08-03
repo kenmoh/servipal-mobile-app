@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 
-import { fetchDelivery } from "@/api/order";
+import { fetchOrder } from "@/api/order";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 import { useQuery } from "@tanstack/react-query";
@@ -21,15 +21,15 @@ import { Download, Share2 } from "lucide-react-native";
 import { Notifier, NotifierComponents } from "react-native-notifier";
 
 const ReceiptPage = () => {
-  const { deliveryId } = useLocalSearchParams();
+  const { deliveryId: orderId } = useLocalSearchParams();
   const screenWidth = Dimensions.get("window").width;
   const theme = useColorScheme();
 
   const BG_COLOR = theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["delivery", deliveryId],
-    queryFn: () => fetchDelivery(deliveryId as string),
+    queryKey: ["order", orderId],
+    queryFn: () => fetchOrder(orderId as string),
   });
 
   const generateReceiptHTML = () => {
@@ -398,7 +398,7 @@ const ReceiptPage = () => {
         alignContent: "center",
       }}
     >
-      <View className="gap-4 flex-1 overflow-scroll ">
+      <View className="gap-4 flex-1 overflow-scroll">
         {/* <Text fontSize={20} fontWeight="bold" textAlign="center">Receipt</Text> */}
 
         <View className="p-1 bg-background border border-border-subtle px-5 py-3 mt-5 rounded-lg w-[95%] self-center">

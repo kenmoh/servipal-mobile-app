@@ -99,18 +99,18 @@ const ItemInfo = () => {
     mutationFn: sendItem,
     onSuccess: (data) => {
       queryClient.invalidateQueries({
-        queryKey: ["deliveries", user?.sub],
+        queryKey: ["orders", user?.sub],
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["delivery", data?.delivery?.id],
+        queryKey: ["order", data?.delivery?.id],
       });
       queryClient.invalidateQueries({
-        queryKey: ["delivery", data?.order?.id],
+        queryKey: ["order", data?.order?.id],
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["deliveries"],
+        queryKey: ["orders"],
       });
 
       Notifier.showNotification({

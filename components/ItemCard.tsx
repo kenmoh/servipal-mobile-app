@@ -213,7 +213,7 @@ const ItemCard = React.memo(({ data, isHomeScreen = false }: CardProp) => {
                                     <Landmark size={15} color='gray' />
 
                                     <Text
-                                        className='flex-1 text-primary font-poppins-medium text-xs'
+                                        className='flex-1 text-muted font-poppins-medium text-xs'
 
                                         numberOfLines={2}
                                     >
@@ -234,7 +234,7 @@ const ItemCard = React.memo(({ data, isHomeScreen = false }: CardProp) => {
                                             style={styles.iconStyle}
                                         />
                                         <Text
-                                            className='flex-1 text-primary font-poppins-medium text-xs'
+                                            className='flex-1 text-muted font-poppins-medium text-xs'
 
                                             numberOfLines={2}
                                         >
@@ -250,7 +250,7 @@ const ItemCard = React.memo(({ data, isHomeScreen = false }: CardProp) => {
                                             style={styles.iconStyle}
                                         />
                                         <Text
-                                            className='flex-1 text-primary font-poppins-medium text-xs'
+                                            className='flex-1 text-muted font-poppins-medium text-xs'
 
                                             numberOfLines={2}
                                         >
@@ -264,7 +264,7 @@ const ItemCard = React.memo(({ data, isHomeScreen = false }: CardProp) => {
                             {data?.order?.require_delivery === 'delivery' && <View className='gap-[5px] flex-row items-center flex-wrap'>
                                 <View className='flex-row gap-[5px] items-center flex-shrink-0'>
                                     <Feather name="clock" color='gray' size={10} />
-                                    <Text className='text-primary font-poppins text-xs'>
+                                    <Text className='text-muted font-poppins text-xs'>
                                         {data?.delivery ? data?.delivery?.duration : ''}
                                     </Text>
                                 </View>

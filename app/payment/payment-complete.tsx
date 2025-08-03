@@ -1,3 +1,5 @@
+import { useAuth } from "@/context/authContext";
+import { useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { Check, Download, Home, X } from "lucide-react-native";
 import React from "react";
@@ -10,6 +12,8 @@ const PaymentComplete = () => {
   const paymentStatus = params.paymentStatus as string;
   const txRef = params.txRef as string;
   const transactionId = params.transactionId as string;
+  const queryClient = useQueryClient()
+  const { user } = useAuth();
 
   const isSuccess = paymentStatus === "success";
 
@@ -59,6 +63,26 @@ const PaymentComplete = () => {
         <TouchableOpacity
           onPressIn={() => {
             router.replace({ pathname: "/delivery" });
+            queryClient.invalidateQueries({
+              queryKey: ["order", params],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["order", params],
+            });
+
+            queryClient.invalidateQueries({
+              queryKey: ["orders"],
+            })
+
+            queryClient.invalidateQueries({
+              queryKey: ["orders", user?.sub],
+            });
+
+            queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
+            queryClient.refetchQueries({
+              queryKey: ["orders", user?.sub],
+              exact: false,
+            });
           }}
         >
           <View className="border p-4 h-[120px] w-[120px]  bg-input border-border-subtle rounded-md items-center justify-center">

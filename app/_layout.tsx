@@ -196,6 +196,17 @@ export default function RootLayout() {
                         />
 
                         <Stack.Screen
+                          name="product-detail/[productId]"
+                          options={{
+
+                            title: "Product Details",
+                            headerShadowVisible: false,
+                            animation: "slide_from_bottom",
+
+
+                          }}
+                        />
+                        <Stack.Screen
                           name="user-details"
                           options={{
                             presentation: "transparentModal",

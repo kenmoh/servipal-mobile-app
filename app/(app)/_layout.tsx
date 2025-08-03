@@ -70,6 +70,13 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="marketplace"
+          options={{
+            title: "Marketplace",
+            tabBarIcon: () => require("@/assets/images/store.svg"),
+          }}
+        />
+        <Tabs.Screen
           name="profile"
           options={{
             title: "Profile",
