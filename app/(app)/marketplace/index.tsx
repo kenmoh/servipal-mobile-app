@@ -1,94 +1,54 @@
+import { fetchProducts } from '@/api/product'
 import ProductCard from '@/components/ProductCard'
+import { useQuery } from '@tanstack/react-query'
+import { router, Stack } from 'expo-router'
 import React from 'react'
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
-const data = [
-    {
-        id: '1',
-        name: 'Classic Leather Jacket',
-        price: 15000.00,
-        image_urls: ['https://images.unsplash.com/photo-1551028719-00167b16e2d8?q=80&w=2564&auto=format&fit=crop'],
-        seller: { username: 'UrbanWear' },
-        description: 'A timeless black leather jacket, perfect for any occasion. Made with genuine leather.',
-        stock: 15,
-        category: 'Apparel',
-    },
-    {
-        id: '2',
-        name: 'Wireless Bluetooth Headphones',
-        price: 8500.50,
-        image_urls: ['https://images.unsplash.com/photo-1505740420928-5e560c06d76e?q=80&w=2670&auto=format&fit=crop'],
-        seller: { username: 'TechGadgets' },
-        description: 'High-fidelity sound with noise-cancellation. Up to 20 hours of battery life.',
-        stock: 30,
-        category: 'Electronics',
-    },
-    {
-        id: '3',
-        name: 'Handcrafted Wooden Bowl',
-        price: 3200.00,
-        image_urls: ['https://images.unsplash.com/photo-1572023243202-b8234ab6e2a1?q=80&w=2535&auto=format&fit=crop'],
-        seller: { username: 'ArtisanHome' },
-        description: 'Beautifully crafted from sustainable oak wood. Ideal for salads or as a decorative piece.',
-        stock: 25,
-        category: 'Home Goods',
-    },
-    {
-        id: '4',
-        name: 'Organic Green Tea',
-        price: 1500.75,
-        image_urls: ['https://images.unsplash.com/photo-1627435601361-ec25f2b74413?q=80&w=2564&auto=format&fit=crop'],
-        seller: { username: 'HealthyHarvest' },
-        description: 'A refreshing and healthy blend of organic green tea leaves. 50 tea bags.',
-        stock: 100,
-        category: 'Groceries',
-    },
-    {
-        id: '5',
-        name: 'Modern Minimalist Watch',
-        price: 25000.00,
-        image_urls: ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=2598&auto=format&fit=crop'],
-        seller: { username: 'Timekeepers' },
-        description: 'Sleek and stylish watch with a stainless steel mesh band and a minimalist face.',
-        stock: 20,
-        category: 'Accessories',
-    },
-    {
-        id: '6',
-        name: 'Professional Yoga Mat',
-        price: 4500.00,
-        image_urls: ['https://images.unsplash.com/photo-1591291621164-2c6367723315?q=80&w=2670&auto=format&fit=crop'],
-        seller: { username: 'ZenFlow' },
-        description: 'Non-slip, eco-friendly yoga mat for a perfect practice. Comes with a carrying strap.',
-        stock: 50,
-        category: 'Sports & Fitness',
-    },
-    {
-        id: '7',
-        name: 'Gourmet Coffee Beans',
-        price: 2800.00,
-        image_urls: ['https://images.unsplash.com/photo-1559032823-3492054130c9?q=80&w=2564&auto=format&fit=crop'],
-        seller: { username: 'TheDailyGrind' },
-        description: 'A rich and aromatic blend of single-origin Arabica coffee beans. 1kg bag.',
-        stock: 40,
-        category: 'Groceries',
-    },
-]
 
 const MarketPlace = () => {
-    return (
-        <View className='flex-1 bg-background'>
-            <Text>MarketPlace</Text>
-            <FlatList
-                data={data || []}
-                renderItem={({ item }) => <ProductCard product={item} />}
-                keyExtractor={(item) => item.id}
-            />
 
+    const { data, isLoading, isPending } = useQuery({
+        queryKey: ['products'],
+        queryFn: fetchProducts
+    })
+
+    if (isLoading || isPending) {
+        <View className='flex-1 justify-center items-center bg-background'>
+
+            <ActivityIndicator color={'gray'} size={'large'} />
         </View>
+    }
+
+    return (
+        <>
+            <Stack.Screen options={{
+                headerRight: () => <AddProductBtn onPress={() =>
+                    router.push('/marketplace/add-product')
+                } />
+
+            }} />
+            <View className='flex-1 bg-background'>
+                <FlatList
+                    data={data || []}
+                    renderItem={({ item }) => <ProductCard product={item} />}
+                    keyExtractor={(item) => item?.id}
+                />
+
+            </View>
+        </>
     )
 }
 
 export default MarketPlace
 
 const styles = StyleSheet.create({})
+
+
+const AddProductBtn = ({ onPress }: { onPress: () => void }) => {
+    return (
+        <TouchableOpacity onPress={onPress} className='rounded-full py-2 px-4 bg-button-primary'>
+            <Text className='text-white text-center'>Add Product</Text>
+        </TouchableOpacity>
+    )
+}

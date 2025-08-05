@@ -194,13 +194,25 @@ export default function RootLayout() {
                             ),
                           }}
                         />
+                        <Stack.Screen
+                          name="chat/index"
+                          options={{
+                            title: "Messages",
+                            headerShadowVisible: false,
+
+                          }}
+                        />
 
                         <Stack.Screen
                           name="product-detail/[productId]"
                           options={{
+                            headerTransparent: true,
+                            headerShown: false,
+                            headerStyle: {
+                              backgroundColor: 'transparent',
+                            },
 
-                            title: "Product Details",
-                            headerShadowVisible: false,
+                            title: "",
                             animation: "slide_from_bottom",
 
 

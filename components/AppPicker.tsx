@@ -40,7 +40,7 @@ const AppPicker = ({
 
   return (
     <View className={`w-[${width}]  overflow-hidden my-2  self-center`}>
-      {label && <Text className="text-primary font-poppins-bold">{label}</Text>}
+      {label && <Text className="text-primary font-poppins-bold text-base">{label}</Text>}
       <View className="rounded-lg bg-input overflow-hidden">
         <Picker
           style={{

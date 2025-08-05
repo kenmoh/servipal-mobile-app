@@ -1,6 +1,3 @@
-import { apiClient } from "@/utils/client";
-import { ApiResponse } from "apisauce";
-import { ErrorResponse } from "./auth";
 import {
   BuyItem,
   BuyItemResponse,
@@ -8,6 +5,9 @@ import {
   CreateProductResponse,
   ItemOrderStatus,
 } from "@/types/marketplace";
+import { apiClient } from "@/utils/client";
+import { ApiResponse } from "apisauce";
+import { ErrorResponse } from "./auth";
 
 const BASE_URL = "/products";
 const BASE_URL_MKT = "/marketplace";
@@ -16,6 +16,7 @@ const BASE_URL_MKT = "/marketplace";
 export const createProduct = async (
   prodData: CreateProduct
 ): Promise<CreateProductResponse> => {
+  console.log(prodData.images, "SERVER");
   const data = new FormData();
   data.append("name", prodData.name);
   data.append("price", prodData.price.toString());
@@ -26,11 +27,11 @@ export const createProduct = async (
   if (prodData.category_id !== undefined) {
     data.append("category_id", prodData.category_id);
   }
-  // Handle multiple images
+
   if (prodData.images && prodData.images.length > 0) {
-    prodData.images.forEach((image, index) => {
+    prodData.images.forEach((imageUri, index) => {
       data.append("images", {
-        uri: image.url,
+        uri: imageUri,
         type: "image/jpeg",
         name: `image_${index}.jpg`,
       } as any);
@@ -39,7 +40,7 @@ export const createProduct = async (
   // Handle multiple colors
   if (prodData.colors && prodData.colors.length > 0) {
     prodData.colors.forEach((color) => {
-      data.append("images", color);
+      data.append("colors", color);
     });
   }
   try {
@@ -57,6 +58,7 @@ export const createProduct = async (
           : "Error creating item. Please try again later.";
       throw new Error(errorMessage);
     }
+
     return response.data;
   } catch (error) {
     if (error instanceof Error) {
@@ -122,17 +124,16 @@ export const updateProduct = async (
 };
 
 // Fetch products
-export const fetchProducts = async (
-  skip: number = 0,
-  limit: number = 25
-): Promise<CreateProductResponse[]> => {
-  const params = new URLSearchParams({
-    skip: skip.toString(),
-    limit: limit.toString(),
-  });
+export const fetchProducts = async () // skip: number = 0,
+// limit: number = 25
+: Promise<CreateProductResponse[]> => {
+  // const params = new URLSearchParams({
+  //   skip: skip.toString(),
+  //   limit: limit.toString(),
+  // });
   try {
     const response: ApiResponse<CreateProductResponse[] | ErrorResponse> =
-      await apiClient.get(`${BASE_URL}/?${params.toString()}`, {
+      await apiClient.get(`${BASE_URL}`, {
         headers: {
           "Content-Type": "application/json",
         },

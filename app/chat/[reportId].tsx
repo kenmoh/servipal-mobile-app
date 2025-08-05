@@ -1,13 +1,14 @@
 
+import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
+import { useBottomNavigationHeight } from "@/utils/navigationHeight";
 import { Ionicons } from "@expo/vector-icons";
 import { useHeaderHeight } from "@react-navigation/elements";
-import { router, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
     Alert,
     FlatList,
     Image,
-    KeyboardAvoidingView,
     Platform,
     SafeAreaView,
     Text,
@@ -16,6 +17,7 @@ import {
     useColorScheme,
     View
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 
 // Mock chat data for demonstration
 const mockMessages = [
@@ -121,6 +123,7 @@ const ChatInput = ({ onSend }: { onSend: (message: string) => void }) => {
     const [message, setMessage] = useState('');
     const theme = useColorScheme();
     const isDark = theme === 'dark';
+    const bottomTabHeight = useBottomNavigationHeight();
 
     const handleSend = () => {
         if (message.trim()) {
@@ -130,27 +133,23 @@ const ChatInput = ({ onSend }: { onSend: (message: string) => void }) => {
     };
 
     return (
-        <View className={`flex-row items-end p-4 border-t ${isDark ? 'border-gray-700 bg-background' : 'border-gray-200 bg-background'
-            }`}>
-            <View className={`flex-1 mr-3 rounded-2xl px-4 py-2 ${isDark ? 'bg-gray-700' : 'bg-gray-100'
-                }`}>
-                <TextInput
-                    value={message}
-                    onChangeText={setMessage}
-                    placeholder="Type a message..."
-                    placeholderTextColor={isDark ? '#9CA3AF' : '#6B7280'}
-                    multiline
-                    className={`text-sm ${isDark ? 'text-white' : 'text-gray-900'
-                        }`}
-                    style={{ maxHeight: 100 }}
-                />
-            </View>
+        <View className={`flex-row items-end `} style={{ paddingBottom: 16 + bottomTabHeight }}>
+
+            <TextInput
+                value={message}
+                onChangeText={setMessage}
+                placeholder="Type a message..."
+                placeholderTextColor={isDark ? '#9CA3AF' : '#6B7280'}
+                multiline
+                className="text-sm text-primary px-6"
+                style={{ maxHeight: 100, width: '100%', borderBottomWidth: 1, borderBottomColor: 'gray' }}
+            />
+
 
             <TouchableOpacity
                 onPress={handleSend}
                 disabled={!message.trim()}
-                className={`w-10 h-10 rounded-full justify-center items-center ${message.trim() ? 'bg-primary' : isDark ? 'bg-gray-600' : 'bg-gray-300'
-                    }`}
+                className="absolute bottom-[75px] right-6"
             >
                 <Ionicons
                     name="send"
@@ -162,15 +161,17 @@ const ChatInput = ({ onSend }: { onSend: (message: string) => void }) => {
     );
 };
 
-export default function ChannelScreen() {
+export default function ChatConversationScreen() {
     const headerHeight = useHeaderHeight();
-    const { cid } = useLocalSearchParams<{ cid: string }>();
+    const bottomTabHeight = useBottomNavigationHeight();
+    const { reportId } = useLocalSearchParams<{ reportId: string }>();
     const theme = useColorScheme();
     const isDark = theme === 'dark';
     const [messages, setMessages] = useState(mockMessages);
     const flatListRef = useRef<FlatList>(null);
 
-    // Mock chat info - replace with actual data
+
+    // Mock chat info - replace with actual data based on reportId
     const chatInfo = {
         name: "John Doe",
         avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
@@ -198,10 +199,6 @@ export default function ChannelScreen() {
         }, 100);
     };
 
-    const handleBack = () => {
-        router.back();
-    };
-
     const handleMoreOptions = () => {
         Alert.alert(
             "Chat Options",
@@ -215,77 +212,80 @@ export default function ChannelScreen() {
         );
     };
 
-
-
     return (
-        <SafeAreaView className={`flex-1 ${isDark ? 'bg-background' : 'bg-background'}`}>
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                className="flex-1"
-                keyboardVerticalOffset={headerHeight}
-            >
-                {/* Header */}
-                <View className={`flex-row items-center justify-between p-4 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'
-                    }`}>
-                    <View className="flex-row items-center flex-1">
-                        <TouchableOpacity onPress={handleBack} className="mr-3">
+        <>
+            <Stack.Screen
+                options={{
+                    title: "",
+                    headerShadowVisible: false,
+                    headerBackVisible: true,
+                    headerTintColor: isDark ? 'white' : 'black',
+                    headerStyle: {
+                        backgroundColor: isDark ? HEADER_BG_DARK : HEADER_BG_LIGHT
+                    },
+                    headerRight: () => (
+                        <TouchableOpacity onPress={handleMoreOptions} className="ml-2">
                             <Ionicons
-                                name="arrow-back"
-                                size={24}
+                                name="ellipsis-vertical"
+                                size={20}
                                 color={isDark ? 'white' : 'black'}
                             />
                         </TouchableOpacity>
+                    ),
+                    headerLeft: () => <Avatar name={chatInfo.name} avatar={chatInfo.avatar} lastSeen={chatInfo.lastSeen} isDark={isDark} isOnline={chatInfo.online} />
+                }}
+            />
+            <SafeAreaView className={`flex-1 ${isDark ? 'bg-background' : 'bg-background'}`}>
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    style={{ flex: 1 }}
+                    keyboardVerticalOffset={headerHeight / 6}
+                >
+                    {/* Messages */}
+                    <FlatList
+                        ref={flatListRef}
+                        data={messages}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item }) => <MessageBubble message={item} />}
+                        showsVerticalScrollIndicator={false}
+                        className="flex-1"
+                        contentContainerStyle={{ paddingVertical: 10 }}
+                        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+                    />
 
-                        <TouchableOpacity className="flex-row items-center flex-1">
-                            <View className="relative">
-                                <Image
-                                    source={{ uri: chatInfo.avatar }}
-                                    className="w-10 h-10 rounded-full"
-                                />
-                                {chatInfo.online && (
-                                    <View className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
-                                )}
-                            </View>
-
-                            <View className="ml-3 flex-1">
-                                <Text className={`font-poppins-semibold text-base ${isDark ? 'text-white' : 'text-gray-900'
-                                    }`}>
-                                    {chatInfo.name}
-                                </Text>
-                                <Text className={`text-xs ${chatInfo.online
-                                    ? 'text-green-500'
-                                    : isDark ? 'text-gray-400' : 'text-gray-500'
-                                    }`}>
-                                    {chatInfo.online ? 'Online' : `Last seen ${chatInfo.lastSeen}`}
-                                </Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-
-                    <TouchableOpacity onPress={handleMoreOptions} className="ml-2">
-                        <Ionicons
-                            name="ellipsis-vertical"
-                            size={20}
-                            color={isDark ? 'white' : 'black'}
-                        />
-                    </TouchableOpacity>
-                </View>
-
-                {/* Messages */}
-                <FlatList
-                    ref={flatListRef}
-                    data={messages}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => <MessageBubble message={item} />}
-                    showsVerticalScrollIndicator={false}
-                    className="flex-1"
-                    contentContainerStyle={{ paddingVertical: 10 }}
-                    onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-                />
-
-                {/* Input */}
-                <ChatInput onSend={handleSendMessage} />
-            </KeyboardAvoidingView>
-        </SafeAreaView>
+                    {/* Input - Fixed at bottom */}
+                    <ChatInput onSend={handleSendMessage} />
+                </KeyboardAvoidingView>
+            </SafeAreaView>
+        </>
     );
+}
+
+const Avatar = ({ avatar, isOnline, name, isDark, lastSeen }: { avatar: string, lastSeen: string, isOnline: boolean, name: string, isDark: boolean }) => {
+    return (
+        <TouchableOpacity className="flex-row items-center flex-1">
+            <View className="">
+                <Image
+                    source={{ uri: avatar }}
+                    className="w-10 h-10 rounded-full"
+                />
+                {isOnline && (
+                    <View className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
+                )}
+            </View>
+
+            <View className="ml-3 flex-1">
+                <Text className={`font-poppins-semibold text-base ${isDark ? 'text-white' : 'text-gray-900'
+                    }`}>
+                    {name}
+                </Text>
+                <Text className={`text-xs ${isOnline
+                    ? 'text-green-500'
+                    : isDark ? 'text-gray-400' : 'text-gray-500'
+                    }`}>
+                    {isOnline ? 'Online' : `Last seen ${lastSeen}`}
+                </Text>
+            </View>
+        </TouchableOpacity>
+    )
 }

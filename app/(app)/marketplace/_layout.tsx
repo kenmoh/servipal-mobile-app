@@ -11,6 +11,7 @@ const MarketPlaceLayout = () => {
     return (
         <Stack screenOptions={{
             headerTintColor: theme === 'dark' ? 'white' : 'black',
+            headerShadowVisible: false,
             headerTitleStyle: {
                 fontFamily: 'Poppins-Medium'
             },

@@ -1,4 +1,5 @@
-import { Product } from "@/types/marketplace";
+
+import { CreateProductResponse } from "@/types/marketplace";
 import { router } from "expo-router";
 import { Store } from "lucide-react-native";
 import React from "react";
@@ -13,16 +14,17 @@ import {
 
 const CARD_HEIGHT = Dimensions.get("screen").height * 0.28;
 
-const ProductCard = ({ product }: { product: Product }) => {
+const ProductCard = ({ product }: { product: CreateProductResponse }) => {
     const handlePress = () => {
         router.push({
             pathname: "/product-detail/[productId]",
             params: {
                 productId: product.id,
                 name: product.name,
-                imageUrls: JSON.stringify(product.image_urls),
+                imageUrls: JSON.stringify(product.images),
                 price: product.price,
-                seller: product.seller.username,
+                sizes: product.sizes,
+                colors: JSON.stringify(product.colors),
             },
         });
     };
@@ -39,7 +41,7 @@ const ProductCard = ({ product }: { product: Product }) => {
             >
                 <Image
                     source={{
-                        uri: product.image_urls[0] || "https://via.placeholder.com/150",
+                        uri: product.images[0]?.url || "https://via.placeholder.com/150",
                     }}
                     className="w-full h-full object-cover"
                 />
@@ -52,16 +54,16 @@ const ProductCard = ({ product }: { product: Product }) => {
                     >
                         {product.name}
                     </Text>
-                    <Text className="text-primary text-base font-poppins-medium">
+                    <Text className="text-primary text-base font-poppins-bold">
                         ₦{product?.price}
                     </Text>
                 </View>
                 <View className="flex-row justify-between mt-1">
                     <View className="flex-row gap-2 items-center">
                         <Store size={16} color="gray" />
-                        <Text className="text-muted text-sm font-poppins">
+                        {/* <Text className="text-muted text-sm font-poppins">
                             {product?.seller?.username}
-                        </Text>
+                        </Text> */}
                     </View>
                     <View className="flex-row gap-2 items-center"></View>
                 </View>

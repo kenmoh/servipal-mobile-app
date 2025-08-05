@@ -17,7 +17,9 @@
   --color-brand-secondary: orange;
   --color-brand-accent: rgba(0, 128, 128, 0.9);
 
-  --color-text-primary: #11181c;
+  --color-text-primary: #000123;
+  /* --color-text-primary: #11181c; */
+  /* --color-text-primary: #6b7280; */
   --color-text-muted: #687076;
 
   --color-icon-default: #687076;
@@ -50,7 +52,9 @@
 
     --color-input-default: "rgba(30, 33, 39, 0.5)";
 
-    --color-text-primary: #c9c7c7;
+    --color-text-primary: #fff;
+    /* --color-text-primary: #c9c7c7; */
+    /* --color-text-primary: #cccc; */
     --color-text-muted: #9ba1a6;
 
     --color-icon-default: #ddd;

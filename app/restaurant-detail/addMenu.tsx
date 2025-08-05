@@ -51,7 +51,6 @@ type FormData = z.infer<typeof schema>;
 const addMenu = () => {
     const [visble, setVisble] = useState(false);
     const { user } = useAuth()
-    const theme = useColorScheme();
     const params = useLocalSearchParams();
     const isEditing = Boolean(params.id);
 

@@ -18,7 +18,7 @@ export interface ItemImage {
   url: string;
 }
 
-interface ItemCreateBase {
+export interface ItemCreateBase {
   name: string;
   description?: string;
   price: number;
@@ -26,20 +26,7 @@ interface ItemCreateBase {
   category_id?: string;
   images: ItemImage[];
 }
-export interface CreateItem extends ItemCreateBase {
-  colors?: string[];
-  sizes?: string;
-  stock?: number;
-}
-export interface ItemResponse extends CreateItem {
-  id: string;
-  user_id: string;
-}
 
-export interface ItemResponse extends CreateItem {
-  id: string;
-  user_id: string;
-}
 export interface CreateMenuItmItem extends ItemCreateBase {
   side?: string;
   food_group?: FoodGroup;

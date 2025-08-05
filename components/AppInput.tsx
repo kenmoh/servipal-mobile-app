@@ -25,7 +25,7 @@ const AppTextInput = ({ label, value, onPressIn, placeholder, onBlur, onChangeTe
     return (
         <View className="w-[90%] my-2 items-center self-center">
             {label && (
-                <Text className="text-gray-400 font-semibold mb-1 self-start font-poppins text-base">{label}</Text>
+                <Text className="text-primary mb-1 self-start font-poppins-bold text-base">{label}</Text>
             )}
             <View className="w-full relative flex-row items-center">
                 <TextInput
@@ -59,7 +59,7 @@ const AppTextInput = ({ label, value, onPressIn, placeholder, onBlur, onChangeTe
                 )}
             </View>
             {errorMessage && (
-                <Text className="text-status-error text-xs self-start mt-1">{errorMessage}</Text>
+                <Text className="text-status-error text-sm font-poppins self-start mt-1">{errorMessage}</Text>
             )}
         </View>
     )

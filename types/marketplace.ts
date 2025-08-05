@@ -1,39 +1,10 @@
-import { CreateItem } from "./item-types";
-export interface Product {
-  id: number;
-  seller_id: string;
-  wallet_id: string;
-  name: string;
-  seller: {
-    username: string;
-  };
-  price: string;
-  stock: number;
-  rating: number;
-  num_ratings: number;
-  average_rating: string;
-  colors: string[];
-  sizes: string[];
-  total_sold: number;
-  description: string;
-  image_urls: string[];
-}
+import { ItemCreateBase } from "./item-types";
 
-export interface ProductList {}
-// export interface CreateProduct {
-//   name: string;
-//   price: string;
-//   stock: number;
-//   description: string;
-//   colors?: string[];
-//   sizes?: string[];
-//   image_urls: string[];
-// }
-
-export interface CreateProduct extends CreateItem {
+export interface CreateProduct extends ItemCreateBase {
   stock: number;
   sizes: string;
   colors?: string[];
+  description: string;
 }
 export interface CreateProductResponse extends CreateProduct {
   id: string;
@@ -42,6 +13,29 @@ export interface CreateProductResponse extends CreateProduct {
   created_at: string;
   updated_at: string;
 }
+
+// {
+//     "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+//     "user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+//     "total_sold": 0,
+//     "name": "string",
+//     "description": "string",
+//     "price": "string",
+//     "stock": 0,
+//     "category_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+//     "sizes": "string",
+//     "colors": [],
+//     "in_stock": true,
+//     "images": [
+//       {
+//         "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+//         "url": "string",
+//         "item_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+//       }
+//     ],
+//     "created_at": "2025-08-05T17:32:05.192Z",
+//     "updated_at": "2025-08-05T17:32:05.192Z"
+//   }
 
 export interface BuyItem {
   quantity: number;

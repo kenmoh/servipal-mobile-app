@@ -23,7 +23,7 @@ const ProfileCard = ({
 }: ProfileCardProp) => {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
-      <View className="bg-profile-card my-1 py-3 px-4 w-[90%] self-center rounded-xl">
+      <View className="bg-input my-1 py-3 px-4 w-[90%] self-center rounded-xl">
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-3">
             <View

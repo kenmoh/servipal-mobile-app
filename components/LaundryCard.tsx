@@ -5,7 +5,7 @@ import Checkbox from 'expo-checkbox'
 import { router } from 'expo-router'
 import { Edit, Trash } from 'lucide-react-native'
 import React from 'react'
-import { Image, Pressable, Text, View } from 'react-native'
+import { Image, Pressable, Text, TouchableOpacity, View } from 'react-native'
 import { Notifier, NotifierComponents } from 'react-native-notifier'
 
 const LaundryCard = ({ item, onPress, onDelete }: {
@@ -26,7 +26,7 @@ const LaundryCard = ({ item, onPress, onDelete }: {
     return (
         <>
 
-            <Pressable style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]} onPress={() => onPress(item)}>
+            <TouchableOpacity onPress={() => onPress(item)} disabled={isOwner}>
 
                 <View
                     className='my-1 p-2 bg-profile-card rounded-md'
@@ -88,7 +88,7 @@ const LaundryCard = ({ item, onPress, onDelete }: {
                         </View>
                     </View>
                     <Checkbox
-                        style={{ borderWidth: 1, height: 20, width: 20, borderRadius: 10 }}
+                        style={{ borderWidth: 1, height: 20, width: 20, borderRadius: 3 }}
                         className='absolute right-2 bottom-2'
                         value={isChecked}
                         hitSlop={25}
@@ -106,7 +106,7 @@ const LaundryCard = ({ item, onPress, onDelete }: {
 
                     </Checkbox>
                 </View>
-            </Pressable>
+            </TouchableOpacity>
         </>
     )
 }

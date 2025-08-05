@@ -35,8 +35,8 @@ export default function AppColorPicker({ onSelectColor }: PickerProp) {
         >
           <ColorPicker
             style={{ width: "70%", height: 300 }}
-            initialColor={selectedColor}
-            // value={selectedColor} Use the current selected color
+            // initialColor={selectedColor}
+            value={selectedColor} //Use the current selected color
             onComplete={(result: any) => {
               setSelectedColor(result.hex);
             }}
