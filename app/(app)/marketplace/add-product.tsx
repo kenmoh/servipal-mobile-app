@@ -1,10 +1,9 @@
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
     ScrollView,
-    Text,
     View
 } from "react-native";
 
@@ -18,6 +17,7 @@ import AppVariantButton from "@/components/core/AppVariantButton";
 import ImagePickerInput from "@/components/ImagePickerInput";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router, useLocalSearchParams } from "expo-router";
+import { Notifier, NotifierComponents } from "react-native-notifier";
 import z from "zod";
 
 
@@ -65,6 +65,7 @@ type ProductCreateFormData = z.infer<typeof productCreateSchema>;
 const AddProductScreen = () => {
     const { productId } = useLocalSearchParams<{ productId?: string }>();
     const isEditing = !!productId;
+    const queryClient = useQueryClient()
 
     const {
         control,
@@ -86,8 +87,6 @@ const AddProductScreen = () => {
             colors: [],
         },
     });
-
-    console.log({ errors }, 'ERRORS');
 
     // Fetch product data if editing
     const { data: existingProduct, isLoading: isLoadingProduct } = useQuery({
@@ -123,11 +122,33 @@ const AddProductScreen = () => {
 
 
 
+
     const createMutation = useMutation({
         mutationFn: createProduct,
         onSuccess: () => {
+            Notifier.showNotification({
+                title: "Product Created",
+                description: "Product created successfully",
+                Component: NotifierComponents.Alert,
+                componentProps: {
+                    alertType: "success",
+                },
+            });
+            queryClient.invalidateQueries({ queryKey: ['products'] })
             router.back();
+
         },
+
+        onError: (error) => {
+            Notifier.showNotification({
+                title: "Error",
+                description: `${error.message}`,
+                Component: NotifierComponents.Alert,
+                componentProps: {
+                    alertType: "info",
+                },
+            });
+        }
     });
 
     const updateMutation = useMutation({
@@ -141,9 +162,6 @@ const AddProductScreen = () => {
     const isPending = createMutation.isPending || updateMutation.isPending;
 
     const onSubmit = (data: ProductCreateFormData) => {
-
-        console.log(data)
-
         if (isEditing && productId) {
             updateMutation.mutate({ productId, data });
         } else {
@@ -201,7 +219,7 @@ const AddProductScreen = () => {
                 )}
             />
 
-         {/*   <View className="hidden">
+            {/*   <View className="hidden">
                 <Controller
                     control={control}
                     name="itemType"

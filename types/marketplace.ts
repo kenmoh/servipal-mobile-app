@@ -9,33 +9,13 @@ export interface CreateProduct extends ItemCreateBase {
 export interface CreateProductResponse extends CreateProduct {
   id: string;
   user_id: string;
+  in_stock: boolean;
+  category_id: string;
+  store_name: string;
   total_sold: number;
   created_at: string;
   updated_at: string;
 }
-
-// {
-//     "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-//     "user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-//     "total_sold": 0,
-//     "name": "string",
-//     "description": "string",
-//     "price": "string",
-//     "stock": 0,
-//     "category_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-//     "sizes": "string",
-//     "colors": [],
-//     "in_stock": true,
-//     "images": [
-//       {
-//         "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-//         "url": "string",
-//         "item_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-//       }
-//     ],
-//     "created_at": "2025-08-05T17:32:05.192Z",
-//     "updated_at": "2025-08-05T17:32:05.192Z"
-//   }
 
 export interface BuyItem {
   quantity: number;

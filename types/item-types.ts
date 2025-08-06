@@ -22,7 +22,7 @@ export interface ItemCreateBase {
   name: string;
   description?: string;
   price: number;
-  itemType: ItemType;
+  itemType?: ItemType;
   category_id?: string;
   images: ItemImage[];
 }

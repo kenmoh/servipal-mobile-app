@@ -37,11 +37,12 @@ export const fetchVendorItems = async (
 
 // Fetch items
 export const buyItem = async (
+  data,
   productId: string
 ): Promise<BuyItemResponse[]> => {
   try {
     const response: ApiResponse<BuyItemResponse[] | ErrorResponse> =
-      await apiClient.get(`${BASE_URL}/${productId}/buy`, {
+      await apiClient.post(`${BASE_URL}/${productId}/buy`, {
         headers: {
           "Content-Type": "application/json",
         },

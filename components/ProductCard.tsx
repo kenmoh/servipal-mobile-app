@@ -20,11 +20,11 @@ const ProductCard = ({ product }: { product: CreateProductResponse }) => {
             pathname: "/product-detail/[productId]",
             params: {
                 productId: product.id,
-                name: product.name,
-                imageUrls: JSON.stringify(product.images),
-                price: product.price,
-                sizes: product.sizes,
-                colors: JSON.stringify(product.colors),
+                // name: product.name,
+                // imageUrls: JSON.stringify(product.images),
+                // price: product.price,
+                // sizes: product.sizes,
+                // colors: JSON.stringify(product.colors),
             },
         });
     };
@@ -61,9 +61,9 @@ const ProductCard = ({ product }: { product: CreateProductResponse }) => {
                 <View className="flex-row justify-between mt-1">
                     <View className="flex-row gap-2 items-center">
                         <Store size={16} color="gray" />
-                        {/* <Text className="text-muted text-sm font-poppins">
-                            {product?.seller?.username}
-                        </Text> */}
+                        <Text className="text-muted text-sm font-poppins">
+                            {product?.store_name}
+                        </Text> 
                     </View>
                     <View className="flex-row gap-2 items-center"></View>
                 </View>
