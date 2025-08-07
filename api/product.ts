@@ -11,6 +11,8 @@ import { ErrorResponse } from "./auth";
 
 const BASE_URL = "/products";
 const BASE_URL_MKT = "/marketplace";
+// /api/products/{user_id}/user-products
+// /api/products/{product_id}
 
 // Create Item
 export const createProduct = async (
@@ -172,6 +174,35 @@ export const fetchProduct = async (
         response.data && "detail" in response.data
           ? response.data.detail
           : "Error fetching item.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
+// Fetch Product
+/* Fetch all product belonging to a given user ID */
+export const fetchUserProducts = async (
+  userId: string
+): Promise<CreateProductResponse[]> => {
+  try {
+    const response: ApiResponse<CreateProductResponse[] | ErrorResponse> =
+      await apiClient.get(`${BASE_URL}/${userId}/user-products`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error fetching products.";
       throw new Error(errorMessage);
     }
     return response.data;

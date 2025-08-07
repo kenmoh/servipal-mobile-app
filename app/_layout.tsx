@@ -3,6 +3,8 @@ import AuthProvider from "@/components/AuthProvider";
 import { NetworkNotifier } from "@/components/NetworkNotifier";
 import { NetworkProvider } from "@/components/NetworkProvider";
 import { NotificationProvider } from "@/components/NotificationProvider";
+import { ProductModalProvider } from "@/contexts/ProductModalContext";
+import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 
 import "@/global.css";
@@ -76,18 +78,19 @@ export default function RootLayout() {
                   <NetworkNotifier />
                   <NotifierWrapper>
                     <AuthProvider>
-                      <Stack
-                        screenOptions={{
+                      <ProductModalProvider>
+                        <Stack
+                          screenOptions={{
 
-                          headerTintColor:
-                            colorScheme === "dark" ? "white" : "black",
-                          headerShadowVisible: false,
-                          headerStyle: {
-                            backgroundColor: BG_COLOR,
-                          },
-                        }}
+                            headerTintColor:
+                              colorScheme === "dark" ? "white" : "black",
+                            headerShadowVisible: false,
+                            headerStyle: {
+                              backgroundColor: BG_COLOR,
+                            },
+                          }}
 
-                      >
+                        >
                         <Stack.Screen
                           name="(app)"
                           options={{ headerShown: false }}
@@ -230,7 +233,9 @@ export default function RootLayout() {
                           }}
                         />
                       </Stack>
-                    </AuthProvider>
+                      <ProductDetailModal />
+                    </ProductModalProvider>
+                  </AuthProvider>
                   </NotifierWrapper>
                 </NetworkProvider>
               </NotificationProvider>

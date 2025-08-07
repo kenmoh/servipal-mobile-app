@@ -5,7 +5,11 @@ import { BuyItemResponse, BuyItem } from "@/types/marketplace";
 import { MenuItem } from "@/types/item-types";
 
 const BASE_URL = "/marketplace";
-
+// /marketplace/{user_id}/user-orders
+// /marketplace/{order_id}/item-rejected
+// /marketplace/{order_id}/item-delivered
+// /marketplace/{order_id}/item-received
+// /marketplace/{order_id}/vendor-received-rejected-item
 // Fetch Vendor Items
 export const fetchVendorItems = async (
   Vendor_id: string

@@ -196,7 +196,7 @@ const ProductDetail = () => {
                                         onPress={() => toggleSize(size)}
                                         className={`h-10 min-w-[40px] px-3 justify-center items-center rounded-lg border-[1px] relative ${isSizeSelected(size)
                                             ? 'border-primary bg-orange-500'
-                                            : 'border-gray-300 bg-transparent'
+                                            : 'border-gray-500 bg-transparent'
                                             }`}
                                     >
                                         <Text className={`font-medium ${isSizeSelected(size)
@@ -223,13 +223,13 @@ const ProductDetail = () => {
                     <View className="flex-row items-center space-x-4">
                         <TouchableOpacity
                             onPress={decrementQuantity}
-                            className="w-10 h-10 rounded-lg border border-gray-300 justify-center items-center"
+                            className="w-10 h-10 rounded-lg border border-gray-500 justify-center items-center"
                             disabled={quantity <= 1}
                         >
                             <Ionicons
                                 name="remove"
                                 size={20}
-                                color={quantity <= 1 ? "#ccc" : "gray"}
+                                color={quantity <= 1 ? "#ddd" : "gray"}
                             />
                         </TouchableOpacity>
                         <Text className="text-xl font-semibold text-primary min-w-[60px] text-center">
@@ -237,13 +237,13 @@ const ProductDetail = () => {
                         </Text>
                         <TouchableOpacity
                             onPress={incrementQuantity}
-                            className="w-10 h-10 rounded-lg border border-gray-300 justify-center items-center"
+                            className="w-10 h-10 rounded-lg border border-gray-500 justify-center items-center"
                             disabled={quantity > product.stock}
                         >
                             <Ionicons
                                 name="add"
                                 size={20}
-                                color={quantity > product.stock ? "#ccc" : "gray"}
+                                color={quantity > product.stock ? "#ddd" : "gray"}
                             />
                         </TouchableOpacity>
                     </View>

@@ -21,8 +21,11 @@ const MarketPlaceLayout = () => {
             }
 
         }}>
-            <Stack.Screen name='index' options={{
+            <Stack.Screen name='(market)' options={{
                 title: 'MarketPlace'
+            }} />
+            <Stack.Screen name='add-product' options={{
+                title: 'Add Product'
             }} />
         </Stack>
     )
