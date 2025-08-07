@@ -248,8 +248,31 @@ export const ProductDetailModal = () => {
 
                     {/* Product Details */}
                     <View className='p-4' >
-                        <Text className='text-primary font-poppins-bold'>₦ {currentProduct.price}</Text>
+                        <View className='flex-row justify-between'>
+                            <Text className='text-primary font-poppins-bold'>₦ {currentProduct.price}</Text>
+                            <Text className='text-muted font-poppins'>Qty: 3</Text>
+                            <Text className='text-muted font-poppins'>Pending</Text>
+                        </View>
                         <Text className='text-muted font-poppins'>{currentProduct.name}</Text>
+                        <Text className='text-muted font-poppins'>{currentProduct.name}</Text>
+                        <View className='flex-row justify-between'>
+                            <Text className='text-muted font-poppins'>Colors:</Text>
+                            <View className='flex-row gap-2'>
+                                <View className='bg-red-400 w-4 h-4 rounded-full' />
+                                <View className='bg-blue-400 w-4 h-4 rounded-full' />
+                                <View className='bg-gray-400 w-4 h-4 rounded-full' />
+                            </View>
+                        </View>
+                        <View className='flex-row justify-between'>
+                            <Text className='text-muted font-poppins'>Sizes:</Text>
+                            <View>
+                                <View className='flex-row gap-2'>
+                                    <Text className='text-muted font-poppins'>42</Text>
+                                    <Text className='text-muted font-poppins'>38</Text>
+                                    <Text className='text-muted font-poppins'>44</Text>
+                                </View>
+                            </View>
+                        </View>
                         <Text className='text-muted font-poppins-light'>
                             {currentProduct.description}
                         </Text>
