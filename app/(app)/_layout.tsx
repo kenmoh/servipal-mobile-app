@@ -42,20 +42,47 @@ export default function TabLayout() {
 
   return (
     <View className="flex-1 bg-background">
-      <Tabs
-        tabBarStyle={tabBarStyle}
-        tabBarActiveTintColor={"orange"}
-        labeled={true}
-      >
-        <Tabs.Screen
-          name="delivery"
-          options={{
-            title: "Delivery",
-            tabBarIcon: () => require("@/assets/images/bike.svg"),
-          }}
-        />
-        {user?.user_type === 'customer' || user?.user_type === 'restaurant_vendor' || user?.user_type === 'laundry_vendor' && (<>
-
+      {
+        user?.user_type === 'dispatch' || user?.user_type === 'rider' ? (
+          <Tabs
+            tabBarStyle={tabBarStyle}
+            tabBarActiveTintColor={"orange"}
+            labeled={true}
+          >
+            <Tabs.Screen
+              name="delivery"
+              options={{
+                title: "Delivery",
+                tabBarIcon: () => require("@/assets/images/bike.svg"),
+              }}
+            />
+            <Tabs.Screen
+              name="marketplace"
+              options={{
+                title: "Marketplace",
+                tabBarIcon: () => require("@/assets/images/store.svg"),
+              }}
+            />
+            <Tabs.Screen
+              name="profile"
+              options={{
+                title: "Profile",
+                tabBarIcon: () => require("@/assets/images/user-round.svg"),
+              }}
+            />
+          </Tabs>
+        ) : (<Tabs
+          tabBarStyle={tabBarStyle}
+          tabBarActiveTintColor={"orange"}
+          labeled={true}
+        >
+          <Tabs.Screen
+            name="delivery"
+            options={{
+              title: "Delivery",
+              tabBarIcon: () => require("@/assets/images/bike.svg"),
+            }}
+          />
           <Tabs.Screen
             name="food"
             options={{
@@ -70,22 +97,22 @@ export default function TabLayout() {
               tabBarIcon: () => require("@/assets/images/washing-machine.svg"),
             }}
           />
-        </>)}
-        <Tabs.Screen
-          name="marketplace"
-          options={{
-            title: "Marketplace",
-            tabBarIcon: () => require("@/assets/images/store.svg"),
-          }}
-        />
-        <Tabs.Screen
-          name="profile"
-          options={{
-            title: "Profile",
-            tabBarIcon: () => require("@/assets/images/user-round.svg"),
-          }}
-        />
-      </Tabs>
+          <Tabs.Screen
+            name="marketplace"
+            options={{
+              title: "Marketplace",
+              tabBarIcon: () => require("@/assets/images/store.svg"),
+            }}
+          />
+          <Tabs.Screen
+            name="profile"
+            options={{
+              title: "Profile",
+              tabBarIcon: () => require("@/assets/images/user-round.svg"),
+            }}
+          />
+        </Tabs>)
+      }
 
     </View>
   );
