@@ -17,6 +17,7 @@ const EmptyList = ({
     buttonAction,
     route,
 }: EmptyListProps) => {
+
     const handlePress = () => {
         if (buttonAction) {
             buttonAction();

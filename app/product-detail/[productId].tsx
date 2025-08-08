@@ -14,7 +14,6 @@ const ProductDetail = () => {
     const {
         setProduct,
         clearProduct,
-
         incrementQuantity,
         decrementQuantity,
         toggleColor,
@@ -23,8 +22,6 @@ const ProductDetail = () => {
         clearSizes,
         setAllColors,
         setAllSizes,
-
-        validatePurchase
     } = usePurchaseActions()
 
     const {
@@ -87,7 +84,8 @@ const ProductDetail = () => {
     if (!product) {
         return (
             <View className="flex-1 justify-center items-center bg-background">
-                <Text className="text-sm text-foreground">Product not found</Text>
+                <Text className="text-sm text-primary font-poppins-bold mb-6">Product not found</Text>
+                <AppVariantButton width={'50%'} outlineColor='orange' outline={true} filled={false} borderRadius={50} label="Go Back" onPress={() => router.back()} />
             </View>
         )
     }

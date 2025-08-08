@@ -80,7 +80,7 @@ const PurchaseSummary = () => {
         const validation = validatePurchase()
 
         if (!validation.isValid) {
-            Alert.alert('Incomplete Selection', validation.errors.join('\n'))
+            Alert.alert('Field Rquired', validation.errors.join('\n'))
             return
         }
 
@@ -91,6 +91,7 @@ const PurchaseSummary = () => {
             colors: selectedColors,
             additional_info: additionalInfo
         }
+
 
         console.log(buyData)
 

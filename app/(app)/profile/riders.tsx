@@ -33,9 +33,8 @@ const riders = () => {
 
                 !isFetching && data?.length === 0 && <EmptyList
                     title="No Riders Yet"
-                    description="Add your first dispatch rider to start managing deliveries efficiently"
+                    description="Click the button below to add your first dispatch rider to start managing deliveries efficiently"
                     buttonTitle="Add New Rider"
-                    route="/profile/addRider"
                 />
             }
             <FlatList
@@ -46,7 +45,7 @@ const riders = () => {
                 onRefresh={refetch}
 
             />
-            {data && data?.length > 0 && <FAB icon={<UserPlus2 color={'white'} />} onPress={() => router.push({ pathname: "/profile/addRider" })} />}
+            <FAB icon={<UserPlus2 color={'white'} />} onPress={() => router.push({ pathname: "/profile/addRider" })} />
 
         </View>
     )
