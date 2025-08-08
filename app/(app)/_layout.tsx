@@ -54,20 +54,23 @@ export default function TabLayout() {
             tabBarIcon: () => require("@/assets/images/bike.svg"),
           }}
         />
-        <Tabs.Screen
-          name="food"
-          options={{
-            title: "Food",
-            tabBarIcon: () => require("@/assets/images/utensils.svg"),
-          }}
-        />
-        <Tabs.Screen
-          name="laundry"
-          options={{
-            title: "Laundry",
-            tabBarIcon: () => require("@/assets/images/washing-machine.svg"),
-          }}
-        />
+        {user?.user_type === 'customer' || user?.user_type === 'restaurant_vendor' || user?.user_type === 'laundry_vendor' && (<>
+
+          <Tabs.Screen
+            name="food"
+            options={{
+              title: "Food",
+              tabBarIcon: () => require("@/assets/images/utensils.svg"),
+            }}
+          />
+          <Tabs.Screen
+            name="laundry"
+            options={{
+              title: "Laundry",
+              tabBarIcon: () => require("@/assets/images/washing-machine.svg"),
+            }}
+          />
+        </>)}
         <Tabs.Screen
           name="marketplace"
           options={{
@@ -83,7 +86,7 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-      {/* </AppChatProvider> */}
+
     </View>
   );
 }
