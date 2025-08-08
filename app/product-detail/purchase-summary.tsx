@@ -59,13 +59,18 @@ const PurchaseSummary = () => {
         onSuccess: () => {
             Alert.alert(
                 'Success!',
-                'Your order has been placed successfully!',
+                'Order created successfully! Make payment to confirm order',
                 [
                     {
                         text: 'OK',
                         onPress: () => {
                             resetPurchase()
-                            router.replace('/marketplace')
+                            router.push({
+                                pathname: '/payment/[orderId]',
+                                params: { orderId: productId },
+
+
+                            })
                         }
                     }
                 ]
@@ -97,7 +102,7 @@ const PurchaseSummary = () => {
 
         Alert.alert(
             'Confirm Purchase',
-            `Are you sure you want to purchase this item for ${formatPrice(totalPrice)}?`,
+            `Are you sure you want to purchase this item for ${formatPrice(Number(product?.price) * quantity)}?`,
             [
                 { text: 'Cancel', style: 'cancel' },
                 {
