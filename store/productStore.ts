@@ -976,10 +976,9 @@ export const usePurchaseStore = create<PurchaseState>((set, get) => ({
         errors.push("Quantity must be greater than 0");
       if (purchase.quantity > product.stock)
         errors.push(`Quantity exceeds available stock (${product.stock})`);
-      if (availableSizes.length > 0 && purchase.sizes.length === 0)
-        errors.push("Please select at least one size");
-      if (product.colors.length > 0 && purchase.colors.length === 0)
-        errors.push("Please select at least one color");
+      if (purchase.additional_info) {
+        errors.push(`Delivery information is required`);
+      }
     }
 
     return {

@@ -251,7 +251,7 @@ export const ProductDetailModal = () => {
                         <View className='flex-row justify-between'>
                             <Text className='text-primary font-poppins-bold'>₦ {currentProduct.price}</Text>
                             <Text className='text-muted font-poppins'>Qty: 3</Text>
-                            <Text className='text-muted font-poppins'>Pending</Text>
+                            <Text className='text-muted font-poppins px-2 py-1 bg-orange-900/10 rounded-full'>Pending</Text>
                         </View>
                         <Text className='text-muted font-poppins'>{currentProduct.name}</Text>
                         <Text className='text-muted font-poppins'>{currentProduct.name}</Text>

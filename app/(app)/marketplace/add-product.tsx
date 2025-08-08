@@ -1,12 +1,7 @@
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import {
-    ScrollView,
-    View
-} from "react-native";
-
+import { ScrollView, View } from "react-native";
 
 import { fetchCategories } from "@/api/item";
 import { createProduct, fetchProduct, updateProduct } from "@/api/product";
@@ -16,19 +11,15 @@ import ColorPickerInput from "@/components/ColorPickerInput";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import ImagePickerInput from "@/components/ImagePickerInput";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { Notifier, NotifierComponents } from "react-native-notifier";
 import z from "zod";
-
-
 
 // Zod enum for ItemType
 const itemTypeEnum = z.enum(["food", "package", "product", "laundry"]);
 
 /**
  * Zod schema for item creation.
- * Note: The original interface had a duplicate 'description' key. This schema assumes
- * a single, required 'description' field.
  */
 export const productCreateSchema = z.object({
     name: z.string().min(1, "Name is a required field"),
@@ -65,7 +56,7 @@ type ProductCreateFormData = z.infer<typeof productCreateSchema>;
 const AddProductScreen = () => {
     const { productId } = useLocalSearchParams<{ productId?: string }>();
     const isEditing = !!productId;
-    const queryClient = useQueryClient()
+    const queryClient = useQueryClient();
 
     const {
         control,
@@ -82,7 +73,6 @@ const AddProductScreen = () => {
             price: 0,
             stock: 0,
             sizes: "",
-            // itemType: "product",
             images: [],
             colors: [],
         },
@@ -105,8 +95,7 @@ const AddProductScreen = () => {
                 price: existingProduct.price || 0,
                 stock: existingProduct.stock || 0,
                 sizes: existingProduct.sizes || "",
-                // itemType: existingProduct.itemType || "product",
-                images: existingProduct.images?.map(img => img.url) || [],
+                images: existingProduct.images?.map((img) => img.url) || [],
                 colors: existingProduct.colors || [],
             });
         }
@@ -116,12 +105,9 @@ const AddProductScreen = () => {
         queryKey: ["product-categories"],
         queryFn: fetchCategories,
         select: (categories) =>
-            categories?.filter((category) => category.category_type === "product") || [],
+            categories?.filter((category) => category.category_type === "product") ||
+            [],
     });
-
-
-
-
 
     const createMutation = useMutation({
         mutationFn: createProduct,
@@ -134,9 +120,8 @@ const AddProductScreen = () => {
                     alertType: "success",
                 },
             });
-            queryClient.invalidateQueries({ queryKey: ['products'] })
+            queryClient.invalidateQueries({ queryKey: ["products"] });
             router.back();
-
         },
 
         onError: (error) => {
@@ -148,7 +133,7 @@ const AddProductScreen = () => {
                     alertType: "info",
                 },
             });
-        }
+        },
     });
 
     const updateMutation = useMutation({
@@ -171,7 +156,12 @@ const AddProductScreen = () => {
 
     return (
         <ScrollView className="flex-1 bg-background">
-
+            <Stack.Screen
+                options={{
+                    title: isEditing ? "Edit Product" : "Create Product",
+                    headerTitleAlign: "center",
+                }}
+            />
             <Controller
                 control={control}
                 name="name"
@@ -209,7 +199,7 @@ const AddProductScreen = () => {
                     <AppTextInput
                         placeholder="Price"
                         label="Price"
-                        width={'50%'}
+                        width={"50%"}
                         onBlur={onBlur}
                         onChangeText={(text) => onChange(Number(text))}
                         value={value?.toString()}
@@ -218,28 +208,11 @@ const AddProductScreen = () => {
                     />
                 )}
             />
-
-            {/*   <View className="hidden">
-                <Controller
-                    control={control}
-                    name="itemType"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                        <AppTextInput
-                            label="Item Type"
-                            onBlur={onBlur}
-                            onChangeText={onChange}
-                            value={value}
-                            errorMessage={errors.itemType?.message}
-                        />
-                    )}
-                />
-            </View>*/}
             <Controller
                 control={control}
                 name="category_id"
                 render={({ field: { onChange, value } }) => (
                     <AppPicker
-
                         label="Category"
                         items={productCategories || []}
                         onValueChange={onChange}
@@ -288,8 +261,6 @@ const AddProductScreen = () => {
                 disabled={isPending}
             />
 
-
-
             {/* Image Picker */}
             <ImagePickerInput
                 control={control}
@@ -303,16 +274,21 @@ const AddProductScreen = () => {
             {/* Submit Button */}
             <View style={{ padding: 20 }}>
                 <AppVariantButton
-                    label={isPending ? (isEditing ? "Updating Product..." : "Creating Product...") : (isEditing ? "Update Product" : "Create Product")}
+                    label={
+                        isPending
+                            ? isEditing
+                                ? "Updating Product..."
+                                : "Creating Product..."
+                            : isEditing
+                                ? "Update Product"
+                                : "Create Product"
+                    }
                     onPress={handleSubmit(onSubmit)}
                     disabled={isPending}
                 />
             </View>
-
         </ScrollView>
     );
 };
-
-
 
 export default AddProductScreen;

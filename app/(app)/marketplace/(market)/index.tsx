@@ -21,7 +21,7 @@ const MarketPlace = () => {
     }
 
     return (
-        <>
+        <View className='flex-1 bg-background'>
             <Stack.Screen options={{
                 headerRight: () => <AddProductBtn onPress={() =>
                     router.push('/marketplace/add-product')
@@ -36,7 +36,7 @@ const MarketPlace = () => {
                 />
 
             </View>
-        </>
+        </View>
     )
 }
 

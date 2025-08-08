@@ -1,15 +1,11 @@
+import { MenuItem } from "@/types/item-types";
+import { BuyItem, BuyItemResponse } from "@/types/marketplace";
 import { apiClient } from "@/utils/client";
 import { ApiResponse } from "apisauce";
 import { ErrorResponse } from "./auth";
-import { BuyItemResponse, BuyItem } from "@/types/marketplace";
-import { MenuItem } from "@/types/item-types";
 
 const BASE_URL = "/marketplace";
-// /marketplace/{user_id}/user-orders
-// /marketplace/{order_id}/item-rejected
-// /marketplace/{order_id}/item-delivered
-// /marketplace/{order_id}/item-received
-// /marketplace/{order_id}/vendor-received-rejected-item
+
 // Fetch Vendor Items
 export const fetchVendorItems = async (
   Vendor_id: string
@@ -39,14 +35,20 @@ export const fetchVendorItems = async (
   }
 };
 
-// Fetch items
+// Buy items
 export const buyItem = async (
-  data,
+  productData: BuyItem,
   productId: string
 ): Promise<BuyItemResponse[]> => {
+  const data = {
+    quantity: productData.quantity,
+    colors: productData.colors,
+    sizes: productData.sizes,
+    additional_info: productData.additional_info,
+  };
   try {
     const response: ApiResponse<BuyItemResponse[] | ErrorResponse> =
-      await apiClient.post(`${BASE_URL}/${productId}/buy`, {
+      await apiClient.post(`${BASE_URL}/${productId}/buy`, data, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -57,6 +59,148 @@ export const buyItem = async (
         response.data && "detail" in response.data
           ? response.data.detail
           : "Error fetching categories.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
+// Fetch user orders
+export const fetUserOrders = async (
+  userId: string
+): Promise<BuyItemResponse[]> => {
+  try {
+    const response: ApiResponse<BuyItemResponse[] | ErrorResponse> =
+      await apiClient.post(`${BASE_URL}/${userId}/user-orders`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error fetching orders.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
+// Order Delivered
+export const orderDelivered = async (
+  orderId: string
+): Promise<BuyItemResponse[]> => {
+  try {
+    const response: ApiResponse<BuyItemResponse[] | ErrorResponse> =
+      await apiClient.put(`${BASE_URL}/${orderId}/item-delivered`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error updating order status.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
+// Order Received
+export const orderReceived = async (
+  orderId: string
+): Promise<BuyItemResponse[]> => {
+  try {
+    const response: ApiResponse<BuyItemResponse[] | ErrorResponse> =
+      await apiClient.put(`${BASE_URL}/${orderId}/item-received`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error updating order status.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+// Rejected Order Received
+export const vendorRecivedRejectedItem = async (
+  orderId: string
+): Promise<BuyItemResponse[]> => {
+  try {
+    const response: ApiResponse<BuyItemResponse[] | ErrorResponse> =
+      await apiClient.put(
+        `${BASE_URL}/${orderId}/vendor-received-rejected-item`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error updating order status.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
+// Buyer Reject Order
+export const buyerRejectedItem = async (
+  orderId: string
+): Promise<BuyItemResponse[]> => {
+  try {
+    const response: ApiResponse<BuyItemResponse[] | ErrorResponse> =
+      await apiClient.put(`${BASE_URL}/${orderId}/item-rejected`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error updating order status.";
       throw new Error(errorMessage);
     }
     return response.data;

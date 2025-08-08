@@ -40,7 +40,6 @@ const PurchaseSummary = () => {
         setAdditionalInfo,
         resetPurchase,
         validatePurchase,
-        setQuantity,
         incrementQuantity,
         decrementQuantity,
 
@@ -66,7 +65,7 @@ const PurchaseSummary = () => {
                         text: 'OK',
                         onPress: () => {
                             resetPurchase()
-                            router.replace('/(app)/marketplace')
+                            router.replace('/marketplace')
                         }
                     }
                 ]

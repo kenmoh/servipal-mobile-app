@@ -12,6 +12,7 @@ const MarketPlaceLayout = () => {
         <Stack screenOptions={{
             headerTintColor: theme === 'dark' ? 'white' : 'black',
             headerShadowVisible: false,
+            headerTitleAlign: 'center',
             headerTitleStyle: {
                 fontFamily: 'Poppins-Medium'
             },
@@ -22,7 +23,7 @@ const MarketPlaceLayout = () => {
 
         }}>
             <Stack.Screen name='(market)' options={{
-                title: 'MarketPlace'
+                title: 'P2P MarketPlace',
             }} />
             <Stack.Screen name='add-product' options={{
                 title: 'Add Product'

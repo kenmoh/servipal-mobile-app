@@ -42,7 +42,6 @@ export default function TabLayout() {
 
   return (
     <View className="flex-1 bg-background">
-      {/* <AppChatProvider> */}
       <Tabs
         tabBarStyle={tabBarStyle}
         tabBarActiveTintColor={"orange"}

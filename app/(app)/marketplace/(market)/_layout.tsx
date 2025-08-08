@@ -47,8 +47,10 @@ const DeliveryLayout = () => {
             >
                 <MarketPlaceTabs.Screen
                     name="index"
+
                     options={{
                         tabBarLabel: 'Marketplace',
+
                     }}
                 />
                 <MarketPlaceTabs.Screen

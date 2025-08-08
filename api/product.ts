@@ -11,7 +11,7 @@ import { ErrorResponse } from "./auth";
 
 const BASE_URL = "/products";
 const BASE_URL_MKT = "/marketplace";
-// /api/products/{user_id}/user-products
+
 // /api/products/{product_id}
 
 // Create Item

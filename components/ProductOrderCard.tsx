@@ -1,6 +1,7 @@
 import { useProductModal } from '@/contexts/ProductModalContext';
 import { CreateProductResponse } from '@/types/marketplace';
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from 'expo-router';
 import React, { useRef } from 'react';
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SharedValue } from 'react-native-reanimated';
@@ -14,10 +15,20 @@ const ProductOrderCard = ({ data, isOrder = true }: ProductOrderCardProps) => {
     const { openModal } = useProductModal();
     const cardRef = useRef<View>(null);
 
-    const handlePress = () => {
-        // Only show modal if isOrder is true
-        if (!isOrder) return;
 
+    const handleItemPress = () => {
+
+        // Only show modal if isOrder is true
+        if (!isOrder) {
+            router.push({
+                pathname: '/marketplace/add-product', params: {
+                    productId: data?.id
+                }
+            })
+        };
+    }
+
+    const handleOrderPress = () => {
         // Measure the card position
         cardRef.current?.measure((x, y, width, height, pageX, pageY) => {
             openModal(data, {
@@ -30,30 +41,45 @@ const ProductOrderCard = ({ data, isOrder = true }: ProductOrderCardProps) => {
     };
 
     return (
-        <View
-            ref={cardRef}
-            className='bg-input rounded-2xl w-[45%] my-[2.5%] h-[200px] overflow-hidden'
-        >
-            <TouchableOpacity onPress={handlePress}>
-                <Image
-                    source={{ uri: data?.images[0].url }}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
+        <>{isOrder ?
+            (<View
+                ref={cardRef}
+                className='bg-input rounded-2xl w-[45%] my-[2.5%] h-[200px] overflow-hidden'
+            >
+                <TouchableOpacity onPress={handleOrderPress}>
+                    <Image
+                        source={{ uri: data?.images[0].url }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
 
-                {!isOrder && (
-                    <>
-                        <View className="px-3 absolute bottom-0 right-0 left-0 z-50">
-                            <Text className="text-white font-poppins-bold text-base">₦ {data?.price}</Text>
-                            <Text className='text-white font-poppins-light text-wrap'>{data?.name}</Text>
-                        </View>
-                        <LinearGradient
-                            colors={["transparent", "rgba(0,0,0,0.7)"]}
-                            style={styles.gradient}
-                        />
-                    </>
-                )}
-            </TouchableOpacity>
-        </View>
+
+                </TouchableOpacity>
+            </View>) :
+            (<View
+
+                className='bg-input rounded-2xl w-[45%] my-[2.5%] h-[200px] overflow-hidden'
+            >
+                <TouchableOpacity onPress={handleItemPress}>
+                    <Image
+                        source={{ uri: data?.images[0].url }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+
+                    {!isOrder && (
+                        <>
+                            <View className="px-3 absolute bottom-0 right-0 left-0 z-50">
+                                <Text className="text-white font-poppins-bold text-base">₦ {data?.price}</Text>
+                                <Text className='text-white font-poppins-light text-wrap'>{data?.name}</Text>
+                            </View>
+                            <LinearGradient
+                                colors={["transparent", "rgba(0,0,0,0.7)"]}
+                                style={styles.gradient}
+                            />
+                        </>
+                    )}
+                </TouchableOpacity>
+            </View>)}
+        </>
     );
 };
 

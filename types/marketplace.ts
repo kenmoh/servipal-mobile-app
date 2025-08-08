@@ -34,6 +34,8 @@ interface OrderItem {
   user_id: string;
   name: string;
   price: string;
+  colors: string[];
+  sizes: string;
   images: Image[];
 }
 export interface BuyItemResponse {

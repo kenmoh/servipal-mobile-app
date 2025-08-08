@@ -1,9 +1,12 @@
 import { fetchUserProducts } from '@/api/product'
 import EmptyList from '@/components/EmptyList'
+import FAB from '@/components/FAB'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import ProductOrderCard from '@/components/ProductOrderCard'
 import { useAuth } from '@/context/authContext'
 import { useQuery } from '@tanstack/react-query'
+import { router } from 'expo-router'
+import { Plus } from 'lucide-react-native'
 import React from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
 
@@ -48,6 +51,7 @@ const items = () => {
 
 
             />
+            <FAB icon={<Plus color={'white'} />} onPress={() => router.push('/marketplace/add-product')} />
         </View>
     )
 }
