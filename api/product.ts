@@ -18,7 +18,6 @@ const BASE_URL_MKT = "/marketplace";
 export const createProduct = async (
   prodData: CreateProduct
 ): Promise<CreateProductResponse> => {
-  console.log(prodData.images, "SERVER");
   const data = new FormData();
   data.append("name", prodData.name);
   data.append("price", prodData.price.toString());

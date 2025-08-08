@@ -29,6 +29,7 @@ const ProductCard = ({ product }: { product: CreateProductResponse }) => {
         });
     };
 
+
     return (
         <TouchableOpacity
             activeOpacity={0.7}
@@ -63,7 +64,7 @@ const ProductCard = ({ product }: { product: CreateProductResponse }) => {
                         <Store size={16} color="gray" />
                         <Text className="text-muted text-sm font-poppins">
                             {product?.store_name}
-                        </Text> 
+                        </Text>
                     </View>
                     <View className="flex-row gap-2 items-center"></View>
                 </View>
