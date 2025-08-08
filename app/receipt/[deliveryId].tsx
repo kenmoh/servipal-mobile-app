@@ -534,9 +534,9 @@ const ReceiptPage = () => {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleShare}
-            className="bg-gray-700/30 p-5 rounded-full"
+            className="bg-orange-700/30 p-5 rounded-full"
           >
-            <Share2 color={"white"} />
+            <Share2 color={"orange"} />
           </TouchableOpacity>
         </View>
       </View>

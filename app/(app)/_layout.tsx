@@ -25,6 +25,9 @@ export const Tabs = withLayoutContext<
 export default function TabLayout() {
   const { user } = useAuth();
 
+  const isTabBarItemHidden = user?.user_type === "dispatch" || user?.user_type === "rider" ? true : false;
+
+
   if (!user?.sub) {
     return <Redirect href="/(auth)/sign-in" />;
   }
@@ -42,78 +45,50 @@ export default function TabLayout() {
 
   return (
     <View className="flex-1 bg-background">
-      {
-        user?.user_type === 'dispatch' || user?.user_type === 'rider' ? (
-          <Tabs
-            tabBarStyle={tabBarStyle}
-            tabBarActiveTintColor={"orange"}
-            labeled={true}
-          >
-            <Tabs.Screen
-              name="delivery"
-              options={{
-                title: "Delivery",
-                tabBarIcon: () => require("@/assets/images/bike.svg"),
-              }}
-            />
-            <Tabs.Screen
-              name="marketplace"
-              options={{
-                title: "Marketplace",
-                tabBarIcon: () => require("@/assets/images/store.svg"),
-              }}
-            />
-            <Tabs.Screen
-              name="profile"
-              options={{
-                title: "Profile",
-                tabBarIcon: () => require("@/assets/images/user-round.svg"),
-              }}
-            />
-          </Tabs>
-        ) : (<Tabs
-          tabBarStyle={tabBarStyle}
-          tabBarActiveTintColor={"orange"}
-          labeled={true}
-        >
-          <Tabs.Screen
-            name="delivery"
-            options={{
-              title: "Delivery",
-              tabBarIcon: () => require("@/assets/images/bike.svg"),
-            }}
-          />
-          <Tabs.Screen
-            name="food"
-            options={{
-              title: "Food",
-              tabBarIcon: () => require("@/assets/images/utensils.svg"),
-            }}
-          />
-          <Tabs.Screen
-            name="laundry"
-            options={{
-              title: "Laundry",
-              tabBarIcon: () => require("@/assets/images/washing-machine.svg"),
-            }}
-          />
-          <Tabs.Screen
-            name="marketplace"
-            options={{
-              title: "Marketplace",
-              tabBarIcon: () => require("@/assets/images/store.svg"),
-            }}
-          />
-          <Tabs.Screen
-            name="profile"
-            options={{
-              title: "Profile",
-              tabBarIcon: () => require("@/assets/images/user-round.svg"),
-            }}
-          />
-        </Tabs>)
-      }
-
+      <Tabs
+        tabBarStyle={tabBarStyle}
+        tabBarActiveTintColor={"orange"}
+        labeled={true}
+      >
+        <Tabs.Screen
+          name="delivery"
+          options={{
+            title: "Delivery",
+            tabBarIcon: () => require("@/assets/images/bike.svg"),
+          }}
+        />
+        <Tabs.Screen
+          name="food"
+          options={{
+            title: "Food",
+            tabBarIcon: () => require("@/assets/images/utensils.svg"),
+            tabBarItemHidden: isTabBarItemHidden
+          }}
+        />
+        <Tabs.Screen
+          name="laundry"
+          options={{
+            title: "Laundry",
+            tabBarIcon: () => require("@/assets/images/washing-machine.svg"),
+            tabBarItemHidden: isTabBarItemHidden
+          }}
+        />
+        <Tabs.Screen
+          name="marketplace"
+          options={{
+            title: "Marketplace",
+            tabBarIcon: () => require("@/assets/images/store.svg"),
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: "Profile",
+            tabBarIcon: () => require("@/assets/images/user-round.svg"),
+          }}
+        />
+      </Tabs>
+      {/* </AppChatProvider> */}
     </View>
   );
 }
