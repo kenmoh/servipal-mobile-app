@@ -198,15 +198,6 @@ const Payment = () => {
 
   const renderWebView = () => (
     <View className="bg-background" style={[styles.webviewContainer]}>
-      <View className="p-4">
-        <View className="flex-row items-center gap-10">
-          {/* {renderIcon()} */}
-          <Text className="text-[20px] font-poppins-medium text-primary">
-            Processing Payment
-          </Text>
-        </View>
-      </View>
-
       <WebView
         style={styles.webview}
         source={{

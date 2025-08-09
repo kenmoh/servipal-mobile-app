@@ -10,6 +10,7 @@ import AppPicker from "@/components/AppPicker";
 import ColorPickerInput from "@/components/ColorPickerInput";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import ImagePickerInput from "@/components/ImagePickerInput";
+import LoadingIndicator from "@/components/LoadingIndicator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { Notifier, NotifierComponents } from "react-native-notifier";
@@ -153,6 +154,10 @@ const AddProductScreen = () => {
             createMutation.mutate(data);
         }
     };
+
+    if (isLoadingProduct) {
+        return <LoadingIndicator />
+    }
 
     return (
         <ScrollView className="flex-1 bg-background">

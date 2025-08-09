@@ -30,7 +30,6 @@ const ProductDetail = () => {
         selectedSizes,
         selectedColors,
         availableSizes,
-        totalPrice,
         isLoading: storeLoading,
         error: storeError
     } = usePurchaseSelectors()

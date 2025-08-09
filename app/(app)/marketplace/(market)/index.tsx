@@ -1,11 +1,12 @@
 import { fetchCategories } from '@/api/item'
 import { fetchProducts } from '@/api/product'
 import Category from '@/components/Category'
+import LoadingIndicator from '@/components/LoadingIndicator'
 import ProductCard from '@/components/ProductCard'
 import { useQuery } from '@tanstack/react-query'
 import { router, Stack } from 'expo-router'
 import React, { useState } from 'react'
-import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
 
 const MarketPlace = () => {
@@ -25,10 +26,7 @@ const MarketPlace = () => {
 
 
     if (isLoading || isPending) {
-        <View className='flex-1 justify-center items-center bg-background'>
-
-            <ActivityIndicator color={'gray'} size={'large'} />
-        </View>
+        <LoadingIndicator />
     }
 
     return (

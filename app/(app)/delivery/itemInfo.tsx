@@ -7,6 +7,7 @@ import ImagePickerInput from "@/components/AppImagePicker";
 import AppTextInput from "@/components/AppInput";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import HDivider from "@/components/HDivider";
+import LoadingIndicator from "@/components/LoadingIndicator";
 import { useAuth } from "@/context/authContext";
 import { useLocationStore } from "@/store/locationStore";
 import { ImageType } from "@/types/order-types";
@@ -128,6 +129,7 @@ const ItemInfo = () => {
         pathname: '/payment/[orderId]',
         params: {
           orderId: data?.order.id ?? "",
+          orderType: data?.order?.order_type,
           deliveryId: data?.delivery?.id,
           deliveryFee: data?.delivery?.delivery_fee,
           orderNumber: data?.order?.order_number,
@@ -251,6 +253,10 @@ const ItemInfo = () => {
     return validCoords.length === 2 ? validCoords.join(", ") : "";
   };
 
+  if (!origin || !destination || !originCoords || !destinationCoords) {
+    return <LoadingIndicator />
+  }
+
   return (
     <>
       <KeyboardAwareScrollView>
@@ -340,22 +346,12 @@ const ItemInfo = () => {
             <AppVariantButton
               label="Send"
               width={'90%'}
-              icon={isPending && <ActivityIndicator size={"large"} className="text-background" />}
+              icon={isPending && <ActivityIndicator size={"large"} color='white' />}
               onPress={handleSubmit(onSubmit)}
               disabled={isPending}
             />
           </View>
-          {/* <AppButton
-            title={isPending ? "Sending Item..." : "Send Item"}
-            disabled={isPending}
-            width={"90%"}
-            onPress={handleSubmit(onSubmit)}
-            icon={isPending ? (
-              <ActivityIndicator size={"large"} className="text-primary" />
-            ) : (
-              "Send"
-            )}
-          /> */}
+
         </View>
       </KeyboardAwareScrollView >
     </>

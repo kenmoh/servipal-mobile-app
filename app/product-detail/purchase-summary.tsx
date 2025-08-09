@@ -1,6 +1,7 @@
 import { buyItem } from '@/api/product'
 import AppVariantButton from '@/components/core/AppVariantButton'
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from '@/constants/theme'
+import { useAuth } from '@/context/authContext'
 import { usePurchaseActions, usePurchaseSelectors } from '@/store/productStore'
 import { Ionicons } from '@expo/vector-icons'
 import { useMutation } from '@tanstack/react-query'
@@ -22,8 +23,10 @@ import {
 
 const PurchaseSummary = () => {
     const { productId } = useLocalSearchParams<{ productId: string }>()
-
     const theme = useColorScheme()
+    const { user } = useAuth()
+
+
 
     const {
         product,
@@ -31,7 +34,7 @@ const PurchaseSummary = () => {
         selectedSizes,
         selectedColors,
         additionalInfo,
-        totalPrice,
+
 
 
     } = usePurchaseSelectors()
@@ -67,7 +70,15 @@ const PurchaseSummary = () => {
                             resetPurchase()
                             router.push({
                                 pathname: '/payment/[orderId]',
-                                params: { orderId: productId },
+                                params: {
+                                    orderId: productId,
+                                    orderNumber: buyMutation.data?.order_number,
+                                    orderType: buyMutation.data?.order_type,
+                                    paymentLink: buyMutation.data?.payment_link,
+                                    orderItems: JSON.stringify(buyMutation.data?.order_items),
+
+
+                                },
 
 
                             })
@@ -84,6 +95,16 @@ const PurchaseSummary = () => {
     const handlePurchase = () => {
         const validation = validatePurchase()
 
+        if (user?.sub === product?.user_id) {
+
+            Alert.alert(
+                'Invalid Action',
+                `You cannot order your own product.`,
+            )
+            return
+
+        }
+
         if (!validation.isValid) {
             Alert.alert('Field Rquired', validation.errors.join('\n'))
             return
@@ -98,7 +119,7 @@ const PurchaseSummary = () => {
         }
 
 
-        console.log(buyData)
+
 
         Alert.alert(
             'Confirm Purchase',

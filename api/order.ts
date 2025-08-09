@@ -216,6 +216,9 @@ export const createOrder = async (
     destination: orderData.destination,
     additional_info: orderData.additional_info,
   };
+
+  console.log(data, "FROM SERVER");
+
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.post(`${BASE_URL}/${vendorId}`, data, {

@@ -43,6 +43,8 @@ export interface BuyItemResponse {
   user_id: string;
   vendor_id: string;
   order_type: string;
+  order_number: string;
+  cancel_reason: string;
   total_price: string;
   order_payment_status: string;
   amount_due_vendor: string;
