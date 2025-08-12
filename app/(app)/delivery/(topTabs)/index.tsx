@@ -186,6 +186,7 @@ const DeliveryScreen = () => {
   }, [refetch]);
 
 
+
   const handleSearch = useCallback((text: string) => {
     setSearchQuery(text);
   }, []);

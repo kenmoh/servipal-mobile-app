@@ -126,16 +126,20 @@ export const updateProduct = async (
 };
 
 // Fetch products
-export const fetchProducts = async () // skip: number = 0,
-// limit: number = 25
-: Promise<CreateProductResponse[]> => {
-  // const params = new URLSearchParams({
-  //   skip: skip.toString(),
-  //   limit: limit.toString(),
-  // });
+export const fetchProducts = async (
+  categoryId?: string
+): Promise<CreateProductResponse[]> => {
   try {
+    // Build URL with optional categoryId parameter
+    const url = categoryId 
+      ? `${BASE_URL}?category_id=${categoryId}` 
+      : BASE_URL;
+    
+    console.log('fetchProducts - categoryId:', categoryId);
+    console.log('fetchProducts - URL:', url);
+    
     const response: ApiResponse<CreateProductResponse[] | ErrorResponse> =
-      await apiClient.get(`${BASE_URL}`, {
+      await apiClient.get(url, {
         headers: {
           "Content-Type": "application/json",
         },

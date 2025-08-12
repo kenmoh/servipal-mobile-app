@@ -11,6 +11,7 @@ import ColorPickerInput from "@/components/ColorPickerInput";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import ImagePickerInput from "@/components/ImagePickerInput";
 import LoadingIndicator from "@/components/LoadingIndicator";
+import { useAuth } from "@/context/authContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { Notifier, NotifierComponents } from "react-native-notifier";
@@ -56,6 +57,7 @@ type ProductCreateFormData = z.infer<typeof productCreateSchema>;
 
 const AddProductScreen = () => {
     const { productId } = useLocalSearchParams<{ productId?: string }>();
+    const { user } = useAuth()
     const isEditing = !!productId;
     const queryClient = useQueryClient();
 
@@ -121,6 +123,8 @@ const AddProductScreen = () => {
                 },
             });
             queryClient.invalidateQueries({ queryKey: ["products"] });
+            queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
+
             router.back();
         },
 

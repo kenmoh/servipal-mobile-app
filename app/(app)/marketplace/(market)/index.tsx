@@ -7,17 +7,25 @@ import ProductCard from '@/components/ProductCard'
 import { useQuery } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { Plus } from 'lucide-react-native'
-import React, { useState } from 'react'
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useState } from 'react'
+import { FlatList, Text, View } from 'react-native'
 
 
 const MarketPlace = () => {
 
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-    const { data, isLoading, isPending } = useQuery({
-        queryKey: ['products'],
-        queryFn: fetchProducts
+    const { data, isLoading, isPending, isFetching, refetch } = useQuery({
+        queryKey: ['products', selectedCategory],
+        queryFn: () => {
+            console.log('Marketplace - selectedCategory:', selectedCategory);
+            const categoryParam = selectedCategory === null ? undefined : selectedCategory;
+            console.log('Marketplace - categoryParam:', categoryParam);
+            return fetchProducts(categoryParam);
+        }
     })
+
+    console.log('Marketplace - data:', data)
+    console.log('Marketplace - selectedCategory state:', selectedCategory)
 
     const { data: categories } = useQuery({
         queryKey: ["categories"],
@@ -27,8 +35,16 @@ const MarketPlace = () => {
     });
 
 
+
+    const handleRefresh = useCallback(() => {
+        refetch();
+    }, [refetch]);
+
+
+
+
     if (isLoading || isPending) {
-        <LoadingIndicator />
+        return <LoadingIndicator />
     }
 
     return (
@@ -46,9 +62,20 @@ const MarketPlace = () => {
                                 onCategorySelect={setSelectedCategory}
                                 selectedCategory={selectedCategory}
                             />
-
                         </>
                     )}
+                    ListEmptyComponent={() => (
+                        <View className="flex-1 justify-center items-center py-20">
+                            <Text className="text-muted text-base font-poppins text-center">
+                                {selectedCategory ? 'No products found in this category' : 'No products available'}
+                            </Text>
+                            <Text className="text-muted-foreground text-sm font-poppins-light text-center mt-2">
+                                {selectedCategory ? 'Try selecting a different category' : 'Check back later for new products'}
+                            </Text>
+                        </View>
+                    )}
+                    refreshing={isFetching}
+                    onRefresh={handleRefresh}
                 />
 
             </View>
@@ -58,14 +85,3 @@ const MarketPlace = () => {
 }
 
 export default MarketPlace
-
-const styles = StyleSheet.create({})
-
-
-const AddProductBtn = ({ onPress }: { onPress: () => void }) => {
-    return (
-        <TouchableOpacity onPress={onPress} className='rounded-full py-2 px-4 bg-button-primary'>
-            <Text className='text-white text-center'>Add Product</Text>
-        </TouchableOpacity>
-    )
-}

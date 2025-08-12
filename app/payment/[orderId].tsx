@@ -182,6 +182,9 @@ const Payment = () => {
         queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
         queryClient.refetchQueries({ queryKey: ["orders", user?.sub], exact: false });
 
+        queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
+        queryClient.invalidateQueries({ queryKey: ['products'] });
+
 
       }
       if (status[0] === "status=failed" || status[0] === "status=cancelled") {

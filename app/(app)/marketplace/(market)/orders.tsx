@@ -4,22 +4,35 @@ import LoadingIndicator from '@/components/LoadingIndicator'
 import ProductOrderCard from '@/components/ProductOrderCard'
 import { useAuth } from '@/context/authContext'
 import { useQuery } from '@tanstack/react-query'
-import React from 'react'
+import { useFocusEffect } from 'expo-router'
+import React, { useCallback } from 'react'
 import { FlatList, View } from 'react-native'
 
 const orders = () => {
     const { user } = useAuth()
 
-    const { data, isLoading, isPending } = useQuery({
+    const { data, isLoading, isPending, refetch, isFetching } = useQuery({
         queryKey: ['products', user?.sub],
         queryFn: () => fetUserOrders(user?.sub as string),
         enabled: !!user?.sub
     })
 
+    useFocusEffect(useCallback(() => {
+        refetch()
+    }, []))
+
+
+
+    const handleRefresh = useCallback(() => {
+        refetch();
+    }, [refetch]);
+
+
 
     if (isLoading || isPending) {
         return <LoadingIndicator />
     }
+
 
 
 
@@ -43,9 +56,12 @@ const orders = () => {
                 numColumns={2}
                 columnWrapperStyle={{
 
-                    alignSelf: 'center',
+                    // alignSelf: 'center',
                     gap: '5%'
                 }}
+
+                refreshing={isFetching}
+                onRefresh={handleRefresh}
 
 
             />

@@ -7,17 +7,24 @@ import { useAuth } from '@/context/authContext'
 import { useQuery } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { Plus } from 'lucide-react-native'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
 
 const items = () => {
     const { user } = useAuth()
 
-    const { data, isLoading, isPending } = useQuery({
+    const { data, isLoading, isPending, isFetching, refetch } = useQuery({
         queryKey: ['user-products', user?.sub],
         queryFn: () => fetchUserProducts(user?.sub as string),
         enabled: !!user?.sub
     })
+
+
+    const handleRefresh = useCallback(() => {
+        refetch();
+    }, [refetch]);
+
+
 
     if (isLoading || isPending) {
         return <LoadingIndicator />
@@ -46,6 +53,9 @@ const items = () => {
                     alignSelf: 'center',
                     gap: '5%'
                 }}
+
+                refreshing={isFetching}
+                onRefresh={handleRefresh}
 
 
             />

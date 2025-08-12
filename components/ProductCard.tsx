@@ -15,7 +15,7 @@ import {
 
 const CARD_HEIGHT = Dimensions.get("screen").height * 0.28;
 
-const ProductCard = ({ product, isItem = false }: { product: CreateProductResponse, isItem?: boolean }) => {
+const ProductCard = ({ product }: { product: CreateProductResponse }) => {
     const handlePress = () => {
         router.push({
             pathname: "/product-detail/productId/[productId]",

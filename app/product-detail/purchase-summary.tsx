@@ -4,7 +4,7 @@ import { HEADER_BG_DARK, HEADER_BG_LIGHT } from '@/constants/theme'
 import { useAuth } from '@/context/authContext'
 import { usePurchaseActions, usePurchaseSelectors } from '@/store/productStore'
 import { Ionicons } from '@expo/vector-icons'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import React, { useEffect } from 'react'
 import {
@@ -25,6 +25,7 @@ const PurchaseSummary = () => {
     const { productId } = useLocalSearchParams<{ productId: string }>()
     const theme = useColorScheme()
     const { user } = useAuth()
+    const queryClient = useQueryClient()
 
 
 
@@ -59,7 +60,7 @@ const PurchaseSummary = () => {
 
     const buyMutation = useMutation({
         mutationFn: (data: any) => buyItem(productId!, data),
-        onSuccess: () => {
+        onSuccess: (responseData) => {
             Alert.alert(
                 'Success!',
                 'Order created successfully! Make payment to confirm order',
@@ -72,10 +73,10 @@ const PurchaseSummary = () => {
                                 pathname: '/payment/[orderId]',
                                 params: {
                                     orderId: productId,
-                                    orderNumber: buyMutation.data?.order_number,
-                                    orderType: buyMutation.data?.order_type,
-                                    paymentLink: buyMutation.data?.payment_link,
-                                    orderItems: JSON.stringify(buyMutation.data?.order_items),
+                                    orderNumber: responseData?.order_number,
+                                    orderType: responseData?.order_type,
+                                    paymentLink: responseData?.payment_link,
+                                    orderItems: JSON.stringify(responseData?.order_items),
 
 
                                 },
@@ -86,6 +87,10 @@ const PurchaseSummary = () => {
                     }
                 ]
             )
+            queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
+            queryClient.invalidateQueries({ queryKey: ['products', responseData.vendor_id] });
+
+
         },
         onError: (error: any) => {
             Alert.alert('Purchase Failed', error.message || 'Failed to process your order. Please try again.')

@@ -21,7 +21,7 @@ import React, { useCallback, useMemo } from "react";
 import { ScrollView, Text, useColorScheme, View } from "react-native";
 
 const UserOrders = () => {
-    const theme = useColorScheme();
+
     const { user } = useAuth();
 
     const { data, isLoading, error, refetch, isFetching, isPending, isFetched } = useQuery({
@@ -83,9 +83,6 @@ const UserOrders = () => {
     }
 
     if (error) return <RefreshButton onPress={refetch} label="Error loading orders" />
-
-
-    console.log(data[0].order.order_type)
 
     return (
         <View className="bg-background flex-1 px-2">
