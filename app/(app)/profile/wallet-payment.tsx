@@ -24,19 +24,13 @@ const WalletPayment = () => {
 
         // Add status to the redirect
         if (status[0] === "status=successful") {
-            router.replace({
-                pathname: "/payment/payment-complete",
-                params: { status: "success" },
-            });
+            router.replace('/profile/[transactionId]');
         }
         if (
             status[0] === "status=failed" ||
             status[0] === "status=cancelled"
         ) {
-            router.replace({
-                pathname: "/payment/payment-complete",
-                params: { status: "failed" },
-            });
+            router.replace('/profile/[transactionId]');
         }
     }, [status]);
 
@@ -51,11 +45,7 @@ const WalletPayment = () => {
     if (showWebView && fundWallet.payment_link) {
         return (
             <View className="flex-1">
-                <View className="p-4">
-                    <Text className="text-lg font-bold text-primary mb-2">Complete Payment</Text>
-                    <AppButton icon={<CreditCard color="white" />} title={`PAY ₦${fundWallet.amount}`} onPress={() => setShowWebView(false)} />
 
-                </View>
                 <WebView
                     style={styles.webview}
                     onNavigationStateChange={setRedirectedUrl}

@@ -1,5 +1,6 @@
 
 import { CreateProductResponse } from "@/types/marketplace";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { Store } from "lucide-react-native";
 import React from "react";
@@ -12,19 +13,15 @@ import {
     View,
 } from "react-native";
 
+
 const CARD_HEIGHT = Dimensions.get("screen").height * 0.28;
 
-const ProductCard = ({ product }: { product: CreateProductResponse }) => {
+const ProductCard = ({ product, isItem = false }: { product: CreateProductResponse, isItem?: boolean }) => {
     const handlePress = () => {
         router.push({
             pathname: "/product-detail/[productId]",
             params: {
                 productId: product.id,
-                // name: product.name,
-                // imageUrls: JSON.stringify(product.images),
-                // price: product.price,
-                // sizes: product.sizes,
-                // colors: JSON.stringify(product.colors),
             },
         });
     };
@@ -75,8 +72,15 @@ const ProductCard = ({ product }: { product: CreateProductResponse }) => {
 
 export default ProductCard;
 
+
+
+
+
+
+
 const styles = StyleSheet.create({
     container: {
         height: CARD_HEIGHT,
     },
+
 });

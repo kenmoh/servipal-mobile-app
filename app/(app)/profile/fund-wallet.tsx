@@ -44,7 +44,7 @@ const FundWallet = () => {
     const { mutate, isPending } = useMutation({
         mutationFn: fundWallet,
         onSuccess: (data) => {
-
+            reset();
             router.push({
                 pathname: '/profile/wallet-payment',
                 params: {
@@ -67,7 +67,7 @@ const FundWallet = () => {
 
     const onSubmit = (value: FundWalletForm) => {
         mutate({ amount: Number(value.amount) });
-        reset();
+
     };
 
     return (
@@ -83,6 +83,7 @@ const FundWallet = () => {
                         onChangeText={onChange}
                         value={value?.toString().trim() || ""}
                         keyboardType="numeric"
+                        editable={!isPending}
                         errorMessage={
                             amountTooLow
                                 ? "Minimum amount is ₦1000"

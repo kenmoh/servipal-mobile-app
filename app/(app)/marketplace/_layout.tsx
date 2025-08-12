@@ -27,9 +27,7 @@ const MarketPlaceLayout = () => {
                 <Stack.Screen name='(market)' options={{
                     title: 'P2P MarketPlace',
                 }} />
-                <Stack.Screen name='add-product' options={{
-                    title: 'Add Product'
-                }} />
+
             </Stack>
         </View>
     )

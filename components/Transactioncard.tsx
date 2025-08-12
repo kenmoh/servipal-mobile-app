@@ -7,9 +7,9 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 const Transactioncard = ({ data }: { data: Transaction }) => {
 
     // Determine circle and icon color
-    let circleBg = data?.transaction_diresction === 'credit' ? 'rgba(4, 255, 130, 0.1)' : 'rgba(255, 0, 0, 0.2)';
-    let iconColor = data?.transaction_diresction === 'credit' ? 'green' : 'red';
-    if (data?.payment_status === 'pending' && data?.transaction_diresction === 'credit') {
+    let circleBg = data?.transaction_direction === 'credit' ? 'rgba(4, 255, 130, 0.1)' : 'rgba(255, 0, 0, 0.2)';
+    let iconColor = data?.transaction_direction === 'credit' ? 'green' : 'red';
+    if (data?.payment_status === 'pending' && data?.transaction_direction === 'credit') {
         circleBg = 'rgba(255, 193, 7, 0.2)';
         iconColor = '#FFC107';
     }
@@ -27,7 +27,7 @@ const Transactioncard = ({ data }: { data: Transaction }) => {
                     fromUser: data?.from_user,
                     toUser: data?.to_user,
                     transactionType: data?.transaction_type,
-                    transactionDirection: data?.transaction_diresction,
+                    transactionDirection: data?.transaction_direction,
                     paymentStatus: data?.payment_status,
                     paymentLink: data?.payment_link
                 }
@@ -36,7 +36,7 @@ const Transactioncard = ({ data }: { data: Transaction }) => {
             <View className="w-[90%] self-center border-b border-border-subtle rounded-none py-3 flex-row items-center justify-between">
                 <View className="flex-row items-center gap-2">
                     <View style={{ backgroundColor: circleBg }} className="w-6 h-6 rounded-full items-center justify-center">
-                        {data?.transaction_diresction === 'credit'
+                        {data?.transaction_direction === 'credit'
                             ? <ArrowDown color={iconColor} size={14} />
                             : <ArrowUp color={iconColor} size={12} />}
                     </View>

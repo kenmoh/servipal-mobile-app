@@ -1,24 +1,24 @@
-import { CreateProductResponse } from '@/types/marketplace';
+import { ProduductOrderResponse } from '@/types/marketplace';
 import React, { createContext, useContext, useRef, useState } from 'react';
 import { SharedValue, useSharedValue } from 'react-native-reanimated';
 
 type ModalContextType = {
-    currentProduct: CreateProductResponse | null;
-    setCurrentProduct: (product: CreateProductResponse | null) => void;
+    currentProduct: ProduductOrderResponse | null;
+    setCurrentProduct: (product: ProduductOrderResponse | null) => void;
     isVisible: SharedValue<boolean>;
-    cardPosition: React.MutableRefObject<{ x: number; y: number; width: number; height: number } | null>;
-    openModal: (product: CreateProductResponse, position: { x: number; y: number; width: number; height: number }) => void;
+    cardPosition: React.RefObject<{ x: number; y: number; width: number; height: number } | null>;
+    openModal: (product: ProduductOrderResponse, position: { x: number; y: number; width: number; height: number }) => void;
     closeModal: () => void;
 };
 
 const ProductModalContext = createContext<ModalContextType | undefined>(undefined);
 
 export const ProductModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [currentProduct, setCurrentProduct] = useState<CreateProductResponse | null>(null);
+    const [currentProduct, setCurrentProduct] = useState<ProduductOrderResponse | null>(null);
     const isVisible = useSharedValue(false);
     const cardPosition = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
 
-    const openModal = (product: CreateProductResponse, position: { x: number; y: number; width: number; height: number }) => {
+    const openModal = (product: ProduductOrderResponse, position: { x: number; y: number; width: number; height: number }) => {
         // Close any existing modal first
         if (isVisible.value) {
             isVisible.value = false;

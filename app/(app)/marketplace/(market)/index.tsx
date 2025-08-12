@@ -1,10 +1,12 @@
 import { fetchCategories } from '@/api/item'
 import { fetchProducts } from '@/api/product'
 import Category from '@/components/Category'
+import FAB from '@/components/FAB'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import ProductCard from '@/components/ProductCard'
 import { useQuery } from '@tanstack/react-query'
-import { router, Stack } from 'expo-router'
+import { router } from 'expo-router'
+import { Plus } from 'lucide-react-native'
 import React, { useState } from 'react'
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
@@ -31,12 +33,12 @@ const MarketPlace = () => {
 
     return (
         <View className='flex-1 bg-background'>
-            <Stack.Screen options={{
+            {/* <Stack.Screen options={{
                 headerRight: () => <AddProductBtn onPress={() =>
                     router.push('/marketplace/add-product')
                 } />
 
-            }} />
+            }} /> */}
             <View className='flex-1 bg-background'>
                 <FlatList
                     data={data || []}
@@ -55,6 +57,7 @@ const MarketPlace = () => {
                 />
 
             </View>
+            <FAB icon={<Plus color={'white'} />} onPress={() => router.push('/product-detail/add-product')} />
         </View>
     )
 }

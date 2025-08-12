@@ -4,6 +4,7 @@ import {
   CreateProduct,
   CreateProductResponse,
   ItemOrderStatus,
+  ProductResponse,
 } from "@/types/marketplace";
 import { apiClient } from "@/utils/client";
 import { ApiResponse } from "apisauce";
@@ -159,9 +160,9 @@ export const fetchProducts = async () // skip: number = 0,
 // Fetch Product
 export const fetchProduct = async (
   productId: string
-): Promise<CreateProductResponse> => {
+): Promise<ProductResponse> => {
   try {
-    const response: ApiResponse<CreateProductResponse | ErrorResponse> =
+    const response: ApiResponse<ProductResponse | ErrorResponse> =
       await apiClient.get(`${BASE_URL}/${productId}`, {
         headers: {
           "Content-Type": "application/json",
@@ -188,9 +189,9 @@ export const fetchProduct = async (
 /* Fetch all product belonging to a given user ID */
 export const fetchUserProducts = async (
   userId: string
-): Promise<CreateProductResponse[]> => {
+): Promise<ProductResponse[]> => {
   try {
-    const response: ApiResponse<CreateProductResponse[] | ErrorResponse> =
+    const response: ApiResponse<ProductResponse[] | ErrorResponse> =
       await apiClient.get(`${BASE_URL}/${userId}/user-products`, {
         headers: {
           "Content-Type": "application/json",

@@ -85,7 +85,6 @@ const AddProductScreen = () => {
         queryFn: () => fetchProduct(productId!),
         enabled: !!productId,
     });
-
     // Populate form when product data is loaded
     useEffect(() => {
         if (existingProduct) {
@@ -163,7 +162,7 @@ const AddProductScreen = () => {
         <ScrollView className="flex-1 bg-background">
             <Stack.Screen
                 options={{
-                    title: isEditing ? "Edit Product" : "Create Product",
+                    title: isEditing && productId ? "Edit Product" : "Create Product",
                     headerTitleAlign: "center",
                 }}
             />

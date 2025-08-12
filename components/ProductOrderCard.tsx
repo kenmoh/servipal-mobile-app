@@ -1,85 +1,52 @@
 import { useProductModal } from '@/contexts/ProductModalContext';
-import { CreateProductResponse } from '@/types/marketplace';
-import { LinearGradient } from "expo-linear-gradient";
+import { ProduductOrderResponse } from '@/types/marketplace';
 import { router } from 'expo-router';
 import React, { useRef } from 'react';
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SharedValue } from 'react-native-reanimated';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type ProductOrderCardProps = {
-    isOrder?: boolean,
-    data: CreateProductResponse
+    data: ProduductOrderResponse
 }
 
-const ProductOrderCard = ({ data, isOrder = true }: ProductOrderCardProps) => {
+const ProductOrderCard = ({ data }: ProductOrderCardProps) => {
     const { openModal } = useProductModal();
     const cardRef = useRef<View>(null);
 
 
-    const handleItemPress = () => {
-
-        // Only show modal if isOrder is true
-        if (!isOrder) {
-            router.push({
-                pathname: '/marketplace/add-product', params: {
-                    productId: data?.id
-                }
-            })
-        };
-    }
 
     const handleOrderPress = () => {
         // Measure the card position
-        cardRef.current?.measure((x, y, width, height, pageX, pageY) => {
-            openModal(data, {
-                x: pageX,
-                y: pageY,
-                width,
-                height
-            });
-        });
+        // cardRef.current?.measure((x, y, width, height, pageX, pageY) => {
+        //     openModal(data, {
+        //         x: pageX,
+        //         y: pageY,
+        //         width,
+        //         height
+        //     });
+        // });
+
+        router.push({ pathname: '/product-detail/[orderId]', params: { orderId: data?.id } })
     };
 
     return (
-        <>{isOrder ?
-            (<View
-                ref={cardRef}
-                className='bg-input rounded-2xl w-[45%] my-[2.5%] h-[200px] overflow-hidden'
-            >
-                <TouchableOpacity onPress={handleOrderPress}>
-                    <Image
-                        source={{ uri: data?.images[0].url }}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
+        <View
+            ref={cardRef}
+            style={{ borderWidth: StyleSheet.hairlineWidth }}
+            className='bg-input rounded-2xl w-[45%] my-[2.5%] h-[200px] overflow-hidden border-gray-800/25'
+        >
+            <TouchableOpacity onPress={handleOrderPress}>
+                <View className='bg-orange-700/25 rounded-2xl items-center justify-center px-3 py-1 absolute bottom-2 left-2 z-40'>
+                    <Text className='text-orange-500 text-center text-base font-poppins-medium'>{data?.order_payment_status}</Text>
+                </View>
+                <Image
+                    source={{ uri: data?.order_items[0].images[0].url }}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
 
 
-                </TouchableOpacity>
-            </View>) :
-            (<View
+            </TouchableOpacity>
+        </View>
 
-                className='bg-input rounded-2xl w-[45%] my-[2.5%] h-[200px] overflow-hidden'
-            >
-                <TouchableOpacity onPress={handleItemPress}>
-                    <Image
-                        source={{ uri: data?.images[0].url }}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-
-                    {!isOrder && (
-                        <>
-                            <View className="px-3 absolute bottom-0 right-0 left-0 z-50">
-                                <Text className="text-white font-poppins-bold text-base">₦ {data?.price}</Text>
-                                <Text className='text-white font-poppins-light text-wrap'>{data?.name}</Text>
-                            </View>
-                            <LinearGradient
-                                colors={["transparent", "rgba(0,0,0,0.7)"]}
-                                style={styles.gradient}
-                            />
-                        </>
-                    )}
-                </TouchableOpacity>
-            </View>)}
-        </>
     );
 };
 
@@ -88,24 +55,5 @@ export default ProductOrderCard;
 
 
 
-type CardDetailProp = {
-    data: CreateProductResponse | null
-    isVisible: SharedValue<boolean>
-    onClose: () => void
-}
-
-const { width, height } = Dimensions.get('window')
 
 
-
-const styles = StyleSheet.create({
-    gradient: {
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: 75,
-    },
-
-
-})

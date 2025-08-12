@@ -71,24 +71,6 @@ const ProductOrder = () => {
                     <View className="bg-input rounded-xl p-4  space-y-4">
                         <Text className="text-lg font-semibold text-primary font-poppins">Your Selection</Text>
 
-                        {/* Colors */}
-                        {/* {selectedColors.length > 0 && (
-                            <View className="space-y-2">
-                                <Text className="text-sm font-medium text-primary font-poppins">Colors</Text>
-                                <View className="flex-row flex-wrap gap-2">
-                                    {selectedColors.map((color: string, index: number) => (
-                                        <View key={index} className="flex-row items-center space-x-2 bg-gray-50 rounded-full px-3 py-1">
-                                            <View
-                                                className="w-4 h-4 rounded-full border border-gray-300"
-                                                style={{ backgroundColor: color }}
-                                            />
-                                            <Text className="text-sm text-gray-700 capitalize">{color}</Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </View>
-                        )} */}
-
                         {/* Sizes */}
                         {sizes && (
                             <View className="space-y-2 mt-3">

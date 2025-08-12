@@ -1,4 +1,4 @@
-import { fetchUserProducts } from '@/api/product'
+import { fetUserOrders } from '@/api/marketplace'
 import EmptyList from '@/components/EmptyList'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import ProductOrderCard from '@/components/ProductOrderCard'
@@ -12,9 +12,10 @@ const orders = () => {
 
     const { data, isLoading, isPending } = useQuery({
         queryKey: ['products', user?.sub],
-        queryFn: () => fetchUserProducts(user?.sub as string),
+        queryFn: () => fetUserOrders(user?.sub as string),
         enabled: !!user?.sub
     })
+
 
     if (isLoading || isPending) {
         return <LoadingIndicator />

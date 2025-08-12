@@ -1,6 +1,7 @@
 import { fetchPaidPendingDeliveries, getTravelDistance } from "@/api/order";
 import HDivider from "@/components/HDivider";
 import ItemCard from "@/components/ItemCard";
+import { LegendList } from '@legendapp/list';
 import React from "react";
 
 import { DeliveryDetail } from "@/types/order-types";
@@ -22,20 +23,27 @@ import authStorage from "@/storage/authStorage";
 import { UserDetails } from "@/types/user-types";
 import { distanceCache } from "@/utils/distance-cache";
 import { router } from "expo-router";
-import { FlatList, ListRenderItem, useColorScheme, View } from "react-native";
+import { View } from "react-native";
 
 const DeliveryScreen = () => {
-  const theme = useColorScheme();
   const { user, setProfile } = useAuth();
   const { expoPushToken } = useNotification()
   const [searchQuery, setSearchQuery] = useState("");
   const [locationPermission, setLocationPermission] = useState<boolean | null>(
     null
   );
+  const [isLayoutComplte, setIsLayoutComplete] = useState(false);
   const [userLocation, setUserLocation] = useState<{
     latitude: number;
     longitude: number;
   } | null>(null);
+
+  const handleLayoutComplete = () => {
+    if (!isLayoutComplte) {
+      setIsLayoutComplete(true);
+
+    }
+  };
 
   const storeUserProfile = async (profile: UserDetails) => {
     await authStorage.removeProfile()
@@ -154,10 +162,12 @@ const DeliveryScreen = () => {
   }, [userLocation]);
 
   // Memoize render functions
-  const renderItem: ListRenderItem<DeliveryDetail> = useCallback(
-    ({ item }) => <ItemCard data={item} isHomeScreen />,
-    []
-  );
+  // const renderItem: ListRenderItem<DeliveryDetail> = useCallback(
+  //   ({ item }) => <ItemCard data={item} isHomeScreen />,
+  //   []
+  // );
+
+  const renderItem = useCallback(({ item }: { item: DeliveryDetail }) => <ItemCard data={item} />, []);
 
   const renderSeparator = useCallback(() => <HDivider />, []);
 
@@ -271,18 +281,14 @@ const DeliveryScreen = () => {
         value={searchQuery}
       />
       <HDivider />
-      <FlatList
+      <LegendList
         data={filteredData || []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
         ItemSeparatorComponent={renderSeparator}
         refreshing={isFetching}
         onRefresh={handleRefresh}
-        removeClippedSubviews={true}
-        maxToRenderPerBatch={10}
-        updateCellsBatchingPeriod={50}
-        initialNumToRender={10}
-        windowSize={10}
+        onLayout={handleLayoutComplete}
       />
 
       {user?.user_type === 'dispatch' || user?.user_type === 'rider' ? '' : <FAB onPress={handleSendItemPress} />}

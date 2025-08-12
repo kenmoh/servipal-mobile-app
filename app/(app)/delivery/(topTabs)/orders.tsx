@@ -5,6 +5,7 @@ import { DeliveryListSkeleton, StatsSkeleton } from "@/components/LoadingSkeleto
 import RefreshButton from "@/components/RefreshButton";
 import { useAuth } from "@/context/authContext";
 import { DeliveryDetail } from "@/types/order-types";
+import { LegendList } from "@legendapp/list";
 import { useQuery } from "@tanstack/react-query";
 import {
     Check,
@@ -17,7 +18,7 @@ import {
     Utensils,
 } from "lucide-react-native";
 import React, { useCallback, useMemo } from "react";
-import { FlatList, ScrollView, Text, useColorScheme, View } from "react-native";
+import { ScrollView, Text, useColorScheme, View } from "react-native";
 
 const UserOrders = () => {
     const theme = useColorScheme();
@@ -82,6 +83,9 @@ const UserOrders = () => {
     }
 
     if (error) return <RefreshButton onPress={refetch} label="Error loading orders" />
+
+
+    console.log(data[0].order.order_type)
 
     return (
         <View className="bg-background flex-1 px-2">
@@ -154,17 +158,17 @@ const UserOrders = () => {
             <HDivider width="100%" />
 
             <View className="bg-background flex-1">
-                <FlatList
+                <LegendList
                     data={data}
                     keyExtractor={keyExtractor}
                     renderItem={renderItem}
                     ItemSeparatorComponent={renderSeparator}
                     refreshing={isFetching}
                     onRefresh={refetch}
-                    removeClippedSubviews={true}
-                    initialNumToRender={10}
-                    maxToRenderPerBatch={10}
-                    windowSize={10}
+
+
+
+
                 />
             </View>
         </View>

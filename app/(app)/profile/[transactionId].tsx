@@ -15,6 +15,7 @@ const TransactionDetails = () => {
         paymentBy,
         id,
         transactionType,
+        transactionDirection,
         paymentLink,
         fromUser,
         toUser,
@@ -24,8 +25,27 @@ const TransactionDetails = () => {
     const [redirectedUrl, setRedirectedUrl] = useState<{ url?: string } | null>(
         null
     );
-    const status = redirectedUrl?.url
-        ? redirectedUrl?.url?.split("?")[1]?.split("&")
+
+
+    // Parse URL parameters properly
+    const getPaymentStatusFromUrl = (url: string) => {
+        if (!url) return null;
+
+        try {
+            // Extract query parameters from URL
+            const urlParts = url.split('?');
+            if (urlParts.length < 2) return null;
+
+            const urlParams = new URLSearchParams(urlParts[1]);
+            return urlParams.get('status');
+        } catch (error) {
+            console.error('Error parsing payment status from URL:', error);
+            return null;
+        }
+    };
+
+    const paymentStatusFromUrl = redirectedUrl?.url
+        ? getPaymentStatusFromUrl(redirectedUrl.url)
         : null;
 
     const handleMakePayment = () => {
@@ -39,33 +59,43 @@ const TransactionDetails = () => {
     const statusString = Array.isArray(paymentStatus) ? paymentStatus[0] : paymentStatus;
 
     useEffect(() => {
-        if (!status) return;
+        if (!paymentStatusFromUrl) return;
 
-        // Add status to the redirect
-        if (status[0] === "status=successful") {
-            router.replace({
-                pathname: "/payment/payment-complete",
-                params: { status: "success" },
-            });
-        }
-        if (
-            status[0] === "status=failed" ||
-            status[0] === "status=cancelled"
-        ) {
-            router.replace({
-                pathname: "/payment/payment-complete",
-                params: { status: "failed" },
-            });
-        }
-    }, [status]);
+        console.log('Payment status from URL:', paymentStatusFromUrl);
+
+        const timer = setTimeout(() => {
+            // Normalize status for consistent comparison
+            const normalizedStatus = paymentStatusFromUrl.toLowerCase();
+
+            switch (normalizedStatus) {
+                case 'successful':
+                case 'success':
+                    console.log('Payment successful, redirecting to success page');
+                    router.replace({
+                        pathname: "/payment/payment-complete",
+                        params: { paymentStatus: "success" },
+                    });
+                    break;
+                case 'failed':
+                case 'cancelled':
+                case 'canceled':
+
+                    router.replace({
+                        pathname: "/payment/payment-complete",
+                        params: { paymentStatus: "failed" },
+                    });
+                    break;
+                default:
+                    throw new Error(`Unknown payment status: ${paymentStatusFromUrl}`);
+            }
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, [paymentStatusFromUrl]);
 
     if (showWebView && paymentLink) {
         return (
             <View className="flex-1">
-                <View className="p-4">
-                    <Text className="text-lg font-bold text-primary mb-2">Complete Payment</Text>
-                    <AppButton title="Close" onPress={() => setShowWebView(false)} />
-                </View>
                 <WebView
                     style={styles.webview}
                     onNavigationStateChange={setRedirectedUrl}
@@ -82,7 +112,12 @@ const TransactionDetails = () => {
     return (
         <View className="flex-1 bg-background p-5 my-4 gap-5">
             <View className="rounded-2xl border border-border-subtle bg-surface-profile p-3 w-full max-w-[400px] self-center">
-                <Text className="text-lg text-muted mb-2">Transaction Details</Text>
+
+                <View className="flex-row items-center justify-between mb-2">
+                    <Text className="text-lg text-muted mb-2">Transaction Details</Text>
+                    <Text className="text-lg text-muted mb-2 uppercase">{transactionDirection}</Text>
+                </View>
+
                 <View className="flex-row items-center justify-between mb-2">
                     <Text className="text-base text-muted">Amount:</Text>
                     <Text className="text-2xl font-bold text-primary">₦{Number(amount).toLocaleString()}</Text>
@@ -93,7 +128,7 @@ const TransactionDetails = () => {
                 </View>
                 <View className="flex-row items-center justify-between mb-2">
                     <Text className="text-base text-muted">Status:</Text>
-                    <Text className={`text-base font-bold ${statusString === "pending" ? "text-status-error" : "text-status-success"}`}>{statusString?.toUpperCase()}</Text>
+                    <Text className={`text-base font-poppins-bold ${statusString === "pending" ? "text-green-900" : "text-status-success"}`}>{statusString?.toUpperCase()}</Text>
                 </View>
                 <Text className="text-base text-muted mt-4">Transaction ID:</Text>
                 <Text className="text-sm text-primary mb-2">{id || transactionId}</Text>

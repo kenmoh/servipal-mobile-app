@@ -113,10 +113,10 @@ const ProductDetail = () => {
             <View className="flex-1 px-6 space-y-6">
                 {/* Title and Price */}
                 <View className="space-y-2">
-                    <Text className="text-2xl font-bold text-primary font-poppins-bold">{product.name}</Text>
+                    <Text className="text-2xl font-bold text-muted font-poppins-bold">{product.name}</Text>
                     <Text className="text-3xl font-bold text-primary">{formatPrice(Number(product.price))}</Text>
-                    <Text className="text-sm text-muted-foreground">
-                        {product.total_sold} sold • In stock: {product.stock}
+                    <Text className="text-sm text-muted">
+                        {product.total_sold || 0} sold • In stock: {product.stock}
                     </Text>
                 </View>
 
@@ -124,7 +124,7 @@ const ProductDetail = () => {
                 {product.colors && product.colors.length > 0 && (
                     <View className="space-y-3 my-2">
                         <View className="flex-row justify-between items-center">
-                            <Text className="text-sm font-semibold text-primary font-poppins">Colors</Text>
+                            <Text className="text-sm text-primary font-poppins">Colors</Text>
                             <View className="flex-row gap-3">
                                 <TouchableOpacity
                                     onPress={clearColors}

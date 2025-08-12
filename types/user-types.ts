@@ -106,7 +106,7 @@ export interface Transaction {
   payment_link: string;
   payment_status: string;
   transaction_type: TransactionType;
-  transaction_diresction: TransactionDirection;
+  transaction_direction: TransactionDirection;
 }
 export interface Wallet {
   id: string;
