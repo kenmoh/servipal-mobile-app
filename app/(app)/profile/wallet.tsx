@@ -9,9 +9,9 @@ import { Transaction } from "@/types/user-types";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { Eye, EyeOff } from "lucide-react-native";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Notifier, NotifierComponents } from "react-native-notifier";
 import Animated, { FadeInUp } from "react-native-reanimated";
@@ -51,7 +51,11 @@ const index = () => {
                 },
             });
         },
-    });
+    })
+
+    useFocusEffect(useCallback(() => {
+        refetch();
+    }, [refetch]))
 
     return (
         <View className="flex-1 bg-background " >

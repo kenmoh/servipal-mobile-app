@@ -24,13 +24,13 @@ const WalletPayment = () => {
 
         // Add status to the redirect
         if (status[0] === "status=successful") {
-            router.replace('/profile/[transactionId]');
+            router.replace('/profile/wallet');
         }
         if (
             status[0] === "status=failed" ||
             status[0] === "status=cancelled"
         ) {
-            router.replace('/profile/[transactionId]');
+            router.replace('/profile/wallet');
         }
     }, [status]);
 
