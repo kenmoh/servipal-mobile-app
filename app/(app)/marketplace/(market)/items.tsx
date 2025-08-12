@@ -22,9 +22,6 @@ const items = () => {
     if (isLoading || isPending) {
         return <LoadingIndicator />
     }
-    console.log(data, "Producct")
-
-
 
 
     if (!data || data.length === 0) {

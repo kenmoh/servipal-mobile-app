@@ -1,21 +1,32 @@
-import { fetProductOrderDetails } from '@/api/marketplace'
+import { fetProductOrderDetails, orderDelivered } from '@/api/marketplace'
 import AppVariantButton from '@/components/core/AppVariantButton'
 import ProductDetailWrapper from '@/components/ProductDetailWrapper'
+import { useToast } from '@/components/ToastProvider'
 import { useAuth } from '@/context/authContext'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { router, useLocalSearchParams } from 'expo-router'
 import React from 'react'
 import { ActivityIndicator, Text, View } from 'react-native'
 
 
 const ProductDetail = () => {
-    const { orderId } = useLocalSearchParams<{ orderId: string }>()
     const { user } = useAuth()
+    const { orderId } = useLocalSearchParams<{ orderId: string }>()
+    const { showSuccess, showError, showInfo } = useToast();
+
 
     const { data, isLoading } = useQuery({
         queryKey: ['product-order', orderId],
         queryFn: () => fetProductOrderDetails(orderId!),
         enabled: !!orderId,
+    })
+
+    const orderDeliveredMutation = useMutation({
+        mutationFn: () => orderDelivered(orderId!),
+        onSuccess: () => showSuccess('Success', 'Order marked as delivered'),
+        onError: (error) => showError('Error', error.message || 'Failed to deliver order'),
+
+
     })
 
 
@@ -35,8 +46,6 @@ const ProductDetail = () => {
             </View>
         )
     }
-
-    console.log(data?.order_items[0].colors)
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('en-NG', {
@@ -170,10 +179,10 @@ const ProductDetail = () => {
 
 
 
-                {/* Next Button */}
+
                 <View className="pb-6 mb-6 gap-4">
 
-                    {data?.order_payment_status === 'pending' && <AppVariantButton
+                    {data?.order_payment_status === 'pending' && user?.sub === data?.user_id && <AppVariantButton
                         label={"Pay Now"}
                         onPress={() => router.push({
                             pathname: '/payment/[orderId]',
@@ -188,14 +197,18 @@ const ProductDetail = () => {
                         })}
 
                     />}
-                    <AppVariantButton
-                        label={"Delivered"}
-                        outline={true}
-                        outlineColor={'orange'}
-                        filled={false}
-                        onPress={() => console.log('first')}
-                    // disabled={buyMutation.isPending}
-                    />
+                    {
+                        data?.order_payment_status === 'pending' && user?.sub !== data.vendor_id &&
+                        <AppVariantButton
+                            label={"Delivered"}
+                            outline={true}
+                            outlineColor={'orange'}
+                            filled={false}
+                            isLoading={orderDeliveredMutation.isPending}
+                            onPress={orderDeliveredMutation.mutate}
+                            disabled={orderDeliveredMutation.isPending}
+                        />
+                    }
                 </View>
             </View>
         </ProductDetailWrapper>

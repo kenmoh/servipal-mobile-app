@@ -42,7 +42,12 @@ export interface ProduductOrderResponse {
   vendor_id: string;
   order_type: string;
   order_number: string;
-  order_payment_status: string;
+  order_payment_status:
+    | "paid"
+    | "pending"
+    | "failed"
+    | "cancelled"
+    | "refunded";
   order_status: string;
   cancel_reason: string;
   total_price: string;

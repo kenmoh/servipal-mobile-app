@@ -1,6 +1,5 @@
 
 import { CreateProductResponse } from "@/types/marketplace";
-import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { Store } from "lucide-react-native";
 import React from "react";
@@ -19,7 +18,7 @@ const CARD_HEIGHT = Dimensions.get("screen").height * 0.28;
 const ProductCard = ({ product, isItem = false }: { product: CreateProductResponse, isItem?: boolean }) => {
     const handlePress = () => {
         router.push({
-            pathname: "/product-detail/[productId]",
+            pathname: "/product-detail/productId/[productId]",
             params: {
                 productId: product.id,
             },
