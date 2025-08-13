@@ -138,7 +138,6 @@ const ProductDetail = () => {
         }).format(price)
     }
 
-    console.log(data?.order_status)
 
     return (
         <ProductDetailWrapper images={data?.order_items[0]?.images}>
@@ -332,10 +331,7 @@ const ProductDetail = () => {
                                 />
                             )}
 
-                            {/* Debug info - remove this after testing */}
-                            <Text className="text-xs text-muted mt-2">
-                                Debug - Status: {data?.order_status} | User: {user?.sub === data.vendor_id ? 'Vendor' : 'Other'}
-                            </Text>
+
                         </>
                     )}
 
@@ -370,10 +366,6 @@ const ProductDetail = () => {
                                 />
                             )}
 
-                            {/* Debug info - remove this after testing */}
-                            <Text className="text-xs text-muted mt-2">
-                                Debug - Status: {data?.order_status} | User: {user?.sub === data.user_id ? 'Buyer' : 'Other'}
-                            </Text>
                         </>
                     )}
                 </View>

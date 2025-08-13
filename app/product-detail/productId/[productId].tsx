@@ -90,12 +90,14 @@ const ProductDetail = () => {
     }
 
     const handleContinueToPurchase = () => {
-        // const validation = validatePurchase()
-
-        // if (!validation.isValid) {
-        //     Alert.alert('Incomplete Selection', validation.errors.join('\n'))
-        //     return
-        // }
+        // Validate that selected colors match quantity
+        if (selectedColors.length > 0 && selectedColors.length !== quantity) {
+            Alert.alert(
+                'Color Selection Error', 
+                `You have selected ${selectedColors.length} color${selectedColors.length > 1 ? 's' : ''} but quantity is ${quantity}. Please select exactly ${quantity} color${quantity > 1 ? 's' : ''} or adjust the quantity to match your color selection.`
+            )
+            return
+        }
 
         // Navigate to purchase summary screen
         router.push({ pathname: '/product-detail/purchase-summary', params: { productId: productId } })
@@ -124,7 +126,19 @@ const ProductDetail = () => {
                 {product.colors && product.colors.length > 0 && (
                     <View className="space-y-3 my-2">
                         <View className="flex-row justify-between items-center">
-                            <Text className="text-sm text-primary font-poppins">Colors</Text>
+                            <View className="flex-1">
+                                <View className="flex-row items-center gap-2">
+                                    <Text className="text-sm text-primary font-poppins">Colors</Text>
+                                    <View className={`px-2 py-1 rounded-full ${selectedColors.length === quantity && selectedColors.length > 0 ? 'bg-green-100' : selectedColors.length > 0 ? 'bg-orange-100' : 'bg-gray-100'}`}>
+                                        <Text className={`text-xs font-medium ${selectedColors.length === quantity && selectedColors.length > 0 ? 'text-green-600' : selectedColors.length > 0 ? 'text-orange-600' : 'text-gray-600'}`}>
+                                            {selectedColors.length}/{quantity}
+                                        </Text>
+                                    </View>
+                                </View>
+                                <Text className="text-xs text-muted mt-1">
+                                    Select {quantity} color{quantity > 1 ? 's' : ''} (matches quantity)
+                                </Text>
+                            </View>
                             <View className="flex-row gap-3">
                                 <TouchableOpacity
                                     onPress={clearColors}
