@@ -58,8 +58,8 @@ export interface ProduductOrderResponse {
     | "delivered"
     | "received"
     | "rejected"
-    | "laundry_received"
     | "received_rejected_product"
+    | "laundry_received"
     | "cancelled";
   cancel_reason: string;
   total_price: string;

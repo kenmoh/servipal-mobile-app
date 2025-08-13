@@ -25,13 +25,15 @@ const ProductDetail = () => {
 
 
     const getButtonLabel = () => {
-        if (user?.sub === data?.vendor_id && data?.order_status === 'pending') {
+        if (user?.sub === data?.vendor_id && data?.order_payment_status === 'paid' && data?.order_status === 'pending') {
             return "Mark as Delivered"
         }
         if (user?.sub === data?.user_id && data?.order_status === 'delivered') {
             return "Mark as Received"
         }
-        return data?.order_status.toUpperCase()
+        // Return a more user-friendly status display
+        const statusDisplay = data?.order_status === 'received_rejected_product' ? 'Return Confirmed' : data?.order_status?.toUpperCase()
+        return statusDisplay || 'UNKNOWN'
     }
     const label = getButtonLabel()
     const orderDeliveredMutation = useMutation({
@@ -80,7 +82,7 @@ const ProductDetail = () => {
     const handleButtonPress = () => {
         // Customer trying to mark as received
         if (user?.sub === data?.user_id) {
-            if (data?.order_status !== 'received') {
+            if (data?.order_status !== 'delivered') {
                 showWarning('Warning', 'Order must be delivered by vendor before you can mark it as received')
                 return
             }
@@ -98,8 +100,8 @@ const ProductDetail = () => {
                 showWarning('Warning', 'Order must be paid before it can be delivered')
                 return
             }
-            if (data?.order_status === 'delivered' || data?.order_status === 'received') {
-                showWarning('Warning', 'Order has already been delivered')
+            if (data?.order_status !== 'pending') {
+                showWarning('Warning', 'Order has already been processed')
                 return
             }
             // All checks passed, mark as delivered
@@ -154,15 +156,18 @@ const ProductDetail = () => {
                     </View>
                     <View className='flex-row justify-between items-center my-3'>
                         <Text className="text-sm font-poppins-bold text-muted">Order Status</Text>
-                        <Text className={`text-sm font-poppins-bold py-2 px-4 rounded-3xl capitalize ${data?.order_status === 'rejected' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                        <Text className={`text-sm font-poppins-bold py-2 px-4 rounded-3xl capitalize ${
+                            data?.order_status === 'rejected' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
                             data?.order_status === 'delivered' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                                data?.order_status === 'received' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-                                    data?.order_status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
-                                        data?.order_status === 'cancelled' ? 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400' :
-                                            'bg-slate-100 text-slate-700 dark:bg-slate-800/30 dark:text-slate-400'
-                            }`}>{data?.order_status}</Text>
+                            data?.order_status === 'received' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                            data?.order_status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                            data?.order_status === 'received_rejected_product' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
+                            data?.order_status === 'cancelled' ? 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400' :
+                            'bg-slate-100 text-slate-700 dark:bg-slate-800/30 dark:text-slate-400'
+                        }`}>
+                            {data?.order_status === 'received_rejected_product' ? 'Return Confirmed' : data?.order_status}
+                        </Text>
                     </View>
-
 
                 </View>
 
@@ -296,21 +301,25 @@ const ProductDetail = () => {
                     {/* Vendor Actions */}
                     {user?.sub === data.vendor_id && (
                         <>
-                            {/* Main vendor button (Deliver) */}
-                            <AppVariantButton
-                                label={label!}
-                                outline={true}
-                                outlineColor={'orange'}
-                                filled={false}
-                                isLoading={orderDeliveredMutation.isPending}
-                                onPress={handleButtonPress}
-                                disabled={orderDeliveredMutation.isPending}
-                            />
+                            {/* Main vendor button (Deliver) - only show for pending status */}
+                            {data?.order_status === 'pending' && data?.order_payment_status === 'paid' && (
+                                <AppVariantButton
+                                    label="Mark as Delivered"
+                                    outline={true}
+                                    borderRadius={100}
+                                    outlineColor={'orange'}
+                                    filled={false}
+                                    isLoading={orderDeliveredMutation.isPending}
+                                    onPress={handleButtonPress}
+                                    disabled={orderDeliveredMutation.isPending}
+                                />
+                            )}
 
                             {/* Vendor confirm rejected item received - only if status is rejected */}
                             {data?.order_status === 'rejected' && (
                                 <AppVariantButton
                                     label="Confirm Rejected Item Received"
+                                    borderRadius={100}
                                     outline={true}
                                     outlineColor={'red'}
                                     filled={false}
@@ -319,28 +328,37 @@ const ProductDetail = () => {
                                     disabled={vendorReceivedRejectedMutation.isPending}
                                 />
                             )}
+
+                            {/* Debug info - remove this after testing */}
+                            <Text className="text-xs text-muted mt-2">
+                                Debug - Status: {data?.order_status} | User: {user?.sub === data.vendor_id ? 'Vendor' : 'Other'}
+                            </Text>
                         </>
                     )}
 
                     {/* Buyer Actions */}
                     {user?.sub === data.user_id && (
                         <>
-                            {/* Main buyer button (Receive) */}
-                            <AppVariantButton
-                                label={label!}
-                                outline={true}
-                                outlineColor={'orange'}
-                                filled={false}
-                                isLoading={orderReceiveddMutation.isPending}
-                                onPress={handleButtonPress}
-                                disabled={orderReceiveddMutation.isPending}
-                            />
+                            {/* Main buyer button (Receive) - only show when delivered */}
+                            {data?.order_status === 'delivered' && (
+                                <AppVariantButton
+                                    label="Mark as Received"
+                                    outline={true}
+                                    outlineColor={'orange'}
+                                    filled={false}
+                                    borderRadius={100}
+                                    isLoading={orderReceiveddMutation.isPending}
+                                    onPress={handleButtonPress}
+                                    disabled={orderReceiveddMutation.isPending}
+                                />
+                            )}
 
                             {/* Buyer reject button - only if status is delivered */}
                             {data?.order_status === 'delivered' && (
                                 <AppVariantButton
                                     label="Reject Item"
                                     outline={true}
+                                    borderRadius={100}
                                     outlineColor={'red'}
                                     filled={false}
                                     isLoading={buyerRejectMutation.isPending}
@@ -348,6 +366,11 @@ const ProductDetail = () => {
                                     disabled={buyerRejectMutation.isPending}
                                 />
                             )}
+
+                            {/* Debug info - remove this after testing */}
+                            <Text className="text-xs text-muted mt-2">
+                                Debug - Status: {data?.order_status} | User: {user?.sub === data.user_id ? 'Buyer' : 'Other'}
+                            </Text>
                         </>
                     )}
                 </View>
