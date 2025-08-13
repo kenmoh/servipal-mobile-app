@@ -183,6 +183,7 @@ const Payment = () => {
         queryClient.refetchQueries({ queryKey: ["orders", user?.sub], exact: false });
 
         queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
+        queryClient.invalidateQueries({ queryKey: ['product-order', orderId] });
         queryClient.invalidateQueries({ queryKey: ['products'] });
 
 

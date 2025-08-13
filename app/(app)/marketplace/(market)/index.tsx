@@ -17,15 +17,10 @@ const MarketPlace = () => {
     const { data, isLoading, isPending, isFetching, refetch } = useQuery({
         queryKey: ['products', selectedCategory],
         queryFn: () => {
-            console.log('Marketplace - selectedCategory:', selectedCategory);
             const categoryParam = selectedCategory === null ? undefined : selectedCategory;
-            console.log('Marketplace - categoryParam:', categoryParam);
             return fetchProducts(categoryParam);
         }
     })
-
-    console.log('Marketplace - data:', data)
-    console.log('Marketplace - selectedCategory state:', selectedCategory)
 
     const { data: categories } = useQuery({
         queryKey: ["categories"],

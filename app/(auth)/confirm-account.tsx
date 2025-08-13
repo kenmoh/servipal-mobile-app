@@ -2,6 +2,7 @@ import { resendVerification, verifyContact } from "@/api/auth";
 import AppButton from "@/components/AppButton";
 import AppTextInput from "@/components/AppInput";
 import AppVariantButton from "@/components/core/AppVariantButton";
+import { useToast } from "@/components/ToastProvider";
 import authStorage from "@/storage/authStorage";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -9,7 +10,6 @@ import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, Text, View } from "react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from "zod";
 
@@ -40,6 +40,7 @@ const ConfirmAccount = () => {
   const [countdown, setCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const [email, setEmail] = useState("");
+  const { showSuccess, showError } = useToast();
 
   const {
     control,
@@ -52,54 +53,29 @@ const ConfirmAccount = () => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: verifyContact,
-    onSuccess: (data) => {
+    onSuccess: () => {
+      showSuccess('Success', 'Account creation successful')
       authStorage.removeEmail();
-      Notifier.showNotification({
-        title: "Success",
-        description: "Account creation successful",
-        Component: NotifierComponents.Alert,
-        duration: 1000,
-        componentProps: {
-          alertType: "success",
-        },
-      });
       router.replace("/(auth)/sign-in");
     },
     onError: (error) => {
-      Notifier.showNotification({
-        title: "Error",
-        description: `${error.message}`,
-        Component: NotifierComponents.Alert,
-        componentProps: {
-          alertType: "error",
-        },
-      });
+      showError('Error', error.message || 'An error occurred while verifying your account. Please try again later.')
+
     },
   });
 
   const { mutate: resend, isPending: isResending } = useMutation({
     mutationFn: (email: string) => resendVerification(email),
     onSuccess: () => {
-      Notifier.showNotification({
-        title: "Success",
-        description: "Verification codes sent successfully",
-        Component: NotifierComponents.Alert,
-        componentProps: {
-          alertType: "success",
-        },
-      });
+      showSuccess('Success', 'Verification codes sent successfully')
+
       setCountdown(120);
       setCanResend(false);
     },
     onError: (error) => {
-      Notifier.showNotification({
-        title: "Error",
-        description: error.message,
-        Component: NotifierComponents.Alert,
-        componentProps: {
-          alertType: "error",
-        },
-      });
+      showError('Error', error.message)
+
+
     },
   });
 

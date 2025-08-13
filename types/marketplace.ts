@@ -52,7 +52,15 @@ export interface ProduductOrderResponse {
     | "failed"
     | "cancelled"
     | "refunded";
-  order_status: string;
+  order_status:
+    | "accepted"
+    | "pending"
+    | "delivered"
+    | "received"
+    | "rejected"
+    | "laundry_received"
+    | "received_rejected_product"
+    | "cancelled";
   cancel_reason: string;
   total_price: string;
   amount_due_vendor: string;

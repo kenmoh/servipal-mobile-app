@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, { useEffect } from 'react'
 
 import { recoverPassword } from "@/api/auth";
 import AppButton from "@/components/AppButton";
@@ -6,7 +6,7 @@ import AppTextInput from "@/components/AppInput";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -16,9 +16,9 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from "zod";
+import { useToast } from '@/components/ToastProvider';
 
 const schema = z
   .object({
@@ -35,22 +35,22 @@ type PasswordFormValues = z.infer<typeof schema>;
 
 const ResetPassword = () => {
   const theme = useColorScheme();
+  const { showSuccess, showError } = useToast();
 
-  const {token} = useLocalSearchParams()
-  console.log(token)
+  const { token } = useLocalSearchParams()
 
   const {
     control,
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<FormData>({
+  } = useForm<PasswordFormValues>({
     resolver: zodResolver(schema),
     mode: "onBlur",
     defaultValues: {
       password: "",
       confirmPassword: "",
-      token:token || ''
+      token: token || ''
     },
   });
 
@@ -63,25 +63,11 @@ const ResetPassword = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: recoverPassword,
     onError: (error) => {
-      Notifier.showNotification({
-        title: "Error",
-        description: `${error.message}`,
-        Component: NotifierComponents.Alert,
-        componentProps: {
-          alertType: "error",
-        },
-      });
+      showError('Error', error.message)
     },
-    onSuccess: (data) => {
-      Notifier.showNotification({
-        title: "Success",
-        description:
-          "Password reset successful.",
-        Component: NotifierComponents.Alert,
-        componentProps: {
-          alertType: "success",
-        },
-      });
+    onSuccess: () => {
+      showSuccess('Success', 'Password reset successful')
+
 
       router.replace("/(auth)/sign-in");
     },
@@ -115,7 +101,7 @@ const ResetPassword = () => {
             </Text>
           </View>
           <View className="gap-5 w-full">
-    {/*      <View className="display-none"> 
+            {/*      <View className="display-none"> 
 
   <Controller
             control={control}
@@ -136,38 +122,38 @@ const ResetPassword = () => {
           </View>
 */}
             <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, value, onBlur } }) => (
-              <AppTextInput
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                secureTextEntry
-                showPasswordToggle
-                placeholder="Password"
-                errorMessage={errors.password?.message}
-                editable={!isPending}
-              />
-            )}
-          />
+              control={control}
+              name="password"
+              render={({ field: { onChange, value, onBlur } }) => (
+                <AppTextInput
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  secureTextEntry
+                  showPasswordToggle
+                  placeholder="Password"
+                  errorMessage={errors.password?.message}
+                  editable={!isPending}
+                />
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="confirmPassword"
-            render={({ field: { onChange, value, onBlur } }) => (
-              <AppTextInput
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                secureTextEntry
-                showPasswordToggle
-                placeholder="Confirm Password"
-                errorMessage={errors.confirmPassword?.message}
-                editable={!isPending}
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              name="confirmPassword"
+              render={({ field: { onChange, value, onBlur } }) => (
+                <AppTextInput
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  secureTextEntry
+                  showPasswordToggle
+                  placeholder="Confirm Password"
+                  errorMessage={errors.confirmPassword?.message}
+                  editable={!isPending}
+                />
+              )}
+            />
             <AppButton
               title={isPending ? "Sending" : "Send"}
               disabled={isPending}

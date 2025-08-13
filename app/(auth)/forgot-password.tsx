@@ -1,6 +1,7 @@
 import { recoverPassword } from "@/api/auth";
 import AppButton from "@/components/AppButton";
 import AppTextInput from "@/components/AppInput";
+import { useToast } from "@/components/ToastProvider";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -14,7 +15,6 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from "zod";
 
@@ -26,6 +26,7 @@ type FormData = z.infer<typeof schema>;
 
 const RecoverPassword = () => {
   const theme = useColorScheme();
+  const { showSuccess, showError } = useToast();
   const {
     control,
     handleSubmit,
@@ -41,26 +42,10 @@ const RecoverPassword = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: recoverPassword,
     onError: (error) => {
-      Notifier.showNotification({
-        title: "Error",
-        description: `${error.message}`,
-        Component: NotifierComponents.Alert,
-        componentProps: {
-          alertType: "error",
-        },
-      });
+      showError('Error', error.message)
     },
-    onSuccess: (data) => {
-      Notifier.showNotification({
-        title: "Success",
-        description:
-          "Password reset link sent to your email. It will expire in 24 hours.",
-        Component: NotifierComponents.Alert,
-        componentProps: {
-          alertType: "success",
-        },
-      });
-
+    onSuccess: () => {
+      showSuccess('Success', 'Password reset link sent to your email. It will expire in 24 hours.')
       router.replace("/(auth)/sign-in");
     },
   });
@@ -113,7 +98,7 @@ const RecoverPassword = () => {
               title={isPending ? "Sending" : "Send"}
               disabled={isPending}
               width={"90%"}
-              icon={isPending && <ActivityIndicator size={"large"} color="white"/>}
+              icon={isPending && <ActivityIndicator size={"large"} color="white" />}
               onPress={handleSubmit(onSubmit)}
             />
           </View>

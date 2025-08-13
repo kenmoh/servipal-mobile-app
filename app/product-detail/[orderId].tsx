@@ -1,4 +1,4 @@
-import { fetProductOrderDetails, orderDelivered, orderReceived } from '@/api/marketplace'
+import { buyerRejectedItem, fetProductOrderDetails, orderDelivered, orderReceived, vendorRecivedRejectedItem } from '@/api/marketplace'
 import AppVariantButton from '@/components/core/AppVariantButton'
 import ProductDetailWrapper from '@/components/ProductDetailWrapper'
 import { useToast } from '@/components/ToastProvider'
@@ -12,7 +12,7 @@ import { ActivityIndicator, Text, View } from 'react-native'
 const ProductDetail = () => {
     const { user } = useAuth()
     const { orderId } = useLocalSearchParams<{ orderId: string }>()
-    const { showSuccess, showError, showWarning } = useToast();
+    const { showSuccess, showError, showWarning, showInfo, } = useToast();
 
     const queryClient = useQueryClient()
 
@@ -25,7 +25,7 @@ const ProductDetail = () => {
 
 
     const getButtonLabel = () => {
-        if (user?.sub === data?.vendor_id && data?.order_status === 'paid') {
+        if (user?.sub === data?.vendor_id && data?.order_status === 'pending') {
             return "Mark as Delivered"
         }
         if (user?.sub === data?.user_id && data?.order_status === 'delivered') {
@@ -53,14 +53,34 @@ const ProductDetail = () => {
             queryClient.invalidateQueries({ queryKey: ['products'] });
         },
         onError: (error) => showError('Error', error.message || 'Failed to deliver order'),
+    })
 
+    // Buyer rejecting item mutation
+    const buyerRejectMutation = useMutation({
+        mutationFn: () => buyerRejectedItem(orderId!),
+        onSuccess: () => {
+            showWarning('Success', 'Item rejected.');
+            queryClient.invalidateQueries({ queryKey: ['product-order', orderId] });
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+        },
+        onError: (error) => showError('Error', error.message || 'Failed to reject item'),
+    })
 
+    // Vendor received rejected item mutation
+    const vendorReceivedRejectedMutation = useMutation({
+        mutationFn: () => vendorRecivedRejectedItem(orderId!),
+        onSuccess: () => {
+            showInfo('Success', 'Rejected item received.');
+            queryClient.invalidateQueries({ queryKey: ['product-order', orderId] });
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+        },
+        onError: (error) => showError('Error', error.message || 'Failed to confirm rejected item received'),
     })
 
     const handleButtonPress = () => {
         // Customer trying to mark as received
         if (user?.sub === data?.user_id) {
-            if (data?.order_status !== 'delivered') {
+            if (data?.order_status !== 'received') {
                 showWarning('Warning', 'Order must be delivered by vendor before you can mark it as received')
                 return
             }
@@ -123,10 +143,25 @@ const ProductDetail = () => {
 
                     <Text className="text-3xl font-poppins-semibold text-primary">{formatPrice(Number(data.total_price))}</Text>
                     <View className='flex-row justify-between items-center my-3'>
-                        <Text className="text-sm font-poppins-bold text-muted"> Paymenet Status</Text>
-                        <Text className="text-sm font-poppins-bold py-2 px-4 rounded-3xl capitalize bg-orange-800/25 text-orange-300"> {data?.order_payment_status}</Text>
+                        <Text className="text-sm font-poppins-bold text-muted">Payment Status</Text>
+                        <Text className={`text-sm font-poppins-bold py-2 px-4 rounded-3xl capitalize ${data?.order_payment_status === 'paid' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                            data?.order_payment_status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                                data?.order_payment_status === 'failed' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                    data?.order_payment_status === 'cancelled' ? 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400' :
+                                        data?.order_payment_status === 'refunded' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
+                                            'bg-slate-100 text-slate-700 dark:bg-slate-800/30 dark:text-slate-400'
+                            }`}>{data?.order_payment_status}</Text>
                     </View>
-
+                    <View className='flex-row justify-between items-center my-3'>
+                        <Text className="text-sm font-poppins-bold text-muted">Order Status</Text>
+                        <Text className={`text-sm font-poppins-bold py-2 px-4 rounded-3xl capitalize ${data?.order_status === 'rejected' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                            data?.order_status === 'delivered' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                                data?.order_status === 'received' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                                    data?.order_status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                                        data?.order_status === 'cancelled' ? 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400' :
+                                            'bg-slate-100 text-slate-700 dark:bg-slate-800/30 dark:text-slate-400'
+                            }`}>{data?.order_status}</Text>
+                    </View>
 
 
                 </View>
@@ -241,46 +276,80 @@ const ProductDetail = () => {
 
 
                 <View className="pb-6 mb-6 gap-4">
-
-                    {data?.order_payment_status === 'pending' && user?.sub === data?.user_id && <AppVariantButton
-                        label={"Pay Now"}
-                        onPress={() => router.push({
-                            pathname: '/payment/[orderId]',
-                            params: {
-                                orderId: orderId,
-                                orderType: data?.order_type,
-                                orderNumber: data?.order_number,
-                                paymentLink: data?.payment_link,
-                                orderItems: JSON.stringify(data?.order_items),
-
-                            }
-                        })}
-
-                    />}
-                    {
-                        user?.sub === data.vendor_id &&
+                    {/* Pay Now Button - Only for buyers with pending payment */}
+                    {data?.order_payment_status === 'pending' && user?.sub === data?.user_id &&
                         <AppVariantButton
-                            label={label!}
-                            outline={true}
-                            outlineColor={'orange'}
-                            filled={false}
-                            isLoading={orderDeliveredMutation.isPending}
-                            onPress={handleButtonPress}
-                            disabled={orderDeliveredMutation.isPending}
+                            label={"Pay Now"}
+                            onPress={() => router.push({
+                                pathname: '/payment/[orderId]',
+                                params: {
+                                    orderId: orderId,
+                                    orderType: data?.order_type,
+                                    orderNumber: data?.order_number,
+                                    paymentLink: data?.payment_link,
+                                    orderItems: JSON.stringify(data?.order_items),
+                                }
+                            })}
                         />
                     }
-                    {
-                        user?.sub === data.user_id &&
-                        <AppVariantButton
-                            label={label!}
-                            outline={true}
-                            outlineColor={'orange'}
-                            filled={false}
-                            isLoading={orderReceiveddMutation.isPending}
-                            onPress={handleButtonPress}
-                            disabled={orderReceiveddMutation.isPending}
-                        />
-                    }
+
+                    {/* Vendor Actions */}
+                    {user?.sub === data.vendor_id && (
+                        <>
+                            {/* Main vendor button (Deliver) */}
+                            <AppVariantButton
+                                label={label!}
+                                outline={true}
+                                outlineColor={'orange'}
+                                filled={false}
+                                isLoading={orderDeliveredMutation.isPending}
+                                onPress={handleButtonPress}
+                                disabled={orderDeliveredMutation.isPending}
+                            />
+
+                            {/* Vendor confirm rejected item received - only if status is rejected */}
+                            {data?.order_status === 'rejected' && (
+                                <AppVariantButton
+                                    label="Confirm Rejected Item Received"
+                                    outline={true}
+                                    outlineColor={'red'}
+                                    filled={false}
+                                    isLoading={vendorReceivedRejectedMutation.isPending}
+                                    onPress={() => vendorReceivedRejectedMutation.mutate()}
+                                    disabled={vendorReceivedRejectedMutation.isPending}
+                                />
+                            )}
+                        </>
+                    )}
+
+                    {/* Buyer Actions */}
+                    {user?.sub === data.user_id && (
+                        <>
+                            {/* Main buyer button (Receive) */}
+                            <AppVariantButton
+                                label={label!}
+                                outline={true}
+                                outlineColor={'orange'}
+                                filled={false}
+                                isLoading={orderReceiveddMutation.isPending}
+                                onPress={handleButtonPress}
+                                disabled={orderReceiveddMutation.isPending}
+                            />
+
+                            {/* Buyer reject button - only if status is delivered */}
+                            {data?.order_status === 'delivered' && (
+                                <AppVariantButton
+                                    label="Reject Item"
+                                    outline={true}
+                                    outlineColor={'red'}
+                                    filled={false}
+                                    isLoading={buyerRejectMutation.isPending}
+                                    onPress={() => buyerRejectMutation.mutate()}
+                                    disabled={buyerRejectMutation.isPending}
+                                />
+                            )}
+                        </>
+                    )}
                 </View>
             </View>
         </ProductDetailWrapper>

@@ -2,7 +2,6 @@ import AppTextInput from "@/components/AppInput";
 import { useAuth } from "@/context/authContext";
 import { router } from "expo-router";
 import { jwtDecode } from "jwt-decode";
-
 import { loginApi } from "@/api/auth";
 import AppButton from "@/components/AppButton";
 import { useToast } from "@/components/ToastProvider";

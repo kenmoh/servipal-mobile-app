@@ -1,6 +1,5 @@
 import { withDrawFunds } from "@/api/payment";
 import { getCurrentUserWallet } from "@/api/user";
-import AppButton from "@/components/AppButton";
 import BalanceShimmer from "@/components/BalanceShimmer";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import Transactioncard from "@/components/Transactioncard";
@@ -144,25 +143,14 @@ const index = () => {
             </Animated.View>
             <Animated.View className='flex-row w-[90%] self-center my-2 justify-between gap-3 items-center ' entering={FadeInUp.duration(500).delay(400)}>
 
-                <AppButton
+                <AppVariantButton
                     height={45}
                     width={"45%"}
                     onPress={() => withdrawMutation()}
-                    title="Withdraw"
+                    label="Withdraw"
                 />
                 <AppVariantButton label="Fund Wallet" width={'50%'} outline filled={false} onPress={() => router.push({ pathname: "/profile/fund-wallet" })} />
-                {/* <AppButton
-                    height={40}
-                    width={"45%"}
-                    onPress={() => router.push({ pathname: "/profile/fund-wallet" })}
-                    title="Fund Wallet"
-                /> */}
 
-
-                {user?.user_type === 'customer' && <AppButton
-                    onPress={() => router.push({ pathname: "/profile/fund-wallet" })}
-                    title="Deposit"
-                />}
 
             </Animated.View>
 

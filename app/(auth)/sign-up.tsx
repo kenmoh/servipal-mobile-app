@@ -31,7 +31,7 @@ const roleData = [
 
 const signUpSchema = z
   .object({
-    email: z.string().email().trim().nonempty("Email is required"),
+    email: z.email().trim().nonempty("Email is required"),
     userType: z.string().nonempty("User type is required"),
     phoneNumber: z
       .string()
