@@ -190,10 +190,30 @@ const profile = () => {
 
   const handleLogout = async () => {
     try {
-      await authStorage.removeProfile();
-      signOut();
-      mutate();
-    } catch (error) { }
+      // First, call the logout API and wait for completion
+      // This ensures the server-side logout happens before UI changes
+      mutate(undefined, {
+        onSuccess: async () => {
+          // After server logout, clean up local storage and state
+          await authStorage.removeProfile();
+          signOut();
+        },
+        onError: async () => {
+          // Even if server logout fails, clean up locally
+          await authStorage.removeProfile();
+          signOut();
+        }
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Fallback: still clean up locally even if everything fails
+      try {
+        await authStorage.removeProfile();
+        signOut();
+      } catch (fallbackError) {
+        console.error('Fallback logout error:', fallbackError);
+      }
+    }
   };
 
   return (

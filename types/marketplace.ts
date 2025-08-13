@@ -36,6 +36,10 @@ export interface ProductResponse {
   colors: string[];
 }
 
+export interface OrderUpdateStatus {
+  order_status: string;
+}
+
 export interface ProduductOrderResponse {
   id: string;
   user_id: string;

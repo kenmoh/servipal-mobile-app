@@ -2,16 +2,16 @@ import AppTextInput from "@/components/AppInput";
 import { useAuth } from "@/context/authContext";
 import { router } from "expo-router";
 import { jwtDecode } from "jwt-decode";
-import { Notifier, NotifierComponents } from "react-native-notifier";
 
 import { loginApi } from "@/api/auth";
 import AppButton from "@/components/AppButton";
+import { useToast } from "@/components/ToastProvider";
 import authStorage from "@/storage/authStorage";
 import { Login, User } from "@/types/user-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
-import { ActivityIndicator, Text, useColorScheme, View } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { z } from "zod";
 
@@ -25,7 +25,7 @@ const signInSchema = z.object({
 type SignInFormValues = z.infer<typeof signInSchema>;
 
 const SignIn = () => {
-  const theme = useColorScheme();
+  const { showSuccess, showError, showInfo } = useToast();
   const authContext = useAuth();
 
   const {
@@ -43,14 +43,7 @@ const SignIn = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: ({ username, password }: Login) => loginApi(username, password),
     onError: (error) => {
-      Notifier.showNotification({
-        title: "Error",
-        description: `${error.message}`,
-        Component: NotifierComponents.Alert,
-        componentProps: {
-          alertType: "error",
-        },
-      });
+      showError('Login Failed', `${error.message}` || 'Login failed, please try again.')
       router.replace("/sign-in");
     },
     onSuccess: async (data) => {
@@ -58,14 +51,9 @@ const SignIn = () => {
 
       if (user?.account_status === "pending") {
         await authStorage.storeToken(data?.access_token);
-        Notifier.showNotification({
-          title: "Confirm Account",
-          description: "Please confirm your account",
-          Component: NotifierComponents.Alert,
-          componentProps: {
-            alertType: "info",
-          },
-        });
+        showInfo('Account Pending Confirmation', 'Please confirm your account with the code sent to your email and phone.')
+
+
         router.replace("/(auth)/confirm-account");
         return;
       }
@@ -74,15 +62,7 @@ const SignIn = () => {
         try {
           await authStorage.storeToken(data?.access_token);
           authContext.setUser(user);
-          Notifier.showNotification({
-            title: "Success",
-            description: "Login successful",
-            Component: NotifierComponents.Alert,
-            componentProps: {
-              alertType: "success",
-            },
-          });
-
+          showSuccess('Login Successful', 'Welcome back!')
           router.replace("/(app)/delivery/(topTabs)");
         } catch (error) {
           throw new Error(`Error storing token: ${error}`);

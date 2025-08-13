@@ -2,6 +2,7 @@ import { MenuItem } from "@/types/item-types";
 import {
   BuyItem,
   BuyItemResponse,
+  OrderUpdateStatus,
   ProduductOrderResponse,
 } from "@/types/marketplace";
 import { apiClient } from "@/utils/client";
@@ -133,9 +134,9 @@ export const fetProductOrderDetails = async (
 // Order Delivered
 export const orderDelivered = async (
   orderId: string
-): Promise<BuyItemResponse[]> => {
+): Promise<OrderUpdateStatus[]> => {
   try {
-    const response: ApiResponse<BuyItemResponse[] | ErrorResponse> =
+    const response: ApiResponse<OrderUpdateStatus[] | ErrorResponse> =
       await apiClient.put(`${BASE_URL}/${orderId}/item-delivered`, {
         headers: {
           "Content-Type": "application/json",
@@ -161,9 +162,9 @@ export const orderDelivered = async (
 // Order Received
 export const orderReceived = async (
   orderId: string
-): Promise<BuyItemResponse[]> => {
+): Promise<OrderUpdateStatus> => {
   try {
-    const response: ApiResponse<BuyItemResponse[] | ErrorResponse> =
+    const response: ApiResponse<OrderUpdateStatus | ErrorResponse> =
       await apiClient.put(`${BASE_URL}/${orderId}/item-received`, {
         headers: {
           "Content-Type": "application/json",
@@ -188,9 +189,9 @@ export const orderReceived = async (
 // Rejected Order Received
 export const vendorRecivedRejectedItem = async (
   orderId: string
-): Promise<BuyItemResponse[]> => {
+): Promise<OrderUpdateStatus> => {
   try {
-    const response: ApiResponse<BuyItemResponse[] | ErrorResponse> =
+    const response: ApiResponse<OrderUpdateStatus | ErrorResponse> =
       await apiClient.put(
         `${BASE_URL}/${orderId}/vendor-received-rejected-item`,
         {
@@ -219,9 +220,9 @@ export const vendorRecivedRejectedItem = async (
 // Buyer Reject Order
 export const buyerRejectedItem = async (
   orderId: string
-): Promise<BuyItemResponse[]> => {
+): Promise<OrderUpdateStatus> => {
   try {
-    const response: ApiResponse<BuyItemResponse[] | ErrorResponse> =
+    const response: ApiResponse<OrderUpdateStatus | ErrorResponse> =
       await apiClient.put(`${BASE_URL}/${orderId}/item-rejected`, {
         headers: {
           "Content-Type": "application/json",

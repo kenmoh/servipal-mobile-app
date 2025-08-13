@@ -1,9 +1,9 @@
-import { fetProductOrderDetails, orderDelivered } from '@/api/marketplace'
+import { fetProductOrderDetails, orderDelivered, orderReceived } from '@/api/marketplace'
 import AppVariantButton from '@/components/core/AppVariantButton'
 import ProductDetailWrapper from '@/components/ProductDetailWrapper'
 import { useToast } from '@/components/ToastProvider'
 import { useAuth } from '@/context/authContext'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams } from 'expo-router'
 import React from 'react'
 import { ActivityIndicator, Text, View } from 'react-native'
@@ -12,7 +12,9 @@ import { ActivityIndicator, Text, View } from 'react-native'
 const ProductDetail = () => {
     const { user } = useAuth()
     const { orderId } = useLocalSearchParams<{ orderId: string }>()
-    const { showSuccess, showError, showInfo } = useToast();
+    const { showSuccess, showError, showWarning } = useToast();
+
+    const queryClient = useQueryClient()
 
 
     const { data, isLoading } = useQuery({
@@ -21,13 +23,71 @@ const ProductDetail = () => {
         enabled: !!orderId,
     })
 
+
+    const getButtonLabel = () => {
+        if (user?.sub === data?.vendor_id && data?.order_status === 'paid') {
+            return "Mark as Delivered"
+        }
+        if (user?.sub === data?.user_id && data?.order_status === 'delivered') {
+            return "Mark as Received"
+        }
+        return data?.order_status.toUpperCase()
+    }
+    const label = getButtonLabel()
     const orderDeliveredMutation = useMutation({
         mutationFn: () => orderDelivered(orderId!),
-        onSuccess: () => showSuccess('Success', 'Order marked as delivered'),
+        onSuccess: () => {
+            showSuccess('Success', 'Order marked as delivered');
+            queryClient.invalidateQueries({ queryKey: ['product-order', orderId] });
+            queryClient.invalidateQueries({ queryKey: ['products',] });
+        },
         onError: (error) => showError('Error', error.message || 'Failed to deliver order'),
 
 
     })
+    const orderReceiveddMutation = useMutation({
+        mutationFn: () => orderReceived(orderId!),
+        onSuccess: () => {
+            showSuccess('Success', 'Order marked as received');
+            queryClient.invalidateQueries({ queryKey: ['product-order', orderId] });
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+        },
+        onError: (error) => showError('Error', error.message || 'Failed to deliver order'),
+
+
+    })
+
+    const handleButtonPress = () => {
+        // Customer trying to mark as received
+        if (user?.sub === data?.user_id) {
+            if (data?.order_status !== 'delivered') {
+                showWarning('Warning', 'Order must be delivered by vendor before you can mark it as received')
+                return
+            }
+            if (data?.order_status === 'received') {
+                showWarning('Warning', 'Order has already been marked as received')
+                return
+            }
+            // All checks passed, mark as received
+            orderReceiveddMutation.mutate()
+        }
+
+        // Vendor trying to mark as delivered
+        if (user?.sub === data?.vendor_id) {
+            if (data?.order_payment_status !== 'paid') {
+                showWarning('Warning', 'Order must be paid before it can be delivered')
+                return
+            }
+            if (data?.order_status === 'delivered' || data?.order_status === 'received') {
+                showWarning('Warning', 'Order has already been delivered')
+                return
+            }
+            // All checks passed, mark as delivered
+            orderDeliveredMutation.mutate()
+        }
+    }
+
+
 
 
     if (isLoading) {
@@ -198,15 +258,27 @@ const ProductDetail = () => {
 
                     />}
                     {
-                        data?.order_payment_status === 'pending' && user?.sub !== data.vendor_id &&
+                        user?.sub === data.vendor_id &&
                         <AppVariantButton
-                            label={"Delivered"}
+                            label={label!}
                             outline={true}
                             outlineColor={'orange'}
                             filled={false}
                             isLoading={orderDeliveredMutation.isPending}
-                            onPress={orderDeliveredMutation.mutate}
+                            onPress={handleButtonPress}
                             disabled={orderDeliveredMutation.isPending}
+                        />
+                    }
+                    {
+                        user?.sub === data.user_id &&
+                        <AppVariantButton
+                            label={label!}
+                            outline={true}
+                            outlineColor={'orange'}
+                            filled={false}
+                            isLoading={orderReceiveddMutation.isPending}
+                            onPress={handleButtonPress}
+                            disabled={orderReceiveddMutation.isPending}
                         />
                     }
                 </View>

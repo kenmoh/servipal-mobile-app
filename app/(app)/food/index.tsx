@@ -22,6 +22,7 @@ import { StoreListSkeleton } from "@/components/LoadingSkeleton";
 import RefreshButton from "@/components/RefreshButton";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 import { useAuth } from "@/context/authContext";
+import { useSwiperCleanup } from "@/hooks/useSwiperCleanup";
 
 export interface RestaurantWithDistance extends CompanyProfile {
     distance: number;
@@ -316,7 +317,7 @@ const Page = () => {
 export default Page;
 
 export const FeaturedRestaurants = () => {
-
+    const swiperRef = useSwiperCleanup();
 
     return (
         <View className='h-[220px]'>
@@ -329,6 +330,7 @@ export const FeaturedRestaurants = () => {
             </View>
 
             <Swiper
+                ref={swiperRef}
                 autoplay
                 autoplayTimeout={3}
                 showsPagination={false}

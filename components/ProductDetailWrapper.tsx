@@ -8,6 +8,7 @@ import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet'
 import { router } from 'expo-router'
 import { ArrowLeft, ChevronLeft } from 'lucide-react-native'
 import Swiper from 'react-native-swiper'
+import { useSwiperCleanup } from '@/hooks/useSwiperCleanup'
 
 
 
@@ -17,7 +18,7 @@ interface ProductDetailWrapperProp {
 }
 
 const ProductDetailWrapper = ({ children, images }: ProductDetailWrapperProp) => {
-
+    const swiperRef = useSwiperCleanup();
     const bottomSheetRef = React.useRef(null)
     const theme = useColorScheme()
     const HANDLE_INDICATOR_STYLE = theme === 'dark' ? HEADER_BG_LIGHT : HEADER_BG_DARK
@@ -27,6 +28,7 @@ const ProductDetailWrapper = ({ children, images }: ProductDetailWrapperProp) =>
 
         <View className='flex-1 bg-background'>
             <Swiper
+                ref={swiperRef}
                 autoplay
                 autoplayTimeout={3}
                 showsPagination={false}

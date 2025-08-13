@@ -102,17 +102,26 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     try {
+      // First clear React Query cache to prevent stale data issues
+      queryClient.clear();
+      
+      // Small delay to allow components to unmount properly
+      // This prevents ViewPager recycling issues during navigation
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Clear local storage
       await Promise.all([
         authStorage.removeToken(),
         authStorage.removeProfile(),
         authStorage.removeImage()
       ]);
+      
+      // Update auth state
       setUser(null);
       setProfile(null);
       setImages(null);
-      queryClient.invalidateQueries({ queryKey: ['profile'] })
-      queryClient.clear();
 
+      // Navigate to login screen
       router.replace("/(auth)/sign-in");
     } catch (error) {
       console.error("Error signing out:", error);

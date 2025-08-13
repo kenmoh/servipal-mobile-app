@@ -5,10 +5,8 @@ import {
   ActivityIndicator,
   StyleSheet,
   Text,
-  useColorScheme,
-  View,
+  View
 } from "react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
 
 import { registerApi } from "@/api/auth";
 import AppPicker from "@/components/AppPicker";
@@ -19,6 +17,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 // RHF & Zod imports
 import AppButton from "@/components/AppButton";
+import { useToast } from "@/components/ToastProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -50,7 +49,7 @@ const signUpSchema = z
 type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 const SignUp = () => {
-  const theme = useColorScheme();
+  const { showSuccess, showError, showInfo } = useToast();
 
   const {
     control,
@@ -72,28 +71,12 @@ const SignUp = () => {
     mutationFn: registerApi,
     onSuccess: (data) => {
       authStorage.storeEmail(data.email);
-      Notifier.showNotification({
-        title: "Pending Confirmation",
-        description:
-          "Please confirm your account with the code sent to your email and phone.",
-        Component: NotifierComponents.Alert,
-        duration: 1000,
-        componentProps: {
-          alertType: "info",
-        },
-      });
+      showInfo("Pending Confirmation", "Please confirm your account with the code sent to your email and phone.")
       router.replace("/(auth)/confirm-account");
       return;
     },
     onError: (error) => {
-      Notifier.showNotification({
-        title: "Error",
-        description: `${error.message}`,
-        Component: NotifierComponents.Alert,
-        componentProps: {
-          alertType: "error",
-        },
-      });
+      showError('Registration Failed', `${error.message}` || 'Registration failed, please try again.')
     },
   });
 
