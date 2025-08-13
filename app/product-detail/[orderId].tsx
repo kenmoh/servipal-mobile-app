@@ -17,7 +17,7 @@ const ProductDetail = () => {
     const queryClient = useQueryClient()
 
 
-    const { data, isLoading } = useQuery({
+    const { data, isLoading, refetch } = useQuery({
         queryKey: ['product-order', orderId],
         queryFn: () => fetProductOrderDetails(orderId!),
         enabled: !!orderId,
@@ -42,6 +42,7 @@ const ProductDetail = () => {
             showSuccess('Success', 'Order marked as delivered');
             queryClient.invalidateQueries({ queryKey: ['product-order', orderId] });
             queryClient.invalidateQueries({ queryKey: ['products',] });
+            refetch()
         },
         onError: (error) => showError('Error', error.message || 'Failed to deliver order'),
 
@@ -53,6 +54,7 @@ const ProductDetail = () => {
             showSuccess('Success', 'Order marked as received');
             queryClient.invalidateQueries({ queryKey: ['product-order', orderId] });
             queryClient.invalidateQueries({ queryKey: ['products'] });
+            refetch()
         },
         onError: (error) => showError('Error', error.message || 'Failed to deliver order'),
     })
@@ -136,6 +138,8 @@ const ProductDetail = () => {
         }).format(price)
     }
 
+    console.log(data?.order_status)
+
     return (
         <ProductDetailWrapper images={data?.order_items[0]?.images}>
             <View className="flex-1 px-6 space-y-6">
@@ -156,15 +160,14 @@ const ProductDetail = () => {
                     </View>
                     <View className='flex-row justify-between items-center my-3'>
                         <Text className="text-sm font-poppins-bold text-muted">Order Status</Text>
-                        <Text className={`text-sm font-poppins-bold py-2 px-4 rounded-3xl capitalize ${
-                            data?.order_status === 'rejected' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                        <Text className={`text-sm font-poppins-bold py-2 px-4 rounded-3xl capitalize ${data?.order_status === 'rejected' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
                             data?.order_status === 'delivered' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                            data?.order_status === 'received' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-                            data?.order_status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
-                            data?.order_status === 'received_rejected_product' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
-                            data?.order_status === 'cancelled' ? 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400' :
-                            'bg-slate-100 text-slate-700 dark:bg-slate-800/30 dark:text-slate-400'
-                        }`}>
+                                data?.order_status === 'received' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                                    data?.order_status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                                        data?.order_status === 'received_rejected_product' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
+                                            data?.order_status === 'cancelled' ? 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400' :
+                                                'bg-slate-100 text-slate-700 dark:bg-slate-800/30 dark:text-slate-400'
+                            }`}>
                             {data?.order_status === 'received_rejected_product' ? 'Return Confirmed' : data?.order_status}
                         </Text>
                     </View>
