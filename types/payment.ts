@@ -24,3 +24,7 @@ export interface InitBankTransferResponse {
   transfer_note: string;
   mode: string;
 }
+
+export interface PaymentLink {
+  payment_link: string;
+}

@@ -1,11 +1,12 @@
+import {
+  InitBankTransferResponse,
+  PaymentLink,
+  PayWithWalletResponse,
+} from "@/types/payment";
+import { Bank } from "@/types/user-types";
 import { apiClient } from "@/utils/client";
 import { ApiResponse } from "apisauce";
 import { ErrorResponse } from "./auth";
-import { Bank } from "@/types/user-types";
-import {
-  InitBankTransferResponse,
-  PayWithWalletResponse,
-} from "@/types/payment";
 
 const BASE_URL = "/payment";
 
@@ -168,6 +169,37 @@ export const getBanks = async (): Promise<Bank[]> => {
         response.data && "detail" in response.data
           ? response.data.detail
           : "Error cretrieving banks. Please try again";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
+export const generateTransactionPaymentLink = async (
+  transactionId: string
+): Promise<PaymentLink> => {
+  try {
+    const response: ApiResponse<PaymentLink | ErrorResponse> =
+      await apiClient.put(
+        `${BASE_URL}/${transactionId}/generate-new-payment-link`,
+
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error generating payment link.";
       throw new Error(errorMessage);
     }
     return response.data;

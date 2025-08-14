@@ -1,7 +1,7 @@
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 
 
-function LoadingIndicator({ size = 'large' }: { size?: 'large' | 'small' }) {
+function LoadingIndicator({ label, size = 'large' }: { size?: 'large' | 'small', label?: string }) {
 
 
   return (
@@ -10,6 +10,7 @@ function LoadingIndicator({ size = 'large' }: { size?: 'large' | 'small' }) {
 
     >
       <ActivityIndicator size={size} className="text-icon-default" />
+      {label && <Text className="text-muted font-poppins-medium text-base">{label}</Text>}
     </View>
   );
 }

@@ -5,27 +5,28 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   useColorScheme,
   View,
 } from "react-native";
 import { WebView } from "react-native-webview";
 
+import { generateOrderPaymentLink } from "@/api/order";
+import { payWithBankTransfer, payWithWallet } from "@/api/payment";
+import AppButton from "@/components/AppButton";
+import AppVariantButton from "@/components/core/AppVariantButton";
+import HDivider from "@/components/HDivider";
+import LoadingIndicator from "@/components/LoadingIndicator";
+import { useToast } from "@/components/ToastProvider";
+import { useAuth } from "@/context/authContext";
 import { OrderItemResponse } from "@/types/order-types";
-import { router, useLocalSearchParams } from "expo-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import {
   ArrowLeftRight,
   CreditCard,
   Wallet
 } from "lucide-react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
-
-import { payWithBankTransfer, payWithWallet } from "@/api/payment";
-import AppButton from "@/components/AppButton";
-import AppVariantButton from "@/components/core/AppVariantButton";
-import HDivider from "@/components/HDivider";
-import { useAuth } from "@/context/authContext";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-
 const Payment = () => {
   const {
     orderNumber,
@@ -38,6 +39,7 @@ const Payment = () => {
     orderItems,
   } = useLocalSearchParams();
   const theme = useColorScheme();
+  const { showError, showSuccess, showInfo } = useToast()
   const { user } = useAuth();
   const [showWebView, setShowWebView] = useState(false);
   const [redirectedUrl, setRedirectedUrl] = useState<{ url?: string } | null>(
@@ -61,7 +63,7 @@ const Payment = () => {
     setShowWebView(true);
   };
 
-  const { mutate, data } = useMutation({
+  const { mutate, } = useMutation({
     mutationFn: () => payWithBankTransfer(orderId as string),
     onSuccess: (data) => {
       router.replace({
@@ -69,23 +71,12 @@ const Payment = () => {
         params: { data: JSON.stringify(data) },
       });
 
-      Notifier.showNotification({
-        title: "Bank Details",
-        description: "Please make a transfer to the account details provided.",
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "info" },
-      });
+      showInfo('Bank Details', 'Please make a transfer to the account details provided.')
+
     },
     onError: (error) => {
-      Notifier.showNotification({
-        title: "Error",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Failed to initiate bank transfer.",
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "error" },
-      });
+      showError('Error', error.message || 'Failed to initiate bank transfer.')
+
     },
   });
   const { mutate: payWithWalletMutation, isPending } = useMutation({
@@ -96,9 +87,6 @@ const Payment = () => {
         params: { paymentStatus: "success" },
       });
 
-      queryClient.invalidateQueries({
-        queryKey: ["order", orderId],
-      });
       queryClient.invalidateQueries({
         queryKey: ["order", orderId],
       });
@@ -117,30 +105,57 @@ const Payment = () => {
         exact: false,
       });
 
-      Notifier.showNotification({
-        title: "Bank Details",
-        description: "Payment successful! Your wallet has been charged.",
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "success" },
+      showSuccess('Bank Details', 'Please make a transfer to the account details provided.')
+      queryClient.invalidateQueries({
+        queryKey: ["order", orderId],
       });
+
     },
     onError: (error) => {
       router.replace({
         pathname: "/payment/payment-complete",
         params: { paymentStatus: "failed" },
       });
+      showError("Error", error.message || "Failed to initiate bank transfer.")
 
-      Notifier.showNotification({
-        title: "Error",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Failed to initiate bank transfer.",
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "error" },
-      });
     },
   });
+
+
+  const { mutate: generatePaymentLinkMutation, data, isPending: isGeneratingPaymentLink } = useMutation({
+    mutationFn: () => generateOrderPaymentLink(orderId as string),
+
+    onError: (error) => {
+      showError(error.message, 'Error generating payment link. Try again later.')
+    },
+    onSuccess: () => {
+      showSuccess('Success', 'Payment link generated successfully.')
+      router.back()
+      queryClient.invalidateQueries({
+        queryKey: ["order", deliveryId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["order", orderId],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["orders"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["orders", user?.sub],
+      });
+
+      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
+      queryClient.refetchQueries({ queryKey: ["orders", user?.sub], exact: false });
+
+      queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
+      queryClient.invalidateQueries({ queryKey: ['product-order', orderId] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    }
+
+
+  })
 
   // function to calculate total
   const calculateTotal = () => {
@@ -199,6 +214,10 @@ const Payment = () => {
     // Cleanup the timer if the component unmounts or the status changes
     return () => clearTimeout(timer);
   }, [status]);
+
+  if (isGeneratingPaymentLink) {
+    return <LoadingIndicator label="Generating payment link..." />
+  }
 
   const renderWebView = () => (
     <View className="bg-background" style={[styles.webviewContainer]}>
@@ -292,6 +311,15 @@ const Payment = () => {
 
   return (
     <ScrollView className="flex-1 bg-background">
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <TouchableOpacity onPress={() => generatePaymentLinkMutation()}>
+              <Text className='text-primary font-poppins-medium text-base underline'>New Payment Link</Text>
+            </TouchableOpacity>
+          )
+        }}
+      />
       <View className="p-4 gap-[15px]">
         {/* Header */}
         <View className="flex-row items-center gap-[10px]">

@@ -30,7 +30,7 @@ const ProductCard = ({ product }: { product: CreateProductResponse }) => {
         <TouchableOpacity
             activeOpacity={0.7}
             onPress={handlePress}
-            className="my-2"
+            className="my-4"
         >
             <View
                 style={styles.container}
@@ -62,7 +62,10 @@ const ProductCard = ({ product }: { product: CreateProductResponse }) => {
                             {product?.store_name}
                         </Text>
                     </View>
-                    <View className="flex-row gap-2 items-center"></View>
+                    <View className="flex-row items-center gap-2">
+                        {product?.total_sold > 0 && <Text className="text-muted text-sm font-poppins">Sold: {product.total_sold}</Text>}
+                        <Text className="text-muted text-sm font-poppins">Available: {product.stock || 0}</Text>
+                    </View>
                 </View>
             </View>
         </TouchableOpacity>

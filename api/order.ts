@@ -4,6 +4,7 @@ import {
   OrderFoodOLaundry,
   SendItem,
 } from "@/types/order-types";
+import { PaymentLink } from "@/types/payment";
 import { apiClient } from "@/utils/client";
 import { ApiResponse } from "apisauce";
 import { ErrorResponse } from "./auth";
@@ -484,5 +485,36 @@ export const getTravelDistance = async (
     return null;
   } catch (error) {
     throw new Error(`Error calculating travel distance: ${error}`);
+  }
+};
+
+export const generateOrderPaymentLink = async (
+  orderId: string
+): Promise<PaymentLink> => {
+  try {
+    const response: ApiResponse<PaymentLink | ErrorResponse> =
+      await apiClient.put(
+        `${BASE_URL}/${orderId}/generate-new-payment-link`,
+
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error generating payment link.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
   }
 };

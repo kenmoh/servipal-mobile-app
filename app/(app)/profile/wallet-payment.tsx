@@ -1,15 +1,33 @@
-import { FundWalletReturn } from "@/api/payment";
+import { FundWalletReturn, generateTransactionPaymentLink } from "@/api/payment";
 import AppButton from "@/components/AppButton";
-import { router, useLocalSearchParams } from "expo-router";
+import { useToast } from "@/components/ToastProvider";
+import { useMutation } from "@tanstack/react-query";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { CreditCard } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import WebView from "react-native-webview";
 
 const WalletPayment = () => {
     // Use theme colors from NativeWind if needed
-    const { fundWalletData } = useLocalSearchParams();
+    const { fundWalletData, transactionId } = useLocalSearchParams();
     const fundWallet: FundWalletReturn = fundWalletData ? JSON.parse(fundWalletData as string) : null;
+
+    const { showError, showSuccess } = useToast()
+
+    const { mutate } = useMutation({
+        mutationFn: () => generateTransactionPaymentLink(transactionId as string),
+
+        onError: (error) => {
+            showError(error.message, 'Error generating payment link. Try again later.')
+        },
+        onSuccess: (data) => () => {
+            showSuccess('Success', 'Payment link generated successfully.')
+            router.back()
+        }
+
+
+    })
 
     const [showWebView, setShowWebView] = React.useState(false);
     const [redirectedUrl, setRedirectedUrl] = useState<{ url?: string } | null>(
@@ -46,6 +64,7 @@ const WalletPayment = () => {
         return (
             <View className="flex-1">
 
+
                 <WebView
                     style={styles.webview}
                     onNavigationStateChange={setRedirectedUrl}
@@ -63,6 +82,16 @@ const WalletPayment = () => {
 
     return (
         <View className="flex-1 bg-background p-6 items-center justify-center">
+            <Stack.Screen
+
+                options={{
+                    headerRight: () => (
+                        <TouchableOpacity onPress={() => mutate()}>
+                            <Text className='text-primary font-poppins-medium text-base underline'>New Payment Link</Text>
+                        </TouchableOpacity>
+                    )
+                }}
+            />
             <View className="rounded-2xl border border-border-subtle bg-surface-profile p-6 w-full max-w-[400px] self-center mb-8">
                 <Text className="text-lg text-muted mb-2 text-center">Amount to Pay</Text>
                 <Text className="text-3xl font-bold text-primary text-center">₦{Number(fundWallet?.amount).toLocaleString()}</Text>
