@@ -134,7 +134,7 @@ const ItemDetails = () => {
   });
 
   const acceptDeliveryMutation = useMutation({
-    mutationFn: () => riderAcceptDelivery(data?.delivery?.id as string),
+    mutationFn: () => riderAcceptDelivery(data?.order?.id as string),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["order", id],

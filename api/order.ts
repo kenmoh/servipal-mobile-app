@@ -301,12 +301,12 @@ export const senderConfirmDeliveryReceived = async (
 
 // Rider Accept Delivery
 export const riderAcceptDelivery = async (
-  deliveryId: string
+  orderId: string
 ): Promise<DeliveryDetail> => {
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${deliveryId}/accept-delivery`,
+        `${BASE_URL}/${orderId}/accept-delivery`,
         {},
         {
           headers: {
