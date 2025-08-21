@@ -7,65 +7,21 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    useColorScheme,
-    View,
+    View
 } from "react-native";
 
 import { SendHorizonal } from "lucide-react-native";
 
 import { addMessage, fetchReport } from "@/api/report";
+import { useToast } from "@/components/ToastProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
-import { Notifier, NotifierComponents } from "react-native-notifier";
-import { z } from "zod";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import { z } from "zod";
 
 
-const DUMMY_THREAD = [
-    {
-        id: "1",
-        sender: {
-            name: "Jane Doe",
-            role: "reporter",
-            avatar: "https://ui-avatars.com/api/?name=Jane+Doe",
-        },
-        content: "There was an issue with my delivery.",
-        created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-    },
-    {
-        id: "2",
-        sender: {
-            name: "Admin",
-            role: "admin",
-            avatar: "https://ui-avatars.com/api/?name=Admin",
-        },
-        content: "Thank you for reporting. Can you provide more details?",
-        created_at: new Date(Date.now() - 1000 * 60 * 60 * 1.5).toISOString(),
-    },
-    {
-        id: "3",
-        sender: {
-            name: "John Smith",
-            role: "reportee",
-            avatar: "https://ui-avatars.com/api/?name=John+Smith",
-        },
-        content:
-            "I delivered as instructed. Please clarify the issue. I want to understand what went wrong so I can improve my service. I followed all the delivery instructions provided and delivered the package on time to the specified location.",
-        created_at: new Date(Date.now() - 1000 * 60 * 60 * 1).toISOString(),
-    },
-    {
-        id: "4",
-        sender: {
-            name: "Jane Doe",
-            role: "reporter",
-            avatar: "https://ui-avatars.com/api/?name=Jane+Doe",
-        },
-        content:
-            "The package was wet when I received it. It seems like it was left in the rain or got exposed to water during transport. The contents inside were also damaged due to the moisture. This is very disappointing as the items were expensive and now they are ruined.",
-        created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-    },
-];
+
 
 const roleColor: any = {
     customer: "#4F8EF7",      // Blue
@@ -99,7 +55,7 @@ const NotificationDetails = () => {
     const [inputHeight, setInputHeight] = useState(MIN_INPUT_HEIGHT);
     const [isTyping, setIsTyping] = useState(false);
     const flatListRef = useRef<FlatList>(null);
-    const theme = useColorScheme();
+    const { showError, showSuccess } = useToast();
 
     const queryClient = useQueryClient();
 
@@ -140,21 +96,11 @@ const NotificationDetails = () => {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
             queryClient.invalidateQueries({ queryKey: ["reports"] });
 
-            // Notifier.showNotification({
-            //     title: "Success",
-            //     description: "Message sent successfully",
-            //     Component: NotifierComponents.Alert,
-            //     componentProps: { alertType: "success" },
-            // });
         },
         onError: (error: any) => {
             reset();
-            Notifier.showNotification({
-                title: "Error",
-                description: error?.message || "Failed to send message",
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: "error" },
-            });
+            showError("Error", error?.message || "Failed to send message")
+
         },
     });
 

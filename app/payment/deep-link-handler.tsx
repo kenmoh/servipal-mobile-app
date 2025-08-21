@@ -1,14 +1,14 @@
+import { useToast } from '@/components/ToastProvider';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
-import { Text, useColorScheme, View } from 'react-native';
-import { Notifier, NotifierComponents } from 'react-native-notifier';
+import { Text, View } from 'react-native';
+
 
 
 const DeepLinkHandler = () => {
+    const { showError, showSuccess } = useToast()
 
     const params = useLocalSearchParams();
-
-    console.log(params, '=================PARAMS==================')
 
     useEffect(() => {
 
@@ -21,13 +21,8 @@ const DeepLinkHandler = () => {
 
 
         if (!status) {
-            console.error('Deep Link Handler - Missing status parameter');
-            Notifier.showNotification({
-                title: 'Error',
-                description: 'Missing payment status',
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: 'error' },
-            });
+            showError("Error", 'Missing payment status')
+
             router.replace('/delivery');
             return;
         }
@@ -71,13 +66,10 @@ const DeepLinkHandler = () => {
                 });
                 break;
             default:
-                console.error('Deep Link Handler - Invalid payment status:', normalizedStatus);
-                Notifier.showNotification({
-                    title: 'Error',
-                    description: 'Invalid payment status',
-                    Component: NotifierComponents.Alert,
-                    componentProps: { alertType: 'error' },
-                });
+
+                showError("Error", 'Invalid payment status')
+
+
                 router.replace('/delivery');
                 break;
         }

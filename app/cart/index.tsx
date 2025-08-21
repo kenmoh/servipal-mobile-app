@@ -5,6 +5,7 @@ import Item from "@/components/CartItem";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import RadioButton from "@/components/core/RadioButton";
 import GoogleTextInput from "@/components/GoogleTextInput";
+import { useToast } from "@/components/ToastProvider";
 import { useAuth } from "@/context/authContext";
 import { useCartStore } from "@/store/cartStore";
 import { useLocationStore } from "@/store/locationStore";
@@ -21,7 +22,7 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
+
 
 const Cart = () => {
   const [duration, setDuration] = useState("");
@@ -54,11 +55,8 @@ const Cart = () => {
     destinationCoords,
   } = useLocationStore();
 
+  const { showError, showSuccess } = useToast()
 
-
-
-  console.log('ORIGIN: ', origin)
-  console.log('DESTINATION: ', destination)
 
   const handleDeliveryOptionChange = (option: "delivery" | "pickup") => {
     setDeliveryOption(option);
@@ -110,14 +108,8 @@ const Cart = () => {
       });
     },
     onError: (error) => {
-      Notifier.showNotification({
-        title: "Error",
-        description: `${error.message}`,
-        Component: NotifierComponents.Alert,
-        componentProps: {
-          alertType: "error",
-        },
-      });
+      showError("Error", error.message)
+
     },
   });
 

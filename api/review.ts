@@ -11,7 +11,7 @@ const REVIEW_BASE_URL = "/reviews";
 
 // <<<<< ---------- REVIEW ---------- >>>>>
 // Fetch reviews
-export const fetchCurrentReviews = async (
+export const fetchVendorReviews = async (
   vendorId: string
 ): Promise<VendorReviewResponse[]> => {
   try {

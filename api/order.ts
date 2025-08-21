@@ -277,7 +277,7 @@ export const senderConfirmDeliveryReceived = async (
 ): Promise<DeliveryDetail> => {
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
-      await apiClient.put(`${BASE_URL}/${deliveryId}/confirm-delivery`, {
+      await apiClient.put(`${BASE_URL}/${deliveryId}/sender-confirm-delivery-or-order-received`, {
         headers: {
           "Content-Type": "application/json",
         },

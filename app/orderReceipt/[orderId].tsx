@@ -12,6 +12,7 @@ import { fetchOrder, updateOrderStatus } from "@/api/order";
 import AppButton from "@/components/AppButton";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import LoadingIndicator from "@/components/LoadingIndicator";
+import { useToast } from "@/components/ToastProvider";
 import { useAuth } from "@/context/authContext";
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -20,20 +21,20 @@ import * as Print from "expo-print";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Sharing from "expo-sharing";
 import { CreditCard, Download, Share2 } from "lucide-react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
+
 
 const OrderReceiptPage = () => {
     const { orderId, paymentStatus } = useLocalSearchParams();
     const screenWidth = Dimensions.get("window").width;
     const theme = useColorScheme();
     const { user } = useAuth()
+    const { showError, showSuccess } = useToast()
     const ICON_COLOR = theme === 'dark' ? 'white' : 'black'
     const { data, isLoading } = useQuery({
         queryKey: ["order", orderId],
         queryFn: () => fetchOrder(orderId as string),
     });
 
-    console.log(data)
 
     const handleGotoPayment = () => {
         router.push({
@@ -231,9 +232,9 @@ const OrderReceiptPage = () => {
                             <div class="row">
                                 <span>Date</span>
                                 <span>${data.order?.created_at
-            ? format(new Date(data.order.created_at), "PPP")
-            : "N/A"
-          }</span>
+                ? format(new Date(data.order.created_at), "PPP")
+                : "N/A"
+            }</span>
                             </div>
                             ${data?.order.order_items.length > 0
                 ? `
@@ -330,21 +331,12 @@ const OrderReceiptPage = () => {
                 queryKey: ["deliveries", user?.sub],
             });
 
-            Notifier.showNotification({
-                title: "Success",
-                description: "This order has been assigned to you. Drive carefully!",
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: "success" },
-            });
+            showSuccess("Success", "This order has been assigned to you. Drive carefully!")
+
             router.back()
         },
         onError: (error: Error) => {
-            Notifier.showNotification({
-                title: "Error",
-                description: `${error.message}`,
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: "error" },
-            });
+            showError("Error", error.message)
         },
     });
     const customerreceivedMutation = useMutation({
@@ -363,20 +355,10 @@ const OrderReceiptPage = () => {
                 queryKey: ["deliveries", user?.sub],
             });
 
-            Notifier.showNotification({
-                title: "Success",
-                description: "This order has been assigned to you. Drive carefully!",
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: "success" },
-            });
+            showSuccess("Success", "This order has been assigned to you. Drive carefully!")
         },
         onError: (error: Error) => {
-            Notifier.showNotification({
-                title: "Error",
-                description: `${error.message}`,
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: "error" },
-            });
+            showError("Error", error.message)
         },
     });
 
@@ -400,20 +382,11 @@ const OrderReceiptPage = () => {
                 to: destinationUri,
             });
 
-            Notifier.showNotification({
-                title: "Success",
-                description: "Receipt downloaded successfully",
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: "success" },
-            });
+            showSuccess("Success", "Receipt downloaded successfully")
+                ;
         } catch (error) {
-            console.error("Download error:", error);
-            Notifier.showNotification({
-                title: "Error",
-                description: "Failed to download receipt",
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: "error" },
-            });
+            showError("Error", "Failed to download receipt",)
+
         }
     };
 
@@ -437,20 +410,11 @@ const OrderReceiptPage = () => {
                     UTI: "com.adobe.pdf",
                 });
             } else {
-                Notifier.showNotification({
-                    title: "Error",
-                    description: "Sharing is not available on this device",
-                    Component: NotifierComponents.Alert,
-                    componentProps: { alertType: "error" },
-                });
+                showError("Error", "Sharing is not available on this device")
             }
         } catch (error) {
-            Notifier.showNotification({
-                title: "Error",
-                description: "Failed to share receipt",
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: "error" },
-            });
+
+            showError("Error", "Failed to share receipt")
         }
     };
 

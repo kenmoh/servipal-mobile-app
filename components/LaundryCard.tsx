@@ -6,7 +6,8 @@ import { router } from 'expo-router'
 import { Edit, Trash } from 'lucide-react-native'
 import React from 'react'
 import { Image, Pressable, Text, TouchableOpacity, View } from 'react-native'
-import { Notifier, NotifierComponents } from 'react-native-notifier'
+
+import { useToast } from './ToastProvider'
 
 const LaundryCard = ({ item, onPress, onDelete }: {
     item: LaundryMenuItem,
@@ -16,6 +17,7 @@ const LaundryCard = ({ item, onPress, onDelete }: {
 
     const { user } = useAuth()
     const cartItems = useCartStore(state => state.cart.order_items)
+    const { showError, showInfo, showSuccess, showWarning } = useToast()
 
     // Check if item exists in cart
     const isChecked = cartItems.some(cartItem => cartItem.item_id === item.id)
@@ -53,13 +55,7 @@ const LaundryCard = ({ item, onPress, onDelete }: {
                                 <Edit className='text-icon-default' />
                             </Pressable>
                             <Pressable
-                                onPress={() => onDelete ? onDelete(item.id) : Notifier.showNotification({
-                                    title: "Delete",
-                                    description: "Item deleted successfully.",
-                                    Component: NotifierComponents.Alert,
-                                    duration: 2000,
-                                    componentProps: { alertType: "warn" },
-                                })}
+                                onPress={() => onDelete ? onDelete(item.id) : showSuccess("Delete", "Item deleted successfully")}
                                 hitSlop={10}
                                 style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1, transform: [{ scale: pressed ? 0.95 : 1 }] }]}
                             >
@@ -93,15 +89,7 @@ const LaundryCard = ({ item, onPress, onDelete }: {
                         value={isChecked}
                         hitSlop={25}
                         disabled={isOwner}
-                        onValueChange={!isOwner ? () => onPress(item) : () => Notifier.showNotification({
-                            title: "Not Allowed",
-                            description: "You cannot order from your own laundry",
-                            Component: NotifierComponents.Alert,
-                            duration: 3000,
-                            componentProps: {
-                                alertType: "warn",
-                            },
-                        })}
+                        onValueChange={!isOwner ? () => onPress(item) : () => showWarning("Not Allowed!", "You can not order your own laundry")}
                     >
 
                     </Checkbox>

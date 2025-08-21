@@ -4,13 +4,13 @@ import { ActivityIndicator, Platform, ScrollView, Text, TextInput, useColorSchem
 import { createReport } from "@/api/report";
 import AppButton from "@/components/AppButton";
 import AppPicker from "@/components/AppPicker";
+import { useToast } from "@/components/ToastProvider";
 import { ReportedUserType, ReportType } from "@/types/review-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
-import { Notifier, NotifierComponents } from "react-native-notifier";
 import { z } from "zod";
 
 
@@ -41,6 +41,7 @@ const ReportPage = () => {
     const { deliveryId } = useLocalSearchParams();
     const queryClient = useQueryClient();
     const theme = useColorScheme();
+    const { showSuccess, showError } = useToast()
 
     const COLOR = theme === 'dark' ? "rgba(30, 33, 39, 0.5)" : '#ddd'
     const TEXT = theme === 'dark' ? '#fff' : '#aaa'
@@ -74,21 +75,13 @@ const ReportPage = () => {
         onSuccess: (data) => {
 
             queryClient.invalidateQueries({ queryKey: ["delivery", deliveryId] });
-            Notifier.showNotification({
-                title: "Success",
-                description: "Report submitted successfully",
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: "success" },
-            });
+            showSuccess("Success", "Report submitted successfully")
             reset();
         },
         onError: (error: any) => {
-            Notifier.showNotification({
-                title: "Error",
-                description: error?.message || "Failed to submit report",
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: "error" },
-            });
+            showError("Error", error?.message || "Failed to submit report")
+
+
         },
     });
 

@@ -6,7 +6,8 @@ import { router } from 'expo-router'
 import { Edit, Trash } from 'lucide-react-native'
 import React from 'react'
 import { Image, Pressable, Text, TouchableOpacity, View } from 'react-native'
-import { Notifier, NotifierComponents } from 'react-native-notifier'
+import { useToast } from './ToastProvider'
+
 
 const FoodCard = ({ item, onPress, onDelete }: {
     item: MenuItem,
@@ -15,6 +16,7 @@ const FoodCard = ({ item, onPress, onDelete }: {
 }) => {
 
     const { user } = useAuth()
+    const { showError, showSuccess } = useToast()
     const cartItems = useCartStore(state => state.cart.order_items)
     // Check if item exists in cart
     const isChecked = cartItems.some(cartItem => cartItem.item_id === item.id)
@@ -46,13 +48,7 @@ const FoodCard = ({ item, onPress, onDelete }: {
                         <Edit color='gray' size={18} />
                     </Pressable>
                     <Pressable
-                        onPress={() => onDelete ? onDelete(item.id) : Notifier.showNotification({
-                            title: "Delete",
-                            description: "Delete action triggered",
-                            Component: NotifierComponents.Alert,
-                            duration: 2000,
-                            componentProps: { alertType: "warn" },
-                        })}
+                        onPress={() => onDelete ? onDelete(item.id) : () => showError("Success", "Item deleted.")}
                         hitSlop={10}
                         style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1, transform: [{ scale: pressed ? 0.95 : 1 }] }]}
                     >
@@ -93,15 +89,7 @@ const FoodCard = ({ item, onPress, onDelete }: {
                 color={isChecked ? 'orange' : undefined}
                 hitSlop={25}
                 disabled={isOwner}
-                onValueChange={!isOwner ? () => onPress(item.id) : () => Notifier.showNotification({
-                    title: "Not Allowed",
-                    description: "You cannot order from your own restaurant",
-                    Component: NotifierComponents.Alert,
-                    duration: 3000,
-                    componentProps: {
-                        alertType: "warn",
-                    },
-                })}
+                onValueChange={!isOwner ? () => onPress(item.id) : () => showError("Not Allowed", "You cannot order from your own restaurant")}
             >
 
             </Checkbox>

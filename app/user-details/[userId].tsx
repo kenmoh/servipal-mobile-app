@@ -1,19 +1,17 @@
 import { getRiderProfile } from "@/api/user";
 import AppButton from "@/components/AppButton";
+import LoadingIndicator from "@/components/LoadingIndicator";
 import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from 'expo-router';
-import { Bike, MapPin, Phone } from 'lucide-react-native';
+import { Bike, Building2Icon, MapPin, Phone, User } from 'lucide-react-native';
 import React from 'react';
-import { Dimensions, Image, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { Dimensions, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window')
 const MODAL_HEIGHT = SCREEN_HEIGHT * 0.70
 
 const Modal = () => {
-    const theme = useColorScheme()
     const { userId } = useLocalSearchParams()
-
-
 
     const { data, isLoading } = useQuery({
         queryKey: ["profile", userId],
@@ -23,6 +21,9 @@ const Modal = () => {
     });
 
 
+    if (isLoading) {
+        return <LoadingIndicator />
+    }
 
     const handleContentPress = (e: any) => {
         e.stopPropagation();
@@ -37,49 +38,43 @@ const Modal = () => {
                             <Image className='h-full w-full' src={data?.profile_image_url as string || "https://placekitten.com/200/200"} />
 
                         </View>
-
-                        <View className='item-center gap-4'>
-                            <Text className='text-primary text-xl font-poppins-medium'>{data?.full_name}</Text>
-                            <Text className='text-primary text-sm font-poppins'>{data?.business_name}</Text>
-
-                        </View>
                     </View>
 
                     {/* Contact Info */}
                     <View className='bg-profile-card rounded-sm p-4 gap-[15px]'>
                         <View className='flex-row items-center gap-10'>
-                            <Phone size={20} className='text-gray-400' />
+                            <User size={20} color={'#aaa'} />
+                            <Text className='text-primary font-poppins text-sm'>{data?.full_name}</Text>
+                        </View>
+                        <View className='flex-row items-center gap-10'>
+                            <Phone size={20} color={'#aaa'} />
                             <Text className='text-primary font-poppins text-sm'>+{data?.phone_number}</Text>
+                        </View>
+                        <View className='flex-row items-center gap-10'>
+                            <Building2Icon size={20} color={'#aaa'} />
+                            <Text className='text-primary font-poppins text-sm'>{data?.business_name}</Text>
                         </View>
                         <View className='flex-row items-center gap-[10px]'>
 
-                            <MapPin size={20} className='text-gray-400' />
+                            <MapPin size={20} color={'#aaa'} />
                             <Text className='text-primary font-poppins text-sm'>{data?.business_address}</Text>
                         </View>
                         <View className='flex-row items-center gap-[10px]'>
 
-                            <Bike size={20} className='text-gray-400' />
+                            <Bike size={20} color={'#aaa'} />
                             <Text className='text-primary font-poppins text-sm'>{data?.bike_number}</Text>
                         </View>
 
                     </View>
 
                     {/* Call and Report Button */}
-                    <View className="flex-row gap-[5px]">
+                    <View className="items-center">
                         <AppButton
                             title="Call"
 
-                            icon={<Phone />}
+                            icon={<Phone color={'#aaa'} size={20} />}
 
-                            width={'50%'}
-                        />
-
-                        <AppButton
-                            backgroundColor="bg-input"
-                            title="Report"
-
-
-                            width={'50%'}
+                            width={'30%'}
                         />
 
                     </View>

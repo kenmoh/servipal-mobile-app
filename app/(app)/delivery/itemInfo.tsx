@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet, Text, useColorScheme, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import React, { useEffect, useState } from "react";
 
@@ -18,7 +18,8 @@ import { router } from "expo-router";
 import { Clock } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import { Notifier, NotifierComponents } from "react-native-notifier";
+
+import { useToast } from "@/components/ToastProvider";
 import { z } from "zod";
 
 const coordinatesSchema = z.tuple([
@@ -59,7 +60,7 @@ const ItemInfo = () => {
   const { origin, originCoords, reset, destination, destinationCoords } =
     useLocationStore();
 
-  const theme = useColorScheme();
+  const { showError, showInfo, showSuccess } = useToast();
   const { user } = useAuth()
   const [duration, setDuration] = useState("");
   const [distance, setDistance] = useState(0);
@@ -114,16 +115,7 @@ const ItemInfo = () => {
         queryKey: ["orders"],
       });
 
-      Notifier.showNotification({
-        title: "Pending Payment Confirmation",
-        description:
-          "Delivery order create. Your order will be listed for delivery when your payment is confirmed",
-        Component: NotifierComponents.Alert,
-        duration: 1000,
-        componentProps: {
-          alertType: "info",
-        },
-      });
+      showInfo("Pending Payment Confirmation", "Delivery order create. Your order will be listed for delivery when your payment is confirmed")
       reset();
       router.push({
         pathname: '/payment/[orderId]',
@@ -143,14 +135,8 @@ const ItemInfo = () => {
     onError: (error) => {
       const errorMessage =
         error instanceof Error ? error.message : "An unexpected error occurred";
-      Notifier.showNotification({
-        title: "Error",
-        description: `${errorMessage}`,
-        Component: NotifierComponents.Alert,
-        componentProps: {
-          alertType: "error",
-        },
-      });
+      showError("Error", errorMessage)
+
     },
   });
 

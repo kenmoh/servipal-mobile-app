@@ -2,6 +2,7 @@ import { withDrawFunds } from "@/api/payment";
 import { getCurrentUserWallet } from "@/api/user";
 import BalanceShimmer from "@/components/BalanceShimmer";
 import AppVariantButton from "@/components/core/AppVariantButton";
+import { useToast } from "@/components/ToastProvider";
 import Transactioncard from "@/components/Transactioncard";
 import { useAuth } from "@/context/authContext";
 import { Transaction } from "@/types/user-types";
@@ -12,13 +13,14 @@ import { router, useFocusEffect } from "expo-router";
 import { Eye, EyeOff } from "lucide-react-native";
 import { useCallback, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
+
 import Animated, { FadeInUp } from "react-native-reanimated";
 
 
 const index = () => {
     const { user, profile } = useAuth();
     const [isBalanceHidden, setIsBalanceHidden] = useState(false);
+    const { showError, showSuccess } = useToast()
 
     const { data, isFetching, refetch } = useQuery({
         queryKey: ["wallet", user?.sub],
@@ -28,27 +30,13 @@ const index = () => {
     const { data: withdrawData, mutate: withdrawMutation } = useMutation({
         mutationFn: withDrawFunds,
         onSuccess: () => {
-            Notifier.showNotification({
-                title: "Success",
-                description:
-                    "Withdrawal request processing. We will notify you once it is completed.",
-                Component: NotifierComponents.Alert,
-                componentProps: {
-                    alertType: "success",
-                },
-            });
+            showSuccess("Success", "Withdrawal request processing. We will notify you once it is completed.")
 
             refetch();
         },
         onError: (error) => {
-            Notifier.showNotification({
-                title: "Error",
-                description: error.message,
-                Component: NotifierComponents.Alert,
-                componentProps: {
-                    alertType: "error",
-                },
-            });
+            showError("Error", error.message)
+
         },
     })
 

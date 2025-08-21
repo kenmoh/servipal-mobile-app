@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, useColorScheme, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import { createCategory, createMenuItem, fetchCategories, updateItem } from "@/api/item";
 import ImagePickerInput from "@/components/AppImagePicker";
@@ -9,10 +9,11 @@ import AppPicker from "@/components/AppPicker";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
-import { Notifier, NotifierComponents } from "react-native-notifier";
+
 import { z } from "zod";
 
 import AppButton from "@/components/AppButton";
+import { useToast } from "@/components/ToastProvider";
 import { useAuth } from '@/context/authContext';
 import type { FoodGroup, ItemType } from "@/types/item-types";
 import { useLocalSearchParams } from 'expo-router';
@@ -53,6 +54,7 @@ const addMenu = () => {
     const { user } = useAuth()
     const params = useLocalSearchParams();
     const isEditing = Boolean(params.id);
+    const { showError, showSuccess } = useToast()
 
     const queryClient = useQueryClient();
 
@@ -115,16 +117,9 @@ const addMenu = () => {
 
     const { mutate, isPending } = useMutation({
         mutationFn: createCategory,
-        onSuccess: (data) => {
-            Notifier.showNotification({
-                title: "Success",
-                description: "Category created successfully",
-                Component: NotifierComponents.Alert,
-                duration: 1000,
-                componentProps: {
-                    alertType: "success",
-                },
-            });
+        onSuccess: () => {
+
+            showSuccess("Success", "Category created successfully")
             setVisble(false);
             resetCategoryForm();
 
@@ -136,69 +131,36 @@ const addMenu = () => {
             return;
         },
         onError: (error) => {
-            Notifier.showNotification({
-                title: "Error",
-                description: `${error.message}`,
-                Component: NotifierComponents.Alert,
-                componentProps: {
-                    alertType: "error",
-                },
-            });
+            showError("Error", error.message)
+
         },
     });
     const { mutate: itemMutate, isPending: isCreating } = useMutation({
         mutationFn: createMenuItem,
         onSuccess: (data) => {
-            Notifier.showNotification({
-                title: "Success",
-                description: "Item created successfully",
-                Component: NotifierComponents.Alert,
-                duration: 1000,
-                componentProps: {
-                    alertType: "success",
-                },
-            });
+            showSuccess("Success", `${data?.name} created successfully.`)
             reset();
             queryClient.invalidateQueries({ queryKey: ["items"] });
             return;
         },
         onError: (error) => {
-            Notifier.showNotification({
-                title: "Error",
-                description: `${error.message}`,
-                Component: NotifierComponents.Alert,
-                componentProps: {
-                    alertType: "error",
-                },
-            });
+            showError("Error", error.message)
+
         },
     });
 
     const { mutate: updateMutate, isPending: isUpdating } = useMutation({
         mutationFn: ({ id, data }: { id: string, data: any }) => updateItem(id, data),
         onSuccess: (data) => {
-            Notifier.showNotification({
-                title: "Success",
-                description: "Item updated successfully",
-                Component: NotifierComponents.Alert,
-                duration: 1000,
-                componentProps: {
-                    alertType: "success",
-                },
-            });
+            showError("Success", "Item updated successfully")
+
             reset();
             queryClient.invalidateQueries({ queryKey: ["items"] });
             return;
         },
         onError: (error) => {
-            Notifier.showNotification({
-                title: "Error",
-                description: `${error.message}`,
-                Component: NotifierComponents.Alert,
-                componentProps: {
-                    alertType: "error",
-                },
-            });
+            showError("Error", error.message)
+
         },
     });
 

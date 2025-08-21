@@ -10,6 +10,7 @@ import {
 
 import { fetchOrder } from "@/api/order";
 import LoadingIndicator from "@/components/LoadingIndicator";
+import { useToast } from "@/components/ToastProvider";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -18,12 +19,13 @@ import * as Print from "expo-print";
 import { useLocalSearchParams } from "expo-router";
 import * as Sharing from "expo-sharing";
 import { Download, Share2 } from "lucide-react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
+
 
 const ReceiptPage = () => {
   const { deliveryId: orderId } = useLocalSearchParams();
   const screenWidth = Dimensions.get("window").width;
   const theme = useColorScheme();
+  const { showError, showSuccess } = useToast()
 
   const BG_COLOR = theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
 
@@ -331,20 +333,11 @@ const ReceiptPage = () => {
         to: destinationUri,
       });
 
-      Notifier.showNotification({
-        title: "Success",
-        description: "Receipt downloaded successfully",
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "success" },
-      });
+      showSuccess("Success", "Receipt downloaded successfully")
+
     } catch (error) {
-      console.error("Download error:", error);
-      Notifier.showNotification({
-        title: "Error",
-        description: "Failed to download receipt",
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "error" },
-      });
+      showError("Error", "Failed to download receipt")
+
     }
   };
 
@@ -365,20 +358,12 @@ const ReceiptPage = () => {
           UTI: "com.adobe.pdf",
         });
       } else {
-        Notifier.showNotification({
-          title: "Error",
-          description: "Sharing is not available on this device",
-          Component: NotifierComponents.Alert,
-          componentProps: { alertType: "error" },
-        });
+        showError("Error", "Sharing is not available on this device")
+
       }
     } catch (error) {
-      Notifier.showNotification({
-        title: "Error",
-        description: "Failed to share receipt",
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "error" },
-      });
+      showError("Error", "Failed to share receipt")
+
     }
   };
 

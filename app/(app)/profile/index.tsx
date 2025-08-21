@@ -8,6 +8,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { logOutUser } from "@/api/auth";
 import { ImageData, ImageUpload, uploadProfileImage } from "@/api/user";
 import ProfileImagePicker from "@/components/ProfileImagePicker";
+import { useToast } from "@/components/ToastProvider";
 import { useAuth } from "@/context/authContext";
 import authStorage from "@/storage/authStorage";
 import { ImageType } from "@/types/order-types";
@@ -15,7 +16,6 @@ import { ImageUrl } from "@/types/user-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useColorScheme } from "nativewind";
-import { Notifier, NotifierComponents } from "react-native-notifier";
 
 
 
@@ -31,6 +31,7 @@ const profile = () => {
   const { colorScheme, setColorScheme } = useColorScheme();
   const queryClient = useQueryClient();
   const [theme, setTheme] = useState(colorScheme);
+  const { showError, showSuccess } = useToast()
 
   useEffect(() => {
     const loadTheme = async () => {
@@ -147,28 +148,12 @@ const profile = () => {
       queryClient.invalidateQueries({ queryKey: ["user"] });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       queryClient.invalidateQueries({ queryKey: ["deliveries"] });
+      showSuccess("Success", "Images uploaded successfully")
 
-      Notifier.showNotification({
-        title: "Success",
-        description: "Images uploaded successfully",
-        Component: NotifierComponents.Alert,
-        duration: 1000,
-        componentProps: {
-          alertType: "success",
-        },
-      });
     },
     onError: (error) => {
-      Notifier.showNotification({
-        title: "Failed to upload images",
-        description:
-          "There was an error uploading the images. Please try again.",
-        Component: NotifierComponents.Alert,
-        duration: 1000,
-        componentProps: {
-          alertType: "error",
-        },
-      });
+      showError("Failed to upload images", "There was an error uploading the images. Please try again.")
+
     },
   });
 

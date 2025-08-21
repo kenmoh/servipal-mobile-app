@@ -20,6 +20,7 @@ import AppVariantButton from "@/components/core/AppVariantButton";
 import DeliveryWrapper from "@/components/DeliveryWrapper";
 import { Status } from "@/components/ItemCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
+import { useToast } from "@/components/ToastProvider";
 import { useAuth } from "@/context/authContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
@@ -30,12 +31,12 @@ import {
   Phone,
   Wallet
 } from "lucide-react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
 import { User } from "stream-chat-expo";
 
 const ItemDetails = () => {
   const { id } = useLocalSearchParams();
   const { user } = useAuth();
+  const { showError, showSuccess, showInfo } = useToast()
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["order", id],
@@ -48,7 +49,7 @@ const ItemDetails = () => {
 
   const confirmReceivedMutation = useMutation({
     mutationFn: () =>
-      senderConfirmDeliveryReceived(data?.delivery?.id as string),
+      senderConfirmDeliveryReceived(data?.order?.id as string),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["order", id],
@@ -72,22 +73,13 @@ const ItemDetails = () => {
 
       refetch();
       router.back();
-      router.back();
 
-      Notifier.showNotification({
-        title: "Success",
-        description: "Delivery confirmed as received!",
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "success" },
-      });
+      showSuccess("Success", "Delivery confirmed and received.")
+
     },
     onError: (error: Error) => {
-      Notifier.showNotification({
-        title: "Error",
-        description: `${error.message}`,
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "error" },
-      });
+      showError('Error', error.message)
+
     },
   });
 
@@ -116,20 +108,11 @@ const ItemDetails = () => {
         exact: false,
       });
 
-      Notifier.showNotification({
-        title: "Success",
-        description: "Laundry item received.",
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "success" },
-      });
+      showSuccess('Success', "Laundry item received.")
     },
     onError: (error: Error) => {
-      Notifier.showNotification({
-        title: "Error",
-        description: `${error.message}`,
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "error" },
-      });
+      showError("Error", error.message)
+
     },
   });
 
@@ -158,20 +141,11 @@ const ItemDetails = () => {
       refetch();
       router.back();
 
-      Notifier.showNotification({
-        title: "Success",
-        description: "This order has been assigned to you. Drive carefully!",
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "success" },
-      });
+      showSuccess("Success", "This order has been assigned to you. Drive carefully!")
+
     },
     onError: (error: Error) => {
-      Notifier.showNotification({
-        title: "Error",
-        description: `${error.message}`,
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "error" },
-      });
+      showError("Error", error.message)
     },
   });
 
@@ -199,21 +173,11 @@ const ItemDetails = () => {
 
       refetch();
       router.back();
-
-      Notifier.showNotification({
-        title: "Success",
-        description: "Item delivered.",
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "success" },
-      });
+      showSuccess("Success", "Item delivered.")
     },
     onError: (error: Error) => {
-      Notifier.showNotification({
-        title: "Error",
-        description: `${error.message}`,
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "error" },
-      });
+      showError("Error", error.message)
+
     },
   });
 
@@ -242,20 +206,11 @@ const ItemDetails = () => {
       refetch();
       router.back();
 
-      Notifier.showNotification({
-        title: "Success",
-        description: "Delivery cancelled!",
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "success" },
-      });
+      showSuccess("Success", "Delivery cancelled!")
     },
     onError: (error: Error) => {
-      Notifier.showNotification({
-        title: "Error",
-        description: `${error.message}`,
-        Component: NotifierComponents.Alert,
-        componentProps: { alertType: "error" },
-      });
+      showError("Error", error.message)
+
     },
   });
 
@@ -332,6 +287,15 @@ const ItemDetails = () => {
     return <LoadingIndicator />;
   }
 
+  const showReview = () => {
+    if (data?.order?.order_type === 'package') showError('Not Allowed', 'Review for package delivery not allowed!')
+
+    router.push({
+      pathname: "/review/[deliveryId]",
+      params: { deliveryId: data?.order?.id as string },
+    });
+  }
+
   return (
     <>
       <DeliveryWrapper>
@@ -341,7 +305,7 @@ const ItemDetails = () => {
           data?.delivery?.delivery_status !== "received" && (
 
             <View className="self-center w-full justify-center items-center">
-              <AppVariantButton icon={<User color={'white'} />} width={"85%"} borderRadius={50} label="Contact Rider" onPress={() =>
+              <AppVariantButton icon={<User color={'white'} />} width={"85%"} borderRadius={50} filled={false} outline={true} label="Contact Rider" onPress={() =>
                 router.push({
                   pathname: "/user-details/[userId]",
                   params: {
@@ -357,7 +321,7 @@ const ItemDetails = () => {
             <AppButton
               title="MAKE PAYMENT"
               width={"85%"}
-              icon={<DollarSignIcon className="text-primary" />}
+              icon={<DollarSignIcon className="text-white" />}
               onPress={() =>
                 router.push({
                   pathname: "/payment/[orderId]",
@@ -463,9 +427,9 @@ const ItemDetails = () => {
                     : "bg-button-primary"
                 }
                 icon={
-                  actionButton.loading && <ActivityIndicator color="#ccc" />
+                  actionButton.loading && <ActivityIndicator color="#eee" />
                 }
-                width={showCancel ? "50%" : "90%"}
+                width={"90%"}
                 onPress={actionButton.onPress}
                 disabled={
                   (data?.delivery?.sender_id === user?.sub &&
@@ -482,7 +446,7 @@ const ItemDetails = () => {
           {/* Additional Action Buttons */}
           <View className="flex-row w-[90%] self-center justify-between mt-4 gap-2">
             {/* Review Button - Hide for package deliveries */}
-            {data?.order?.order_type !== "package" &&
+            {
               (data?.order?.order_status === "received" ||
                 data?.delivery?.delivery_status === "delivered" ||
                 data?.delivery?.delivery_status === "received") && (
@@ -492,12 +456,7 @@ const ItemDetails = () => {
                   outline={true}
                   borderRadius={50}
                   width="32%"
-                  onPress={() => {
-                    router.push({
-                      pathname: "/review/[deliveryId]",
-                      params: { deliveryId: data?.order?.id },
-                    });
-                  }}
+                  onPress={showReview}
                 />
               )}
 
@@ -520,7 +479,7 @@ const ItemDetails = () => {
                 />
               )}
 
-            {data?.order?.order_payment_status === "paid" &&
+            {
               (data?.order?.owner_id === user?.sub ||
                 data?.order?.user_id === user?.sub ||
                 data?.order?.vendor_id === user?.sub) && (
@@ -529,11 +488,7 @@ const ItemDetails = () => {
                   borderRadius={50}
                   filled={false}
                   outline={true}
-                  width={
-                    data?.delivery?.delivery_status === "received"
-                      ? "32%"
-                      : "100%"
-                  }
+                  width={32}
                   onPress={() => {
                     router.push({
                       pathname: "/receipt/[deliveryId]",
@@ -552,6 +507,3 @@ const ItemDetails = () => {
 export default ItemDetails;
 
 const styles = StyleSheet.create({});
-
-
-// https://www.termsfeed.com/live/c69b90e9-8735-4d3f-81d5-c3a07bcbddeb

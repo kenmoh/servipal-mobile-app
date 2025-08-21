@@ -8,10 +8,11 @@ import AppPicker from "@/components/AppPicker";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
-import { Notifier, NotifierComponents } from "react-native-notifier";
+
 import { z } from "zod";
 
 import AppButton from "@/components/AppButton";
+import { useToast } from "@/components/ToastProvider";
 import { useAuth } from '@/context/authContext';
 
 const itemTypeEnum = z.enum(["food", "package", "product", "laundry"]);
@@ -37,6 +38,7 @@ type FormData = z.infer<typeof schema>;
 
 const adLaundryItem = () => {
     const { user } = useAuth()
+    const { showError, showSuccess } = useToast()
 
     const {
         control,
@@ -57,29 +59,16 @@ const adLaundryItem = () => {
     const queryClient = useQueryClient()
     const { mutate: itemMutate, isPending: isCreating } = useMutation({
         mutationFn: createMenuItem,
-        onSuccess: (data) => {
-            Notifier.showNotification({
-                title: "Success",
-                description: "Item created successfully",
-                Component: NotifierComponents.Alert,
-                duration: 1000,
-                componentProps: {
-                    alertType: "success",
-                },
-            });
+        onSuccess: () => {
+            showSuccess("Success", "Item created successfully")
+
             reset();
             queryClient.invalidateQueries({ queryKey: ["laundryItems", user?.sub] });
             return;
         },
         onError: (error) => {
-            Notifier.showNotification({
-                title: "Error",
-                description: `${error.message}`,
-                Component: NotifierComponents.Alert,
-                componentProps: {
-                    alertType: "error",
-                },
-            });
+            showError("Error", error.message)
+
         },
     });
 
