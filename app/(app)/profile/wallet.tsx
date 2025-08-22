@@ -70,8 +70,8 @@ const index = () => {
                         start={[0, 0]}
                         end={[1, 1]}
                     >
-                        <View className="flex-row justify-between items-center mb-5">
-                            <View className="p-6">
+                        <View className="flex-row justify-between items-center">
+                            <View className="p-3">
                                 <View className=" gap-2 flex-row">
                                     <Text style={styles.label}>Main Balance</Text>
                                     <TouchableOpacity
@@ -98,7 +98,7 @@ const index = () => {
                                     )}
                                 </View>
                             </View>
-                            <View className="p-6">
+                            <View className="p-3">
                                 <Text style={[styles.label]}>Escrow Balance</Text>
                                 <View className="flex-row items-baseline gap-2 mt-2">
                                     <Text
@@ -121,22 +121,22 @@ const index = () => {
                             </View>
                         </View>
 
-                        <View style={styles.accountInfoContainer}>
+                        <View className="flex-row justify-between items-center self-center gap-3">
                             {profile?.profile?.bank_account_number && (
-                                <Text style={styles.accountInfo}>
-                                    Account Number: {profile?.profile?.bank_account_number}
+                                <Text className="text-white font-poppins-medium">
+                                    Account: {profile?.profile?.bank_account_number}
                                 </Text>
                             )}
                             {(profile?.profile?.bank_name ||
                                 profile?.profile?.business_name) && (
-                                    <Text style={styles.accountInfo}>
+                                    <Text className="text-white font-poppins">
                                         Name:{" "}
                                         {profile?.profile?.full_name ||
                                             profile?.profile.business_name}
                                     </Text>
                                 )}
                         </View>
-                        <View className="flex-row items-center gap-5">
+                        <View className="flex-row items-center gap-6 self-center">
                             <ActionBtn
                                 label="Withdraw"
                                 icon={<ArrowUpCircle color={"gray"} size={20} />}
@@ -179,12 +179,12 @@ function ActionBtn({
     icon: React.ReactNode;
 }) {
     return (
-        <View className="gap-y-1 items-center">
-            <TouchableOpacity className="rounded-full p-5 bg-white" onPress={onPress}>
-                {icon}
-            </TouchableOpacity>
-            <Text className="text-sm font-poppins-light text-primary">{label}</Text>
-        </View>
+
+        <TouchableOpacity className="rounded-full flex-row gap-2 p-3 bg-white mt-3" onPress={onPress}>
+            {icon}
+            <Text className="text-sm font-poppins-light text-gray-800">{label}</Text>
+        </TouchableOpacity>
+
     );
 }
 
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     },
     accountInfoContainer: {
         position: "absolute",
-        bottom: 25,
+        // bottom: 25,
         left: 20,
         right: 20,
     },
