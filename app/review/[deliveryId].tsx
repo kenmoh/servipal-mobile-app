@@ -2,6 +2,7 @@ import { createReview } from "@/api/review";
 import AppButton from "@/components/AppButton";
 import AppTextInput from "@/components/AppInput";
 import AppPicker from "@/components/AppPicker";
+import { useToast } from "@/components/ToastProvider";
 import { ReviewerType } from "@/types/review-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,7 +10,7 @@ import { useLocalSearchParams } from "expo-router";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, Text, TextInput, useColorScheme, View } from "react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
+
 import { z } from "zod";
 
 
@@ -37,7 +38,7 @@ const ReviewPage = () => {
     const { revieweeId, deliveryId, orderId, itemId, orderType } = useLocalSearchParams();
     const queryClient = useQueryClient();
     const theme = useColorScheme()
-    const COLOR = theme === 'dark' ? "rgba(30, 33, 39, 0.5)" : '#ddd'
+    const { showError, showSuccess } = useToast()
 
 
 
@@ -60,29 +61,19 @@ const ReviewPage = () => {
         },
     });
 
-    const REVIEW_TYPE = [
-        { id: 'order', name: "Order" },
-        { id: 'product', name: "Item" },
-    ];
+
 
     const { mutate, isPending } = useMutation({
         mutationFn: createReview,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["delivery", deliveryId] });
-            Notifier.showNotification({
-                title: "Success",
-                description: "Review submitted successfully",
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: "success" },
-            });
+
+            showError("Success", "Review submitted successfully")
+
         },
         onError: (error: Error) => {
-            Notifier.showNotification({
-                title: "Error",
-                description: error.message,
-                Component: NotifierComponents.Alert,
-                componentProps: { alertType: "error" },
-            });
+            showError("Error", error.message)
+
         },
     });
 

@@ -4,6 +4,7 @@ import AppButton from "@/components/AppButton";
 import AppTextInput from "@/components/AppInput";
 import AppPicker from "@/components/AppPicker";
 import CurrentLocationButton from "@/components/CurrentLocationButton";
+import { useToast } from "@/components/ToastProvider";
 import { useAuth } from "@/context/authContext";
 import authStorage from "@/storage/authStorage";
 import { useLocationStore } from "@/store/locationStore";
@@ -16,7 +17,7 @@ import { Clock } from "lucide-react-native";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ActivityIndicator, Platform, ScrollView, View } from "react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
+
 import { z } from "zod";
 
 const profileSchema = z.object({
@@ -42,6 +43,8 @@ const Profile = () => {
     const [showClosingHour, setShowClosingHour] = useState(false);
     const { setOrigin } = useLocationStore();
 
+    const { showError, showSuccess } = useToast()
+
     const { data } = useQuery({
         queryKey: ['banks'],
         queryFn: getBanks,
@@ -54,27 +57,14 @@ const Profile = () => {
             await authStorage.removeProfile();
             await authStorage.storeProfile(data);
             setProfile(data);
-            Notifier.showNotification({
-                title: "Success",
-                description: "Profile Updated.",
-                Component: NotifierComponents.Alert,
-                duration: 1000,
-                componentProps: {
-                    alertType: "success",
-                },
-            });
+            showSuccess("Success", "Profile Updated.")
+
             router.back();
             return;
         },
         onError: (error) => {
-            Notifier.showNotification({
-                title: "Error",
-                description: `${error.message}`,
-                Component: NotifierComponents.Alert,
-                componentProps: {
-                    alertType: "error",
-                },
-            });
+            showError("Error", error.message)
+
         },
     });
 

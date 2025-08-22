@@ -14,7 +14,8 @@ import LoadingIndicator from "@/components/LoadingIndicator";
 import { useAuth } from "@/context/authContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { Notifier, NotifierComponents } from "react-native-notifier";
+
+import { useToast } from "@/components/ToastProvider";
 import z from "zod";
 
 // Zod enum for ItemType
@@ -60,6 +61,7 @@ const AddProductScreen = () => {
     const { user } = useAuth()
     const isEditing = !!productId;
     const queryClient = useQueryClient();
+    const { showError, showSuccess } = useToast()
 
     const {
         control,
@@ -113,15 +115,8 @@ const AddProductScreen = () => {
 
     const createMutation = useMutation({
         mutationFn: createProduct,
-        onSuccess: () => {
-            Notifier.showNotification({
-                title: "Product Created",
-                description: "Product created successfully",
-                Component: NotifierComponents.Alert,
-                componentProps: {
-                    alertType: "success",
-                },
-            });
+        onSuccess: (data) => {
+            showSuccess("Success", `${data?.name} created successfully`)
             queryClient.invalidateQueries({ queryKey: ["products"] });
             queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
 
@@ -129,14 +124,7 @@ const AddProductScreen = () => {
         },
 
         onError: (error) => {
-            Notifier.showNotification({
-                title: "Error",
-                description: `${error.message}`,
-                Component: NotifierComponents.Alert,
-                componentProps: {
-                    alertType: "info",
-                },
-            });
+            showError("Error", error.message)
         },
     });
 

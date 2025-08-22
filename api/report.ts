@@ -4,14 +4,10 @@ import { ErrorResponse } from "./auth";
 import {
   ReportResponse,
   ReportCreate,
-  ReviewCreate,
-  VendorReviewResponse,
   ReportStatusUpdate,
-  ReviewCreateResponse,
   MessageCreate,
   BadgeCount,
 } from "@/types/review-types";
-import { Message } from "yup";
 
 const REPORT_BASE_URL = "/reports";
 

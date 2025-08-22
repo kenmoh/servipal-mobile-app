@@ -21,7 +21,6 @@ import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-get-random-values";
 import { KeyboardProvider } from "react-native-keyboard-controller";
-import { NotifierWrapper } from "react-native-notifier";
 import { OverlayProvider } from "stream-chat-expo";
 
 const queryClient = new QueryClient({
@@ -77,172 +76,172 @@ export default function RootLayout() {
               <NotificationProvider>
                 <NetworkProvider>
 
-                  <NetworkNotifier />
-                  <NotifierWrapper>
-                    <AuthProvider>
-                      <ToastProvider>
-                        <ProductModalProvider>
-                          <Stack
-                            screenOptions={{
+                  <ToastProvider>
+                    <NetworkNotifier />
 
-                              headerTintColor:
-                                colorScheme === "dark" ? "white" : "black",
+                    <AuthProvider>
+                      <ProductModalProvider>
+                        <Stack
+                          screenOptions={{
+
+                            headerTintColor:
+                              colorScheme === "dark" ? "white" : "black",
+                            headerShadowVisible: false,
+                            headerStyle: {
+                              backgroundColor: BG_COLOR,
+                            },
+                          }}
+
+                        >
+                          <Stack.Screen
+                            name="(app)"
+                            options={{ headerShown: false }}
+                          />
+                          <Stack.Screen
+                            name="index"
+                            options={{ headerShown: false }}
+                          />
+                          <Stack.Screen
+                            name="(auth)"
+                            options={{ headerShown: false }}
+                          />
+
+                          <Stack.Screen
+                            name="channel"
+                            options={{ headerShown: false }}
+                          />
+                          <Stack.Screen
+                            name="delivery-detail"
+                            options={{
+                              headerShown: false,
+                            }}
+                          />
+                          <Stack.Screen
+                            name="restaurant-detail"
+                            options={{
+                              headerShown: false,
+                            }}
+                          />
+
+                          <Stack.Screen
+                            name="laundry-detail"
+                            options={{
+                              headerShown: false,
+                            }}
+                          />
+                          <Stack.Screen
+                            name="payment"
+                            options={{
+                              headerShown: false,
+                            }}
+                          />
+                          <Stack.Screen
+                            name="receipt/[deliveryId]"
+                            options={{
+                              title: "Download Receipt",
                               headerShadowVisible: false,
+
+
+                            }}
+                          />
+
+                          <Stack.Screen
+                            name="orderReceipt/[orderId]"
+                            options={{
+                              title: "Download Receipt",
+                              // headerStyle: {
+                              //   backgroundColor: BG_COLOR,
+                              // },
+                            }}
+                          />
+                          <Stack.Screen
+                            name="notification-detail/[notificationId]"
+                            options={{
+                              title: "Notification Details",
+                              // headerStyle: {
+                              //   backgroundColor: BG_COLOR,
+                              // },
+                            }}
+                          />
+                          <Stack.Screen
+                            name="report/[deliveryId]"
+                            options={{
+                              title: "Report an Issue",
+
                               headerStyle: {
                                 backgroundColor: BG_COLOR,
+
                               },
                             }}
+                          />
+                          <Stack.Screen
+                            name="review/[deliveryId]"
+                            options={{
+                              title: "Leave a Review",
+                              // headerStyle: {
+                              //   backgroundColor: BG_COLOR,
+                              // },
+                            }}
+                          />
+                          <Stack.Screen
+                            name="cart/index"
+                            options={{
+                              title: "Cart",
+                              headerShadowVisible: false,
+                              // headerStyle: {
+                              //   backgroundColor: BG_COLOR,
+                              // },
+                              headerRight: () => (
+                                <AddItemBtn
+                                  icon={<Trash size={18} color={"white"} />}
+                                  label="Clear Cart"
+                                  onPress={handleClearCart}
+                                />
+                              ),
+                            }}
+                          />
+                          <Stack.Screen
+                            name="chat/index"
+                            options={{
+                              title: "Messages",
+                              headerShadowVisible: false,
 
-                          >
-                            <Stack.Screen
-                              name="(app)"
-                              options={{ headerShown: false }}
-                            />
-                            <Stack.Screen
-                              name="index"
-                              options={{ headerShown: false }}
-                            />
-                            <Stack.Screen
-                              name="(auth)"
-                              options={{ headerShown: false }}
-                            />
+                            }}
+                          />
 
-                            <Stack.Screen
-                              name="channel"
-                              options={{ headerShown: false }}
-                            />
-                            <Stack.Screen
-                              name="delivery-detail"
-                              options={{
-                                headerShown: false,
-                              }}
-                            />
-                            <Stack.Screen
-                              name="restaurant-detail"
-                              options={{
-                                headerShown: false,
-                              }}
-                            />
+                          <Stack.Screen
+                            name="product-detail"
+                            options={{
+                              headerTransparent: true,
+                              headerShown: false,
+                              headerStyle: {
+                                backgroundColor: 'transparent',
+                              },
 
-                            <Stack.Screen
-                              name="laundry-detail"
-                              options={{
-                                headerShown: false,
-                              }}
-                            />
-                            <Stack.Screen
-                              name="payment"
-                              options={{
-                                headerShown: false,
-                              }}
-                            />
-                            <Stack.Screen
-                              name="receipt/[deliveryId]"
-                              options={{
-                                title: "Download Receipt",
-                                headerShadowVisible: false,
+                              title: "",
+                              animation: "slide_from_bottom",
 
 
-                              }}
-                            />
+                            }}
+                          />
 
-                            <Stack.Screen
-                              name="orderReceipt/[orderId]"
-                              options={{
-                                title: "Download Receipt",
-                                // headerStyle: {
-                                //   backgroundColor: BG_COLOR,
-                                // },
-                              }}
-                            />
-                            <Stack.Screen
-                              name="notification-detail/[notificationId]"
-                              options={{
-                                title: "Notification Details",
-                                // headerStyle: {
-                                //   backgroundColor: BG_COLOR,
-                                // },
-                              }}
-                            />
-                            <Stack.Screen
-                              name="report/[deliveryId]"
-                              options={{
-                                title: "Report an Issue",
-
-                                headerStyle: {
-                                  backgroundColor: BG_COLOR,
-
-                                },
-                              }}
-                            />
-                            <Stack.Screen
-                              name="review/[deliveryId]"
-                              options={{
-                                title: "Leave a Review",
-                                // headerStyle: {
-                                //   backgroundColor: BG_COLOR,
-                                // },
-                              }}
-                            />
-                            <Stack.Screen
-                              name="cart/index"
-                              options={{
-                                title: "Cart",
-                                headerShadowVisible: false,
-                                // headerStyle: {
-                                //   backgroundColor: BG_COLOR,
-                                // },
-                                headerRight: () => (
-                                  <AddItemBtn
-                                    icon={<Trash size={18} color={"white"} />}
-                                    label="Clear Cart"
-                                    onPress={handleClearCart}
-                                  />
-                                ),
-                              }}
-                            />
-                            <Stack.Screen
-                              name="chat/index"
-                              options={{
-                                title: "Messages",
-                                headerShadowVisible: false,
-
-                              }}
-                            />
-
-                            <Stack.Screen
-                              name="product-detail"
-                              options={{
-                                headerTransparent: true,
-                                headerShown: false,
-                                headerStyle: {
-                                  backgroundColor: 'transparent',
-                                },
-
-                                title: "",
-                                animation: "slide_from_bottom",
-
-
-                              }}
-                            />
-
-                            <Stack.Screen
-                              name="user-details"
-                              options={{
-                                presentation: "transparentModal",
-                                animation: "slide_from_bottom",
-                                headerShown: false,
-                                contentStyle: {
-                                  backgroundColor: "rgba(0,0,0,0.7)",
-                                },
-                              }}
-                            />
-                          </Stack>
-                          <ProductDetailModal />
-                        </ProductModalProvider>
-                      </ToastProvider>
+                          <Stack.Screen
+                            name="user-details"
+                            options={{
+                              presentation: "transparentModal",
+                              animation: "slide_from_bottom",
+                              headerShown: false,
+                              contentStyle: {
+                                backgroundColor: "rgba(0,0,0,0.7)",
+                              },
+                            }}
+                          />
+                        </Stack>
+                        <ProductDetailModal />
+                      </ProductModalProvider>
                     </AuthProvider>
-                  </NotifierWrapper>
+
+                  </ToastProvider>
                 </NetworkProvider>
               </NotificationProvider>
             </OverlayProvider>

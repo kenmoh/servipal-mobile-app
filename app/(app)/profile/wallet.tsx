@@ -1,7 +1,7 @@
 import { withDrawFunds } from "@/api/payment";
 import { getCurrentUserWallet } from "@/api/user";
 import BalanceShimmer from "@/components/BalanceShimmer";
-import AppVariantButton from "@/components/core/AppVariantButton";
+import { useToast } from "@/components/ToastProvider";
 import Transactioncard from "@/components/Transactioncard";
 import { useAuth } from "@/context/authContext";
 import { Transaction } from "@/types/user-types";
@@ -9,16 +9,27 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
-import { Eye, EyeOff } from "lucide-react-native";
+import {
+    ArrowDownCircle,
+    ArrowUpCircle,
+    Eye,
+    EyeOff,
+} from "lucide-react-native";
 import { useCallback, useState } from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
-import Animated, { FadeInUp } from "react-native-reanimated";
+import {
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
+import Animated, { FadeInUp } from "react-native-reanimated";
 
 const index = () => {
     const { user, profile } = useAuth();
     const [isBalanceHidden, setIsBalanceHidden] = useState(false);
+    const { showError, showSuccess } = useToast();
 
     const { data, isFetching, refetch } = useQuery({
         queryKey: ["wallet", user?.sub],
@@ -28,52 +39,40 @@ const index = () => {
     const { data: withdrawData, mutate: withdrawMutation } = useMutation({
         mutationFn: withDrawFunds,
         onSuccess: () => {
-            Notifier.showNotification({
-                title: "Success",
-                description:
-                    "Withdrawal request processing. We will notify you once it is completed.",
-                Component: NotifierComponents.Alert,
-                componentProps: {
-                    alertType: "success",
-                },
-            });
+            showSuccess(
+                "Success",
+                "Withdrawal request processing. We will notify you once it is completed."
+            );
 
             refetch();
         },
         onError: (error) => {
-            Notifier.showNotification({
-                title: "Error",
-                description: error.message,
-                Component: NotifierComponents.Alert,
-                componentProps: {
-                    alertType: "error",
-                },
-            });
+            showError("Error", error.message);
         },
-    })
+    });
 
-    useFocusEffect(useCallback(() => {
-        refetch();
-    }, [refetch]))
+    useFocusEffect(
+        useCallback(() => {
+            refetch();
+        }, [refetch])
+    );
 
     return (
-        <View className="flex-1 bg-background " >
-            <Animated.View className='mt-5' entering={FadeInUp.duration(300).delay(300)}>
-                <View
-                    className="w-[90%] self-center rounded-[15px] overflow-hidden"
-                >
+        <View className="flex-1 bg-background ">
+            <Animated.View
+                className="mt-5"
+                entering={FadeInUp.duration(300).delay(300)}
+            >
+                <View className="w-[90%] self-center rounded-[15px] overflow-hidden">
                     <LinearGradient
                         colors={["#ff9966", "#ff5e62", "#ff7955", "#ffb347"]}
                         style={[styles.background]}
                         start={[0, 0]}
                         end={[1, 1]}
                     >
-
-                        <View className="flex-row justify-between items-center mb-5"
-
-                        >
+                        <View className="flex-row justify-between items-center mb-5">
                             <View className="p-6">
-                                <View className=" gap-2 flex-row" >
+                                <View className=" gap-2 flex-row">
                                     <Text style={styles.label}>Main Balance</Text>
                                     <TouchableOpacity
                                         hitSlop={35}
@@ -86,7 +85,7 @@ const index = () => {
                                         )}
                                     </TouchableOpacity>
                                 </View>
-                                <View className="flex-row items-baseline gap-2 mt-2" >
+                                <View className="flex-row items-baseline gap-2 mt-2">
                                     <Text style={styles.currency}>₦</Text>
                                     {isFetching ? (
                                         <BalanceShimmer width={80} height={24} borderRadius={8} />
@@ -101,7 +100,7 @@ const index = () => {
                             </View>
                             <View className="p-6">
                                 <Text style={[styles.label]}>Escrow Balance</Text>
-                                <View className="flex-row items-baseline gap-2 mt-2" >
+                                <View className="flex-row items-baseline gap-2 mt-2">
                                     <Text
                                         style={[styles.currency, { fontFamily: "Poppins-Thin" }]}
                                     >
@@ -137,24 +136,25 @@ const index = () => {
                                     </Text>
                                 )}
                         </View>
-
+                        <View className="flex-row items-center gap-5">
+                            <ActionBtn
+                                label="Withdraw"
+                                icon={<ArrowUpCircle color={"gray"} size={20} />}
+                                onPress={() => withdrawMutation()}
+                            />
+                            <ActionBtn
+                                label="Deposit"
+                                icon={<ArrowDownCircle color={"gray"} size={20} />}
+                                onPress={() =>
+                                    router.push({ pathname: "/profile/fund-wallet" })
+                                }
+                            />
+                        </View>
                     </LinearGradient>
                 </View>
             </Animated.View>
-            <Animated.View className='flex-row w-[90%] self-center my-2 justify-between gap-3 items-center ' entering={FadeInUp.duration(500).delay(400)}>
 
-                <AppVariantButton
-                    height={45}
-                    width={"45%"}
-                    onPress={() => withdrawMutation()}
-                    label="Withdraw"
-                />
-                <AppVariantButton label="Fund Wallet" width={'50%'} outline filled={false} onPress={() => router.push({ pathname: "/profile/fund-wallet" })} />
-
-
-            </Animated.View>
-
-            <View className="w-[90%] self-center gap-[4%] my-4" >
+            <View className="w-[90%] self-center gap-[4%] my-4">
                 <Text className="text-primary text-lg">Transactions</Text>
             </View>
 
@@ -168,6 +168,25 @@ const index = () => {
         </View>
     );
 };
+
+function ActionBtn({
+    icon,
+    label,
+    onPress,
+}: {
+    label: string;
+    onPress: () => void;
+    icon: React.ReactNode;
+}) {
+    return (
+        <View className="gap-y-1 items-center">
+            <TouchableOpacity className="rounded-full p-5 bg-white" onPress={onPress}>
+                {icon}
+            </TouchableOpacity>
+            <Text className="text-sm font-poppins-light text-primary">{label}</Text>
+        </View>
+    );
+}
 
 export default index;
 
@@ -204,7 +223,7 @@ const styles = StyleSheet.create({
     },
     accountInfoContainer: {
         position: "absolute",
-        bottom: 10,
+        bottom: 25,
         left: 20,
         right: 20,
     },

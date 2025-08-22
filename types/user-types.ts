@@ -159,22 +159,3 @@ export interface RiderUpdate {
   phoneNumber: string;
   bikeNumber: string;
 }
-
-// Salads
-// Soups
-// Pasta & Noodles
-// Pizza
-// Burgers & Sandwiches
-// Seafood
-// Steaks & Grilled Items
-// Others
-// Breads & Bakery
-// Sides
-// Low-Carb
-// Gluten-Free
-// Healthy Options
-// Vegetarian;
-// Vegan;
-// Chef's Specials
-// Seasonal Items
-// Combo Meals

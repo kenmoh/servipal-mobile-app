@@ -3,7 +3,7 @@ import { ActivityIndicator, DimensionValue, StyleSheet, Text, TextStyle, Touchab
 
 interface AppButtonProps {
     label: string;
-    onPress: () => void;
+    onPress?: () => void;
     backgroundColor?: string;
     filled?: boolean;
     outline?: boolean;

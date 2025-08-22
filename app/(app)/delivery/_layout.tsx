@@ -117,7 +117,7 @@ const DeliveryLayout = () => {
           headerLeft: () => <HeaderLeft />,
           headerRight: () => (
             <HeaderRight
-              onPressNotification={() => router.push({ pathname: "/chat" })}
+              onPressNotification={() => router.push({ pathname: "/(app)/delivery/notification" })}
             />
           ),
           animation: "ios_from_left",

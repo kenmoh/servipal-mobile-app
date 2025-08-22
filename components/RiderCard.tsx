@@ -7,14 +7,16 @@ import { RiderResponse } from "@/types/user-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { Edit, Trash2 } from "lucide-react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
+
 import HDivider from "./HDivider";
+import { useToast } from "./ToastProvider";
 
 
 const RiderCard = ({ rider }: { rider: RiderResponse }) => {
 
     const { user } = useAuth()
     const queryClient = useQueryClient();
+    const { showError, showSuccess } = useToast()
 
     const { mutate: deleteRiderMutation, isPending } = useMutation({
         mutationFn: () => deleteRider(rider?.id),
@@ -31,26 +33,12 @@ const RiderCard = ({ rider }: { rider: RiderResponse }) => {
                 exact: true
             });
 
-            Notifier.showNotification({
-                title: "Rider deleted",
-                description: "Rider deleted successfully.",
-                Component: NotifierComponents.Alert,
-                duration: 2000,
-                componentProps: {
-                    alertType: "success",
-                },
-            });
+            showSuccess("Rider deleted", "Rider deleted successfully.")
+
         },
         onError: (error) => {
-            Notifier.showNotification({
-                title: "Error deleting rider",
-                description: `${error.message}`,
-                Component: NotifierComponents.Alert,
-                duration: 2000,
-                componentProps: {
-                    alertType: "error",
-                },
-            });
+            showError("Error deleting rider", error.message)
+
         }
     });
 

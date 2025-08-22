@@ -2,6 +2,7 @@ import { registerRiderApi } from "@/api/auth";
 import { updateRider } from "@/api/user";
 import AppButton from "@/components/AppButton";
 import AppTextInput from "@/components/AppInput";
+import { useToast } from "@/components/ToastProvider";
 import { useAuth } from '@/context/authContext';
 import { RiderResponse } from "@/types/user-types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +11,6 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ActivityIndicator, ScrollView, StyleSheet } from "react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
 import { z } from "zod";
 
 const createSchema = z
@@ -43,6 +43,7 @@ const AddRider = () => {
     const { user } = useAuth()
     const { riderParams, isEditing } = useLocalSearchParams();
     const rider = riderParams ? JSON.parse(riderParams as string) as RiderResponse : null;
+    const { showError, showSuccess } = useToast()
 
     const queryClient = useQueryClient()
 
@@ -66,29 +67,16 @@ const AddRider = () => {
 
     const handleSuccess = () => {
         queryClient.invalidateQueries({ queryKey: ['riders', user?.sub] });
-        Notifier.showNotification({
-            title: isEditing ? "Rider Updated" : "Rider Added(Pending Confirmation)",
-            description: isEditing
-                ? "Rider updated successfully."
-                : "Rider added successfully.",
-            Component: NotifierComponents.Alert,
-            duration: 2000,
-            componentProps: {
-                alertType: "success",
-            },
-        });
+        showSuccess(isEditing ? "Rider Updated" : "Rider Added(Pending Confirmation)", isEditing
+            ? "Rider updated successfully."
+            : "Rider added successfully.")
+
         router.push("/profile/riders");
     };
 
     const handleError = (error: Error) => {
-        Notifier.showNotification({
-            title: "Error",
-            description: error.message,
-            Component: NotifierComponents.Alert,
-            componentProps: {
-                alertType: "error",
-            },
-        });
+        showError("Error", error.message)
+
     };
 
     const createMutation = useMutation({

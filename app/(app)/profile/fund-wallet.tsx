@@ -1,6 +1,7 @@
 import { fundWallet } from "@/api/payment";
 import AppButton from "@/components/AppButton";
 import AppTextInput from "@/components/AppInput";
+import { useToast } from "@/components/ToastProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
@@ -8,7 +9,6 @@ import { CreditCard } from "lucide-react-native";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ActivityIndicator, Text, View } from "react-native";
-import { Notifier, NotifierComponents } from "react-native-notifier";
 import { z } from "zod";
 
 const fundWalletSchema = z.object({
@@ -24,7 +24,7 @@ const fundWalletSchema = z.object({
 type FundWalletForm = z.infer<typeof fundWalletSchema>;
 
 const FundWallet = () => {
-    // Use theme colors from NativeWind if needed
+    const { showError } = useToast()
     const {
         control,
         handleSubmit,
@@ -54,14 +54,7 @@ const FundWallet = () => {
             });
         },
         onError: (error) => {
-            Notifier.showNotification({
-                title: "Error",
-                description: error.message,
-                Component: NotifierComponents.Alert,
-                componentProps: {
-                    alertType: "error",
-                },
-            });
+            showError("Error", error.message)
         },
     });
 
