@@ -421,13 +421,13 @@ const ItemDetails = () => {
           </View>
           <View className="justify-center w-full items-center gap-3 self-center mt-4">
             {actionButton && (
-              <AppButton
+              <AppVariantButton
                 borderRadius={50}
-                title={actionButton.label}
+                label={data?.delivery?.delivery_status === 'received' || data?.order?.order_status === 'received' ? 'Order Completed' : actionButton.label}
                 backgroundColor={
                   data?.delivery?.delivery_status === "received"
-                    ? "bg-text-input"
-                    : "bg-button-primary"
+                    ? "rgba(0,0,0, 0.5)"
+                    : "orange"
                 }
                 icon={
                   actionButton.loading && <ActivityIndicator color="#eee" />
@@ -483,23 +483,22 @@ const ItemDetails = () => {
               )}
 
             {
-              (data?.order?.owner_id === user?.sub ||
-                data?.order?.user_id === user?.sub ||
-                data?.order?.vendor_id === user?.sub) && (
-                <AppVariantButton
-                  label="Receipt"
-                  borderRadius={50}
-                  filled={false}
-                  outline={true}
-                  width={'32%'}
-                  onPress={() => {
-                    router.push({
-                      pathname: "/receipt/[deliveryId]",
-                      params: { deliveryId: id as string },
-                    });
-                  }}
-                />
-              )}
+
+              <AppVariantButton
+                label="Receipt"
+                borderRadius={50}
+                disabled={data?.delivery?.rider_id || data?.delivery?.dispatch_id ? true : false}
+                filled={false}
+                outline={true}
+                width={'32%'}
+                onPress={() => {
+                  router.push({
+                    pathname: "/receipt/[deliveryId]",
+                    params: { deliveryId: id as string },
+                  });
+                }}
+              />
+            }
           </View>
         </View>
       </DeliveryWrapper>
