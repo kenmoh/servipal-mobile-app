@@ -288,12 +288,15 @@ const ItemDetails = () => {
   }
 
   const showReview = () => {
-    if (data?.order?.order_type === 'package') showError('Not Allowed', 'Review for package delivery not allowed!')
-
-    router.push({
-      pathname: "/review/[deliveryId]",
-      params: { deliveryId: data?.order?.id as string },
-    });
+    if (data?.order?.order_type === 'package') {
+      showError('Not Allowed', 'Review for package delivery not allowed!');
+      return;
+    } else {
+      router.push({
+        pathname: "/review/[deliveryId]",
+        params: { deliveryId: data?.order?.id as string },
+      });
+    }
   }
 
   return (
@@ -305,7 +308,7 @@ const ItemDetails = () => {
           data?.delivery?.delivery_status !== "received" && (
 
             <View className="self-center w-full justify-center items-center">
-              <AppVariantButton icon={<User color={'white'} />} width={"85%"} borderRadius={50} filled={false} outline={true} label="Contact Rider" onPress={() =>
+              <AppVariantButton icon={<User color={'orange'} />} width={"85%"} borderRadius={50} filled={false} outline={true} label="Contact Rider" onPress={() =>
                 router.push({
                   pathname: "/user-details/[userId]",
                   params: {
@@ -444,7 +447,7 @@ const ItemDetails = () => {
           </View>
 
           {/* Additional Action Buttons */}
-          <View className="flex-row w-[90%] self-center justify-between mt-4 gap-2">
+          <View className="flex-row w-[90%] self-center justify-between mt-4 mb-8 gap-2">
             {/* Review Button - Hide for package deliveries */}
             {
               (data?.order?.order_status === "received" ||
@@ -488,7 +491,7 @@ const ItemDetails = () => {
                   borderRadius={50}
                   filled={false}
                   outline={true}
-                  width={32}
+                  width={'32%'}
                   onPress={() => {
                     router.push({
                       pathname: "/receipt/[deliveryId]",

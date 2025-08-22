@@ -1,7 +1,6 @@
 import { withDrawFunds } from "@/api/payment";
 import { getCurrentUserWallet } from "@/api/user";
 import BalanceShimmer from "@/components/BalanceShimmer";
-import AppVariantButton from "@/components/core/AppVariantButton";
 import { useToast } from "@/components/ToastProvider";
 import Transactioncard from "@/components/Transactioncard";
 import { useAuth } from "@/context/authContext";
@@ -10,7 +9,7 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
-import { Eye, EyeOff } from "lucide-react-native";
+import { ArrowDownCircle, ArrowUpCircle, Eye, EyeOff } from "lucide-react-native";
 import { useCallback, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -125,11 +124,15 @@ const index = () => {
                                     </Text>
                                 )}
                         </View>
+                        <View className="flex-row items-center gap-5">
+                            <ActionBtn label="Withdraw" icon={<ArrowUpCircle color={'gray'} size={20} />} onPress={() => withdrawMutation()} />
+                            <ActionBtn label="Deposit" icon={<ArrowDownCircle color={'gray'} size={20} />} onPress={() => router.push({ pathname: "/profile/fund-wallet" })} />
+                        </View>
 
                     </LinearGradient>
                 </View>
             </Animated.View>
-            <Animated.View className='flex-row w-[90%] self-center my-2 justify-between gap-3 items-center ' entering={FadeInUp.duration(500).delay(400)}>
+            {/* <Animated.View className='flex-row w-[90%] self-center my-2 justify-between gap-3 items-center ' entering={FadeInUp.duration(500).delay(400)}>
 
                 <AppVariantButton
                     height={45}
@@ -140,7 +143,7 @@ const index = () => {
                 <AppVariantButton label="Fund Wallet" width={'50%'} outline filled={false} onPress={() => router.push({ pathname: "/profile/fund-wallet" })} />
 
 
-            </Animated.View>
+            </Animated.View> */}
 
             <View className="w-[90%] self-center gap-[4%] my-4" >
                 <Text className="text-primary text-lg">Transactions</Text>
@@ -155,7 +158,20 @@ const index = () => {
             />
         </View>
     );
+
+
 };
+
+function ActionBtn({ icon, label, onPress }: { label: string, onPress: () => void, icon: React.ReactNode }) {
+    return (<View className="gap-y-1 items-center">
+        <TouchableOpacity className="rounded-full p-5 bg-white" onPress={onPress}>
+            {icon}
+        </TouchableOpacity>
+        <Text className="text-sm font-poppins-light text-primary">{label}</Text>
+    </View>
+    )
+
+}
 
 export default index;
 
@@ -192,7 +208,7 @@ const styles = StyleSheet.create({
     },
     accountInfoContainer: {
         position: "absolute",
-        bottom: 10,
+        bottom: 25,
         left: 20,
         right: 20,
     },
