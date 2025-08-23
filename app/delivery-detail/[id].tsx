@@ -72,7 +72,7 @@ const ItemDetails = () => {
       });
 
       refetch();
-      router.back();
+      router.push('/(app)/delivery/(topTabs)/orders');
 
       showSuccess("Success", "Delivery confirmed and received.")
 
@@ -100,7 +100,7 @@ const ItemDetails = () => {
         exact: false,
       });
       refetch();
-      router.back();
+      router.push('/(app)/delivery/(topTabs)/orders');
 
       queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
       queryClient.refetchQueries({
@@ -139,7 +139,7 @@ const ItemDetails = () => {
       });
 
       refetch();
-      router.back();
+      router.push('/(app)/delivery/(topTabs)/orders');
 
       showSuccess("Success", "This order has been assigned to you. Drive carefully!")
 
@@ -172,7 +172,7 @@ const ItemDetails = () => {
       });
 
       refetch();
-      router.back();
+      router.push('/(app)/delivery/(topTabs)/orders');
       showSuccess("Success", "Item delivered.")
     },
     onError: (error: Error) => {
@@ -204,7 +204,7 @@ const ItemDetails = () => {
       });
 
       refetch();
-      router.back();
+      router.push('/(app)/delivery/(topTabs)/orders');
 
       showSuccess("Success", "Delivery cancelled!")
     },
