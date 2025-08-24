@@ -10,6 +10,7 @@ import {
 import {
   fetchOrder,
   markLaundryReceived,
+  relistDelivery,
   riderAcceptDelivery,
   riderMarkDelivered,
   senderConfirmDeliveryReceived
@@ -180,38 +181,38 @@ const ItemDetails = () => {
     },
   });
 
-  // const cancelDeliveryMutation = useMutation({
-  //   mutationFn: () => cancelDelivery(id as string),
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["order", id],
-  //       exact: false,
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["orders"],
-  //       exact: false,
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["orders", user?.sub],
-  //       exact: false,
-  //     });
+  const cancelDeliveryMutation = useMutation({
+    mutationFn: () => relistDelivery(data?.delivery?.id as string),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["order", id],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["orders"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["orders", user?.sub],
+        exact: false,
+      });
 
-  //     queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-  //     queryClient.refetchQueries({
-  //       queryKey: ["orders", user?.sub],
-  //       exact: false,
-  //     });
+      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
+      queryClient.refetchQueries({
+        queryKey: ["orders", user?.sub],
+        exact: false,
+      });
 
-  //     refetch();
-  //     router.push('/(app)/delivery/(topTabs)/orders');
+      refetch();
+      router.push('/(app)/delivery/(topTabs)/orders');
 
-  //     showSuccess("Success", "Delivery cancelled!")
-  //   },
-  //   onError: (error: Error) => {
-  //     showError("Error", error.message)
+      showSuccess("Success", "Delivery cancelled!")
+    },
+    onError: (error: Error) => {
+      showError("Error", error.message)
 
-  //   },
-  // });
+    },
+  });
 
   const getActionButton = () => {
     if (!data || !user) return null;
@@ -302,12 +303,12 @@ const ItemDetails = () => {
     <>
       <DeliveryWrapper>
         {user?.sub === data?.delivery?.sender_id &&
-          data?.delivery?.sender_id &&
+          data?.delivery?.rider_id &&
           data?.delivery?.delivery_status !== "pending" &&
           data?.delivery?.delivery_status !== "received" && (
 
             <View className="self-center w-full justify-center items-center">
-              <AppVariantButton icon={<User color={'orange'} />} width={"85%"} borderRadius={50} filled={false} outline={true} label="Contact Rider" onPress={() =>
+              <AppVariantButton icon={<User color={'orange'} />} width={"85%"} borderRadius={50} filled={false} outline={true} label="Contact Ridery" onPress={() =>
                 router.push({
                   pathname: "/user-details/[userId]",
                   params: {
@@ -361,11 +362,25 @@ const ItemDetails = () => {
                   })}
                   className="self-start"
                 >
-                  <Text className="text-red-500 self-start bg-red-500/30 rounded-full px-5 py-2 font-semibold text-xs mb-5">
+                  <Text className="text-red-500 self-start bg-red-500/30 rounded-full px-5 py-2 font-poppins-semibold text-sm mb-5">
                     Cancel
                   </Text>
                 </TouchableOpacity>
               )}
+             {/* {data?.delivery?.delivery_status === "canceled" && (
+                <TouchableOpacity
+                  // onPress={() => cancelDeliveryMutation.mutate()}
+                  onPress={() => router.push({
+                    pathname: '/cancel-order/[orderId]',
+                    params: { orderId: data?.order?.id as string }
+                  })}
+                  className="self-start"
+                >
+                  <Text className="text-teal-500 self-start bg-teal-500/30 rounded-full px-5 py-2 font-poppins-semibold text-sm mb-5">
+                    Relist
+                  </Text>
+                </TouchableOpacity>
+              )}*/}
               <Status status={data?.delivery?.delivery_status} />
             </View>
             <View className="flex-row justify-between">

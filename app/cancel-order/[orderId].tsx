@@ -87,6 +87,7 @@ const ReviewPage = () => {
     });
 
     const onSubmit = (data: CancelFormData) => {
+        console.log(data)
         mutate(data);
 
     };
@@ -96,19 +97,23 @@ const ReviewPage = () => {
             <View className="w-full">
 
                 <View className="gap-1 self-center items-center w-[90%]">
-                    <Text className='self-start text-primary font-poppins'>Cancel</Text>
+                    <Text className='self-start text-primary font-poppins'></Text>
                     <Controller
                         control={control}
                         name="cancelReason"
                         render={({ field: { onChange, value } }) => (
                             <TextInput
-                                placeholder="Please reason for cancelling this order..."
+                                className="bg-input p-3 font-poppins text-base w-full h-20 focus:border mb-10 focus:border-orange-400"
+                                placeholder="Reason for cancelling this order..."
                                 value={value}
                                 onChangeText={onChange}
+
+                                placeholderTextColor={'#aaa'}
+                                textAlignVertical="top"
                                 numberOfLines={8}
                                 multiline={true}
                                 style={{
-                                    backgroundColor: COLOR,
+                                    // backgroundColor: COLOR,
                                     borderRadius: 8,
                                     color: TEXT,
 
