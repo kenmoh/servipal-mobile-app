@@ -127,13 +127,12 @@ const NotificationScreen = () => {
                         }}
                     >
                         <View
-                            className={`mb-3 p-3 bg-${item.is_read ? "$cardDark" : "rgba(255, 255, 255, 0.7)"
-                                }`}
+                            className="bg-profile-card"
+
                         >
                             <View className="flex-row justify-between items-center">
                                 <Text
-                                    className={`font-semibold text-[16px] text-${item.is_read ? "primaryt" : "white"
-                                        }`}
+                                    className="text-muted font-poppins-medium text-sm"
                                 >
                                     {item.report_type || "Report"}
                                 </Text>
@@ -159,8 +158,6 @@ const NotificationScreen = () => {
                             >
                                 {new Date(item.created_at).toLocaleString()}
                             </Text>
-                            {/* Uncomment below for admin delete */}
-                            {/* <Button size="$1" onPress={() => handleDelete(item.id)} marginTop="$2" backgroundColor="$red10">Delete</Button> */}
                         </View>
                     </TouchableOpacity>
                 )}

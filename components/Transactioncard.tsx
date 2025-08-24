@@ -1,14 +1,14 @@
 import { Transaction } from '@/types/user-types'
 import { router } from 'expo-router'
-import { ArrowDown, ArrowUp } from 'lucide-react-native'
+import { ArrowDown, ArrowUp, ArrowRight } from 'lucide-react-native'
 import React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
 const Transactioncard = ({ data }: { data: Transaction }) => {
 
     // Determine circle and icon color
-    let circleBg = data?.transaction_direction === 'credit' ? 'rgba(4, 255, 130, 0.1)' : 'rgba(255, 0, 0, 0.2)';
-    let iconColor = data?.transaction_direction === 'credit' ? 'green' : 'red';
+    let circleBg = data?.transaction_direction === 'credit' ? 'rgba(4, 255, 130, 0.1)' : data?.transaction_direction === 'debit' ? 'rgba(255, 0, 0, 0.2)' : 'rgba(0, 0, 255, 0.2)';
+    let iconColor = data?.transaction_direction === 'credit' ? 'green' :  data?.transaction_direction === 'debit' ? 'red' :'blue';
     if (data?.payment_status === 'pending' && data?.transaction_direction === 'credit') {
         circleBg = 'rgba(255, 193, 7, 0.2)';
         iconColor = '#FFC107';
@@ -38,7 +38,7 @@ const Transactioncard = ({ data }: { data: Transaction }) => {
                     <View style={{ backgroundColor: circleBg }} className="w-6 h-6 rounded-full items-center justify-center">
                         {data?.transaction_direction === 'credit'
                             ? <ArrowDown color={iconColor} size={14} />
-                            : <ArrowUp color={iconColor} size={12} />}
+                            : data?.transaction_direction === 'debit' ? <ArrowUp color={iconColor} size={12} />:<ArrowRight color={iconColor} size={12} />}
                     </View>
                     <View>
                         <Text className="capitalize text-xs font-normal text-primary">{data?.from_user}</Text>

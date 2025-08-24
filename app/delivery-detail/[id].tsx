@@ -8,12 +8,11 @@ import {
 } from "react-native";
 
 import {
-  cancelDelivery,
   fetchOrder,
   markLaundryReceived,
   riderAcceptDelivery,
   riderMarkDelivered,
-  senderConfirmDeliveryReceived,
+  senderConfirmDeliveryReceived
 } from "@/api/order";
 import AppButton from "@/components/AppButton";
 import AppVariantButton from "@/components/core/AppVariantButton";
@@ -181,38 +180,38 @@ const ItemDetails = () => {
     },
   });
 
-  const cancelDeliveryMutation = useMutation({
-    mutationFn: () => cancelDelivery(id as string),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["order", id],
-        exact: false,
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["orders"],
-        exact: false,
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
-      });
+  // const cancelDeliveryMutation = useMutation({
+  //   mutationFn: () => cancelDelivery(id as string),
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["order", id],
+  //       exact: false,
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["orders"],
+  //       exact: false,
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["orders", user?.sub],
+  //       exact: false,
+  //     });
 
-      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-      queryClient.refetchQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
-      });
+  //     queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
+  //     queryClient.refetchQueries({
+  //       queryKey: ["orders", user?.sub],
+  //       exact: false,
+  //     });
 
-      refetch();
-      router.push('/(app)/delivery/(topTabs)/orders');
+  //     refetch();
+  //     router.push('/(app)/delivery/(topTabs)/orders');
 
-      showSuccess("Success", "Delivery cancelled!")
-    },
-    onError: (error: Error) => {
-      showError("Error", error.message)
+  //     showSuccess("Success", "Delivery cancelled!")
+  //   },
+  //   onError: (error: Error) => {
+  //     showError("Error", error.message)
 
-    },
-  });
+  //   },
+  // });
 
   const getActionButton = () => {
     if (!data || !user) return null;
@@ -355,7 +354,11 @@ const ItemDetails = () => {
 
               {showCancel && (
                 <TouchableOpacity
-                  onPress={() => cancelDeliveryMutation.mutate()}
+                  // onPress={() => cancelDeliveryMutation.mutate()}
+                  onPress={() => router.push({
+                    pathname: '/cancel-order/[orderId]',
+                    params: { orderId: data?.order?.id }
+                  })}
                   className="self-start"
                 >
                   <Text className="text-red-500 self-start bg-red-500/30 rounded-full px-5 py-2 font-semibold text-xs mb-5">

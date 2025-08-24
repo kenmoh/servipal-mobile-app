@@ -218,8 +218,6 @@ export const createOrder = async (
     additional_info: orderData.additional_info,
   };
 
-  console.log(data, "FROM SERVER");
-
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.post(`${BASE_URL}/${vendorId}`, data, {
@@ -277,11 +275,14 @@ export const senderConfirmDeliveryReceived = async (
 ): Promise<DeliveryDetail> => {
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
-      await apiClient.put(`${BASE_URL}/${deliveryId}/sender-confirm-delivery-or-order-received`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      await apiClient.put(
+        `${BASE_URL}/${deliveryId}/sender-confirm-delivery-or-order-received`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
     if (!response.ok || !response.data || "detail" in response.data) {
       const errorMessage =
@@ -395,15 +396,22 @@ export const riderMarkDelivered = async (
   }
 };
 
+type CancelData = {
+  cancelReason: string;
+};
+
 export const cancelDelivery = async (
   orderId: string,
-  reason?: string
+  cancelData: CancelData
 ): Promise<DeliveryDetail> => {
+  const data = {
+    cancel_reason: cancelData.cancelReason,
+  };
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${orderId}/cancel-order`,
-        { reason },
+        `${BASE_URL}/${orderId}/cancel-order-or-delivery`,
+        data,
         {
           headers: {
             "Content-Type": "application/json",
