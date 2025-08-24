@@ -357,7 +357,7 @@ const ItemDetails = () => {
                   // onPress={() => cancelDeliveryMutation.mutate()}
                   onPress={() => router.push({
                     pathname: '/cancel-order/[orderId]',
-                    params: { orderId: data?.order?.id }
+                    params: { orderId: data?.order?.id as string }
                   })}
                   className="self-start"
                 >
@@ -490,7 +490,7 @@ const ItemDetails = () => {
               <AppVariantButton
                 label="Receipt"
                 borderRadius={50}
-                disabled={data?.delivery?.rider_id || data?.delivery?.dispatch_id ? true : false}
+                disabled={data?.delivery?.rider_id === user?.sub || data?.delivery?.dispatch_id === user?.sub ? true : false}
                 filled={false}
                 outline={true}
                 width={'32%'}

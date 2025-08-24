@@ -88,26 +88,26 @@ const NotificationScreen = () => {
 
     return (
         <View className="flex-1 bg-background p-3">
-            <View className="flex-row items-center justify-between mb-3">
-                <Text className="font-bold text-lg">Notifications</Text>
-                <AppButton
-                    title={
-                        markAllReadMutation.isPending ? "Marking..." : "Mark all as read"
-                    }
-                    onPress={handleMarkAllRead}
-                    disabled={markAllReadMutation.isPending}
-                />
-            </View>
-            <View className="gap-3 mb-2">
-                <Text className="text-icon-default">
-                    Unread: {badgeData?.unread_notifications ?? 0}
-                </Text>
-                {stats && (
-                    <Text className="text-icon-default">
-                        Total: {stats.total_notifications}
+            <View className="flex-row justify-between items-center ">
+
+                <View className="gap-3 mb-2">
+                    <Text className="text-muted font-poppins-medium text-sm">
+                        Unread: {badgeData?.unread_notifications ?? 0}
                     </Text>
-                )}
+                    {stats && (
+                        <Text className="text-icon-default">
+                            Total: {stats.total_notifications}
+                        </Text>
+                    )}
+                </View>
+
+
+                <TouchableOpacity onPress={handleMarkAllRead}>
+                    <Text className="font-poppins-light underline text-muted">Mark all as read</Text>
+                </TouchableOpacity>
+
             </View>
+
             <FlatList
                 data={notifications || []}
                 keyExtractor={(item) => item.id}
