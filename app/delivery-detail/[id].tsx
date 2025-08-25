@@ -367,20 +367,7 @@ const ItemDetails = () => {
                   </Text>
                 </TouchableOpacity>
               )}
-             {/* {data?.delivery?.delivery_status === "canceled" && (
-                <TouchableOpacity
-                  // onPress={() => cancelDeliveryMutation.mutate()}
-                  onPress={() => router.push({
-                    pathname: '/cancel-order/[orderId]',
-                    params: { orderId: data?.order?.id as string }
-                  })}
-                  className="self-start"
-                >
-                  <Text className="text-teal-500 self-start bg-teal-500/30 rounded-full px-5 py-2 font-poppins-semibold text-sm mb-5">
-                    Relist
-                  </Text>
-                </TouchableOpacity>
-              )}*/}
+            
               <Status status={data?.delivery?.delivery_status} />
             </View>
             <View className="flex-row justify-between">
