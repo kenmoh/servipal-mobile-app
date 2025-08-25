@@ -8,12 +8,12 @@ import {
 } from "react-native";
 
 import {
-  cancelDelivery,
   fetchOrder,
   markLaundryReceived,
+  relistDelivery,
   riderAcceptDelivery,
   riderMarkDelivered,
-  senderConfirmDeliveryReceived,
+  senderConfirmDeliveryReceived
 } from "@/api/order";
 import AppButton from "@/components/AppButton";
 import AppVariantButton from "@/components/core/AppVariantButton";
@@ -182,7 +182,7 @@ const ItemDetails = () => {
   });
 
   const cancelDeliveryMutation = useMutation({
-    mutationFn: () => cancelDelivery(id as string),
+    mutationFn: () => relistDelivery(data?.delivery?.id as string),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["order", id],
@@ -303,12 +303,12 @@ const ItemDetails = () => {
     <>
       <DeliveryWrapper>
         {user?.sub === data?.delivery?.sender_id &&
-          data?.delivery?.sender_id &&
+          data?.delivery?.rider_id &&
           data?.delivery?.delivery_status !== "pending" &&
           data?.delivery?.delivery_status !== "received" && (
 
             <View className="self-center w-full justify-center items-center">
-              <AppVariantButton icon={<User color={'orange'} />} width={"85%"} borderRadius={50} filled={false} outline={true} label="Contact Rider" onPress={() =>
+              <AppVariantButton icon={<User color={'orange'} />} width={"85%"} borderRadius={50} filled={false} outline={true} label="Contact Ridery" onPress={() =>
                 router.push({
                   pathname: "/user-details/[userId]",
                   params: {
@@ -355,14 +355,32 @@ const ItemDetails = () => {
 
               {showCancel && (
                 <TouchableOpacity
-                  onPress={() => cancelDeliveryMutation.mutate()}
+                  // onPress={() => cancelDeliveryMutation.mutate()}
+                  onPress={() => router.push({
+                    pathname: '/cancel-order/[orderId]',
+                    params: { orderId: data?.order?.id as string }
+                  })}
                   className="self-start"
                 >
-                  <Text className="text-red-500 self-start bg-red-500/30 rounded-full px-5 py-2 font-semibold text-xs mb-5">
+                  <Text className="text-red-500 self-start bg-red-500/30 rounded-full px-5 py-2 font-poppins-semibold text-sm mb-5">
                     Cancel
                   </Text>
                 </TouchableOpacity>
               )}
+             {/* {data?.delivery?.delivery_status === "canceled" && (
+                <TouchableOpacity
+                  // onPress={() => cancelDeliveryMutation.mutate()}
+                  onPress={() => router.push({
+                    pathname: '/cancel-order/[orderId]',
+                    params: { orderId: data?.order?.id as string }
+                  })}
+                  className="self-start"
+                >
+                  <Text className="text-teal-500 self-start bg-teal-500/30 rounded-full px-5 py-2 font-poppins-semibold text-sm mb-5">
+                    Relist
+                  </Text>
+                </TouchableOpacity>
+              )}*/}
               <Status status={data?.delivery?.delivery_status} />
             </View>
             <View className="flex-row justify-between">
@@ -487,7 +505,7 @@ const ItemDetails = () => {
               <AppVariantButton
                 label="Receipt"
                 borderRadius={50}
-                disabled={data?.delivery?.rider_id || data?.delivery?.dispatch_id ? true : false}
+                disabled={data?.delivery?.rider_id === user?.sub || data?.delivery?.dispatch_id === user?.sub ? true : false}
                 filled={false}
                 outline={true}
                 width={'32%'}

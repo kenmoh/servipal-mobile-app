@@ -49,7 +49,7 @@ const CartInfoBtn = ({ totalCost, totalItem, onPress, label }: ViewCartBtnProps)
 
     return (
         <AnimatedTouchableOpacity
-            className={'rounded-full'}
+            className={'rounded-full '}
             onPress={onPress}
             activeOpacity={0.9}
             style={[styles.container, animatedStyle, { backgroundColor: BG_COLOR }]}
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
         width: "92%",
         bottom: Platform.OS === 'ios' ? 40 : 55,
         flexDirection: 'row',
-        borderRadius: 12,
+        // borderRadius: 12,
         zIndex: 999,
         justifyContent: 'space-between',
         alignItems: 'center',

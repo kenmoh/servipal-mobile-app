@@ -230,13 +230,10 @@ const Cart = () => {
 
                 <View className="flex-row">
                   <Text
-                    className="w-[25%] text-primary font-poppins-bold text-sm"
-                    style={{
-                      fontFamily: "Poppins-Regular",
-                      fontSize: 11,
-                    }}
+                    className="w-[25%] text-primary font-poppins-medium text-sm"
+                    
                   >
-                    Destination:{" "}
+                    Dest:{" "}
                   </Text>
                   <Text className="w-[75%] text-primary font-poppins text-sm">
                     {destination}
@@ -244,7 +241,7 @@ const Cart = () => {
                 </View>
 
                 <View className="flex-row">
-                  <Text className="w-[25%] text-primary font-poppins-bold text-sm">
+                  <Text className="w-[25%] text-primary font-poppins-medium text-sm">
                     Duration:{" "}
                   </Text>
                   <Text className="w-[75%] text-primary font-poppins text-sm">
@@ -252,7 +249,7 @@ const Cart = () => {
                   </Text>
                 </View>
                 <View className="flex-row">
-                  <Text className="w-[25%] text-primary font-poppins text-sm">
+                  <Text className="w-[25%] text-primary font-poppins-medium text-sm">
                     Distance:{" "}
                   </Text>
                   <Text className="w-[75%] text-primary font-poppins text-sm">
@@ -261,14 +258,14 @@ const Cart = () => {
                 </View>
 
                 <View className="flex-row">
-                  <Text className="w-[25%] text-primary font-poppins text-sm">
+                  <Text className="w-[35%] text-primary font-poppins-medium text-sm">
                     Additional Info:
                   </Text>
                   <Text className="w-[75%] text-primary font-poppins text-sm text-wrap">
                     {cart.additional_info}
                   </Text>
                 </View>
-                <Text className="text-primary font-poppins text-sm">
+                <Text className="text-primary font-poppins-medium text-sm">
                   Delivery Option: {require_delivery.toUpperCase()}
                 </Text>
               </View>

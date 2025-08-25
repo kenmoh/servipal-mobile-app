@@ -175,12 +175,21 @@ export default function RootLayout() {
                             }}
                           />
                           <Stack.Screen
+                            name="cancel-order/[orderId]"
+                            options={{
+                              title: "Cancel Order",
+                              headerStyle: {
+                                backgroundColor: BG_COLOR,
+
+                              },
+                              animation: 'slide_from_bottom'
+                            }}
+                          />
+                          <Stack.Screen
                             name="review/[deliveryId]"
                             options={{
                               title: "Leave a Review",
-                              // headerStyle: {
-                              //   backgroundColor: BG_COLOR,
-                              // },
+
                             }}
                           />
                           <Stack.Screen
@@ -188,9 +197,7 @@ export default function RootLayout() {
                             options={{
                               title: "Cart",
                               headerShadowVisible: false,
-                              // headerStyle: {
-                              //   backgroundColor: BG_COLOR,
-                              // },
+
                               headerRight: () => (
                                 <AddItemBtn
                                   icon={<Trash size={18} color={"white"} />}

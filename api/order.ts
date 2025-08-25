@@ -218,8 +218,6 @@ export const createOrder = async (
     additional_info: orderData.additional_info,
   };
 
-  console.log(data, "FROM SERVER");
-
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.post(`${BASE_URL}/${vendorId}`, data, {
@@ -277,11 +275,14 @@ export const senderConfirmDeliveryReceived = async (
 ): Promise<DeliveryDetail> => {
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
-      await apiClient.put(`${BASE_URL}/${deliveryId}/sender-confirm-delivery-or-order-received`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      await apiClient.put(
+        `${BASE_URL}/${deliveryId}/sender-confirm-delivery-or-order-received`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
     if (!response.ok || !response.data || "detail" in response.data) {
       const errorMessage =
@@ -395,15 +396,23 @@ export const riderMarkDelivered = async (
   }
 };
 
+type CancelData = {
+  cancelReason: string;
+};
+
 export const cancelDelivery = async (
   orderId: string,
-  reason?: string
+  cancelData: CancelData
 ): Promise<DeliveryDetail> => {
+  const data = {
+    reason: cancelData.cancelReason,
+  };
+
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${orderId}/cancel-order`,
-        { reason },
+        `${BASE_URL}/${orderId}/cancel-order-or-delivery`,
+        data,
         {
           headers: {
             "Content-Type": "application/json",
@@ -416,6 +425,36 @@ export const cancelDelivery = async (
         response.data && "detail" in response.data
           ? response.data.detail
           : "Error cancelling delivery.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+export const relistDelivery = async (
+  deliveryId: string
+): Promise<DeliveryDetail> => {
+  try {
+    const response: ApiResponse<DeliveryDetail | ErrorResponse> =
+      await apiClient.put(
+        `${BASE_URL}/${deliveryId}/re-list-item`,
+
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error relisting delivery.";
       throw new Error(errorMessage);
     }
     return response.data;
