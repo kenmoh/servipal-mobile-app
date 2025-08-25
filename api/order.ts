@@ -248,7 +248,7 @@ export const updateOrderStatus = async (
 ): Promise<DeliveryDetail> => {
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
-      await apiClient.put(`${BASE_URL}/${orderId}/update-status`, {
+      await apiClient.put(`${BASE_URL}/${orderId}/vendor-update-order-status`, {
         headers: {
           "Content-Type": "application/json",
         },
