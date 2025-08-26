@@ -7,9 +7,11 @@ type AuthContextType = {
   // signIn: () => {} | void;
   signOut: () => void;
   setUser: (user: User | null) => void;
+  setStoreId: (storeId: string | null) => void;
   setProfile: (profile: UserDetails | null) => void;
   setImages: (images: ImageUrl | null) => void;
   user?: User | null;
+  storeId?: string | null
   profile: UserDetails | null;
   images: ImageUrl | null;
 };
@@ -17,9 +19,12 @@ type AuthContextType = {
 export const AuthContext = createContext<AuthContextType>({
   signOut: () => null,
   setUser: () => {},
+  setStoreId: () => null,
+
   setProfile: () => {},
   setImages: () => {},
   user: null,
+  storeId: null,
   profile: null,
   images: null,
 });

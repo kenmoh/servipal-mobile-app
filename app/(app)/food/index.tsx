@@ -251,7 +251,6 @@ const Page = () => {
     }
 
     const showEmptyState = !isFetching && !isPending && !isLoading && filteredRestaurants.length === 0;
-
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: BG_COLOR }}>
             <AppHeader

@@ -49,17 +49,21 @@ const ReviewCard = ({ data }: { data: VendorReviewResponse }) => {
                         </Text>
 
                     </View>
-                    <Text className='text-xs text-primary' >
+                    <View className="flex-row items-center gap-3">
+                           <View className='gap-2  flex-row'>
+                {renderStars(data.rating)}
+                    </View>
+                    <Text className='text-xs text-muted' >
                         {formatDate(data.created_at)}
                     </Text>
+                    </View>
+                  
                 </View>
             </View>
 
-            <View className='gap-2 mb-2 flex-row'>
-                {renderStars(data.rating)}
-            </View>
+           
 
-            <Text className='text-xs text-primary leading-5 font-poppins-medium'
+            <Text className='text-xs text-muted leading-5 font-poppins-medium'
 
             >
                 {data.comment}
