@@ -67,11 +67,11 @@ const FoodCard = ({ item, onPress, onDelete }: {
                     />
                 </View>
                 <View className='w-[70%]' >
-                    <Text className='text-primary tracking-tight font-poppins-bold text-sm'>
+                    <Text className='text-primary tracking-tight font-poppins-medium text-sm'>
                         {item.name}
                     </Text>
                     <Text
-                        className='text-wrap mt-1 text-primary text-sm flex-wrap'
+                        className='text-wrap mt-1 text-muted text-sm flex-wrap'
 
                     >
                         {item.description}

@@ -11,6 +11,7 @@ import { ProductModalProvider } from "@/contexts/ProductModalContext";
 import "@/global.css";
 import { useCartStore } from "@/store/cartStore";
 import { useLocationStore } from "@/store/locationStore";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
@@ -80,6 +81,7 @@ export default function RootLayout() {
                     <NetworkNotifier />
 
                     <AuthProvider>
+                     
                       <ProductModalProvider>
                         <Stack
                           screenOptions={{
@@ -246,6 +248,7 @@ export default function RootLayout() {
                         </Stack>
                         <ProductDetailModal />
                       </ProductModalProvider>
+                       
                     </AuthProvider>
 
                   </ToastProvider>
