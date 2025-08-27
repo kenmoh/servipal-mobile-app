@@ -48,6 +48,8 @@ const NotificationScreen = () => {
         queryFn: fetchNotificationStatistics,
     });
 
+    console.log(stats)
+
     // Mark as read mutation
     const markReadMutation = useMutation({
         mutationFn: markReportRead,
@@ -102,9 +104,9 @@ const NotificationScreen = () => {
                 </View>
 
 
-                <TouchableOpacity onPress={handleMarkAllRead}>
+               {/* <TouchableOpacity onPress={handleMarkAllRead}>
                     <Text className="font-poppins-light underline text-muted">Mark all as read</Text>
-                </TouchableOpacity>
+                </TouchableOpacity>*/}
 
             </View>
 
@@ -116,6 +118,7 @@ const NotificationScreen = () => {
                 }
                 renderItem={({ item }) => (
                     <TouchableOpacity
+                        className="bg-input w-full self-center py-2 px-5 rounded-md"
                         onPress={() => {
                             router.push({
                                 pathname: "/notification-detail/[notificationId]",
@@ -127,7 +130,7 @@ const NotificationScreen = () => {
                         }}
                     >
                         <View
-                            className="bg-profile-card"
+                            
 
                         >
                             <View className="flex-row justify-between items-center">
@@ -147,14 +150,14 @@ const NotificationScreen = () => {
                                 )}
                             </View>
                             <Text
-                                className={`text-${item.is_read ? "icon-default" : "white"
-                                    } mt-2`}
+                                className={`text-${item.is_read ? "muted" : "white"
+                                    } mt-2 font-poppins-light text-xs`}
                             >
                                 {item.description}
                             </Text>
                             <Text
-                                className={`text-${item.is_read ? "$gray8" : "rgba(255,255,255,0.7)"
-                                    } text-[12px] mt-1`}
+                                className={`text-${item.is_read ? "muted" : "rgba(255,255,255,0.7)"
+                                    } text-[12px] mt-1 font-poppins-light text-xs`}
                             >
                                 {new Date(item.created_at).toLocaleString()}
                             </Text>

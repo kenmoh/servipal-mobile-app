@@ -1,363 +1,5 @@
-// import { useLocalSearchParams } from "expo-router";
-// import React, { useRef, useState } from "react";
-// import {
-//     FlatList,
-//     Image,
-//     StyleSheet,
-//     Text,
-//     TextInput,
-//     TouchableOpacity,
-//     View
-// } from "react-native";
-
-// import { SendHorizonal } from "lucide-react-native";
-
-// import { addMessage, fetchReport } from "@/api/report";
-// import { useToast } from "@/components/ToastProvider";
-// import { zodResolver } from "@hookform/resolvers/zod";
-// import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-// import { Controller, useForm } from "react-hook-form";
-// import { KeyboardAvoidingView } from "react-native-keyboard-controller";
-// import { z } from "zod";
-
-
-
-
-// const roleColor: any = {
-//     customer: "#4F8EF7",      // Blue
-//     admin: "#F7B731",         // Orange/Yellow
-//     rider: "#20BF6B",         // Green
-//     laundry_vendor: "#9B59B6", // Purple
-//     moderator: "#E74C3C",     // Red
-//     dispatch: "#F39C12",      // Orange
-//     reporter: "#4F8EF7",      // Blue (for report threads)
-//     reportee: "#E74C3C",      // Red (for report threads)
-//     restaurant_vendor: "#9CB9D1", // Purple
-// };
-
-// const MIN_INPUT_HEIGHT = 40;
-// const MAX_INPUT_HEIGHT = 120;
-// const INPUT_PADDING = 20; // Total padding around input area
-
-// const messageSchema = z.object({
-//     content: z
-//         .string()
-//         .min(1, "Message cannot be empty")
-//         .max(500, "Message too long"),
-// });
-
-// type MessageFormData = z.infer<typeof messageSchema>;
-
-// const NotificationDetails = () => {
-//     const { notificationId, reportTag, thread, complainantId, reportStatus } =
-//         useLocalSearchParams();
-//     const [input, setInput] = useState("");
-//     const [inputHeight, setInputHeight] = useState(MIN_INPUT_HEIGHT);
-//     const [isTyping, setIsTyping] = useState(false);
-//     const flatListRef = useRef<FlatList>(null);
-//     const { showError, showSuccess } = useToast();
-
-//     const queryClient = useQueryClient();
-
-//     // Fetch thread data for real-time updates
-//     const {
-//         data: messages,
-//         refetch: refetchThread,
-//     } = useQuery({
-//         queryKey: ["thread", notificationId],
-//         queryFn: () => fetchReport(notificationId as string),
-//         // refetchInterval: 5000,
-//         enabled: !!notificationId,
-//     });
-
-//     const {
-//         control,
-//         handleSubmit,
-//         reset,
-//         formState: { errors },
-//     } = useForm<MessageFormData>({
-//         resolver: zodResolver(messageSchema),
-//         mode: "onBlur",
-//         defaultValues: {
-//             content: "",
-//         },
-//     });
-
-//     const sendMessageMutation = useMutation({
-//         mutationFn: (data: MessageFormData) =>
-//             addMessage(notificationId as string, {
-//                 content: data.content,
-//             }),
-//         onSuccess: (data) => {
-//             // Refetch thread data immediately
-//             refetchThread();
-
-//             // Invalidate relevant queries
-//             queryClient.invalidateQueries({ queryKey: ["notifications"] });
-//             queryClient.invalidateQueries({ queryKey: ["reports"] });
-
-//         },
-//         onError: (error: any) => {
-//             reset();
-//             showError("Error", error?.message || "Failed to send message")
-
-//         },
-//     });
-
-//     const onSubmit = (data: MessageFormData) => {
-//         reset();
-//         setIsTyping(false);
-//         sendMessageMutation.mutate(data);
-//     };
-
-//     const handleInputFocus = () => {
-//         setTimeout(() => {
-//             flatListRef.current?.scrollToEnd({ animated: true });
-//         }, 100);
-//     };
-
-//     const handleInputChange = (text: string) => {
-//         setIsTyping(text.length > 0);
-//     };
-
-//     const renderItem = ({ item, index }: any) => {
-//         const isLastItem = index === (messages?.thread?.length ?? 0) - 1;
-//         // Calculate dynamic bottom margin based on current input height
-//         const dynamicMargin = isLastItem ? inputHeight + INPUT_PADDING + 80 : 24;
-
-//         return (
-//             <View className={`flex-row items-start mb-${dynamicMargin}`} >
-//                 <View className="items-center w-[44px]" >
-//                     <Image
-//                         source={{ uri: item?.sender?.avatar }}
-//                         style={{
-//                             width: 32,
-//                             objectFit: "cover",
-//                             height: 32,
-//                             borderRadius: 16,
-//                             borderWidth: 2,
-//                             borderColor: roleColor[item?.role] || "#ccc",
-//                             backgroundColor: "#23272f",
-//                         }}
-//                     />
-//                 </View>
-
-//                 <View className="flex-1">
-//                     <View className="flex-row items-center text-sm gap-8 font-poppins-semibold">
-//                         <Text
-//                             style={{
-
-//                                 color: roleColor[item?.role] || "#fff",
-
-//                             }}
-//                         >
-//                             {item?.role === "moderator" ? "ServiPal" : item?.sender?.name}
-//                         </Text>
-//                         <Text
-//                             style={{
-//                                 fontSize: 10,
-//                                 color: roleColor[item?.role] || "#aaa",
-//                                 fontWeight: "400",
-//                                 letterSpacing: 1,
-//                                 backgroundColor: "#23272f",
-//                                 borderRadius: 6,
-//                                 paddingHorizontal: 6,
-//                                 paddingVertical: 2,
-//                                 marginLeft: 2,
-//                             }}
-//                         >
-//                             {item?.role?.toUpperCase()}
-//                         </Text>
-//                     </View>
-//                     <Text
-//                         className="text-muted text-[10px] font-poppins-light"
-
-//                     >
-//                         {new Date(item.date).toLocaleString()}
-//                     </Text>
-//                     <View
-//                         className="elevation-sm bg-input rounded-lg px-3"
-
-//                     >
-//                         <Text className="text-muted text-sm font-poppins-light"
-
-//                         >
-//                             {item.content}
-//                         </Text>
-//                     </View>
-//                 </View>
-//             </View>
-//         );
-//     };
-
-//     return (
-//         <KeyboardAvoidingView
-//             behavior={"padding"}
-//             keyboardVerticalOffset={50}
-//             style={styles.content}
-//         >
-//             <View className="bg-background flex-1 w-full self-center"
-
-//             >
-//                 <FlatList
-//                     ref={flatListRef}
-//                     data={messages?.thread || []}
-//                     renderItem={renderItem}
-//                     keyExtractor={(item) => item.id}
-//                     contentContainerStyle={{
-//                         padding: 20,
-//                         flexGrow: 1,
-//                     }}
-//                     showsVerticalScrollIndicator={false}
-//                     onContentSizeChange={() => {
-//                         // Auto-scroll to bottom when content changes
-//                         setTimeout(() => {
-//                             flatListRef.current?.scrollToEnd({ animated: true });
-//                         }, 100);
-//                     }}
-//                 />
-
-//                 {/* Input area and typing indicator container */}
-//                 <View
-//                     style={{
-//                         position: "absolute",
-//                         left: 10,
-//                         right: 10,
-//                         bottom: 50,
-//                     }}
-//                 >
-//                     {/* Typing Indicator */}
-//                     {isTyping && (
-//                         <View className="flex-row items-start mb-5 px-10"
-
-//                         >
-//                             <View className="flex-row items-center gap-x-4">
-//                                 <Text className="text-gray-300 text-xs" >typing</Text>
-//                                 <View className="flex-row gap-2 gap-x-1">
-//                                     <View
-//                                         style={{
-//                                             width: 4,
-//                                             height: 4,
-//                                             borderRadius: 2,
-//                                             backgroundColor: "#eaeaea",
-//                                             opacity: 0.6,
-//                                         }}
-//                                     />
-//                                     <View
-//                                         style={{
-//                                             width: 4,
-//                                             height: 4,
-//                                             borderRadius: 2,
-//                                             backgroundColor: "#eaeaea",
-//                                             opacity: 0.8,
-//                                         }}
-//                                     />
-//                                     <View
-//                                         style={{
-//                                             width: 4,
-//                                             height: 4,
-//                                             borderRadius: 2,
-//                                             backgroundColor: "#eaeaea",
-//                                             opacity: 1,
-//                                         }}
-//                                     />
-//                                 </View>
-//                             </View>
-//                         </View>
-//                     )}
-
-//                     {/* Input area */}
-//                     {reportStatus !== "resolved" && (
-//                         <View
-//                             className="bg-background"
-//                             style={{
-
-//                                 flexDirection: "row",
-//                                 alignItems: "flex-end",
-//                                 padding: 10,
-//                                 borderRadius: 20,
-//                                 borderColor: "#23272f",
-//                                 minHeight: MIN_INPUT_HEIGHT + INPUT_PADDING,
-//                                 paddingHorizontal: 15,
-//                             }}
-//                         >
-//                             <Controller
-//                                 control={control}
-//                                 name="content"
-//                                 render={({ field: { onChange, onBlur, value } }) => (
-//                                     <TextInput
-//                                         value={value}
-//                                         onChangeText={(text) => {
-//                                             onChange(text);
-//                                             handleInputChange(text);
-//                                         }}
-//                                         onBlur={onBlur}
-//                                         placeholder="Type a message..."
-//                                         placeholderTextColor="#888"
-//                                         multiline
-//                                         style={{
-//                                             flex: 1,
-//                                             minHeight: MIN_INPUT_HEIGHT,
-//                                             maxHeight: MAX_INPUT_HEIGHT,
-//                                             height: inputHeight,
-//                                             color: "white",
-//                                             fontSize: 14,
-//                                             textAlignVertical: "top",
-//                                             paddingTop: 10,
-//                                             paddingBottom: 10,
-//                                         }}
-//                                         onFocus={handleInputFocus}
-//                                         onContentSizeChange={(e) => {
-//                                             const newHeight = Math.min(
-//                                                 MAX_INPUT_HEIGHT,
-//                                                 Math.max(
-//                                                     MIN_INPUT_HEIGHT,
-//                                                     e.nativeEvent.contentSize.height
-//                                                 )
-//                                             );
-//                                             setInputHeight(newHeight);
-//                                         }}
-//                                     />
-//                                 )}
-//                             />
-//                             <TouchableOpacity
-//                                 className={`${sendMessageMutation.isPending ? "bg-transparent" : "bg-button-primary"}`}
-//                                 onPress={handleSubmit(onSubmit)}
-//                                 hitSlop={25}
-//                                 disabled={sendMessageMutation.isPending}
-//                                 style={{
-//                                     padding: 8,
-//                                     borderRadius: 20,
-
-//                                 }}
-//                             >
-//                                 <SendHorizonal
-//                                     color={`${sendMessageMutation.isPending ? "white" : "white"}`}
-
-//                                     size={20}
-//                                 />
-//                             </TouchableOpacity>
-//                         </View>
-//                     )}
-//                 </View>
-//             </View>
-//         </KeyboardAvoidingView>
-//     );
-// };
-
-// export default NotificationDetails;
-
-// const styles = StyleSheet.create({
-//     content: {
-//         flex: 1,
-//         // maxHeight: 600,
-//     },
-// });
-
-
-
 import { useLocalSearchParams } from "expo-router";
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
     FlatList,
     Image,
@@ -378,9 +20,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { z } from "zod";
-
-// Add WebSocket hook (you'll need to create this)
-import { useWebSocket } from "@/hooks/useWebSocket"; // You'll need to implement this
 
 const roleColor: any = {
     customer: "#4F8EF7",
@@ -432,53 +71,6 @@ const NotificationDetails = () => {
     const { showError, showSuccess } = useToast();
     const queryClient = useQueryClient();
 
-    // WebSocket connection for real-time updates
-    const { isConnected } = useWebSocket({
-        onMessage: useCallback((data: any) => {
-            // Handle incoming WebSocket messages
-            if (data.type === "new_report_message" && data.report_id === notificationId) {
-                const newMessage = data.message;
-                
-                // Check if this message matches any pending optimistic message
-                const matchingOptimistic = optimisticMessages.find(optMsg => 
-                    optMsg.isOptimistic && 
-                    optMsg.content.trim() === newMessage.content.trim() &&
-                    Math.abs(new Date(optMsg.date).getTime() - new Date(newMessage.date).getTime()) < 30000
-                );
-
-                if (matchingOptimistic) {
-                    // This is our optimistic message coming back from server
-                    // Remove the optimistic version silently
-                    setOptimisticMessages(prev => 
-                        prev.filter(msg => msg.id !== matchingOptimistic.id)
-                    );
-                    setPendingOptimisticIds(prev => 
-                        prev.filter(id => id !== matchingOptimistic.optimisticId)
-                    );
-                }
-                
-                // Add the real message to React Query cache
-                queryClient.setQueryData(["thread", notificationId], (oldData: any) => {
-                    if (!oldData) return oldData;
-                    
-                    // Check if message already exists (prevent duplicates)
-                    const messageExists = oldData.thread?.some((msg: any) => msg.id === newMessage.id);
-                    if (messageExists) return oldData;
-                    
-                    return {
-                        ...oldData,
-                        thread: [...(oldData.thread || []), newMessage]
-                    };
-                });
-
-                // Auto-scroll to bottom
-                setTimeout(() => {
-                    flatListRef.current?.scrollToEnd({ animated: true });
-                }, 100);
-            }
-        }, [notificationId, optimisticMessages, queryClient]),
-    });
-
     // Fetch thread data
     const {
         data: messages,
@@ -529,27 +121,27 @@ const NotificationDetails = () => {
                 content: data.content,
             }),
         onSuccess: (serverResponse, variables) => {
-            // With WebSocket, we don't need to do much here
-            // The real message will come via WebSocket and replace the optimistic one
-            // Just clean up in case WebSocket message doesn't arrive
-            setTimeout(() => {
-                const optimisticMessage = optimisticMessages.find(msg => 
-                    msg.content === variables.content && msg.isOptimistic
+            // Find the optimistic message that was sent
+            const optimisticMessage = optimisticMessages.find(msg => 
+                msg.content === variables.content && msg.isOptimistic
+            );
+            
+            if (optimisticMessage) {
+                // Remove from pending list
+                setPendingOptimisticIds(prev => 
+                    prev.filter(id => id !== optimisticMessage.optimisticId)
                 );
                 
-                if (optimisticMessage) {
-                    // Remove optimistic message if WebSocket didn't handle it
-                    setOptimisticMessages(prev => 
-                        prev.filter(msg => msg.id !== optimisticMessage.id)
-                    );
-                    setPendingOptimisticIds(prev => 
-                        prev.filter(id => id !== optimisticMessage.optimisticId)
-                    );
-                    
-                    // Fallback: refetch if WebSocket failed
-                    refetchThread();
-                }
-            }, 5000); // 5 second fallback
+                // Remove the optimistic message
+                setOptimisticMessages(prev => 
+                    prev.filter(msg => msg.id !== optimisticMessage.id)
+                );
+            }
+            
+            // Refetch to get the real message from server
+            refetchThread();
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
+            queryClient.invalidateQueries({ queryKey: ["reports"] });
         },
         onError: (error: any, variables) => {
             // Mark optimistic message as failed
@@ -719,13 +311,11 @@ const NotificationDetails = () => {
     );
 
     return (
-
         <KeyboardAvoidingView
             behavior="padding"
             keyboardVerticalOffset={50}
             style={styles.container}
         >
-        	{/*<WebSocketProvider>*/}
             <View style={styles.chatContainer}>
                 <FlatList
                     ref={flatListRef}
@@ -797,7 +387,6 @@ const NotificationDetails = () => {
                     </View>
                 )}
             </View>
-            {/*</WebSocketProvider>*/}
         </KeyboardAvoidingView>
     );
 };
@@ -838,7 +427,7 @@ const styles = StyleSheet.create({
     },
     messageContainer: {
         flexDirection: "row",
-        marginBottom: 16,
+        marginBottom: 35,
         alignItems: "flex-start",
     },
     avatarContainer: {
@@ -941,6 +530,7 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         borderWidth: 1,
         borderColor: "#333",
+        marginBottom: 30
     },
     textInput: {
         flex: 1,

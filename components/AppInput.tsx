@@ -4,6 +4,8 @@ import { Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-n
 
 interface InputProp extends TextInputProps {
     label?: string,
+    multiline?: bool
+    numberOfLines?: number
     height?: number
     value?: string
     width?: number | string
@@ -12,7 +14,7 @@ interface InputProp extends TextInputProps {
     onPressIn?: () => void;
     showPasswordToggle?: boolean;
 }
-const AppTextInput = ({ label, value, onPressIn, placeholder, onBlur, onChangeText, errorMessage, borderRadius = 10, height = 45, keyboardType = 'default', editable = true, secureTextEntry = false, showPasswordToggle = false }: InputProp) => {
+const AppTextInput = ({ label, numberOfLines, multiline, value, onPressIn, placeholder, onBlur, onChangeText, errorMessage, borderRadius = 10, height = 45, keyboardType = 'default', editable = true, secureTextEntry = false, showPasswordToggle = false }: InputProp) => {
     const [showPassword, setShowPassword] = useState(false);
 
     const togglePasswordVisibility = () => {
@@ -37,6 +39,9 @@ const AppTextInput = ({ label, value, onPressIn, placeholder, onBlur, onChangeTe
                         borderRadius,
                         width: '100%',
                     }}
+                    multiline={multiline}
+                    textAlignVertical={multiline ? 'top' : 'center'}
+                    numberOfLines={numberOfLines}
                     className="bg-input px-4 text-primary text-base font-mono w-full focus:border-[0.7px] border-border-subtle focus:border-button-primary"
                     keyboardType={keyboardType}
                     secureTextEntry={shouldShowToggle ? !isPasswordVisible : false}
