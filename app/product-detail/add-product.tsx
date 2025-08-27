@@ -179,9 +179,12 @@ const AddProductScreen = () => {
                 render={({ field: { onChange, value, onBlur } }) => (
                     <AppTextInput
                         label="Product Description"
+                        height={60}
                         onChangeText={onChange}
                         onBlur={onBlur}
                         value={value}
+                        multiline={true}
+                        numberOfLines={4}
                         errorMessage={errors.description?.message}
                         editable={!isPending}
                     />

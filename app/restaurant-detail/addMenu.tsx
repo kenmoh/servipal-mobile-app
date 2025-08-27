@@ -296,8 +296,11 @@ const addMenu = () => {
                                 <AppTextInput
                                     label="Ingredients"
                                     placeholder="Ingredients"
+                                    height={60}
                                     onBlur={onBlur}
                                     onChangeText={onChange}
+                                      multiline={true}
+                                        numberOfLines={4}
                                     value={value}
                                     errorMessage={errors.description?.message}
                                 />

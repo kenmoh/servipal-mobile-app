@@ -159,10 +159,11 @@ export default function RootLayout() {
                           <Stack.Screen
                             name="notification-detail/[notificationId]"
                             options={{
-                              title: "Notification Details",
-                              // headerStyle: {
-                              //   backgroundColor: BG_COLOR,
-                              // },
+                              title: "Message Details",
+                              headerTintColor: "white",
+                              headerStyle: {
+                                backgroundColor: "#1a1a1a",
+                              },
                             }}
                           />
                           <Stack.Screen
@@ -248,7 +249,7 @@ export default function RootLayout() {
                         </Stack>
                         <ProductDetailModal />
                       </ProductModalProvider>
-                       
+
                     </AuthProvider>
 
                   </ToastProvider>
