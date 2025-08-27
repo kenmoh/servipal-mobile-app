@@ -4,6 +4,7 @@ import { getCoordinatesFromAddress } from '@/utils/geocoding';
 import { AntDesign } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { RelativePathString, router, type Href } from "expo-router";
+import { useAuth } from "@/context/authContext";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
 
 const IMAGET_HEIGHT = Dimensions.get("window").height * 0.25;
@@ -25,6 +26,10 @@ const StoreCard = ({
 
     } = useLocationStore()
 
+    const {setStoreId} = useAuth()
+
+  
+
     const handleStoreSelect = async () => {
         const address = item?.location;
         if (address) {
@@ -33,6 +38,7 @@ const StoreCard = ({
                 setOrigin(address, [coords.lat, coords.lng]);
             }
         }
+       // setStoreId(item?.id)
         router.push({
             pathname: pathName as RelativePathString,
             params: {
@@ -47,6 +53,7 @@ const StoreCard = ({
                 numberOfReviews: item?.rating.number_of_reviews,
             },
         });
+
     };
 
     return (

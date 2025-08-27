@@ -1,3 +1,15 @@
+import { fetchOrder, senderConfirmDeliveryReceived, updateOrderStatus } from "@/api/order";
+import AppVariantButton from "@/components/core/AppVariantButton";
+import LoadingIndicator from "@/components/LoadingIndicator";
+import { useToast } from "@/components/ToastProvider";
+import { useAuth } from "@/context/authContext";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import * as FileSystem from "expo-file-system";
+import * as Print from "expo-print";
+import { router, useLocalSearchParams } from "expo-router";
+import * as Sharing from "expo-sharing";
+import { CreditCard, Download, Share2 } from "lucide-react-native";
 import React from "react";
 import {
     ActivityIndicator,
@@ -8,20 +20,6 @@ import {
     View,
 } from "react-native";
 
-import { fetchOrder, updateOrderStatus } from "@/api/order";
-import AppButton from "@/components/AppButton";
-import AppVariantButton from "@/components/core/AppVariantButton";
-import LoadingIndicator from "@/components/LoadingIndicator";
-import { useToast } from "@/components/ToastProvider";
-import { useAuth } from "@/context/authContext";
-import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
-import * as FileSystem from "expo-file-system";
-import * as Print from "expo-print";
-import { router, useLocalSearchParams } from "expo-router";
-import * as Sharing from "expo-sharing";
-import { CreditCard, Download, Share2 } from "lucide-react-native";
-
 
 const OrderReceiptPage = () => {
     const { orderId, paymentStatus } = useLocalSearchParams();
@@ -29,6 +27,7 @@ const OrderReceiptPage = () => {
     const theme = useColorScheme();
     const { user } = useAuth()
     const { showError, showSuccess } = useToast()
+    const queryClient = useQueryClient()
     const ICON_COLOR = theme === 'dark' ? 'white' : 'black'
     const { data, isLoading } = useQuery({
         queryKey: ["order", orderId],
@@ -317,21 +316,21 @@ const OrderReceiptPage = () => {
         `;
     };
 
-    const queryClient = new QueryClient()
     const vendorDeliveryMutation = useMutation({
         mutationFn: () => updateOrderStatus(data?.order?.id as string),
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: ["order", orderId],
             });
+            queryClient.invalidateQueries({ queryKey: ["orders"] });
             queryClient.invalidateQueries({
-                queryKey: ["deliveries"],
+                queryKey: ["orders", data?.order?.vendor_id],
             });
             queryClient.invalidateQueries({
-                queryKey: ["deliveries", user?.sub],
+                queryKey: ["orders", data?.order?.owner_id],
             });
 
-            showSuccess("Success", "This order has been assigned to you. Drive carefully!")
+            showSuccess("Success", "Order marked as delivered.")
 
             router.back()
         },
@@ -340,22 +339,19 @@ const OrderReceiptPage = () => {
         },
     });
     const customerreceivedMutation = useMutation({
-        mutationFn: () => updateOrderStatus(data?.order?.id as string),
+        mutationFn: () => senderConfirmDeliveryReceived(data?.order?.id as string),
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: ["order", orderId],
             });
             queryClient.invalidateQueries({
-                queryKey: ["deliveries"],
+                queryKey: ["orders", data?.order?.vendor_id],
             });
             queryClient.invalidateQueries({
-                queryKey: ["orders", data?.order?.id],
-            });
-            queryClient.invalidateQueries({
-                queryKey: ["deliveries", user?.sub],
+                queryKey: ["orders", data?.order?.owner_id],
             });
 
-            showSuccess("Success", "This order has been assigned to you. Drive carefully!")
+            showSuccess("Success", "Pickup confirmed successfully!")
         },
         onError: (error: Error) => {
             showError("Error", error.message)
@@ -420,33 +416,50 @@ const OrderReceiptPage = () => {
 
 
 
-    const getActionButton = () => {
+    const getActionButton = (): {
+        label: string;
+        onPress: () => void;
+        loading: boolean;
+        disabled: boolean;
+    } | null => {
         if (!data || !user) return null;
 
+        const status = data.order?.order_status?.toLowerCase();
+        const paymentStatus = data.order?.order_payment_status?.toLowerCase();
+
+        if (paymentStatus !== "paid") {
+            return null;
+        }
+
         // Vendor can mark order as delivered
-        if (
-            data?.order?.order_status === "pending" &&
-            user?.sub === data?.order?.vendor_id
-        ) {
+        if (data?.order?.order_status === "pending" && user.sub === data.order.vendor_id) {
             return {
-                label: "Delivered",
+                label: "Mark as Delivered",
                 onPress: () => vendorDeliveryMutation.mutate(),
                 loading: vendorDeliveryMutation.isPending,
+                disabled: vendorDeliveryMutation.isPending,
             };
         }
-        // Customer mark order received
-        if (
-            (data?.order?.order_status === "delivered" &&
-                user?.sub === data?.order?.user_id)
-        ) {
+
+        // Customer can confirm order delivered
+        if (data?.order?.order_status === "delivered" && user.sub === data.order.owner_id) {
             return {
-                label: "Confirm Received",
+                label: "Confirm Delivery",
                 onPress: () => customerreceivedMutation.mutate(),
                 loading: customerreceivedMutation.isPending,
+                disabled: customerreceivedMutation.isPending,
             };
         }
 
-
+        // For any other paid status before 'received', show a disabled status button
+        if (status === "received") {
+            return {
+                label: status?.replace("_", " ").toUpperCase() || "PROCESSING",
+                onPress: () => { },
+                loading: false,
+                disabled: true,
+            };
+        }
         return null;
     };
 
@@ -455,6 +468,7 @@ const OrderReceiptPage = () => {
     if (isLoading) {
         return <LoadingIndicator />;
     }
+
 
     return (
         <ScrollView
@@ -530,28 +544,38 @@ const OrderReceiptPage = () => {
                     </View>
                 </View>
 
-                {actionButton && paymentStatus === "paid" && <AppButton
+                {data?.order?.order_status !== 'received' && user?.sub === data?.order?.user_id && (
+                    <AppVariantButton
+                        filled={true}
+                        borderRadius={50}
+                        width="100%"
+                        disabled={customerreceivedMutation.isPending}
+                        label={'MARK AS RECEIVED'}
+                        onPress={customerreceivedMutation.mutate}
+                        icon={customerreceivedMutation.isPending && <ActivityIndicator size={'small'} className="text-primary" />}
+                    />
+                )}
+                {data?.order?.order_status === 'pending' && user?.sub === data?.order?.vendor_id && (
+                    <AppVariantButton
+                        filled={true}
+                        borderRadius={50}
+                        width="100%"
+                        disabled={vendorDeliveryMutation.isPending}
+                        label={'MARK AS DELIVERED'}
+                        onPress={vendorDeliveryMutation.mutate}
+                        icon={vendorDeliveryMutation.isPending && <ActivityIndicator size={'small'} className="text-primary" />}
+                    />
+                )}
 
-                    backgroundColor={actionButton.loading ? "bg-input" : "bg-background"}
-                    width="90%"
-                    title={actionButton.label}
-                    disabled={actionButton.loading}
-                    onPress={actionButton.onPress}
-                    icon={actionButton.loading && <ActivityIndicator size={'small'} className="text-primary" />}
-                >
+                {data?.order?.order_payment_status === "paid" && user?.sub === data?.order?.owner_id && <AppVariantButton
 
-
-                </AppButton>}
-                {paymentStatus !== "paid" && <AppButton
-
-                    backgroundColor={"bg-background"}
+                    filled
                     borderRadius={50}
                     width="100%"
-                    title="P A Y"
+                    label="P A Y"
                     icon={<CreditCard color={'white'} />}
                     onPress={handleGotoPayment}
-                />
-                }
+                />}
 
                 <View
                     className="flex-row justify-between items-center w-full self-center mb-3"
