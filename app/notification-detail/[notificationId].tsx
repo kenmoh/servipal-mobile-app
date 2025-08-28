@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from "expo-router";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     FlatList,
     Image,
@@ -7,8 +7,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View,
-    Animated,
+    View
 } from "react-native";
 
 import { SendHorizonal } from "lucide-react-native";
@@ -63,7 +62,7 @@ interface OptimisticMessage {
 const NotificationDetails = () => {
     const { notificationId, reportTag, thread, complainantId, reportStatus } =
         useLocalSearchParams();
-    
+
     const [inputHeight, setInputHeight] = useState(MIN_INPUT_HEIGHT);
     const [optimisticMessages, setOptimisticMessages] = useState<OptimisticMessage[]>([]);
     const [pendingOptimisticIds, setPendingOptimisticIds] = useState<string[]>([]);
@@ -100,18 +99,18 @@ const NotificationDetails = () => {
     // Combine real messages with optimistic messages - exclude server messages that match pending optimistic ones
     const allMessages = React.useMemo(() => {
         const realMessages = messages?.thread || [];
-        
+
         // Filter out any real messages that might be duplicates of our pending optimistic messages
         const filteredRealMessages = realMessages.filter(realMsg => {
             // Check if this real message matches any pending optimistic message
-            const hasPendingOptimistic = optimisticMessages.some(optMsg => 
-                optMsg.isOptimistic && 
+            const hasPendingOptimistic = optimisticMessages.some(optMsg =>
+                optMsg.isOptimistic &&
                 optMsg.content.trim() === realMsg.content.trim() &&
                 Math.abs(new Date(optMsg.date).getTime() - new Date(realMsg.date).getTime()) < 10000 // Within 10 seconds
             );
             return !hasPendingOptimistic;
         });
-        
+
         return [...filteredRealMessages, ...optimisticMessages];
     }, [messages?.thread, optimisticMessages]);
 
@@ -122,22 +121,22 @@ const NotificationDetails = () => {
             }),
         onSuccess: (serverResponse, variables) => {
             // Find the optimistic message that was sent
-            const optimisticMessage = optimisticMessages.find(msg => 
+            const optimisticMessage = optimisticMessages.find(msg =>
                 msg.content === variables.content && msg.isOptimistic
             );
-            
+
             if (optimisticMessage) {
                 // Remove from pending list
-                setPendingOptimisticIds(prev => 
+                setPendingOptimisticIds(prev =>
                     prev.filter(id => id !== optimisticMessage.optimisticId)
                 );
-                
+
                 // Remove the optimistic message
-                setOptimisticMessages(prev => 
+                setOptimisticMessages(prev =>
                     prev.filter(msg => msg.id !== optimisticMessage.id)
                 );
             }
-            
+
             // Refetch to get the real message from server
             refetchThread();
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -145,31 +144,31 @@ const NotificationDetails = () => {
         },
         onError: (error: any, variables) => {
             // Mark optimistic message as failed
-            setOptimisticMessages(prev => 
-                prev.map(msg => 
+            setOptimisticMessages(prev =>
+                prev.map(msg =>
                     msg.content === variables.content && msg.isOptimistic
                         ? { ...msg, isFailed: true }
                         : msg
                 )
             );
-            
+
             // Remove from pending list
-            const failedMessage = optimisticMessages.find(msg => 
+            const failedMessage = optimisticMessages.find(msg =>
                 msg.content === variables.content && msg.isOptimistic
             );
             if (failedMessage?.optimisticId) {
-                setPendingOptimisticIds(prev => 
+                setPendingOptimisticIds(prev =>
                     prev.filter(id => id !== failedMessage.optimisticId)
                 );
             }
-            
+
             // Remove failed message after 3 seconds
             setTimeout(() => {
-                setOptimisticMessages(prev => 
+                setOptimisticMessages(prev =>
                     prev.filter(msg => msg.content !== variables.content)
                 );
             }, 3000);
-            
+
             showError("Error", error?.message || "Failed to send message");
         },
     });
@@ -199,13 +198,13 @@ const NotificationDetails = () => {
 
         // Add optimistic message immediately
         setOptimisticMessages(prev => [...prev, optimisticMessage]);
-        
+
         // Clear form
         reset();
-        
+
         // Send message in background
         sendMessageMutation.mutate(data);
-        
+
         // Auto-scroll to bottom
         setTimeout(() => {
             flatListRef.current?.scrollToEnd({ animated: true });
@@ -224,7 +223,7 @@ const NotificationDetails = () => {
     const renderItem = ({ item, index }: { item: OptimisticMessage; index: number }) => {
         const isOptimistic = item.isOptimistic;
         const isFailed = item.isFailed;
-        
+
         return (
             <View style={styles.messageContainer}>
                 <View style={styles.avatarContainer}>
@@ -245,7 +244,7 @@ const NotificationDetails = () => {
                         <Text
                             style={[
                                 styles.senderName,
-                                { 
+                                {
                                     color: roleColor[item?.role] || "#fff",
                                     opacity: isFailed ? 0.5 : isOptimistic ? 0.8 : 1,
                                 }
@@ -274,7 +273,7 @@ const NotificationDetails = () => {
                             </View>
                         )}
                     </View>
-                    
+
                     <Text
                         style={[
                             styles.timestamp,
@@ -283,11 +282,11 @@ const NotificationDetails = () => {
                     >
                         {new Date(item.date).toLocaleString()}
                     </Text>
-                    
+
                     <View
                         style={[
                             styles.messageBubble,
-                            { 
+                            {
                                 opacity: isFailed ? 0.5 : isOptimistic ? 0.8 : 1,
                                 borderLeftWidth: isFailed ? 3 : 0,
                                 borderLeftColor: isFailed ? "#E74C3C" : "transparent",
@@ -319,7 +318,7 @@ const NotificationDetails = () => {
             <View style={styles.chatContainer}>
                 <FlatList
                     ref={flatListRef}
-                    data={allMessages}
+                    data={allMessages || []}
                     renderItem={renderItem}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={[
@@ -370,8 +369,8 @@ const NotificationDetails = () => {
                                 style={[
                                     styles.sendButton,
                                     {
-                                        backgroundColor: watchedContent?.trim() 
-                                            ? "#4F8EF7" 
+                                        backgroundColor: watchedContent?.trim()
+                                            ? "#4F8EF7"
                                             : "#444",
                                     }
                                 ]}

@@ -56,7 +56,7 @@ export const getCurrentUserProfile = async (
 };
 
 // Get user profile
-export const getCurrentUser = async (userId: string): Promise<Profile> => {
+export const gettUserProfile = async (userId: string): Promise<Profile> => {
   try {
     const response: ApiResponse<Profile | ErrorResponse> = await apiClient.get(
       `${BASE_URL}/${userId}/profile`,

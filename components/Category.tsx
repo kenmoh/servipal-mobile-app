@@ -1,9 +1,8 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
-
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from '@/constants/theme';
+import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { ChevronDown } from 'lucide-react-native';
-import AppModal from './AppModal';
+import React, { useCallback, useMemo, useRef } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 
 export interface CategoryType {
     id: string;
@@ -20,13 +19,23 @@ export interface CategoryProps {
 const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryProps) => {
     const theme = useColorScheme();
 
-    const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
+    const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT;
+    const HANDLE_COLOR = theme === 'dark' ? HEADER_BG_LIGHT : HEADER_BG_DARK;
 
     const BORDER_COLOR = '#2f4550'
 
-    const [isModalVisible, setIsModalVisible] = useState(false);
+
     const scrollViewRef = useRef<ScrollView>(null);
     const categoryRefs = useRef<{ [key: string]: View | null }>({});
+
+    const bottomSheetRef = useRef<BottomSheetModal>(null);
+
+
+    const handlePresentModal = useCallback(() => {
+        bottomSheetRef.current?.present();
+    }, []);
+
+    const snapPoints = useMemo(() => ['25%', '50%'], []);
 
     // Get first 3 categories
     const displayedCategories = categories.slice(0, 2);
@@ -41,17 +50,13 @@ const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryPr
     }, []);
 
     const handleCategoryPress = useCallback((categoryId: string | null) => {
-        if (categoryId === 'more') {
-            setIsModalVisible(true);
-            return;
-        }
         onCategorySelect(categoryId);
         scrollToCategory(categoryId);
     }, [onCategorySelect, scrollToCategory]);
 
     const handleModalCategorySelect = useCallback((categoryId: string) => {
         onCategorySelect(categoryId);
-        setIsModalVisible(false);
+        bottomSheetRef.current?.dismiss();
         scrollToCategory(categoryId);
     }, [onCategorySelect, scrollToCategory]);
 
@@ -79,41 +84,6 @@ const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryPr
                     {item.name}
                 </Text>
             </TouchableOpacity>
-        </View>
-    );
-
-    const ModalContent = () => (
-        <View className='gap-4 p-4'>
-            <Text className='text-primary font-poppins-medium'>
-                All Categories
-            </Text>
-            <View style={styles.modalCategoriesContainer}>
-                {categories.map((item) => (
-                    <View
-                        key={item.id}
-                        ref={ref => categoryRefs.current[item.id] = ref}
-                        collapsable={false}
-                    >
-                        <TouchableOpacity
-                            onPress={() => handleModalCategorySelect(item.id)}
-                            style={[
-                                styles.modalCategoryItem,
-                                {
-                                    backgroundColor: selectedCategory === item.id ? 'orange' : BG_COLOR,
-                                    borderColor: selectedCategory === item.id ? 'orange' : BORDER_COLOR,
-                                },
-                            ]}
-                        >
-                            <Text
-                                className={`${selectedCategory === item.id ? 'white' : 'text-primary'} ${selectedCategory === item.id ? 'font-poppins-medium' : 'font-poppins-light'} text-sm`}
-
-                            >
-                                {item.name}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                ))}
-            </View>
         </View>
     );
 
@@ -164,7 +134,7 @@ const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryPr
                         collapsable={false}
                     >
                         <TouchableOpacity
-                            onPress={() => handleCategoryPress('more')}
+                            onPress={handlePresentModal}
                             style={[
                                 styles.categoryItem,
                                 {
@@ -177,19 +147,57 @@ const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryPr
                                 <Text className='text-primary text-sm'>
                                     More
                                 </Text>
-                                <ChevronDown size={16} className='text-icon-default' />
+                                <ChevronDown size={16} color={theme === 'dark' ? 'white' : 'black'} />
                             </View>
                         </TouchableOpacity>
                     </View>
                 )}
             </ScrollView>
-
-            <AppModal
-                visible={isModalVisible}
-                onClose={() => setIsModalVisible(false)}
+            <BottomSheetModal
+                ref={bottomSheetRef}
+                index={1}
+                snapPoints={snapPoints}
+                backgroundStyle={{ backgroundColor: BG_COLOR }}
+                handleIndicatorStyle={{ backgroundColor: HANDLE_COLOR }}
             >
-                <ModalContent />
-            </AppModal>
+
+                <BottomSheetScrollView>
+                    <View className='gap-4 p-4'>
+                        <Text className='text-primary font-poppins-medium text-lg'>
+                            All Categories
+                        </Text>
+                        <View style={styles.modalCategoriesContainer}>
+                            {categories.map((item) => (
+                                <View
+                                    key={item.id}
+                                    ref={ref => categoryRefs.current[item.id] = ref}
+                                    collapsable={false}
+                                >
+                                    <TouchableOpacity
+                                        onPress={() => handleModalCategorySelect(item.id)}
+                                        style={[
+                                            styles.modalCategoryItem,
+                                            {
+                                                backgroundColor: selectedCategory === item.id ? 'orange' : BG_COLOR,
+                                                borderColor: selectedCategory === item.id ? 'orange' : BORDER_COLOR,
+                                            },
+                                        ]}
+                                    >
+                                        <Text
+                                            className={`${selectedCategory === item.id ? 'text-white' : 'text-primary'} ${selectedCategory === item.id ? 'font-poppins-medium' : 'font-poppins-light'} text-sm`}
+
+                                        >
+                                            {item.name}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
+                </BottomSheetScrollView>
+
+            </BottomSheetModal>
+
         </View>
     );
 };
@@ -218,6 +226,9 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 1,
         marginBottom: 8,
+    },
+    contentContainer: {
+        flex: 1,
     },
 });
 

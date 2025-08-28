@@ -2,11 +2,13 @@ import { fetUserOrders } from '@/api/marketplace'
 import EmptyList from '@/components/EmptyList'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import ProductOrderCard from '@/components/ProductOrderCard'
+import StatCard from '@/components/StatCard'
 import { useAuth } from '@/context/authContext'
 import { useQuery } from '@tanstack/react-query'
 import { useFocusEffect } from 'expo-router'
-import React, { useCallback } from 'react'
-import { FlatList, View } from 'react-native'
+import { Check, ClockIcon, CoinsIcon, X } from 'lucide-react-native'
+import React, { useCallback, useMemo } from 'react'
+import { FlatList, ScrollView, View } from 'react-native'
 
 const orders = () => {
     const { user } = useAuth()
@@ -33,6 +35,27 @@ const orders = () => {
         return <LoadingIndicator />
     }
 
+    const stats = useMemo(
+        () => ({
+            pending:
+                data?.filter((order) => order?.order_status === "pending")
+                    .length || 0,
+
+            received:
+                data?.filter((order) => order.order_status === "received")
+                    .length || 0,
+            delivered:
+                data?.filter((order) => order?.order_status === "delivered")
+                    .length || 0,
+            cancelled:
+                data?.filter((order) => order?.order_status === "cancelled")
+                    .length || 0,
+
+
+        }),
+        [data]
+    );
+
 
 
 
@@ -45,6 +68,51 @@ const orders = () => {
                 route="/marketplace/add-product"
             />
         )
+    }
+
+    const HeaderStatCard = () => {
+        return (<View
+            className="my-2 bg-background items-center justify-center h-[110px]"
+
+        >
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{
+                    paddingHorizontal: 10,
+                    gap: 10,
+                    paddingVertical: 10,
+                    height: "100%",
+                }}
+            >
+                <StatCard
+                    icon={CoinsIcon}
+                    label="Total Orders"
+                    value={data?.length || 0}
+                    color={'gray'}
+                />
+                <StatCard
+                    icon={Check}
+                    label="Completed"
+                    value={stats.received}
+                    color={"green"}
+                />
+                <StatCard
+                    icon={ClockIcon}
+                    label="Pending"
+                    value={stats.pending}
+                    color={"orange"}
+                />
+                <StatCard
+                    icon={X}
+                    label="Cancelled"
+                    value={stats.cancelled}
+                    color={"red"}
+                />
+
+
+            </ScrollView>
+        </View>)
     }
 
     return (
@@ -62,6 +130,7 @@ const orders = () => {
 
                 refreshing={isFetching}
                 onRefresh={handleRefresh}
+                ListHeaderComponent={<HeaderStatCard />}
 
 
             />

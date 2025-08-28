@@ -277,6 +277,7 @@ const Page = () => {
                     </Text>
                 </View>
             ) : (
+
                 <FlatList
                     data={filteredRestaurants}
                     ListHeaderComponent={() => (
@@ -307,6 +308,7 @@ const Page = () => {
                         paddingBottom: 10,
                     }}
                 />
+
             )}
 
         </SafeAreaView>
