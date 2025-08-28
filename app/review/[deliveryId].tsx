@@ -1,7 +1,7 @@
 import { createItemReview, createReview } from "@/api/review";
+import AppButton from "@/components/AppButton";
 import AppTextInput from "@/components/AppInput";
 import AppPicker from "@/components/AppPicker";
-import AppVariantButton from "@/components/core/AppVariantButton";
 import { useToast } from "@/components/ToastProvider";
 import { ReviewerType } from "@/types/review-types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,6 +40,8 @@ const ReviewPage = () => {
     const theme = useColorScheme()
     const { showError, showSuccess } = useToast()
 
+
+    console.log(reviewType, "reviewType")
 
 
     const {
@@ -250,8 +252,8 @@ const ReviewPage = () => {
                     />
                 </View>
 
-                <AppVariantButton
-                    label={isPending ? "Submitting..." : "Submit Review"}
+                <AppButton
+                    title={isPending ? "Submitting..." : "Submit Review"}
                     onPress={handleSubmit(onSubmit)}
                     disabled={isPending}
                     icon={isPending && <ActivityIndicator color="white" size={'large'} />}

@@ -18,6 +18,8 @@ import { router } from "expo-router";
 import { Clock } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { getDirections } from "@/utils/map";
+import {formatDuration} from '@/utils/distance-cache'
 
 import { useToast } from "@/components/ToastProvider";
 import { z } from "zod";
@@ -185,48 +187,42 @@ const ItemInfo = () => {
   }, [origin, destination, originCoords, destinationCoords, setValue]);
 
   // Fetch distance and duration when origin or destination changes
+
   useEffect(() => {
-    const fetchAndUseTravelInfo = async () => {
-      // Only proceed if we have both origin and destination
-      if (!formValues.origin || !formValues.destination) {
-        return;
-      }
+  const fetchAndUseTravelInfo = async () => {
+    if (!originCoords || !destinationCoords) return;
 
-      const originQuery = encodeURIComponent(formValues.origin);
-      const destinationQuery = encodeURIComponent(formValues.destination);
+    try {
+      const { distance, duration } = await getDirections(
+        originCoords as [number, number],
+        destinationCoords as [number, number]
+      );
 
-      const url = `https://maps.googleapis.com/maps/api/distancematrix/json?destinations=${destinationQuery}&origins=${originQuery}&units=metric&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY}`;
+      // Convert distance meters → km
+      const distanceKm = (distance / 1000).toFixed(2);
 
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
+      // Convert duration seconds → hr/min format
+      const durationText = formatDuration(duration);
 
-        const distanceText = data?.rows?.[0]?.elements?.[0]?.distance?.text;
-        const durationText = data?.rows?.[0]?.elements?.[0]?.duration?.text;
+      setValue("distance", parseFloat(distanceKm));
+      setValue("duration", durationText);
 
-        if (distanceText && durationText) {
-          const distanceValue = parseFloat(
-            distanceText.replace(/[^0-9.]/g, "")
-          );
+      setDistance(parseFloat(distanceKm));
+      setDuration(durationText);
 
-          setValue("distance", distanceValue);
-          setValue("duration", durationText);
-          setDistance(distanceValue);
-          setDuration(durationText);
+      setFormValues((prev) => ({
+        ...prev,
+        distance: parseFloat(distanceKm),
+        duration: durationText,
+      }));
+    } catch (error) {
+      console.error("Failed to fetch Mapbox travel info:", error);
+    }
+  };
 
-          setFormValues((prev) => ({
-            ...prev,
-            distance: distanceValue,
-            duration: durationText,
-          }));
-        }
-      } catch (error) {
-        console.error("Failed to fetch distance matrix:", error);
-      }
-    };
+  fetchAndUseTravelInfo();
+}, [originCoords, destinationCoords]);
 
-    fetchAndUseTravelInfo();
-  }, [formValues.origin, formValues.destination]);
 
   // Format coordinates for display
   const formatCoords = (
