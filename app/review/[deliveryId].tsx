@@ -1,4 +1,4 @@
-import { createReview } from "@/api/review";
+import { createItemReview, createReview } from "@/api/review";
 import AppTextInput from "@/components/AppInput";
 import AppPicker from "@/components/AppPicker";
 import AppVariantButton from "@/components/core/AppVariantButton";
@@ -35,7 +35,7 @@ const RATINGS = [
 ];
 
 const ReviewPage = () => {
-    const { revieweeId, deliveryId, orderId, itemId, orderType } = useLocalSearchParams();
+    const { revieweeId, deliveryId, orderId, itemId, orderType, reviewType } = useLocalSearchParams();
     const queryClient = useQueryClient();
     const theme = useColorScheme()
     const { showError, showSuccess } = useToast()
@@ -68,7 +68,21 @@ const ReviewPage = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["delivery", deliveryId] });
 
-            showError("Success", "Review submitted successfully")
+            showSuccess("Success", "Review submitted successfully")
+
+        },
+        onError: (error: Error) => {
+            showError("Error", error.message)
+
+        },
+    });
+
+    const { mutate: productReviewMutation, isPending: isProductReviewPending } = useMutation({
+        mutationFn: createItemReview,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["delivery", deliveryId] });
+
+            showSuccess("Success", "Review submitted successfully")
 
         },
         onError: (error: Error) => {
@@ -78,14 +92,28 @@ const ReviewPage = () => {
     });
 
     const onSubmit = (data: ReviewFormData) => {
-        mutate({
-            order_id: data.orderId,
-            item_id: data.itemId,
-            reviewee_id: data.revieweeId,
-            rating: data.rating,
-            comment: data.description,
-            review_type: data.reviewType as ReviewerType,
-        });
+
+        if (reviewType === 'product') {
+            productReviewMutation({
+                order_id: data.orderId,
+                item_id: data.itemId,
+                reviewee_id: data.revieweeId,
+                rating: data.rating,
+                comment: data.description,
+                review_type: data.reviewType as ReviewerType,
+            });
+        } else {
+
+            mutate({
+                order_id: data.orderId,
+                item_id: data.itemId,
+                reviewee_id: data.revieweeId,
+                rating: data.rating,
+                comment: data.description,
+                review_type: data.reviewType as ReviewerType,
+            });
+
+        }
 
     };
 

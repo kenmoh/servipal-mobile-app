@@ -93,7 +93,7 @@ const ProductDetail = () => {
         // Validate that selected colors match quantity
         if (selectedColors.length > 0 && selectedColors.length !== quantity) {
             Alert.alert(
-                'Color Selection Error', 
+                'Color Selection Error',
                 `You have selected ${selectedColors.length} color${selectedColors.length > 1 ? 's' : ''} but quantity is ${quantity}. Please select exactly ${quantity} color${quantity > 1 ? 's' : ''} or adjust the quantity to match your color selection.`
             )
             return
@@ -110,12 +110,16 @@ const ProductDetail = () => {
         }).format(price)
     }
 
+
     return (
         <ProductDetailWrapper images={product.images}>
             <View className="flex-1 px-6 space-y-6">
                 {/* Title and Price */}
                 <View className="space-y-2">
-                    <Text className="text-2xl font-bold text-muted font-poppins-bold">{product.name}</Text>
+                    <View className='flex-row justify-between items-center'>
+                        <Text className="text-xl font-poppins-medium text-muted ">{product.name}</Text>
+                        <Text onPress={() => router.push({ pathname: '/product-detail/product-reviews', params: { productId: product.id } })} className="text-sm font-poppins-light underline text-muted">Reviews</Text>
+                    </View>
                     <Text className="text-3xl font-bold text-primary">{formatPrice(Number(product.price))}</Text>
                     <Text className="text-sm text-muted">
                         {product.total_sold || 0} sold • In stock: {product.stock}

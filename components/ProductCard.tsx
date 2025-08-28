@@ -1,5 +1,5 @@
 
-import { CreateProductResponse } from "@/types/marketplace";
+import { ProductResponse } from "@/types/marketplace";
 import { router } from "expo-router";
 import { Store } from "lucide-react-native";
 import React from "react";
@@ -15,7 +15,7 @@ import {
 
 const CARD_HEIGHT = Dimensions.get("screen").height * 0.28;
 
-const ProductCard = ({ product }: { product: CreateProductResponse }) => {
+const ProductCard = ({ product }: { product: ProductResponse }) => {
     const handlePress = () => {
         router.push({
             pathname: "/product-detail/productId/[productId]",
@@ -52,7 +52,7 @@ const ProductCard = ({ product }: { product: CreateProductResponse }) => {
                         {product.name}
                     </Text>
                     <Text className="text-primary text-base font-poppins-bold">
-                        ₦{product?.price}
+                        ₦{Number(product?.price).toLocaleString()}
                     </Text>
                 </View>
                 <View className="flex-row justify-between mt-1">
