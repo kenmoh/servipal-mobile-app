@@ -138,7 +138,7 @@ const ProductDetail = () => {
         }).format(price)
     }
 
-
+    console.log(data.order_items[0].item_id)
     return (
         <ProductDetailWrapper images={data?.order_items[0]?.images}>
             <View className="flex-1 px-6 space-y-6">
@@ -146,7 +146,16 @@ const ProductDetail = () => {
                 <View className="space-y-2">
                     <View className='flex-row justify-between items-center'>
                         <Text className="text-xl font-bold text-muted font-poppins-bold">{data?.order_items[0]?.name}</Text>
-                        <TouchableOpacity className='bg-input py-2 px-4 rounded-full' onPress={() => router.push({ pathname: '/review/[deliveryId]', params: { deliveryId: data?.id } })}>
+                        <TouchableOpacity className='bg-input py-2 px-4 rounded-full' onPress={() => router.push({
+                            pathname: '/review/[deliveryId]',
+                            params: {
+                                deliveryId: data?.order_items[0]?.item_id,
+                                reviewType: 'product',
+                                itemId: data?.order_items[0]?.item_id,
+                                revieweeId: user?.sub,
+                                orderId: data?.id,
+                            }
+                        })}>
                             <Text className="text-sm text-muted font-poppins-light">Add Review</Text>
                         </TouchableOpacity>
                     </View>

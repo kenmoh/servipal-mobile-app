@@ -110,6 +110,7 @@ const ProductDetail = () => {
         }).format(price)
     }
 
+
     return (
         <ProductDetailWrapper images={product.images}>
             <View className="flex-1 px-6 space-y-6">
