@@ -13,7 +13,7 @@ import { FlatList, ScrollView, View } from 'react-native'
 const orders = () => {
     const { user } = useAuth()
 
-    const { data, isLoading, isPending, refetch, isFetching } = useQuery({
+    const { data, isLoading, isPending, refetch, isFetching, isFetched } = useQuery({
         queryKey: ['products', user?.sub],
         queryFn: () => fetUserOrders(user?.sub as string),
         enabled: !!user?.sub
@@ -31,7 +31,7 @@ const orders = () => {
 
 
 
-    if (isLoading || isPending) {
+    if (isLoading || isPending || isFetching) {
         return <LoadingIndicator />
     }
 
@@ -59,7 +59,7 @@ const orders = () => {
 
 
 
-    if (!data || data.length === 0) {
+    if (isFetched && data?.length === 0) {
         return (
             <EmptyList
                 title="No Products Found"

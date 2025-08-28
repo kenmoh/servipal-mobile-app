@@ -1,7 +1,7 @@
 import { createReview } from "@/api/review";
-import AppButton from "@/components/AppButton";
 import AppTextInput from "@/components/AppInput";
 import AppPicker from "@/components/AppPicker";
+import AppVariantButton from "@/components/core/AppVariantButton";
 import { useToast } from "@/components/ToastProvider";
 import { ReviewerType } from "@/types/review-types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,7 +9,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ScrollView, Text, TextInput, useColorScheme, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, TextInput, useColorScheme, View } from "react-native";
 
 import { z } from "zod";
 
@@ -222,12 +222,11 @@ const ReviewPage = () => {
                     />
                 </View>
 
-                <AppButton
-                    title={isPending ? "Submitting..." : "Submit Review"}
+                <AppVariantButton
+                    label={isPending ? "Submitting..." : "Submit Review"}
                     onPress={handleSubmit(onSubmit)}
-                    disabled={isPending || !isValid}
-
-
+                    disabled={isPending}
+                    icon={isPending && <ActivityIndicator color="white" size={'large'} />}
                 />
 
 
