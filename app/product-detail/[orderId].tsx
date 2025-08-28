@@ -6,7 +6,7 @@ import { useAuth } from '@/context/authContext'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams } from 'expo-router'
 import React from 'react'
-import { ActivityIndicator, Text, View } from 'react-native'
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native'
 
 
 const ProductDetail = () => {
@@ -144,7 +144,12 @@ const ProductDetail = () => {
             <View className="flex-1 px-6 space-y-6">
                 {/* Title and Price */}
                 <View className="space-y-2">
-                    <Text className="text-2xl font-bold text-muted font-poppins-bold">{data?.order_items[0]?.name}</Text>
+                    <View className='flex-row justify-between items-center'>
+                        <Text className="text-xl font-bold text-muted font-poppins-bold">{data?.order_items[0]?.name}</Text>
+                        <TouchableOpacity className='bg-input py-2 px-4 rounded-full' onPress={() => router.push({ pathname: '/review/[deliveryId]', params: { deliveryId: data?.id } })}>
+                            <Text className="text-sm text-muted font-poppins-light">Add Review</Text>
+                        </TouchableOpacity>
+                    </View>
 
                     <Text className="text-3xl font-poppins-semibold text-primary">{formatPrice(Number(data.total_price))}</Text>
                     <View className='flex-row justify-between items-center my-3'>
