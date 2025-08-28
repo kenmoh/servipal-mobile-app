@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { Plus } from 'lucide-react-native'
 import React, { useCallback } from 'react'
-import { FlatList, StyleSheet, View } from 'react-native'
+import { FlatList, StyleSheet, Text, View } from 'react-native'
 
 const items = () => {
     const { user } = useAuth()
@@ -35,7 +35,7 @@ const items = () => {
         return (
             <EmptyList
                 title="No Products Found"
-                description="You haven't added any products yet. Add your first product to get started!"
+                description="You haven't added any products yet. Add your first product to start selling!"
                 buttonTitle="Add Product"
                 route="/marketplace/add-product"
             />
@@ -44,6 +44,9 @@ const items = () => {
 
     return (
         <View className='flex-1 bg-background'>
+            <View>
+                <Text className='text-muted font-poppins-semibold text-lg  mx-5 my-3'>Total Items: {data.length}</Text>
+            </View>
             <FlatList
                 data={data || []}
                 keyExtractor={(item) => item?.id}

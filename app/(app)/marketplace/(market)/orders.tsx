@@ -31,9 +31,6 @@ const orders = () => {
 
 
 
-    if (isLoading || isPending || isFetching) {
-        return <LoadingIndicator />
-    }
 
     const stats = useMemo(
         () => ({
@@ -69,6 +66,8 @@ const orders = () => {
             />
         )
     }
+
+
 
     const HeaderStatCard = () => {
         return (<View
@@ -115,6 +114,10 @@ const orders = () => {
         </View>)
     }
 
+    if (isLoading || isPending || isFetching) {
+        return <LoadingIndicator />
+    }
+
     return (
         <View className='flex-1 bg-background'>
             <FlatList
@@ -124,8 +127,8 @@ const orders = () => {
                 numColumns={2}
                 columnWrapperStyle={{
 
-                    // alignSelf: 'center',
-                    gap: '5%'
+                    alignSelf: 'center',
+                    gap: '3%'
                 }}
 
                 refreshing={isFetching}
