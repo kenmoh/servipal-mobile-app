@@ -296,13 +296,14 @@ const ProductDetail = () => {
 
 
                 {/* Next Button */}
-                <View className="pb-6 mb-6">
-                    <AppVariantButton
-                        label={"Next"}
-                        onPress={handleContinueToPurchase}
-                        disabled={buyMutation.isPending}
-                    />
-                </View>
+                {quantity > 0 &&
+                    <View className="pb-6 mb-6">
+                        <AppVariantButton
+                            label={"Next"}
+                            onPress={handleContinueToPurchase}
+                            disabled={buyMutation.isPending}
+                        />
+                    </View>}
             </View>
         </ProductDetailWrapper>
     )
