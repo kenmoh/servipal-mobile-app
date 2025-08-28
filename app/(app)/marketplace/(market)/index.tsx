@@ -4,6 +4,7 @@ import Category from '@/components/Category'
 import FAB from '@/components/FAB'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import ProductCard from '@/components/ProductCard'
+import { useAuth } from '@/context/authContext'
 import { useQuery } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { Plus } from 'lucide-react-native'
@@ -12,7 +13,7 @@ import { FlatList, Text, View } from 'react-native'
 
 
 const MarketPlace = () => {
-
+    const { user } = useAuth()
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const { data, isLoading, isPending, isFetching, refetch } = useQuery({
         queryKey: ['products', selectedCategory],
@@ -74,7 +75,10 @@ const MarketPlace = () => {
                 />
 
             </View>
-            <FAB icon={<Plus color={'white'} />} onPress={() => router.push('/product-detail/add-product')} />
+            {user?.user_type === 'laundry_vendor' || user?.user_type === 'restaurant_vendor' ? '' :
+
+                <FAB icon={<Plus color={'white'} />} onPress={() => router.push('/product-detail/add-product')} />
+            }
         </View>
     )
 }

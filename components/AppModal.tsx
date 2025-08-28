@@ -11,7 +11,7 @@ interface AppModalProps {
 
 }
 
-const AppModal = ({ visible, onClose, children, height = '70%' }: AppModalProps) => {
+const AppModal = ({ visible, onClose, children, height = '100%' }: AppModalProps) => {
 
 
     return (
@@ -25,7 +25,12 @@ const AppModal = ({ visible, onClose, children, height = '70%' }: AppModalProps)
             <TouchableWithoutFeedback onPress={onClose}>
                 <View style={styles.overlay}>
                     <TouchableWithoutFeedback>
-                        <View className='bg-background' style={[styles.modalContent, { height: height as DimensionValue }]}>
+                        <View className='bg-background' style={[styles.modalContent, {
+                            height: height as DimensionValue,
+
+                            borderTopRightRadius: height === '100%' ? 0 : 25,
+                            borderTopLeftRadius: height === '100%' ? 0 : 25,
+                        }]}>
                             {children}
                         </View>
                     </TouchableWithoutFeedback>
@@ -49,12 +54,9 @@ const styles = StyleSheet.create({
         right: 0,
 
         width: '100%',
-        borderTopRightRadius: 25,
-        borderTopLeftRadius: 25,
+
         paddingTop: 20,
         paddingHorizontal: 10,
-        // justifyContent: 'center',
-        // alignItems: 'center',
     },
 });
 
