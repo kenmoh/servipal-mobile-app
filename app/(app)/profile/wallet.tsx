@@ -56,7 +56,7 @@ const index = () => {
             refetch();
         }, [refetch])
     );
-
+    console.log(profile?.profile.full_name)
     return (
         <View className="flex-1 bg-background ">
             <Animated.View
