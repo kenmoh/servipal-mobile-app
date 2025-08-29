@@ -161,11 +161,6 @@ const DeliveryScreen = () => {
     return distance;
   }, [userLocation]);
 
-  // Memoize render functions
-  // const renderItem: ListRenderItem<DeliveryDetail> = useCallback(
-  //   ({ item }) => <ItemCard data={item} isHomeScreen />,
-  //   []
-  // );
 
   const renderItem = useCallback(({ item }: { item: DeliveryDetail }) => <ItemCard data={item} />, []);
 
