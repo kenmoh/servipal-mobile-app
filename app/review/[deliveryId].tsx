@@ -253,10 +253,10 @@ const ReviewPage = () => {
                 </View>
 
                 <AppButton
-                    title={isPending ? "Submitting..." : "Submit Review"}
+                    title={isPending || isProductReviewPending ? "Submitting..." : "Submit Review"}
                     onPress={handleSubmit(onSubmit)}
                     disabled={isPending}
-                    icon={isPending && <ActivityIndicator color="white" size={'large'} />}
+                    icon={isPending || isProductReviewPending && <ActivityIndicator color="white" size={'large'} />}
                 />
 
 

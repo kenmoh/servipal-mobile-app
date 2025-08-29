@@ -499,6 +499,34 @@ export const createReview = async (
   }
 };
 
+// export const getTravelDistance = async (
+//   userLat: number,
+//   userLng: number,
+//   destinationLat: number,
+//   destinationLng: number
+// ): Promise<number | null> => {
+//   try {
+//     const origin = `${userLat},${userLng}`;
+//     const destination = `${destinationLat},${destinationLng}`;
+
+//     const url = `https://maps.googleapis.com/maps/api/distancematrix/json?destinations=${destination}&origins=${origin}&units=metric&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY}`;
+
+//     const response = await fetch(url);
+//     const data = await response.json();
+
+//     const distanceInMeters = data?.rows?.[0]?.elements?.[0]?.distance?.value;
+
+//     if (distanceInMeters) {
+//       // Convert meters to kilometers
+//       return distanceInMeters / 1000;
+//     }
+
+//     return null;
+//   } catch (error) {
+//     throw new Error(`Error calculating travel distance: ${error}`);
+//   }
+// };
+
 export const getTravelDistance = async (
   userLat: number,
   userLng: number,
@@ -506,26 +534,24 @@ export const getTravelDistance = async (
   destinationLng: number
 ): Promise<number | null> => {
   try {
-    const origin = `${userLat},${userLng}`;
-    const destination = `${destinationLat},${destinationLng}`;
-
-    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?destinations=${destination}&origins=${origin}&units=metric&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY}`;
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${userLng},${userLat};${destinationLng},${destinationLat}?geometries=geojson&overview=false&access_token=${process.env.EXPO_PUBLIC_MAPBOX_KEY}`;
 
     const response = await fetch(url);
     const data = await response.json();
 
-    const distanceInMeters = data?.rows?.[0]?.elements?.[0]?.distance?.value;
+    const distanceInMeters = data?.routes?.[0]?.distance;
 
     if (distanceInMeters) {
-      // Convert meters to kilometers
+      // Convert meters → kilometers
       return distanceInMeters / 1000;
     }
 
     return null;
   } catch (error) {
-    throw new Error(`Error calculating travel distance: ${error}`);
+    throw new Error(`Error calculating travel distance (Mapbox): ${error}`);
   }
 };
+
 
 export const generateOrderPaymentLink = async (
   orderId: string
