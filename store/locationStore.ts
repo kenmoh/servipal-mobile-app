@@ -7,8 +7,11 @@ interface LocationStore {
   originCoords: [number, number] | null;
   destinationCoords: [number, number] | null;
   reset: () => void;
-  setOrigin: (address: string, coords: [number, number]) => void;
-  setDestination: (address: string, coords: [number, number]) => void;
+  setOrigin: (address: string | null, coords: [number, number] | null) => void;
+  setDestination: (
+    address: string | null,
+    coords: [number, number] | null
+  ) => void;
   getCurrentLocation: () => Promise<{
     coords: [number, number];
     address: string;

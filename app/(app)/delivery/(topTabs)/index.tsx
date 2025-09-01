@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import * as Location from "expo-location";
 
-import { getCurrentUserProfile, registerForNotifications } from "@/api/user";
+import { getCurrentUserProfile, registerForNotifications, registerCoordinates } from "@/api/user";
 import AppTextInput from "@/components/AppInput";
 import FAB from "@/components/FAB";
 import { DeliveryListSkeleton, SearchBarSkeleton } from "@/components/LoadingSkeleton";
@@ -80,9 +80,17 @@ const DeliveryScreen = () => {
   }, [checkLocationPermission]);
 
 
+
+
   const registerMutation = useMutation({
     mutationFn: registerForNotifications,
   });
+
+  const registerCoordinatesMutation = useMutation({
+    mutationFn: registerCoordinates,
+   
+  });
+
 
   const { data: userProfile, isSuccess } = useQuery({
     queryKey: ["profile", user?.sub],
@@ -93,13 +101,21 @@ const DeliveryScreen = () => {
 
 
   useEffect(() => {
-    if (expoPushToken) {
+    if (expoPushToken, userLocation) {
       // Send the token to server when it exists
       registerMutation.mutate({
         notification_token: expoPushToken,
       });
+
+      registerCoordinatesMutation.mutate({
+
+          lat: userLocation.latitude,
+          lng: userLocation.longitude
+        
+      })
     }
-  }, [expoPushToken]);
+  }, [expoPushToken, userLocation]);
+
 
   useEffect(() => {
     if (isSuccess && userProfile) {

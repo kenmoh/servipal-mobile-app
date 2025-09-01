@@ -16,6 +16,11 @@ export interface Bank {
   name: string;
 }
 
+export interface UserCoords {
+    lat: number
+    lng: number
+}
+
 interface Review {
   rating: string;
   comment: string;
