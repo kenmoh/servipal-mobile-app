@@ -41,7 +41,6 @@ interface MapboxDirectionsResponse {
 //       throw new Error("No route found");
 //     }
 
-
 //     return response.data.routes[0].geometry.coordinates.map(
 //       (coord: number[]): [number, number] => [coord[1], coord[0]]
 //     );
@@ -50,7 +49,6 @@ interface MapboxDirectionsResponse {
 //     return [];
 //   }
 // };
-
 
 // import { mapboxClient } from "./client";
 
@@ -72,10 +70,17 @@ interface MapboxDirectionsResponse {
 export const getDirections = async (
   origin: [number, number],
   destination: [number, number]
-): Promise<{ coordinates: [number, number][], distance: number, duration: number }> => {
+): Promise<{
+  coordinates: [number, number][];
+  distance: number;
+  duration: number;
+}> => {
   try {
     const mapboxOrigin: [number, number] = [origin[1], origin[0]];
-    const mapboxDestination: [number, number] = [destination[1], destination[0]];
+    const mapboxDestination: [number, number] = [
+      destination[1],
+      destination[0],
+    ];
 
     const response = await mapboxClient.get<MapboxDirectionsResponse>(
       `/directions/v5/mapbox/driving/${mapboxOrigin[0]},${mapboxOrigin[1]};${mapboxDestination[0]},${mapboxDestination[1]}?access_token=${process.env.EXPO_PUBLIC_MAPBOX_KEY}&geometries=geojson`
@@ -96,8 +101,7 @@ export const getDirections = async (
       duration: route.duration, // seconds
     };
   } catch (error) {
-    console.error("Error fetching directions:", error);
+    console.error("Error fetching directions:", "ERROR: ", error);
     return { coordinates: [], distance: 0, duration: 0 };
   }
 };
-

@@ -1,10 +1,10 @@
+import { useAuth } from "@/context/authContext";
 import { useLocationStore } from "@/store/locationStore";
 import { CompanyProfile } from "@/types/user-types";
 import { getCoordinatesFromAddress } from '@/utils/geocoding';
 import { AntDesign } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { RelativePathString, router, type Href } from "expo-router";
-import { useAuth } from "@/context/authContext";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
 
 const IMAGET_HEIGHT = Dimensions.get("window").height * 0.25;
@@ -26,9 +26,9 @@ const StoreCard = ({
 
     } = useLocationStore()
 
-    const {setStoreId} = useAuth()
+    const { setStoreId } = useAuth()
 
-  
+
 
     const handleStoreSelect = async () => {
         const address = item?.location;
@@ -38,7 +38,7 @@ const StoreCard = ({
                 setOrigin(address, [coords.lat, coords.lng]);
             }
         }
-       // setStoreId(item?.id)
+        // setStoreId(item?.id)
         router.push({
             pathname: pathName as RelativePathString,
             params: {
@@ -86,7 +86,7 @@ const StoreCard = ({
                 {parseInt(item?.rating.average_rating) > 0 && (
                     <View style={styles.ratingBadge}>
                         <Text className="text-primary font-poppins-bold">
-                            {item?.rating?.average_rating}
+                            {Number(item?.rating?.average_rating).toFixed(1)}
                         </Text>
                         <AntDesign
                             name="star"
@@ -100,7 +100,7 @@ const StoreCard = ({
                 <View className='absolute bottom-0 p-3 w-full gap-1'
 
                 >
-                    <View style={{ backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 20 }} className="self-start px-2 py-1"
+                    <View style={{ backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 10 }} className="self-start px-2 py-1"
 
 
                     >
@@ -112,7 +112,7 @@ const StoreCard = ({
                                 color: theme === 'dark' ? '#fff' : '#fff'
                             }}
                         >
-                            🏪{item?.company_name}
+                            {item?.company_name}
                         </Text>
                     </View>
 
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(0,0,0,0.6)",
         paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: 4,
+        borderRadius: 10,
         alignItems: "center",
         gap: 4,
     },

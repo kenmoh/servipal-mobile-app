@@ -47,7 +47,6 @@ export const getCoordinatesFromAddress = async (
   }
 };
 
-
 // interface Coordinates {
 //   lat: number;
 //   lng: number;

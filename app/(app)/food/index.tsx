@@ -1,4 +1,4 @@
-import React, { useEffect, useState, } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, Image, StyleSheet, Text, useColorScheme, View } from "react-native";
 
 import { getTravelDistance } from "@/api/order";
@@ -14,6 +14,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import * as Location from "expo-location";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Swiper from "react-native-swiper";
+import { registerCoordinates } from "@/api/user";
 
 import { fetchCategories } from "@/api/item";
 import Card from "@/components/Card";
@@ -125,11 +126,27 @@ const Page = () => {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [hasItem, setHasItem] = useState(false);
 
-    const { data, isFetching, isPending, error, isLoading, refetch, isFetched } = useQuery({
+    const { data, isFetching, error, refetch, isFetched } = useQuery({
         queryKey: ["restaurants", selectedCategory],
         queryFn: () => fetchRestaurants(selectedCategory ?? undefined),
+        select: (data) => {
+            if (!data || !user?.sub) return data;
+            
+            // Find current user's restaurant
+            const currentUserRestaurant = data.find(restaurant => restaurant.id === user?.sub);
+            const otherRestaurants = data.filter(restaurant => restaurant.id !== user?.sub);
+            
+            // Sort other restaurants by distance or any other criteria
+            otherRestaurants.sort((a, b) => a.distance - b.distance);
+            
+            // Return with current user's restaurant first
+            return currentUserRestaurant 
+              ? [currentUserRestaurant, ...otherRestaurants]
+              : otherRestaurants;
+          }
     });
 
+ 
 
     const { data: categories } = useQuery({
         queryKey: ["categories"],
@@ -138,6 +155,10 @@ const Page = () => {
             categories?.filter((category) => category.category_type === "food") || [],
     });
 
+    const handleRefresh = useCallback(() => {
+        refetch();
+    }, [refetch]);
+
     // Get user's location
     useEffect(() => {
         const getUserLocation = async () => {
@@ -145,86 +166,96 @@ const Page = () => {
             if (status !== "granted") return;
 
             const location = await Location.getCurrentPositionAsync({});
-          
-            setUserLocation({
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-            });
+
+            if (location) {
+
+                setUserLocation({
+                    latitude: location.coords.latitude,
+                    longitude: location.coords.longitude,
+                });
+            }
+
         };
 
         getUserLocation();
     }, []);
 
     // Filter restaurants by location after API returns category-filtered data
-    useEffect(() => {
-        const filterRestaurants = async () => {
-            if (!data || !userLocation) {
-                setFilteredRestaurants([]);
-                return;
-            }
+    // useEffect(() => {
+    //     const filterRestaurants = async () => {
+    //         if (!data || !userLocation) {
+    //             setFilteredRestaurants([]);
+    //             return;
+    //         }
 
-            const restaurantsWithDistance = await Promise.all(
-                data.map(async (restaurant) => {
-                    const coordinates = await getCoordinatesFromAddress(
-                        restaurant.location
-                    );
-                    if (!coordinates) return null;
+    //         try {
+    //             const restaurantsWithDistance = await Promise.all(
+    //                 data.map(async (restaurant) => {
+    //                     const coordinates = await getCoordinatesFromAddress(
+    //                         restaurant.location
+    //                     );
+    //                     if (!coordinates) return null;
 
-                    const distance = await getTravelDistance(
-                        userLocation.latitude,
-                        userLocation.longitude,
-                        coordinates.lat,
-                        coordinates.lng
-                    );
+    //                     const distance = await getTravelDistance(
+    //                         userLocation.latitude,
+    //                         userLocation.longitude,
+    //                         coordinates.lat,
+    //                         coordinates.lng
+    //                     );
 
-                    if (!distance || distance > 35) return null;
 
-                    return {
-                        ...restaurant,
-                        distance,
-                    } as RestaurantWithDistance;
-                })
-            );
+    //                     if (distance === null || distance > 35) return null;
 
-            // Filter out null values first
-            const validRestaurants = restaurantsWithDistance.filter(
-                (item): item is RestaurantWithDistance => item !== null
-            );
 
-            let currentVendorRestaurant = null;
-            let otherRestaurants = validRestaurants;
+    //                     return {
+    //                         ...restaurant,
+    //                         distance,
+    //                     } as RestaurantWithDistance;
+    //                 })
+    //             );
 
-            if (user?.user_type === "restaurant_vendor") {
-                // Find the current vendor's restaurant
-                currentVendorRestaurant = validRestaurants.find(
-                    (restaurant) => restaurant.id === user.sub
-                );
+    //             // Filter out null values first
+    //             const validRestaurants = restaurantsWithDistance.filter(
+    //                 (item): item is RestaurantWithDistance => item !== null
+    //             );
 
-                if (currentVendorRestaurant) {
-                    setHasItem(true);
-                } else {
-                    setHasItem(false);
-                }
+    //             let currentVendorRestaurant = null;
+    //             let otherRestaurants = validRestaurants;
 
-                // Remove current vendor's restaurant from others list
-                otherRestaurants = validRestaurants.filter(
-                    (restaurant) => restaurant.id !== user.sub
-                );
-            }
+    //             if (user?.user_type === "restaurant_vendor") {
+    //                 // Find the current vendor's restaurant
+    //                 currentVendorRestaurant = validRestaurants.find(
+    //                     (restaurant) => restaurant.id === user.sub
+    //                 );
 
-            // Sort other restaurants by distance
-            otherRestaurants.sort((a, b) => a.distance - b.distance);
+    //                 if (currentVendorRestaurant) {
+    //                     setHasItem(true);
+    //                 } else {
+    //                     setHasItem(false);
+    //                 }
 
-            // Combine results - current vendor first, then others
-            const finalResults = currentVendorRestaurant
-                ? [currentVendorRestaurant, ...otherRestaurants]
-                : otherRestaurants;
+    //                 // Remove current vendor's restaurant from others list
+    //                 otherRestaurants = validRestaurants.filter(
+    //                     (restaurant) => restaurant.id !== user.sub
+    //                 );
+    //             }
 
-            setFilteredRestaurants(finalResults);
-        };
+    //             // Sort other restaurants by distance
+    //             otherRestaurants.sort((a, b) => a.distance - b.distance);
 
-        filterRestaurants();
-    }, [data, userLocation, user?.sub, user?.user_type, selectedCategory]);
+    //             // Combine results - current vendor first, then others
+    //             const finalResults = currentVendorRestaurant
+    //                 ? [currentVendorRestaurant, ...otherRestaurants]
+    //                 : otherRestaurants;
+
+    //             setFilteredRestaurants(finalResults);
+    //         } catch (error) {
+    //             console.error("Error filtering restaurants by distance:", error);
+    //         }
+    //     };
+
+    //     filterRestaurants();
+    // }, [data, userLocation, user?.sub, user?.user_type, selectedCategory]);
 
     if (isFetching) {
         return (
@@ -250,6 +281,7 @@ const Page = () => {
         );
     }
 
+ 
     const showEmptyState = isFetched && filteredRestaurants.length === 0;
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: BG_COLOR }}>
@@ -264,41 +296,43 @@ const Page = () => {
             />
             <HDivider />
 
-         
 
-                <FlatList
-                    data={filteredRestaurants}
-                    ListHeaderComponent={() => (
-                        <>
-                            <Category
-                                categories={categories || []}
-                                onCategorySelect={setSelectedCategory}
-                                selectedCategory={selectedCategory}
-                            />
-                            {/*<FeaturedRestaurants />*/}
-                        </>
-                    )}
-                    stickyHeaderIndices={[1]}
-                    ListEmptyComponent={<EmptySearch selectedCategory={selectedCategory}/>}
-                    showsVerticalScrollIndicator={false}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({
-                        item,
-                    }: {
-                        item: CompanyProfile & { distance: number };
-                    }) => (
-                        <StoreCard
-                            item={item}
-                            distance={item.distance}
-                            pathName='/restaurant-detail/[restaurantId]'
+
+            <FlatList
+                data={data}
+                ListHeaderComponent={() => (
+                    <>
+                        <Category
+                            categories={categories || []}
+                            onCategorySelect={setSelectedCategory}
+                            selectedCategory={selectedCategory}
                         />
-                    )}
-                    contentContainerStyle={{
-                        paddingBottom: 10,
-                    }}
-                />
+                        {/*<FeaturedRestaurants />*/}
+                    </>
+                )}
+                stickyHeaderIndices={[1]}
+                ListEmptyComponent={<EmptySearch selectedCategory={selectedCategory!} />}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(item) => item.id}
+                refreshing={isFetching}
+                onRefresh={handleRefresh}
+                renderItem={({
+                    item,
+                }: {
+                    item: CompanyProfile & { distance: number };
+                }) => (
+                    <StoreCard
+                        item={item}
+                        distance={item.distance}
+                        pathName='/restaurant-detail/[restaurantId]'
+                    />
+                )}
+                contentContainerStyle={{
+                    paddingBottom: 10,
+                }}
+            />
 
-         
+
 
         </SafeAreaView>
     );
@@ -307,21 +341,21 @@ const Page = () => {
 export default Page;
 
 
-const EmptySearch = ({selectedCategory}: {selectedCategory: string}) => {
-    return(
-            <View className='flex-1 justify-center items-center p-4' >
-                    <Text className="text-lg text-primary text-center" >
-                        {selectedCategory ? "No restaurants found in this category" : "No restaurants found nearby"}
-                    </Text>
-                    <Text className='text-sm text-muted text-center mt-2' >
-                        {selectedCategory
-                            ? "Try selecting a different category or clear the filter"
-                            : "We couldn't find any restaurants within 35km of your location"
-                        }
-                    </Text>
-                </View>
+const EmptySearch = ({ selectedCategory }: { selectedCategory: string }) => {
+    return (
+        <View className='flex-1 justify-center items-center p-4' >
+            <Text className="text-lg text-primary text-center" >
+                {selectedCategory ? "No restaurants found in this category" : "No restaurants found nearby"}
+            </Text>
+            <Text className='text-sm text-muted text-center mt-2' >
+                {selectedCategory
+                    ? "Try selecting a different category or clear the filter"
+                    : "We couldn't find any restaurants within 35km of your location"
+                }
+            </Text>
+        </View>
 
-        )
+    )
 }
 
 export const FeaturedRestaurants = () => {
@@ -402,5 +436,3 @@ const styles = StyleSheet.create({
         resizeMode: "cover",
     },
 });
-
-

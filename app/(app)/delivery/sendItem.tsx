@@ -60,6 +60,9 @@ const SendItem = () => {
           placeholder="Pickup Location"
           value={origin}
           error={errors.origin}
+          onChangeText={(text) => {
+            setOrigin(text, null);
+          }}
           onPlaceSelect={(lat, lng, address) => {
             setOrigin(address, [lat, lng]);
             setErrors((prev) => ({ ...prev, origin: "" }));
@@ -71,6 +74,9 @@ const SendItem = () => {
           placeholder="Dropoff Location"
           value={destination}
           error={errors.destination}
+          onChangeText={(text) => {
+            setDestination(text, null);
+          }}
           onPlaceSelect={(lat, lng, address) => {
             setDestination(address, [lat, lng]);
             setErrors((prev) => ({ ...prev, destination: "" }));

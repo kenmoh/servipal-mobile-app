@@ -10,6 +10,8 @@ import { useAuth } from "@/context/authContext";
 import { useCartStore } from "@/store/cartStore";
 import { useLocationStore } from "@/store/locationStore";
 import { OrderFoodOLaundry } from "@/types/order-types";
+import { formatDistanceAndTime } from "@/utils/formatCurrency";
+import { getDirections } from "@/utils/map";
 import { useMutation } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { ShoppingCart } from "lucide-react-native";
@@ -123,6 +125,9 @@ const Cart = () => {
       if (!origin || !destination) {
         return;
       }
+      if (!originCoords || !destination) {
+        return;
+      }
 
       // Use origin from store for originQuery
       const originQuery = encodeURIComponent(origin);
@@ -130,22 +135,39 @@ const Cart = () => {
 
       const url = `https://maps.googleapis.com/maps/api/distancematrix/json?destinations=${destinationQuery}&origins=${originQuery}&units=metric&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY}`;
 
+
+
       try {
         const response = await fetch(url);
         const data = await response.json();
+        const { distance, duration } = await getDirections(originCoords, destinationCoords!)
 
-        const distanceText = data?.rows?.[0]?.elements?.[0]?.distance?.text;
-        const durationText = data?.rows?.[0]?.elements?.[0]?.duration?.text;
 
-        if (distanceText && durationText) {
-          const distanceValue = parseFloat(
-            distanceText.replace(/[^0-9.]/g, "")
-          );
 
-          setDistance(distanceValue);
-          setDuration(durationText);
-          updateDistance(distanceValue);
-          updateDuration(durationText);
+        console.log("DISTANCE0: ", distance, "DURATION0: ", duration)
+
+        // const distanceText = data?.rows?.[0]?.elements?.[0]?.distance?.text;
+        // const durationText = data?.rows?.[0]?.elements?.[0]?.duration?.text;
+
+        if (distance && duration) {
+
+          console.log("DISTANCE1: ", distance, "DURATION1: ", duration);
+
+          // if (distanceText && durationText) {
+          //   const distanceValue = parseFloat(
+          //     distanceText.replace(/[^0-9.]/g, "")
+          //   );
+
+          const { distance: formattedDistance, duration: formattedDuration } = formatDistanceAndTime(distance, duration);
+
+          setDistance(formattedDistance);
+          setDuration(formattedDistance.toString());
+          updateDistance(formattedDistance);
+          updateDuration(formattedDistance.toString());
+          // setDistance(distanceValue);
+          // setDuration(durationText);
+          // updateDistance(distanceValue);
+          // updateDuration(durationText);
         }
       } catch (error) {
         console.error("Failed to fetch distance matrix:", error);
@@ -197,9 +219,10 @@ const Cart = () => {
               />
             </View>
 
-            <View className="w-full self-center">
+            <View className="w-full self-center ">
+              <Text className="font-poppins-light self-start text-muted ml-5">Additional Information(Optiona)</Text>
               <AppTextInput
-                label="Additional Information (Optional)"
+                // label="Additional Information (Optional)"
                 value={infoText}
                 onChangeText={(text) => {
                   setInfoText(text);
@@ -209,63 +232,62 @@ const Cart = () => {
             </View>
 
             {require_delivery === "delivery" && destination && !modalVisible && (
-              <View className="w-[90%] rounded-lg bg-input self-center my-3  p-5">
+              <View className="w-[90%] rounded-lg bg-input self-center my-3 gap-3">
                 {/* DELIVERY INFO */}
                 <View className="flex-row">
                   <Text
-                    className="w-[25%] text-primary font-poppins"
+                    className="w-[25%] text-muted font-poppins-light"
                     style={{
-                      fontFamily: "Poppins-Regular",
+
                       fontSize: 11,
 
-                      fontWeight: "bold",
                     }}
                   >
                     Origin:{" "}
                   </Text>
-                  <Text className="w-[75%] text-primary font-poppins text-sm">
+                  <Text className="w-[75%] text-muted font-poppins-light text-sm">
                     {origin}
                   </Text>
                 </View>
 
                 <View className="flex-row">
                   <Text
-                    className="w-[25%] text-primary font-poppins-medium text-sm"
-                    
+                    className="w-[25%] text-muted font-poppins-light text-sm"
+
                   >
                     Dest:{" "}
                   </Text>
-                  <Text className="w-[75%] text-primary font-poppins text-sm">
+                  <Text className="w-[75%] text-muted font-poppins-light text-sm">
                     {destination}
                   </Text>
                 </View>
 
                 <View className="flex-row">
-                  <Text className="w-[25%] text-primary font-poppins-medium text-sm">
+                  <Text className="w-[25%] text-muted font-poppins-light text-sm">
                     Duration:{" "}
                   </Text>
-                  <Text className="w-[75%] text-primary font-poppins text-sm">
+                  <Text className="w-[75%] text-muted font-poppins-light text-sm">
                     {storeDelivery}
                   </Text>
                 </View>
                 <View className="flex-row">
-                  <Text className="w-[25%] text-primary font-poppins-medium text-sm">
+                  <Text className="w-[25%] text-muted font-poppins-light text-sm">
                     Distance:{" "}
                   </Text>
-                  <Text className="w-[75%] text-primary font-poppins text-sm">
+                  <Text className="w-[75%] text-muted font-poppins-light text-sm">
                     {storeDistance} Km
                   </Text>
                 </View>
 
                 <View className="flex-row">
-                  <Text className="w-[35%] text-primary font-poppins-medium text-sm">
+                  <Text className="w-[35%] text-muted font-poppins-light text-sm">
                     Additional Info:
                   </Text>
-                  <Text className="w-[75%] text-primary font-poppins text-sm text-wrap">
+                  <Text className="w-[75%] text-muted font-poppins-light text-sm text-wrap">
                     {cart.additional_info}
                   </Text>
                 </View>
-                <Text className="text-primary font-poppins-medium text-sm">
+                <Text className="text-muted font-poppins-light text-sm">
                   Delivery Option: {require_delivery.toUpperCase()}
                 </Text>
               </View>
@@ -292,6 +314,7 @@ const Cart = () => {
           >
 
             <View className="w-full self-center">
+
               <AppTextInput
                 label="Pickup Location"
                 value={origin || ""}

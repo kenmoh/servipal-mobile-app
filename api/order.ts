@@ -539,6 +539,12 @@ export const getTravelDistance = async (
     const response = await fetch(url);
     const data = await response.json();
 
+    if (data.code !== "Ok" && data.message) {
+      console.warn(`Mapbox API error: ${data.code} - ${data.message}`);
+      console.log("Mapbox URL for failed request:", url);
+      return null;
+    }
+
     const distanceInMeters = data?.routes?.[0]?.distance;
 
     if (distanceInMeters) {
@@ -551,7 +557,6 @@ export const getTravelDistance = async (
     throw new Error(`Error calculating travel distance (Mapbox): ${error}`);
   }
 };
-
 
 export const generateOrderPaymentLink = async (
   orderId: string
