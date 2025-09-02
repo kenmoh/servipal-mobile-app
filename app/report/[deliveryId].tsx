@@ -117,7 +117,7 @@ const ReportPage = () => {
                         {errors.report_type && (
                             <Text className="text-status-error px-[5%]">{errors.report_type.message}</Text>
                         )}
-                        <Text className="font-poppins px-[5%] text-primary">User Type</Text>
+                        <Text className="font-poppins px-[5%] text-primary">Reporting</Text>
                         <Controller
                             control={control}
                             name="reported_user_type"

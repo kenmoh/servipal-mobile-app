@@ -128,17 +128,15 @@ export const updateProduct = async (
 // Fetch products
 export const fetchProducts = async (
   categoryId?: string
-): Promise<CreateProductResponse[]> => {
+): Promise<ProductResponse[]> => {
   try {
     // Build URL with optional categoryId parameter
-    const url = categoryId 
-      ? `${BASE_URL}?category_id=${categoryId}` 
-      : BASE_URL;
-    
-    console.log('fetchProducts - categoryId:', categoryId);
-    console.log('fetchProducts - URL:', url);
-    
-    const response: ApiResponse<CreateProductResponse[] | ErrorResponse> =
+    const url = categoryId ? `${BASE_URL}?category_id=${categoryId}` : BASE_URL;
+
+    console.log("fetchProducts - categoryId:", categoryId);
+    console.log("fetchProducts - URL:", url);
+
+    const response: ApiResponse<ProductResponse[] | ErrorResponse> =
       await apiClient.get(url, {
         headers: {
           "Content-Type": "application/json",

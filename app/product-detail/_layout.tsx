@@ -60,8 +60,9 @@ const _layout = () => {
                 />
                 <Stack.Screen
                     name="product-reviews"
+
                     options={{
-                        headerTransparent: true,
+
 
                         title: "Product Reviews",
                         animation: "slide_from_bottom",
