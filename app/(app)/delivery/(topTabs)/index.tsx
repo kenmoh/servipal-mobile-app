@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import * as Location from "expo-location";
 
-import { getCurrentUserProfile, registerForNotifications, registerCoordinates } from "@/api/user";
+import { getCurrentUserProfile, registerCoordinates, registerForNotifications } from "@/api/user";
 import AppTextInput from "@/components/AppInput";
 import FAB from "@/components/FAB";
 import { DeliveryListSkeleton, SearchBarSkeleton } from "@/components/LoadingSkeleton";
@@ -88,9 +88,11 @@ const DeliveryScreen = () => {
 
   const registerCoordinatesMutation = useMutation({
     mutationFn: registerCoordinates,
-   
+    onError: (error)=> console.log(error)
+
   });
 
+  console.log(userLocation)
 
   const { data: userProfile, isSuccess } = useQuery({
     queryKey: ["profile", user?.sub],
@@ -101,17 +103,17 @@ const DeliveryScreen = () => {
 
 
   useEffect(() => {
-    if (expoPushToken, userLocation) {
+    if (expoPushToken || userLocation) {
       // Send the token to server when it exists
       registerMutation.mutate({
-        notification_token: expoPushToken,
+        notification_token: expoPushToken!,
       });
 
       registerCoordinatesMutation.mutate({
 
-          lat: userLocation.latitude,
-          lng: userLocation.longitude
-        
+        lat: userLocation?.latitude!,
+        lng: userLocation?.longitude!
+
       })
     }
   }, [expoPushToken, userLocation]);
@@ -284,6 +286,8 @@ const DeliveryScreen = () => {
 
   if (error) return <RefreshButton onPress={refetch} label="Error loading deliveries" />
 
+  console.log(data)
+
   return (
     <View className="bg-background flex-1 p-2">
       <AppTextInput
@@ -294,7 +298,7 @@ const DeliveryScreen = () => {
       />
       <HDivider />
       <LegendList
-        data={filteredData || []}
+        data={data || []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
         ItemSeparatorComponent={renderSeparator}

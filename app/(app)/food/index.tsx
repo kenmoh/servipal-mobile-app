@@ -146,6 +146,9 @@ const Page = () => {
           }
     });
 
+
+    console.log(data)
+
  
 
     const { data: categories } = useQuery({
