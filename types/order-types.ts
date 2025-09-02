@@ -85,6 +85,7 @@ export interface OrderResponse {
 export interface DeliveryDetail {
   delivery?: Delivery;
   order: OrderResponse;
+  distance?: number
 }
 
 interface OrderItem {

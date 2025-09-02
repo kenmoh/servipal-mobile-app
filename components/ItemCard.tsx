@@ -264,9 +264,17 @@ const ItemCard = React.memo(({ data, isHomeScreen = false }: CardProp) => {
                             {data?.order?.require_delivery === 'delivery' && <View className='gap-[5px] flex-row items-center flex-wrap'>
                                 <View className='flex-row gap-[5px] items-center flex-shrink-0'>
                                     <Feather name="clock" color='gray' size={10} />
-                                    <Text className='text-muted font-poppins text-xs'>
+                                    <View className='flex-row justify-between flex-1'>
+                                        
+                                        <Text className='text-muted font-poppins text-xs'>
                                         {data?.delivery ? data?.delivery?.duration : ''}
                                     </Text>
+                                    {user?.user_type==='rider' && <Text className='text-muted font-poppins text-xs'>{data?.distance?.toFixed(2)} km away</Text>}
+
+
+                                   
+                                    </View>
+
                                 </View>
                                 {/* {'DISTANCE HERE IF NEEDED'} */}
                             </View>}

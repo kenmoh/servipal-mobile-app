@@ -65,13 +65,16 @@ const MarketPlace = () => {
                             <Text className="text-muted text-base font-poppins text-center">
                                 {selectedCategory ? 'No products found in this category' : 'No products available'}
                             </Text>
-                            <Text className="text-muted-foreground text-sm font-poppins-light text-center mt-2">
+                            <Text className="text-muted-foreground tex t-sm font-poppins-light text-center mt-2">
                                 {selectedCategory ? 'Try selecting a different category' : 'Check back later for new products'}
                             </Text>
                         </View>
                     )}
                     refreshing={isFetching}
                     onRefresh={handleRefresh}
+                    numColumns={2}
+                    columnWrapperStyle={{ gap: 10, justifyContent: 'center' }}
+
                 />
 
             </View>

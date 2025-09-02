@@ -5,9 +5,9 @@ import {
   RiderProfile,
   RiderResponse,
   RiderUpdate,
+  UserCoords,
   UserDetails,
   UserProfileUpdate,
-  UserCoords,
   Wallet,
 } from "@/types/user-types";
 import { apiClient } from "@/utils/client";
@@ -513,15 +513,14 @@ export const registerForNotifications = async (
   }
 };
 
-
 // Register for notifications
 export const registerCoordinates = async (
   coords: UserCoords
 ): Promise<UserCoords> => {
   const data = {
-    lat: coords.lat,
-    lng: coords.lng
-  }
+      lat: coords.lat,
+      lng: coords.lng,
+  };
   try {
     const response: ApiResponse<UserCoords | ErrorResponse> =
       await apiClient.put(`${BASE_URL}/user-coordinates`, data, {
@@ -535,7 +534,6 @@ export const registerCoordinates = async (
         typeof response.data === "object" &&
         "detail" in response.data)
     ) {
-      console.log("PROBLEM: ",response.originalError)
       const errorMessage =
         response.data &&
         typeof response.data === "object" &&

@@ -13,7 +13,8 @@ import {
 } from "react-native";
 
 
-const CARD_HEIGHT = Dimensions.get("screen").height * 0.28;
+const CARD_HEIGHT = Dimensions.get("screen").height * 0.2;
+const CARD_WIDTH = Dimensions.get("screen").width * 0.45;
 
 const ProductCard = ({ product }: { product: ProductResponse }) => {
     const handlePress = () => {
@@ -31,10 +32,11 @@ const ProductCard = ({ product }: { product: ProductResponse }) => {
             activeOpacity={0.7}
             onPress={handlePress}
             className="my-4"
+            style={{ width: CARD_WIDTH }}
         >
             <View
                 style={styles.container}
-                className="w-[95%] rounded-lg bg-input self-center overflow-hidden"
+                className="rounded-lg bg-input self-center overflow-hidden"
             >
                 <Image
                     source={{
@@ -43,28 +45,28 @@ const ProductCard = ({ product }: { product: ProductResponse }) => {
                     className="w-full h-full object-cover"
                 />
             </View>
-            <View className="bg-background w-[95%] self-center p-2 rounded-b-lg">
-                <View className="flex-row justify-between">
+            <View style={{ width: CARD_WIDTH }} className="bg-background self-center mt-2 rounded-b-lg">
+                <View className="justify-between">
                     <Text
-                        className="text-primary text-base font-poppins-medium flex-1"
+                        className="text-muted text-base font-poppins flex-1"
                         numberOfLines={1}
                     >
                         {product.name}
                     </Text>
-                    <Text className="text-primary text-base font-poppins-bold">
+                    <Text className="text-primary  text-base font-poppins-bold">
                         ₦{Number(product?.price).toLocaleString()}
                     </Text>
                 </View>
-                <View className="flex-row justify-between mt-1">
-                    <View className="flex-row gap-2 items-center">
-                        <Store size={16} color="gray" />
-                        <Text className="text-muted text-sm font-poppins">
-                            {product?.store_name}
-                        </Text>
-                    </View>
+                <View className="justify-between mt-1">
                     <View className="flex-row items-center gap-2">
                         {product?.total_sold > 0 && <Text className="text-muted text-sm font-poppins">Sold: {product.total_sold}</Text>}
                         <Text className="text-muted text-sm font-poppins">Available: {product.stock || 0}</Text>
+                    </View>
+                    <View className="flex-row gap-2 items-center">
+                        <Store size={16} color="gray" />
+                        <Text className="text-muted text-sm flex-1 font-poppins" numberOfLines={1}>
+                            {product?.store_name}
+                        </Text>
                     </View>
                 </View>
             </View>
@@ -83,6 +85,7 @@ export default ProductCard;
 const styles = StyleSheet.create({
     container: {
         height: CARD_HEIGHT,
+        width: CARD_WIDTH,
     },
 
 });
