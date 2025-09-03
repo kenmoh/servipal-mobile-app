@@ -239,13 +239,13 @@ const Profile = () => {
         <Controller
           control={control}
           name="state"
-          render={({ field }) => (
+          render={({ field: { onChange, value } }) => (
             <AppPicker
-              items={states || []}
-              isBank
-              label="State"
-              value={field.value || ""}
-              onValueChange={field.onChange}
+              items={states}
+              isBank={false}
+              isState={true}
+              value={value}
+              onValueChange={onChange}
             />
           )}
         />

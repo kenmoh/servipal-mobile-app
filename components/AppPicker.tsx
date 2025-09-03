@@ -6,7 +6,7 @@ import { StyleSheet, Text, useColorScheme, View } from "react-native";
 type ItemProp = {
   id: number | string;
   name: string;
-  capital?: string
+  capital?: string;
   code?: string;
 };
 
@@ -16,6 +16,7 @@ type PickerProps = {
   value: string;
   placeholder?: string;
   isBank?: boolean;
+  isState?: boolean;
   selectedValue?: string;
   enabled?: boolean;
   width?: string;
@@ -29,6 +30,7 @@ const AppPicker = ({
   placeholder,
   onValueChange,
   isBank = false,
+  isState = false,
   enabled = true,
   width = "90%",
 }: PickerProps) => {
@@ -66,8 +68,8 @@ const AppPicker = ({
             value=""
           />
           {items?.map((item) => {
-            const itemKey = isBank ? `${item.code}` : `${item.id}`;
-            const itemValue = isBank ? itemKey : item.id || item.capital;
+            const itemKey = isBank ? `${item.code}` : isState ? `${item.name}` : `${item.id}`;
+            const itemValue = isBank ? itemKey : isState ? `${item.name}` : item.id;
 
             return (
               <Picker.Item

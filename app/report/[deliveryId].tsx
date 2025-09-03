@@ -2,8 +2,8 @@ import React from "react";
 import { ActivityIndicator, Platform, ScrollView, Text, TextInput, useColorScheme, View } from "react-native";
 
 import { createReport } from "@/api/report";
-import AppButton from "@/components/AppButton";
 import AppPicker from "@/components/AppPicker";
+import AppVariantButton from "@/components/core/AppVariantButton";
 import { useToast } from "@/components/ToastProvider";
 import { ReportedUserType, ReportType } from "@/types/review-types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -166,8 +166,8 @@ const ReportPage = () => {
                         </View>
                         <View className="my-6">
 
-                            <AppButton
-                                title="Submit Report"
+                            <AppVariantButton
+                                label="Submit Report"
                                 icon={submitReportMutation.isPending && <ActivityIndicator color="#ccc" />}
                                 onPress={handleSubmit((data) => submitReportMutation.mutate(data))}
                                 disabled={submitReportMutation.isPending}

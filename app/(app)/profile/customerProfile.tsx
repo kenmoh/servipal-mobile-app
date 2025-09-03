@@ -28,7 +28,7 @@ const profileSchema = z.object({
         .regex(phoneRegEx, "Enter a valid phone number"),
     location: z.string().min(1, "Location is required"),
     bankName: z.string().optional(),
-    storeName: z.string().optional(),
+    storeName: z.string().min(1, "Username is required"),
     accountNumber: z.string().optional(),
     fullName: z.string().min(1, "Full name is required"),
     state: z.string().min(1, "State is required"),
@@ -136,6 +136,20 @@ const Profile = () => {
                         />
                     )}
                 />
+                 <Controller
+                    control={control}
+                    name="storeName"
+                    render={({ field }) => (
+                        <AppTextInput
+                            label="Username"
+                            placeholder="Username"
+                            onChangeText={field.onChange}
+                            autoCapitalize="words"
+                            value={field.value}
+                            errorMessage={errors.storeName?.message}
+                        />
+                    )}
+                />
                 <CurrentLocationButton onLocationSet={handleLocationSet} />
                 <Controller
                     control={control}
@@ -167,15 +181,17 @@ const Profile = () => {
                     )}
                 />
 
+
                 <Controller
                     control={control}
                     name="state"
-                    render={({ field }) => (
+                    render={({ field: { onChange, value } }) => (
                         <AppPicker
-                            items={states || []}
-
-                            value={field.name || ""}
-                            onValueChange={field.onChange}
+                            items={states}
+                            isBank={false}
+                            isState={true}
+                            value={value}
+                            onValueChange={onChange}
                         />
                     )}
                 />
