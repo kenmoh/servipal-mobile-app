@@ -27,6 +27,10 @@ export default function TabLayout() {
 
   const isTabBarItemHidden = user?.user_type === "dispatch" || user?.user_type === "rider" ? true : false;
 
+  const isMarketplaceHidden = user?.user_type === "rider" ? true : false;
+
+
+
 
   if (!user?.sub) {
     return <Redirect href="/(auth)/sign-in" />;
@@ -78,6 +82,7 @@ export default function TabLayout() {
           options={{
             title: "Marketplace",
             tabBarIcon: () => require("@/assets/images/store.svg"),
+            tabBarItemHidden: isMarketplaceHidden
           }}
         />
         <Tabs.Screen

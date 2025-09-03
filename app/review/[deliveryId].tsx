@@ -1,7 +1,7 @@
 import { createItemReview, createReview } from "@/api/review";
-import AppButton from "@/components/AppButton";
 import AppTextInput from "@/components/AppInput";
 import AppPicker from "@/components/AppPicker";
+import AppVariantButton from "@/components/core/AppVariantButton";
 import { useToast } from "@/components/ToastProvider";
 import { ReviewerType } from "@/types/review-types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,6 +42,11 @@ const ReviewPage = () => {
 
 
     console.log(reviewType, "reviewType")
+    console.log(deliveryId, "Delivery ID")
+    console.log(orderId, "Order ID")
+    console.log(itemId, "Item ID")
+    console.log(revieweeId, "Reviewee ID")
+    console.log(orderType, "Order Type")
 
 
     const {
@@ -252,11 +257,11 @@ const ReviewPage = () => {
                     />
                 </View>
 
-                <AppButton
-                    title={isPending || isProductReviewPending ? "Submitting..." : "Submit Review"}
+                <AppVariantButton
+                    label={isPending || isProductReviewPending ? "Submitting..." : "Submit Review"}
                     onPress={handleSubmit(onSubmit)}
                     disabled={isPending}
-                    icon={isPending || isProductReviewPending && <ActivityIndicator color="white" size={'large'} />}
+                    icon={(isPending || isProductReviewPending) ? <ActivityIndicator color="white" size="large" /> : null}
                 />
 
 

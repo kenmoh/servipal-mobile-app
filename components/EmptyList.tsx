@@ -5,7 +5,7 @@ import { Text, View } from "react-native";
 interface EmptyListProps {
     title: string;
     description: string;
-    buttonTitle: string;
+    buttonTitle?: string;
     buttonAction?: () => void;
     route?: Href;
 }
@@ -13,7 +13,6 @@ interface EmptyListProps {
 const EmptyList = ({
     title,
     description,
-    buttonTitle,
     buttonAction,
     route,
 }: EmptyListProps) => {
@@ -31,10 +30,10 @@ const EmptyList = ({
     return (
         <View className="flex-1 justify-center items-center bg-background self-center">
             <View className="flex-1 justify-center mt-10 items-center gap-4 p-4">
-                <Text className="text-primary font-medium text-2xl text-center">
+                <Text className="text-primary font-poppins-semibold text-2xl text-center">
                     {title}
                 </Text>
-                <Text className="text-icon-default text-lg text-center font-light">
+                <Text className="text-muted text-lg text-center font-poppins-light">
                     {description}
                 </Text>
                 {/* <View className="">

@@ -88,7 +88,7 @@ const DeliveryScreen = () => {
 
   const registerCoordinatesMutation = useMutation({
     mutationFn: registerCoordinates,
-    onError: (error)=> console.log(error)
+    onError: (error) => console.log(error)
 
   });
 
@@ -284,7 +284,7 @@ const DeliveryScreen = () => {
     );
   }
 
-  if (error) return <RefreshButton onPress={refetch} label="Error loading deliveries" />
+  if (error) return <RefreshButton onPress={refetch} label="Error loading delivery items" />
 
   console.log(data)
 
@@ -297,6 +297,7 @@ const DeliveryScreen = () => {
         value={searchQuery}
       />
       <HDivider />
+
       <LegendList
         data={data || []}
         keyExtractor={keyExtractor}
@@ -308,6 +309,7 @@ const DeliveryScreen = () => {
       />
 
       {user?.user_type === 'dispatch' || user?.user_type === 'rider' ? '' : <FAB onPress={handleSendItemPress} />}
+
     </View>
   );
 };

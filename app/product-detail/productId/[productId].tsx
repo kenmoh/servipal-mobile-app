@@ -118,7 +118,10 @@ const ProductDetail = () => {
                 <View className="space-y-2">
                     <View className='flex-row justify-between items-center'>
                         <Text className="text-xl font-poppins-medium text-muted ">{product.name}</Text>
-                        <Text onPress={() => router.push({ pathname: '/product-detail/product-reviews', params: { productId: product.id } })} className="text-sm font-poppins-light underline text-muted">Reviews</Text>
+                        <TouchableOpacity className='flex-row items-center gap-2' onPress={() => router.push({ pathname: '/product-detail/product-reviews', params: { productId: product.id } })}>
+                            <Ionicons name="chatbox-ellipses-outline" size={20} color="gray" />
+                            <Text className="text-sm font-poppins-light underline text-muted">Reviews</Text>
+                        </TouchableOpacity>
                     </View>
                     <Text className="text-3xl font-bold text-primary">{formatPrice(Number(product.price))}</Text>
                     <Text className="text-sm text-muted">

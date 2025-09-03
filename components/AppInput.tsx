@@ -4,7 +4,7 @@ import { Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-n
 
 interface InputProp extends TextInputProps {
     label?: string,
-    multiline?: bool
+    multiline?: boolean
     numberOfLines?: number
     height?: number
     value?: string
@@ -27,7 +27,7 @@ const AppTextInput = ({ label, numberOfLines, multiline, value, onPressIn, place
     return (
         <View className="w-[90%] my-2 items-center self-center">
             {label && (
-                <Text className="text-primary mb-1 self-start font-poppins-bold text-base">{label}</Text>
+                <Text className="text-muted mb-1 self-start font-poppins text-sm">{label}</Text>
             )}
             <View className="w-full relative flex-row items-center">
                 <TextInput

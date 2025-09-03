@@ -84,12 +84,14 @@ const ProductDetail = () => {
     const handleButtonPress = () => {
         // Customer trying to mark as received
         if (user?.sub === data?.user_id) {
-            if (data?.order_status !== 'delivered') {
-                showWarning('Warning', 'Order must be delivered by vendor before you can mark it as received')
-                return
-            }
+            // Already marked as received
             if (data?.order_status === 'received') {
                 showWarning('Warning', 'Order has already been marked as received')
+                return
+            }
+            // Must be delivered first
+            if (data?.order_status !== 'delivered') {
+                showWarning('Warning', 'Order must be delivered by vendor before you can mark it as received')
                 return
             }
             // All checks passed, mark as received
@@ -154,6 +156,7 @@ const ProductDetail = () => {
                                 itemId: data?.order_items[0]?.item_id,
                                 revieweeId: user?.sub,
                                 orderId: data?.id,
+                                orderType: data?.order_type,
                             }
                         })}>
                             <Text className="text-sm text-muted font-poppins-light">Add Review</Text>
