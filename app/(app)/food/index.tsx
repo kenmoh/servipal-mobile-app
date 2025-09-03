@@ -1,20 +1,17 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, Image, StyleSheet, Text, useColorScheme, View } from "react-native";
 
-import { getTravelDistance } from "@/api/order";
 import { fetchRestaurants } from "@/api/user";
 import AppHeader from "@/components/AppHeader";
 import AppTextInput from "@/components/AppInput";
 import Category from "@/components/Category";
 import StoreCard from "@/components/StoreCard";
 import { CompanyProfile } from "@/types/user-types";
-import { getCoordinatesFromAddress } from "@/utils/geocoding";
 import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Location from "expo-location";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Swiper from "react-native-swiper";
-import { registerCoordinates } from "@/api/user";
 
 import { fetchCategories } from "@/api/item";
 import Card from "@/components/Card";
@@ -131,25 +128,23 @@ const Page = () => {
         queryFn: () => fetchRestaurants(selectedCategory ?? undefined),
         select: (data) => {
             if (!data || !user?.sub) return data;
-            
+
             // Find current user's restaurant
             const currentUserRestaurant = data.find(restaurant => restaurant.id === user?.sub);
             const otherRestaurants = data.filter(restaurant => restaurant.id !== user?.sub);
-            
+
             // Sort other restaurants by distance or any other criteria
             otherRestaurants.sort((a, b) => a.distance - b.distance);
-            
+
             // Return with current user's restaurant first
-            return currentUserRestaurant 
-              ? [currentUserRestaurant, ...otherRestaurants]
-              : otherRestaurants;
-          }
+            return currentUserRestaurant
+                ? [currentUserRestaurant, ...otherRestaurants]
+                : otherRestaurants;
+        }
     });
 
 
-    console.log(data)
 
- 
 
     const { data: categories } = useQuery({
         queryKey: ["categories"],
@@ -284,7 +279,7 @@ const Page = () => {
         );
     }
 
- 
+
     const showEmptyState = isFetched && filteredRestaurants.length === 0;
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: BG_COLOR }}>
@@ -300,9 +295,8 @@ const Page = () => {
             <HDivider />
 
 
-
             <FlatList
-                data={data}
+                data={data || []}
                 ListHeaderComponent={() => (
                     <>
                         <Category

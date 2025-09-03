@@ -2,11 +2,12 @@ import React from "react";
 
 import { getBanks } from "@/api/payment";
 import { updateCurrentCustomer } from "@/api/user";
-import AppButton from "@/components/AppButton";
 import AppTextInput from "@/components/AppInput";
 import AppPicker from "@/components/AppPicker";
+import AppVariantButton from "@/components/core/AppVariantButton";
 import CurrentLocationButton from "@/components/CurrentLocationButton";
 import { useToast } from "@/components/ToastProvider";
+import { states } from "@/constants/states";
 import { useAuth } from "@/context/authContext";
 import authStorage from "@/storage/authStorage";
 import { useLocationStore } from "@/store/locationStore";
@@ -30,6 +31,7 @@ const profileSchema = z.object({
     storeName: z.string().optional(),
     accountNumber: z.string().optional(),
     fullName: z.string().min(1, "Full name is required"),
+    state: z.string().min(1, "State is required"),
 });
 type ProfileFormData = z.infer<typeof profileSchema>;
 
@@ -77,6 +79,7 @@ const Profile = () => {
             accountNumber: profile?.profile?.bank_account_number || "",
             phoneNumber: profile?.profile?.phone_number || "",
             fullName: profile?.profile?.full_name || "",
+            state: profile?.profile?.state || "",
         },
     });
 
@@ -89,6 +92,7 @@ const Profile = () => {
     };
 
     const onSubmit = (values: ProfileFormData) => {
+        console.log(values);
 
         mutate({
             ...values,
@@ -138,8 +142,8 @@ const Profile = () => {
                     name="location"
                     render={({ field }) => (
                         <AppTextInput
-                            placeholder="Location"
-                            label="Location"
+                            placeholder="Address"
+                            label="Address"
                             editable={false}
                             onChangeText={field.onChange}
                             value={field.value}
@@ -165,6 +169,19 @@ const Profile = () => {
 
                 <Controller
                     control={control}
+                    name="state"
+                    render={({ field }) => (
+                        <AppPicker
+                            items={states || []}
+
+                            value={field.name || ""}
+                            onValueChange={field.onChange}
+                        />
+                    )}
+                />
+
+                <Controller
+                    control={control}
                     name="bankName"
                     render={({ field }) => (
                         <AppPicker
@@ -176,14 +193,12 @@ const Profile = () => {
                     )}
                 />
 
-                <AppButton
-
-                    title='Update Profile'
+                <AppVariantButton
+                    label='Update Profile'
                     disabled={isPending}
-                    backgroundColor={isPending ? "bg-profole-card" : "bg-button-primary"}
                     width={"90%"}
                     onPress={handleSubmit(onSubmit)}
-                    icon={isPending && <ActivityIndicator className="text-icon-default" size={"large"} />}
+                    icon={isPending && <ActivityIndicator color="white" size={"large"} />}
                 />
 
 

@@ -17,8 +17,8 @@ export interface Bank {
 }
 
 export interface UserCoords {
-    lat: number
-    lng: number
+  lat: number;
+  lng: number;
 }
 
 interface Review {
@@ -41,6 +41,7 @@ export interface CompanyProfile {
   closing_hour: string;
   total_items: number;
   total_orders: number;
+  distance: number;
   rating: {
     average_rating: string;
     number_of_reviews: number;
@@ -78,6 +79,7 @@ export interface Profile {
   opening_hours?: string;
   profile_image_url: string;
   backdrop_image_url: string;
+  state: string;
 }
 
 export interface UserProfileUpdate {
@@ -91,6 +93,7 @@ export interface UserProfileUpdate {
   bankName: string;
   fullName?: string;
   storeName?: string;
+  state?: string;
 }
 
 type TransactionType =

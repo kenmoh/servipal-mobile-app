@@ -6,6 +6,7 @@ import { StyleSheet, Text, useColorScheme, View } from "react-native";
 type ItemProp = {
   id: number | string;
   name: string;
+  capital?: string
   code?: string;
 };
 
@@ -35,12 +36,12 @@ const AppPicker = ({
   const CARD_BG =
     theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
   const TEXT = theme === "dark" ? "white" : "black";
-  const COLOR = theme === 'dark' ? "rgba(30, 33, 39, 0.5)" : '#ddd'
+  const COLOR = theme === 'dark' ? "rgba(30, 33, 39, 0.5)" : '#eee'
 
 
   return (
     <View className={`w-[${width}]  overflow-hidden my-2  self-center`}>
-      {label && <Text className="text-primary font-poppins-bold text-base">{label}</Text>}
+      {label && <Text className="text-muted font-poppins text-sm">{label}</Text>}
       <View className="rounded-lg bg-input overflow-hidden">
         <Picker
           style={{
@@ -49,6 +50,7 @@ const AppPicker = ({
             width: "100%",
             color: TEXT,
             fontSize: 12,
+
           }}
           mode="dropdown"
           placeholder={placeholder}
@@ -65,7 +67,7 @@ const AppPicker = ({
           />
           {items?.map((item) => {
             const itemKey = isBank ? `${item.code}` : `${item.id}`;
-            const itemValue = isBank ? itemKey : item.id;
+            const itemValue = isBank ? itemKey : item.id || item.capital;
 
             return (
               <Picker.Item
@@ -74,6 +76,7 @@ const AppPicker = ({
                 style={{ backgroundColor: CARD_BG }}
                 label={item?.name}
                 value={itemValue}
+
               />
             );
           })}

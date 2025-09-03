@@ -297,6 +297,7 @@ export const updateCurrentVendorUser = async (
     business_address: userData.location,
     closing_hours: userData.closingHour,
     opening_hours: userData.openingHour,
+    state: userData.state,
   };
   try {
     const response: ApiResponse<UserDetails | ErrorResponse> =
@@ -333,6 +334,7 @@ export const updateCurrentCustomer = async (
     store_name: userData.storeName,
     business_address: userData.location,
     full_name: userData.fullName,
+    state: userData.state,
   };
   try {
     const response: ApiResponse<UserDetails | ErrorResponse> =
@@ -518,8 +520,8 @@ export const registerCoordinates = async (
   coords: UserCoords
 ): Promise<UserCoords> => {
   const data = {
-      lat: coords.lat,
-      lng: coords.lng,
+    lat: coords.lat,
+    lng: coords.lng,
   };
   try {
     const response: ApiResponse<UserCoords | ErrorResponse> =
