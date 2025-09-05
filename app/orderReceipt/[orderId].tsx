@@ -9,6 +9,8 @@ import * as FileSystem from "expo-file-system";
 import * as Print from "expo-print";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Sharing from "expo-sharing";
+import * as MediaLibrary from 'expo-media-library';
+import { Alert, Platform } from 'react-native';
 import { CreditCard, Download, Share2 } from "lucide-react-native";
 import React from "react";
 import {
@@ -294,7 +296,7 @@ const OrderReceiptPage = () => {
                         <div class="section">
                             <h2>Delivery Details</h2>
                             <div class="address-info">
-                                <div class="address-label">Delivery Type</div>
+                                <div class="text-primary font-poppins">Delivery Type</div>
                                 <div class="address-value">${truncateText(
                 data.order?.require_delivery || ""
             )}</div>
@@ -358,36 +360,118 @@ const OrderReceiptPage = () => {
         },
     });
 
-    const handleDownload = async () => {
-        try {
-            const html = generateReceiptHTML();
-            const { uri } = await Print.printToFileAsync({
-                html,
-                width: screenWidth,
-                height: screenWidth * 1.4,
-                base64: false,
-            });
+const handleDownload = async () => {
+  try {
+    const html = generateReceiptHTML();
+    
+    // Generate the PDF
+    const { uri } = await Print.printToFileAsync({
+      html,
+      width: screenWidth,
+      height: screenWidth * 1.4,
+      base64: false,
+    });
 
-            // Create a filename for the PDF
-            const fileName = `Receipt_${data?.order?.order_number || "unknown"}.pdf`;
-            const destinationUri = `${FileSystem.documentDirectory}${fileName}`;
+    const fileName = `Receipt_${data?.order?.order_number || "unknown"}.pdf`;
+    
+    // For iOS and Android sharing
+    if (await Sharing.isAvailableAsync()) {
+     
+      await Sharing.shareAsync(uri, {
+        UTI: '.pdf',
+        mimeType: 'application/pdf',
+        dialogTitle: 'Share Receipt'
+      });
+      
+      showSuccess("Success", "Receipt ready to share or save");
+    } else {
+      // Fallback: Copy to document directory
+      const destinationUri = `${FileSystem.documentDirectory}${fileName}`;
+      await FileSystem.copyAsync({
+        from: uri,
+        to: destinationUri,
+      });
+      
+      showSuccess("Success", `Receipt saved to ${destinationUri}`);
+    }
 
-            // Copy the PDF to the documents directory
-            await FileSystem.copyAsync({
-                from: uri,
-                to: destinationUri,
-            });
-
-            showSuccess("Success", "Receipt downloaded successfully")
-                ;
-        } catch (error) {
-            showError("Error", "Failed to download receipt",)
-
-        }
-    };
+  } catch (error) {
+    console.error('PDF Download Error:', error);
+    showError("Error", "Failed to download receipt");
+  }
+};
 
 
+// const handleDownloadWithOptions = async () => {
+//   try {
+//     const html = generateReceiptHTML();
+    
+//     const { uri } = await Print.printToFileAsync({
+//       html,
+//       width: screenWidth,
+//       height: screenWidth * 1.4,
+//       base64: false,
+//     });
 
+//     const fileName = `Receipt_${data?.order?.order_number || "unknown"}.pdf`;
+
+//     // Show options to user
+//     Alert.alert(
+//       "Download Receipt",
+//       "Choose how you'd like to save your receipt:",
+//       [
+//         {
+//           text: "Share",
+//           onPress: async () => {
+//             if (await Sharing.isAvailableAsync()) {
+//               await Sharing.shareAsync(uri, {
+//                 UTI: '.pdf',
+//                 mimeType: 'application/pdf',
+//                 dialogTitle: 'Share Receipt'
+//               });
+//             }
+//           }
+//         },
+//         {
+//           text: "Save to Photos", 
+//           onPress: async () => {
+//             try {
+//               // Request permissions first
+//               const { status } = await MediaLibrary.requestPermissionsAsync();
+//               if (status === 'granted') {
+//                 await MediaLibrary.saveToLibraryAsync(uri);
+//                 showSuccess("Success", "Receipt saved to Photos");
+//               } else {
+//                 showError("Permission Denied", "Cannot save to Photos without permission");
+//               }
+//             } catch (error) {
+//               showError("Error", "Failed to save to Photos");
+//             }
+//           }
+//         },
+//         {
+//           text: "Open PDF",
+//           onPress: async () => {
+//             if (await Sharing.isAvailableAsync()) {
+//               await Sharing.shareAsync(uri, {
+//                 UTI: '.pdf',
+//                 mimeType: 'application/pdf'
+//               });
+//             }
+//           }
+//         },
+//         {
+//           text: "Cancel",
+//           style: "cancel"
+//         }
+//       ]
+//     );
+
+//   } catch (error) {
+//     console.error('PDF Download Error:', error);
+//     showError("Error", "Failed to generate receipt");
+//   }
+// };
 
     const handleShare = async () => {
         try {
@@ -470,6 +554,7 @@ const OrderReceiptPage = () => {
     }
 
 
+
     return (
         <ScrollView
             className="flex-1 bg-background content-center"
@@ -544,7 +629,7 @@ const OrderReceiptPage = () => {
                     </View>
                 </View>
 
-                {data?.order?.order_status !== 'received' && user?.sub === data?.order?.user_id && (
+                {data?.order?.order_status === 'delivered' && user?.sub === data?.order?.user_id && (
                     <AppVariantButton
                         filled={true}
                         borderRadius={50}
@@ -567,7 +652,7 @@ const OrderReceiptPage = () => {
                     />
                 )}
 
-                {data?.order?.order_payment_status === "paid" && user?.sub === data?.order?.owner_id && <AppVariantButton
+                {data?.order?.order_payment_status !== "paid" && user?.sub === data?.order?.user_id && <AppVariantButton
 
                     filled
                     borderRadius={50}
@@ -629,7 +714,7 @@ const OrderReceiptPage = () => {
                                 params: {
                                     deliveryId: data?.order?.id as string,
                                     revieweeId: data?.order?.vendor_id as string,
-                                    orderType: 'order',
+                                    orderType: data?.order?.order_type,
                                     orderId: data?.order?.id as string,
 
                                 },
