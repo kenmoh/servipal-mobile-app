@@ -1,10 +1,10 @@
-import React, { ReactNode, useEffect, useState } from "react";
-import { jwtDecode } from "jwt-decode";
 import { AuthContext, useProtectedRoute } from "@/context/authContext";
-import authStorage from '@/storage/authStorage'
-import { User, UserDetails, ImageUrl } from "@/types/user-types";
-import { router } from "expo-router";
+import authStorage from '@/storage/authStorage';
+import { ImageUrl, User, UserDetails } from "@/types/user-types";
 import { QueryClient } from "@tanstack/react-query";
+import { router } from "expo-router";
+import { jwtDecode } from "jwt-decode";
+import React, { ReactNode, useEffect, useState } from "react";
 
 const queryClient = new QueryClient()
 
@@ -13,6 +13,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserDetails | null>(null);
   const [images, setImages] = useState<ImageUrl | null>(null);
+  const [storeId, setStoreId] = useState<string | null>(null);
 
   // const restoreToken = async () => {
   //     try {
@@ -104,22 +105,23 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       // First clear React Query cache to prevent stale data issues
       queryClient.clear();
-      
+
       // Small delay to allow components to unmount properly
       // This prevents ViewPager recycling issues during navigation
       await new Promise(resolve => setTimeout(resolve, 100));
-      
+
       // Clear local storage
       await Promise.all([
         authStorage.removeToken(),
         authStorage.removeProfile(),
         authStorage.removeImage()
       ]);
-      
+
       // Update auth state
       setUser(null);
       setProfile(null);
       setImages(null);
+      setStoreId(null);
 
       // Navigate to login screen
       router.replace("/(auth)/sign-in");
@@ -135,7 +137,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user]);
   return (
-    <AuthContext.Provider value={{ signOut, setUser, user, images, setImages, setProfile, profile }}>
+    <AuthContext.Provider value={{ signOut, setUser, user, images, setImages, setProfile, profile, storeId, setStoreId }}>
       {children}
     </AuthContext.Provider>
   );

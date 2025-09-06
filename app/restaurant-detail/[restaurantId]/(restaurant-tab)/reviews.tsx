@@ -1,12 +1,11 @@
-import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { FlatList, View } from 'react-native';
 
 import { fetchVendorReviews } from '@/api/review';
 import ReviewCard from '@/components/ReviewCard';
+import { useAuth } from "@/context/authContext";
 import { VendorReviewResponse } from '@/types/review-types';
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from "@/context/authContext";
 
 
 const reviews = () => {
@@ -14,9 +13,10 @@ const reviews = () => {
 
     const { data } = useQuery({
         queryKey: ['vendor-reviews', storeId],
-        queryFn: () => fetchVendorReviews('88c6f04b-fa17-4f20-8404-d570d131bea0')
+        queryFn: () => fetchVendorReviews(storeId as string)
     })
 
+    console.log(data)
     console.log(storeId)
 
     return (
