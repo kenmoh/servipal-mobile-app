@@ -27,7 +27,7 @@ const profile = () => {
     ImageType | ImageUpload | null | string
   >(null);
   const [profileUri, setProfileUri] = useState<ImageUrl | null | string>(null);
-  const { user, profile, setImages } = useAuth();
+  const { user, profile, setImages, setStoreId } = useAuth();
   const { colorScheme, setColorScheme } = useColorScheme();
   const queryClient = useQueryClient();
   const [theme, setTheme] = useState(colorScheme);
@@ -87,6 +87,7 @@ const profile = () => {
 
   const handleAddItem = () => {
     if (user?.user_type === "restaurant_vendor") {
+      setStoreId(user?.sub)
       router.push({
         pathname: "/restaurant-detail/[restaurantId]",
         params: {
@@ -102,6 +103,7 @@ const profile = () => {
         },
       });
     } else if (user?.user_type === "laundry_vendor") {
+      setStoreId(user?.sub)
       router.push({
         pathname: "/laundry-detail/[laundryId]",
         params: {
