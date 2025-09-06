@@ -38,7 +38,7 @@ const StoreCard = ({
                 setOrigin(address, [coords.lat, coords.lng]);
             }
         }
-        // setStoreId(item?.id)
+        setStoreId(item?.id)
         router.push({
             pathname: pathName as RelativePathString,
             params: {

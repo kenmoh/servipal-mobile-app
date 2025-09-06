@@ -13,10 +13,10 @@ const reviews = () => {
 
     const { data } = useQuery({
         queryKey: ['vendor-reviews', storeId],
-        queryFn: () => fetchVendorReviews('88c6f04b-fa17-4f20-8404-d570d131bea0')
+        queryFn: () => fetchVendorReviews(storeId as string)
     })
 
-    console.log(storeId, 'TORED ID')
+    console.log(storeId)
 
     return (
         <View className='flex-1 bg-background'>
