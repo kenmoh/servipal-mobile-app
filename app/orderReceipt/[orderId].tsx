@@ -550,9 +550,7 @@ const OrderReceiptPage = () => {
     if (isLoading) {
         return <LoadingIndicator />;
     }
-
-
-
+    console.log(data?.order?.order_status)
     return (
         <ScrollView
             className="flex-1 bg-background content-center"
@@ -660,25 +658,7 @@ const OrderReceiptPage = () => {
                     onPress={handleGotoPayment}
                 />}
 
-                <View
-                    className="flex-row justify-between items-center w-full self-center mb-3"
-                >
 
-                    <AppVariantButton
-                        outline={true}
-                        filled={false}
-                        borderRadius={50}
-                        width={'47.5%'}
-                        label="Share"
-                        icon={<Share2 color={ICON_COLOR} />}
-                        onPress={handleShare}
-
-                    />
-
-
-
-
-                </View>
 
             </View>
             <View
@@ -714,6 +694,7 @@ const OrderReceiptPage = () => {
                                     revieweeId: data?.order?.vendor_id as string,
                                     orderType: data?.order?.order_type,
                                     orderId: data?.order?.id as string,
+                                    reviewType: data?.order?.order_type as string,
 
                                 },
                             });

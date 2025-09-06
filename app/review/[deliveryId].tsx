@@ -40,19 +40,10 @@ const ReviewPage = () => {
     const theme = useColorScheme()
     const { showError, showSuccess } = useToast()
 
-
-    console.log(reviewType, "reviewType")
-    console.log(deliveryId, "Delivery ID")
-    console.log(orderId, "Order ID")
-    console.log(itemId, "Item ID")
-    console.log(revieweeId, "Reviewee ID")
-    console.log(orderType, "Order Type")
-
-
     const {
         control,
         handleSubmit,
-        formState: { errors, isValid },
+        formState: { errors },
 
     } = useForm<ReviewFormData>({
         resolver: zodResolver(reviewSchema),
