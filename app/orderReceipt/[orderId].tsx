@@ -9,9 +9,7 @@ import * as FileSystem from "expo-file-system";
 import * as Print from "expo-print";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Sharing from "expo-sharing";
-import * as MediaLibrary from 'expo-media-library';
-import { Alert, Platform } from 'react-native';
-import { CreditCard, Download, Share2 } from "lucide-react-native";
+import { CreditCard, Share2 } from "lucide-react-native";
 import React from "react";
 import {
     ActivityIndicator,
@@ -360,118 +358,118 @@ const OrderReceiptPage = () => {
         },
     });
 
-const handleDownload = async () => {
-  try {
-    const html = generateReceiptHTML();
-    
-    // Generate the PDF
-    const { uri } = await Print.printToFileAsync({
-      html,
-      width: screenWidth,
-      height: screenWidth * 1.4,
-      base64: false,
-    });
+    const handleDownload = async () => {
+        try {
+            const html = generateReceiptHTML();
 
-    const fileName = `Receipt_${data?.order?.order_number || "unknown"}.pdf`;
-    
-    // For iOS and Android sharing
-    if (await Sharing.isAvailableAsync()) {
-     
-      await Sharing.shareAsync(uri, {
-        UTI: '.pdf',
-        mimeType: 'application/pdf',
-        dialogTitle: 'Share Receipt'
-      });
-      
-      showSuccess("Success", "Receipt ready to share or save");
-    } else {
-      // Fallback: Copy to document directory
-      const destinationUri = `${FileSystem.documentDirectory}${fileName}`;
-      await FileSystem.copyAsync({
-        from: uri,
-        to: destinationUri,
-      });
-      
-      showSuccess("Success", `Receipt saved to ${destinationUri}`);
-    }
+            // Generate the PDF
+            const { uri } = await Print.printToFileAsync({
+                html,
+                width: screenWidth,
+                height: screenWidth * 1.4,
+                base64: false,
+            });
 
-  } catch (error) {
-    console.error('PDF Download Error:', error);
-    showError("Error", "Failed to download receipt");
-  }
-};
+            const fileName = `Receipt_${data?.order?.order_number || "unknown"}.pdf`;
+
+            // For iOS and Android sharing
+            if (await Sharing.isAvailableAsync()) {
+
+                await Sharing.shareAsync(uri, {
+                    UTI: '.pdf',
+                    mimeType: 'application/pdf',
+                    dialogTitle: 'Share Receipt'
+                });
+
+                showSuccess("Success", "Receipt ready to share or save");
+            } else {
+                // Fallback: Copy to document directory
+                const destinationUri = `${FileSystem.documentDirectory}${fileName}`;
+                await FileSystem.copyAsync({
+                    from: uri,
+                    to: destinationUri,
+                });
+
+                showSuccess("Success", `Receipt saved to ${destinationUri}`);
+            }
+
+        } catch (error) {
+            console.error('PDF Download Error:', error);
+            showError("Error", "Failed to download receipt");
+        }
+    };
 
 
-// const handleDownloadWithOptions = async () => {
-//   try {
-//     const html = generateReceiptHTML();
-    
-//     const { uri } = await Print.printToFileAsync({
-//       html,
-//       width: screenWidth,
-//       height: screenWidth * 1.4,
-//       base64: false,
-//     });
+    // const handleDownloadWithOptions = async () => {
+    //   try {
+    //     const html = generateReceiptHTML();
 
-//     const fileName = `Receipt_${data?.order?.order_number || "unknown"}.pdf`;
+    //     const { uri } = await Print.printToFileAsync({
+    //       html,
+    //       width: screenWidth,
+    //       height: screenWidth * 1.4,
+    //       base64: false,
+    //     });
 
-//     // Show options to user
-//     Alert.alert(
-//       "Download Receipt",
-//       "Choose how you'd like to save your receipt:",
-//       [
-//         {
-//           text: "Share",
-//           onPress: async () => {
-//             if (await Sharing.isAvailableAsync()) {
-//               await Sharing.shareAsync(uri, {
-//                 UTI: '.pdf',
-//                 mimeType: 'application/pdf',
-//                 dialogTitle: 'Share Receipt'
-//               });
-//             }
-//           }
-//         },
-//         {
-//           text: "Save to Photos", 
-//           onPress: async () => {
-//             try {
-//               // Request permissions first
-//               const { status } = await MediaLibrary.requestPermissionsAsync();
-//               if (status === 'granted') {
-//                 await MediaLibrary.saveToLibraryAsync(uri);
-//                 showSuccess("Success", "Receipt saved to Photos");
-//               } else {
-//                 showError("Permission Denied", "Cannot save to Photos without permission");
-//               }
-//             } catch (error) {
-//               showError("Error", "Failed to save to Photos");
-//             }
-//           }
-//         },
-//         {
-//           text: "Open PDF",
-//           onPress: async () => {
-//             if (await Sharing.isAvailableAsync()) {
-//               await Sharing.shareAsync(uri, {
-//                 UTI: '.pdf',
-//                 mimeType: 'application/pdf'
-//               });
-//             }
-//           }
-//         },
-//         {
-//           text: "Cancel",
-//           style: "cancel"
-//         }
-//       ]
-//     );
+    //     const fileName = `Receipt_${data?.order?.order_number || "unknown"}.pdf`;
 
-//   } catch (error) {
-//     console.error('PDF Download Error:', error);
-//     showError("Error", "Failed to generate receipt");
-//   }
-// };
+    //     // Show options to user
+    //     Alert.alert(
+    //       "Download Receipt",
+    //       "Choose how you'd like to save your receipt:",
+    //       [
+    //         {
+    //           text: "Share",
+    //           onPress: async () => {
+    //             if (await Sharing.isAvailableAsync()) {
+    //               await Sharing.shareAsync(uri, {
+    //                 UTI: '.pdf',
+    //                 mimeType: 'application/pdf',
+    //                 dialogTitle: 'Share Receipt'
+    //               });
+    //             }
+    //           }
+    //         },
+    //         {
+    //           text: "Save to Photos", 
+    //           onPress: async () => {
+    //             try {
+    //               // Request permissions first
+    //               const { status } = await MediaLibrary.requestPermissionsAsync();
+    //               if (status === 'granted') {
+    //                 await MediaLibrary.saveToLibraryAsync(uri);
+    //                 showSuccess("Success", "Receipt saved to Photos");
+    //               } else {
+    //                 showError("Permission Denied", "Cannot save to Photos without permission");
+    //               }
+    //             } catch (error) {
+    //               showError("Error", "Failed to save to Photos");
+    //             }
+    //           }
+    //         },
+    //         {
+    //           text: "Open PDF",
+    //           onPress: async () => {
+    //             if (await Sharing.isAvailableAsync()) {
+    //               await Sharing.shareAsync(uri, {
+    //                 UTI: '.pdf',
+    //                 mimeType: 'application/pdf'
+    //               });
+    //             }
+    //           }
+    //         },
+    //         {
+    //           text: "Cancel",
+    //           style: "cancel"
+    //         }
+    //       ]
+    //     );
+
+    //   } catch (error) {
+    //     console.error('PDF Download Error:', error);
+    //     showError("Error", "Failed to generate receipt");
+    //   }
+    // };
 
     const handleShare = async () => {
         try {
@@ -671,16 +669,6 @@ const handleDownload = async () => {
                         filled={false}
                         borderRadius={50}
                         width={'47.5%'}
-                        label="Download"
-                        icon={<Download color={ICON_COLOR} />}
-                        onPress={handleDownload}
-
-                    />
-                    <AppVariantButton
-                        outline={true}
-                        filled={false}
-                        borderRadius={50}
-                        width={'47.5%'}
                         label="Share"
                         icon={<Share2 color={ICON_COLOR} />}
                         onPress={handleShare}
@@ -698,13 +686,23 @@ const handleDownload = async () => {
 
             >
                 <>
+                    <AppVariantButton
+                        outline={true}
+                        filled={false}
+                        borderRadius={50}
+                        width={'30%'}
+                        label="Share"
+                        icon={<Share2 color={ICON_COLOR} />}
+                        onPress={handleShare}
+
+                    />
 
 
                     <AppVariantButton
                         outline={true}
                         filled={false}
                         borderRadius={50}
-                        width={'47.5%'}
+                        width={'30%'}
                         label="Review"
 
                         onPress={() => {
@@ -727,7 +725,7 @@ const handleDownload = async () => {
                         outline={true}
                         filled={false}
                         borderRadius={50}
-                        width={'47.5%'}
+                        width={'30%'}
                         label="Report"
                         onPress={() => {
                             router.push({
@@ -737,9 +735,6 @@ const handleDownload = async () => {
                         }}
 
                     />
-
-
-
                 </>
             </View>
         </ScrollView>
