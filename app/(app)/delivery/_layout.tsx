@@ -41,14 +41,13 @@ const HeaderRight = ({
               position: "absolute",
               top: -5,
               right: -5,
-              backgroundColor:
-                theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT,
+              backgroundColor: 'orange',
               borderRadius: 10,
               minWidth: 20,
               height: 20,
               justifyContent: "center",
               alignItems: "center",
-              borderWidth: 2,
+
             }}
           >
             <Text
