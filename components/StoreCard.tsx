@@ -83,10 +83,10 @@ const StoreCard = ({
                 />
 
                 {/* Rating Badge */}
-                {parseInt(item?.rating.average_rating) > 0 && (
+                {Number(item?.rating.average_rating) > 0 && (
                     <View style={styles.ratingBadge}>
                         <Text className="text-primary font-poppins-bold">
-                            {Number(item?.rating?.average_rating).toFixed(1)}
+                            {Number(item?.rating?.average_rating).toFixed(2)}
                         </Text>
                         <AntDesign
                             name="star"

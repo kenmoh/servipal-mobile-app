@@ -121,7 +121,6 @@ const Page = () => {
         (CompanyProfile & { distance: number })[]
     >([]);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-    const [hasItem, setHasItem] = useState(false);
 
     const { data, isFetching, error, refetch, isFetched } = useQuery({
         queryKey: ["restaurants", selectedCategory],
