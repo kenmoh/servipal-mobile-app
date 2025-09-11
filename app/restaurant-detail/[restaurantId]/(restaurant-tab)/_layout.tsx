@@ -79,7 +79,8 @@ const StoreHeader = () => {
                                 <View className="flex-row items-center gap-2">
                                     <Star size={12} color='orange' />
                                     <Text className="text-gray-500  font-poppins text-sm">
-                                        {rating.toFix(1)}
+                                        {/*{rating.toFix(1)}*/}
+                                         {Number(rating).toFixed(2)}
                                     </Text>
                                 </View>
                                 <Text className="text-gray-500 font-poppins text-sm">
