@@ -20,13 +20,9 @@ const StoreCard = ({
 }) => {
 
     const theme = useColorScheme();
-    const {
+    const { setOrigin } = useLocationStore()
 
-        setOrigin,
-
-    } = useLocationStore()
-
-    const { setStoreId } = useAuth()
+    const { setStoreId, setStoreAddress } = useAuth()
 
 
 
@@ -39,6 +35,8 @@ const StoreCard = ({
             }
         }
         setStoreId(item?.id)
+        setStoreAddress(item?.location)
+
         router.push({
             pathname: pathName as RelativePathString,
             params: {

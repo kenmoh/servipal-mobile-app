@@ -1,30 +1,33 @@
-import { router, useSegments, useRouter, useRootNavigationState } from "expo-router";
-import { createContext, useContext, useEffect, useState } from "react";
+import { ImageUrl, User, UserDetails } from "@/types/user-types";
+import { useRootNavigationState, useRouter, useSegments } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { Profile, UserDetails, User, ImageUrl } from "@/types/user-types";
+import { createContext, useContext, useEffect, useState } from "react";
 
 type AuthContextType = {
   // signIn: () => {} | void;
   signOut: () => void;
   setUser: (user: User | null) => void;
   setStoreId: (storeId: string | null) => void;
+  setStoreAddress: (storeAddress: string | null) => void;
   setProfile: (profile: UserDetails | null) => void;
   setImages: (images: ImageUrl | null) => void;
   user?: User | null;
   storeId?: string | null
+  storeAddress?: string | null
   profile: UserDetails | null;
   images: ImageUrl | null;
 };
 
 export const AuthContext = createContext<AuthContextType>({
   signOut: () => null,
-  setUser: () => {},
+  setUser: () => { },
   setStoreId: () => null,
-
-  setProfile: () => {},
-  setImages: () => {},
+  setStoreAddress: () => null,
+  setProfile: () => { },
+  setImages: () => { },
   user: null,
   storeId: null,
+  storeAddress: null,
   profile: null,
   images: null,
 });

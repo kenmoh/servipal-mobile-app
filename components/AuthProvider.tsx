@@ -14,6 +14,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<UserDetails | null>(null);
   const [images, setImages] = useState<ImageUrl | null>(null);
   const [storeId, setStoreId] = useState<string | null>(null);
+  const [storeAddress, setStoreAddress] = useState<string | null>(null);
 
   // const restoreToken = async () => {
   //     try {
@@ -137,7 +138,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user]);
   return (
-    <AuthContext.Provider value={{ signOut, setUser, user, images, setImages, setProfile, profile, storeId, setStoreId }}>
+    <AuthContext.Provider value={{ signOut, setUser, user, images, setImages, setProfile, profile, storeId, setStoreId, storeAddress, setStoreAddress }}>
       {children}
     </AuthContext.Provider>
   );

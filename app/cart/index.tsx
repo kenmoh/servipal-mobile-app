@@ -35,7 +35,7 @@ const Cart = () => {
   const [infoText, setInfoText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const theme = useColorScheme();
-  const { user } = useAuth();
+  const { user, storeAddress } = useAuth();
   const {
     setDeliveryOption,
     cart,
@@ -58,7 +58,7 @@ const Cart = () => {
     destinationCoords,
   } = useLocationStore();
 
-  const { showError, showSuccess } = useToast()
+  const { showError } = useToast()
 
 
   const handleDeliveryOptionChange = (option: "delivery" | "pickup") => {
@@ -176,7 +176,8 @@ const Cart = () => {
     };
 
     fetchAndUseTravelInfo();
-  }, [origin, destination]);
+  }, [origin, destination, storeAddress]);
+
 
 
   return (
@@ -233,7 +234,7 @@ const Cart = () => {
             </View>
 
             {require_delivery === "delivery" && destination && !modalVisible && (
-              <View className="w-[90%] rounded-lg bg-input self-center my-3 gap-3">
+              <View className="w-[90%] rounded-lg bg-input self-center my-3 gap-3 p-4">
                 {/* DELIVERY INFO */}
                 <View className="flex-row">
                   <Text
@@ -318,7 +319,7 @@ const Cart = () => {
 
               <AppTextInput
                 label="Pickup Location"
-                value={origin || ""}
+                value={storeAddress || undefined}
                 editable={false}
               />
               <View className="my-2 w-full" />
