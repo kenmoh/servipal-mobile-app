@@ -104,7 +104,7 @@ const NotificationScreen = () => {
                 </View>
 
 
-               {/* <TouchableOpacity onPress={handleMarkAllRead}>
+                {/* <TouchableOpacity onPress={handleMarkAllRead}>
                     <Text className="font-poppins-light underline text-muted">Mark all as read</Text>
                 </TouchableOpacity>*/}
 
@@ -118,7 +118,7 @@ const NotificationScreen = () => {
                 }
                 renderItem={({ item }) => (
                     <TouchableOpacity
-                        className="bg-input w-full self-center py-2 px-5 rounded-md"
+                        className="bg-input w-full self-center py-2 px-5 rounded-md my-1"
                         onPress={() => {
                             router.push({
                                 pathname: "/notification-detail/[notificationId]",
@@ -130,7 +130,7 @@ const NotificationScreen = () => {
                         }}
                     >
                         <View
-                            
+
 
                         >
                             <View className="flex-row justify-between items-center">

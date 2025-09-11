@@ -167,7 +167,7 @@ const ProductDetail = () => {
                                 <TouchableOpacity
                                     key={index}
                                     onPress={() => toggleColor(color)}
-                                    className={`w-10 h-10 rounded-full border-2 ${isColorSelected(color)
+                                    className={`w-7 h-7 rounded-full border-2 ${isColorSelected(color)
                                         ? 'border-primary'
                                         : 'border-gray-300'
                                         } relative`}

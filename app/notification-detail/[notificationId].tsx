@@ -13,6 +13,7 @@ import {
 import { SendHorizonal } from "lucide-react-native";
 
 import { addMessage, fetchReport } from "@/api/report";
+import LoadingIndicator from "@/components/LoadingIndicator";
 import { useToast } from "@/components/ToastProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -74,6 +75,7 @@ const NotificationDetails = () => {
     const {
         data: messages,
         refetch: refetchThread,
+        isLoading,
     } = useQuery({
         queryKey: ["thread", notificationId],
         queryFn: () => fetchReport(notificationId as string),
@@ -185,10 +187,10 @@ const NotificationDetails = () => {
             optimisticId: optimisticId,
             content: data.content,
             date: new Date().toISOString(),
-            role: "customer", // Adjust based on your user role logic
+            role: "customer",
             sender: {
-                name: "You", // Adjust based on your user data
-                avatar: "https://via.placeholder.com/32", // Adjust based on your user data
+                name: "You",
+                avatar: "https://via.placeholder.com/32",
             },
             isOptimistic: true,
         };
@@ -253,6 +255,7 @@ const NotificationDetails = () => {
                             {item?.role === "moderator" ? "ServiPal" : item?.sender?.name}
                         </Text>
                         <Text
+                            // className="bg-gray-400"
                             style={[
                                 styles.roleBadge,
                                 {
@@ -261,7 +264,7 @@ const NotificationDetails = () => {
                                 }
                             ]}
                         >
-                            {item?.role?.toUpperCase()}
+                            {item?.role?.replace(/_/g, ' ').toUpperCase()}
                         </Text>
                         {isFailed && (
                             <Text style={styles.failedBadge}>FAILED</Text>
@@ -284,6 +287,7 @@ const NotificationDetails = () => {
                     </Text>
 
                     <View
+                        className="bg-input"
                         style={[
                             styles.messageBubble,
                             {
@@ -293,7 +297,7 @@ const NotificationDetails = () => {
                             }
                         ]}
                     >
-                        <Text style={styles.messageText}>
+                        <Text className="text-muted font-poppins-light text-sm" style={styles.messageText}>
                             {item.content}
                         </Text>
                     </View>
@@ -309,13 +313,23 @@ const NotificationDetails = () => {
         </View>
     );
 
+
+    if (isLoading) {
+        return <LoadingIndicator />
+    }
+
     return (
         <KeyboardAvoidingView
             behavior="padding"
             keyboardVerticalOffset={50}
-            style={styles.container}
+            // style={styles.container}
+            className="bg-background flex-1"
         >
-            <View style={styles.chatContainer}>
+            <View className="flex-1">
+                <View className="self-center p-2">
+
+                    <Text className="text-xs text-center font-poppins-light text-muted mb-2">This is not a regular chat app, you may experience message delay.</Text>
+                </View>
                 <FlatList
                     ref={flatListRef}
                     data={allMessages || []}
@@ -335,8 +349,8 @@ const NotificationDetails = () => {
 
                 {/* Input area */}
                 {reportStatus !== "resolved" && (
-                    <View style={styles.inputContainer}>
-                        <View style={[styles.inputWrapper, { minHeight: inputHeight + 20 }]}>
+                    <View style={styles.inputContainer} className="bg-background">
+                        <View className="bg-input" style={[styles.inputWrapper, { minHeight: inputHeight + 20 }]}>
                             <Controller
                                 control={control}
                                 name="content"
@@ -439,7 +453,7 @@ const styles = StyleSheet.create({
         height: 32,
         borderRadius: 16,
         borderWidth: 2,
-        backgroundColor: "#23272f",
+        backgroundColor: "#ccc",
     },
     messageContent: {
         flex: 1,
@@ -459,7 +473,7 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontWeight: "400",
         letterSpacing: 1,
-        backgroundColor: "#23272f",
+        // backgroundColor: "red",
         borderRadius: 6,
         paddingHorizontal: 6,
         paddingVertical: 2,
@@ -498,14 +512,13 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     messageBubble: {
-        backgroundColor: "#2a2a2a",
+        // backgroundColor: "#2a2a2a",
         borderRadius: 12,
         padding: 12,
         marginTop: 4,
     },
     messageText: {
-        color: "#e0e0e0",
-        fontSize: 14,
+
         lineHeight: 20,
     },
     inputContainer: {
@@ -513,9 +526,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: "#1a1a1a",
-        borderTopWidth: 1,
-        borderTopColor: "#333",
+
         paddingHorizontal: 16,
         paddingVertical: 12,
         paddingBottom: 20,
@@ -523,12 +534,10 @@ const styles = StyleSheet.create({
     inputWrapper: {
         flexDirection: "row",
         alignItems: "flex-end",
-        backgroundColor: "#2a2a2a",
         borderRadius: 24,
         paddingHorizontal: 16,
         paddingVertical: 8,
-        borderWidth: 1,
-        borderColor: "#333",
+
         marginBottom: 30
     },
     textInput: {
@@ -547,6 +556,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         marginLeft: 8,
+        marginBottom: 5,
     },
 });
 

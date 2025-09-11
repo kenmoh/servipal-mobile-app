@@ -162,9 +162,9 @@ export default function RootLayout() {
                               name="notification-detail/[notificationId]"
                               options={{
                                 title: "Message Details",
-                                headerTintColor: "white",
+                                // headerTintColor:  "white",
                                 headerStyle: {
-                                  backgroundColor: "#1a1a1a",
+                                  backgroundColor: BG_COLOR,
                                 },
                               }}
                             />

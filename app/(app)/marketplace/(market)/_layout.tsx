@@ -1,7 +1,7 @@
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from '@/constants/theme';
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { withLayoutContext } from "expo-router";
-import { Dimensions, StyleSheet, useColorScheme } from 'react-native';
+import { Dimensions, StyleSheet, useColorScheme, View } from 'react-native';
 
 
 const MarketPlaceTabs = withLayoutContext(createMaterialTopTabNavigator().Navigator);
@@ -9,7 +9,7 @@ const MarketPlaceTabs = withLayoutContext(createMaterialTopTabNavigator().Naviga
 const DeliveryLayout = () => {
     const theme = useColorScheme()
     return (
-        <>
+        <View className='flex-1 bg-background'>
 
             <MarketPlaceTabs
                 initialRouteName="index"
@@ -66,7 +66,7 @@ const DeliveryLayout = () => {
                     }}
                 />
             </MarketPlaceTabs>
-        </>
+        </View>
     )
 }
 
