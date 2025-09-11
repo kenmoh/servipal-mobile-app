@@ -80,7 +80,7 @@ const StoreHeader = () => {
                                     <Star size={12} color='orange' />
                                     <Text className="text-gray-500  font-poppins text-sm">
                                         {/*{rating.toFix(1)}*/}
-                                         {Number(rating).toFixed(2)} kenneth
+                                         {Number(rating).toFixed(2)} Kenneth
                                     </Text>
                                 </View>
                                 <Text className="text-gray-500 font-poppins text-sm">
