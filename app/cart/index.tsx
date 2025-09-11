@@ -328,6 +328,7 @@ const Cart = () => {
 
                 }}
               />
+              <View className="my-2 w-full" />
               <GoogleTextInput
                 placeholder="Destination"
 
