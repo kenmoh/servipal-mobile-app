@@ -45,6 +45,7 @@ const SendItem = () => {
     }
   }, [origin, destination]);
 
+
   return (
 
     <View className="bg-background flex-1">

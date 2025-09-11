@@ -20,7 +20,7 @@ interface GoogleTextInputProps {
 }
 
 
-const GoogleTextInput = ({ placeholder, onPlaceSelect, value, error }: GoogleTextInputProps) => {
+const GoogleTextInput = ({ placeholder, onPlaceSelect, value, error, onChangeText }: GoogleTextInputProps) => {
 
 
   const theme = useColorScheme();
@@ -29,14 +29,6 @@ const GoogleTextInput = ({ placeholder, onPlaceSelect, value, error }: GoogleTex
 
   const TEXT = theme === "dark" ? "white" : "gray";
   const BG_COLOR = theme === "dark" ? "rgba(30, 33, 39, 0.5)" : "#eee";
-
-  useEffect(() => {
-    if (ref.current) {
-      // Ensure the input reflects external value (e.g., current location selection)
-      ref.current.setAddressText(value ?? "");
-    }
-  }, [value]);
-
 
   const styles = StyleSheet.create({
     container: {
@@ -103,7 +95,9 @@ const GoogleTextInput = ({ placeholder, onPlaceSelect, value, error }: GoogleTex
         placeHolderText={placeholder}
         includedRegionCodes={['ng']}
         minCharsToFetch={3}
-        style={styles}
+        onTextChange={onChangeText}
+        value={value || undefined}
+        style={styles as any}
         fetchDetails={true}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
