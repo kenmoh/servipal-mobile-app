@@ -4,6 +4,7 @@ import AppModal from "@/components/AppModal";
 import Item from "@/components/CartItem";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import RadioButton from "@/components/core/RadioButton";
+import CurrentLocationButton from "@/components/CurrentLocationButton";
 import GoogleTextInput from "@/components/GoogleTextInput";
 import { useToast } from "@/components/ToastProvider";
 import { useAuth } from "@/context/authContext";
@@ -321,6 +322,12 @@ const Cart = () => {
                 editable={false}
               />
               <View className="my-2 w-full" />
+              <CurrentLocationButton
+                onLocationSet={(address, coords) => {
+                  setDestination(address, coords);
+
+                }}
+              />
               <GoogleTextInput
                 placeholder="Destination"
 
