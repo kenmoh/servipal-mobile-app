@@ -12,6 +12,7 @@ import { useCartStore } from "@/store/cartStore";
 import { useLocationStore } from "@/store/locationStore";
 import { OrderFoodOLaundry } from "@/types/order-types";
 import { formatDistanceAndTime } from "@/utils/formatCurrency";
+import { getCoordinatesFromAddress } from "@/utils/geocoding";
 import { getDirections } from "@/utils/map";
 import { useMutation } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
@@ -123,25 +124,34 @@ const Cart = () => {
   useEffect(() => {
     const fetchAndUseTravelInfo = async () => {
       // Only proceed if we have both origin and destination
-      if (!origin || !destination) {
+      // if (!origin || !destination) {
+      //   return;
+      // }
+      if (!storeAddress || !destination) {
         return;
       }
       if (!originCoords || !destination) {
         return;
       }
 
+
       // Use origin from store for originQuery
-      const originQuery = encodeURIComponent(origin);
-      const destinationQuery = encodeURIComponent(destination);
+      // const originQuery = encodeURIComponent(storeAddress);
+      // const destinationQuery = encodeURIComponent(destination);
 
-      const url = `https://maps.googleapis.com/maps/api/distancematrix/json?destinations=${destinationQuery}&origins=${originQuery}&units=metric&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY}`;
+      // const url = `https://maps.googleapis.com/maps/api/distancematrix/json?destinations=${destinationQuery}&origins=${originQuery}&units=metric&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY}`;
 
+      const coords = await getCoordinatesFromAddress(storeAddress)
 
+      const storeCoords = [coords?.lat, coords?.lng]
+
+      console.log(storeCoords, '======XXXXXXXX======')
 
       try {
-        const response = await fetch(url);
-        const data = await response.json();
-        const { distance, duration } = await getDirections(originCoords, destinationCoords!)
+        // const response = await fetch(url);
+        // const data = await response.json();
+        const { distance, duration } = await getDirections(storeCoords, destinationCoords!)
+        // const { distance, duration } = await getDirections(originCoords, destinationCoords!)
 
 
 
@@ -248,7 +258,7 @@ const Cart = () => {
                     Origin:{" "}
                   </Text>
                   <Text className="w-[75%] text-muted font-poppins-light text-sm">
-                    {origin}
+                    {storeAddress}
                   </Text>
                 </View>
 

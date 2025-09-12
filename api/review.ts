@@ -1,6 +1,7 @@
 import {
   ReviewCreate,
   ReviewCreateResponse,
+  ReviewsCount,
   VendorReviewResponse,
 } from "@/types/review-types";
 import { apiClient } from "@/utils/client";
@@ -37,6 +38,7 @@ export const fetchVendorReviews = async (
     throw new Error("An unexpected error occurred");
   }
 };
+
 export const fetchProductReviews = async (
   productId: string
 ): Promise<VendorReviewResponse[]> => {
@@ -53,6 +55,36 @@ export const fetchProductReviews = async (
         response.data && "detail" in response.data
           ? response.data.detail
           : "Error fetching reviews.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
+export const fetchProductReviewsCount = async (
+  productId: string
+): Promise<ReviewsCount> => {
+  try {
+    const response: ApiResponse<ReviewsCount | ErrorResponse> =
+      await apiClient.get(
+        `${REVIEW_BASE_URL}/${productId}/item-reviews-count`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error fetching reviews count.";
       throw new Error(errorMessage);
     }
     return response.data;

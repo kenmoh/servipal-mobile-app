@@ -1,4 +1,5 @@
 import { buyItem, fetchProduct } from '@/api/product'
+import { fetchProductReviewsCount } from '@/api/review'
 import AppVariantButton from '@/components/core/AppVariantButton'
 import ProductDetailWrapper from '@/components/ProductDetailWrapper'
 import { usePurchaseActions, usePurchaseSelectors } from '@/store/productStore'
@@ -40,6 +41,11 @@ const ProductDetail = () => {
         queryKey: ['product', productId],
         queryFn: () => fetchProduct(productId!),
         enabled: !!productId,
+    })
+
+    const { data: count } = useQuery({
+        queryKey: ['Review', productId],
+        queryFn: () => fetchProductReviewsCount(productId)
     })
 
 
@@ -120,7 +126,7 @@ const ProductDetail = () => {
                         <Text className="text-xl font-poppins-medium text-muted ">{product.name}</Text>
                         <TouchableOpacity className='flex-row items-center gap-2' onPress={() => router.push({ pathname: '/product-detail/product-reviews', params: { productId: product.id } })}>
                             <Ionicons name="chatbox-ellipses-outline" size={20} color="gray" />
-                            <Text className="text-sm font-poppins-light underline text-muted">Reviews</Text>
+                            <Text className="text-sm font-poppins-light underline text-muted">Reviews ({count ? count?.reviews_count : 0})</Text>
                         </TouchableOpacity>
                     </View>
                     <Text className="text-3xl font-bold text-primary">{formatPrice(Number(product.price))}</Text>

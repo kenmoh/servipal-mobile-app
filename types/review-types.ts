@@ -85,6 +85,9 @@ export interface VendorReviewResponse {
   created_at: string;
   reviewer: ReviewerProfile;
 }
+export interface ReviewsCount {
+  reviews_count: number;
+}
 
 export interface BadgeCount {
   unread_count: number;
