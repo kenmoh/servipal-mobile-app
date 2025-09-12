@@ -128,13 +128,39 @@ const AddProductScreen = () => {
         },
     });
 
+    // const updateMutation = useMutation({
+    //     mutationFn: ({ productId, data }: { productId: string; data: any }) => updateProduct(productId, data),
+    //     onSuccess: () => {
+    //         router.back();
+    //     },
+    //    onError: (error) => {
+    //     console.log(error)
+    //         showError("Error", error.message)
+    //     },
+    // });
+
+
     const updateMutation = useMutation({
-        mutationFn: ({ productId, data }: { productId: string; data: any }) =>
-            updateProduct(productId, data),
-        onSuccess: () => {
-            router.back();
-        },
-    });
+    mutationFn: ({ productId, data }: { productId: string; data: any }) => 
+        updateProduct(productId, data),
+    onSuccess: (data) => {
+        showSuccess("Success", "Product updated successfully");
+        
+        // Invalidate relevant queries to refresh cached data
+        queryClient.invalidateQueries({ queryKey: ["products"] });
+        queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
+        queryClient.invalidateQueries({ queryKey: ["product", productId] });
+        
+        router.back();
+    },
+    onError: (error) => {
+        console.log("Update error:", error);
+        showError("Error", error.message);
+    },
+});
+
+
+
 
     const isPending = createMutation.isPending || updateMutation.isPending;
 
@@ -271,7 +297,7 @@ const AddProductScreen = () => {
             />
 
             {/* Submit Button */}
-            <View style={{ padding: 20 }}>
+            <View style={{ padding: 20 }} className="mb-7">
                 <AppVariantButton
                     label={
                         isPending

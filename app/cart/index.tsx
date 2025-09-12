@@ -130,9 +130,12 @@ const Cart = () => {
       if (!storeAddress || !destination) {
         return;
       }
-      if (!originCoords || !destination) {
+      if (!storeAddress || !destinationCoords) {
         return;
       }
+      // if (!originCoords || !destinationCoords) {
+      //   return;
+      // }
 
 
       // Use origin from store for originQuery
@@ -141,16 +144,18 @@ const Cart = () => {
 
       // const url = `https://maps.googleapis.com/maps/api/distancematrix/json?destinations=${destinationQuery}&origins=${originQuery}&units=metric&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY}`;
 
-      const coords = await getCoordinatesFromAddress(storeAddress)
+      const storeCoords = await getCoordinatesFromAddress(storeAddress)
 
-      const storeCoords = [coords?.lat, coords?.lng]
 
-      console.log(storeCoords, '======XXXXXXXX======')
 
       try {
         // const response = await fetch(url);
         // const data = await response.json();
-        const { distance, duration } = await getDirections(storeCoords, destinationCoords!)
+        if (!storeCoords || !destinationCoords) {
+          return;
+        }
+        const originTuple: [number, number] = [storeCoords.lat, storeCoords.lng];
+        const { distance, duration } = await getDirections(originTuple, destinationCoords)
         // const { distance, duration } = await getDirections(originCoords, destinationCoords!)
 
 

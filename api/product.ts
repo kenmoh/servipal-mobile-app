@@ -70,7 +70,129 @@ export const createProduct = async (
   }
 };
 
-// Create update
+// Update Product
+// export const updateProduct = async (
+//   productId: string,
+//   prodData: CreateProduct
+// ): Promise<CreateProductResponse> => {
+//   const data = new FormData();
+//   data.append("name", prodData.name);
+//   data.append("price", prodData.price.toString());
+//   data.append("description", prodData.description);
+//   data.append("sizes", prodData.sizes);
+//   data.append("stock", prodData.stock.toString());
+
+//   if (prodData.category_id !== undefined) {
+//     data.append("category_id", prodData.category_id);
+//   }
+//   // Handle multiple images
+//   if (prodData.images && prodData.images.length > 0) {
+//     prodData.images.forEach((image, index) => {
+//       data.append("images", {
+//         uri: image.url,
+//         type: "image/jpeg",
+//         name: `image_${index}.jpg`,
+//       } as any);
+//     });
+//   }
+//   // Handle multiple colors
+//   if (prodData.colors && prodData.colors.length > 0) {
+//     prodData.colors.forEach((color) => {
+//       data.append("images", color);
+//     });
+//   }
+//   try {
+//     const response: ApiResponse<CreateProductResponse | ErrorResponse> =
+//       await apiClient.put(`${BASE_URL}/${productId}`, data, {
+//         headers: {
+//           "Content-Type": "multipart/form-data",
+//         },
+//       });
+
+//     if (!response.ok || !response.data || "detail" in response.data) {
+//       const errorMessage =
+//         response.data && "detail" in response.data
+//           ? response.data.detail
+//           : "Error updating item. Please try again later.";
+//       throw new Error(errorMessage);
+//     }
+//     console.log(response.problem)
+//     return response.data;
+//   } catch (error) {
+//     if (error instanceof Error) {
+//       throw new Error(error.message);
+//     }
+//     throw new Error("An unexpected error occurred");
+//   }
+// };
+
+
+// export const updateProduct = async (
+//   productId: string,
+//   prodData: CreateProduct
+// ): Promise<CreateProductResponse> => {
+//   const data = new FormData();
+//   data.append("name", prodData.name);
+//   data.append("price", prodData.price.toString());
+//   data.append("description", prodData.description);
+//   data.append("sizes", prodData.sizes || "");
+//   data.append("stock", prodData.stock.toString());
+  
+//   if (prodData.category_id !== undefined) {
+//     data.append("category_id", prodData.category_id);
+//   }
+
+//   // Handle multiple images - Note: for updates, you might need to handle existing vs new images differently
+//   if (prodData.images && prodData.images.length > 0) {
+//     prodData.images.forEach((imageUrl, index) => {
+//       // If it's a new image (local URI), create file object
+//       if (imageUrl.startsWith('file://') || imageUrl.startsWith('content://')) {
+//         data.append("images", {
+//           uri: imageUrl,
+//           type: "image/jpeg",
+//           name: `image_${index}.jpg`,
+//         } as any);
+//       } else {
+//         // If it's an existing image URL, you might want to handle differently
+//         // depending on your backend requirements
+//         data.append("existing_images", imageUrl);
+//       }
+//     });
+//   }
+
+//   // Handle multiple colors - Fixed: was appending as "images" instead of "colors"
+//   if (prodData.colors && prodData.colors.length > 0) {
+//     prodData.colors.forEach((color) => {
+//       data.append("colors", color);
+//     });
+//   }
+
+//   try {
+//     const response: ApiResponse<CreateProductResponse | ErrorResponse> =
+//       await apiClient.put(`${BASE_URL}/${productId}`, data, {
+//         headers: {
+//           "Content-Type": "multipart/form-data",
+//         },
+//       });
+
+//     if (!response.ok || !response.data || "detail" in response.data) {
+//       const errorMessage =
+//         response.data && "detail" in response.data
+//           ? response.data.detail
+//           : "Error updating item. Please try again later.";
+//       throw new Error(errorMessage);
+//     }
+
+//     return response.data;
+//   } catch (error) {
+//     if (error instanceof Error) {
+//       throw new Error(error.message);
+//     }
+//     throw new Error("An unexpected error occurred");
+//   }
+// };
+
+
 export const updateProduct = async (
   productId: string,
   prodData: CreateProduct
@@ -79,31 +201,35 @@ export const updateProduct = async (
   data.append("name", prodData.name);
   data.append("price", prodData.price.toString());
   data.append("description", prodData.description);
-  data.append("sizes", prodData.sizes);
+  data.append("sizes", prodData.sizes || "");
   data.append("stock", prodData.stock.toString());
-
+  
   if (prodData.category_id !== undefined) {
     data.append("category_id", prodData.category_id);
   }
-  // Handle multiple images
+
+  // Handle multiple images - Since backend replaces all images, send all current images
   if (prodData.images && prodData.images.length > 0) {
-    prodData.images.forEach((image, index) => {
+    prodData.images.forEach((imageUrl, index) => {
+      // Create file object for all images (new and existing)
       data.append("images", {
-        uri: image.url,
-        type: "image/jpeg",
+        uri: imageUrl,
+        type: "image/jpeg", 
         name: `image_${index}.jpg`,
       } as any);
     });
   }
-  // Handle multiple colors
+
+  // Handle multiple colors - Fixed: was appending as "images" instead of "colors"
   if (prodData.colors && prodData.colors.length > 0) {
     prodData.colors.forEach((color) => {
-      data.append("images", color);
+      data.append("colors", color);
     });
   }
+
   try {
     const response: ApiResponse<CreateProductResponse | ErrorResponse> =
-      await apiClient.post(`${BASE_URL}/${productId}`, data, {
+      await apiClient.put(`${BASE_URL}/${productId}`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -116,6 +242,7 @@ export const updateProduct = async (
           : "Error updating item. Please try again later.";
       throw new Error(errorMessage);
     }
+
     return response.data;
   } catch (error) {
     if (error instanceof Error) {
