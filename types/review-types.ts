@@ -87,6 +87,7 @@ export interface VendorReviewResponse {
 }
 export interface ReviewsCount {
   reviews_count: number;
+  average_rating: number
 }
 
 export interface BadgeCount {

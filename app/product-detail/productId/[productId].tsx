@@ -3,6 +3,7 @@ import { fetchProductReviewsCount } from '@/api/review'
 import AppVariantButton from '@/components/core/AppVariantButton'
 import ProductDetailWrapper from '@/components/ProductDetailWrapper'
 import { usePurchaseActions, usePurchaseSelectors } from '@/store/productStore'
+import { Star } from "lucide-react-native";
 import { Ionicons } from '@expo/vector-icons'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { router, useLocalSearchParams } from 'expo-router'
@@ -116,6 +117,7 @@ const ProductDetail = () => {
         }).format(price)
     }
 
+console.log(product)
 
     return (
         <ProductDetailWrapper images={product.images}>
@@ -126,7 +128,13 @@ const ProductDetail = () => {
                         <Text className="text-xl font-poppins-medium text-muted ">{product.name}</Text>
                         <TouchableOpacity className='flex-row items-center gap-2' onPress={() => router.push({ pathname: '/product-detail/product-reviews', params: { productId: product.id } })}>
                             <Ionicons name="chatbox-ellipses-outline" size={20} color="gray" />
+                            <View className="flex-row gap-2">
                             <Text className="text-sm font-poppins-light underline text-muted">Reviews ({count ? count?.reviews_count : 0})</Text>
+                           {count?.average_rating &&  <View className="flex-row items-center gap-1">
+                            <Text className="text-sm font-poppins-light text-muted">{count.average_rating}</Text>
+                            <Star size={12} color="gold"/>
+                            </View>}
+                            </View>
                         </TouchableOpacity>
                     </View>
                     <Text className="text-3xl font-bold text-primary">{formatPrice(Number(product.price))}</Text>

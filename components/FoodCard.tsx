@@ -52,7 +52,7 @@ const FoodCard = ({ item, onPress, onDelete }: {
                         hitSlop={10}
                         style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1, transform: [{ scale: pressed ? 0.95 : 1 }] }]}
                     >
-                        <Trash color='rgba(255, 0,0, 0.9)' size={18} />
+                        <Trash color='gray' size={18} />
                     </Pressable>
                 </View>
             )}
