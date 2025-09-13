@@ -58,6 +58,8 @@ const addMenu = () => {
 
     const queryClient = useQueryClient();
 
+    console.log(params)
+
     // If params are present, use them to prefill
     const paramItem = isEditing && params.name ? {
         id: params.id,
@@ -174,6 +176,8 @@ const addMenu = () => {
                 images: paramItem.images && paramItem.images.length > 0 ? [paramItem.images[0].url] : [],
                 itemType: paramItem.item_type || 'food',
                 side: paramItem.side || '',
+                category_id: paramItem.category_name || ''
+
                 // category_id, foodGroup left as default
             });
         }

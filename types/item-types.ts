@@ -34,6 +34,7 @@ export interface CreateMenuItmItem extends ItemCreateBase {
 export interface RestaurantMenuResponse extends ItemCreateBase {
   id: string;
   user_id: string;
+  category_name: string;
   food_group: FoodGroup;
 }
 export interface LaundryMenuResponse extends ItemCreateBase {
@@ -55,6 +56,7 @@ interface MenuBase {
   id: string;
   name: string;
   item_type: string;
+  category_name?: string;
   price: string;
   images: ItemImage[];
 }

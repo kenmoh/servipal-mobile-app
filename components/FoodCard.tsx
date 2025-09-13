@@ -38,6 +38,7 @@ const FoodCard = ({ item, onPress, onDelete }: {
                                 name: item.name,
                                 description: item.description,
                                 price: item.price,
+                                category_name: item?.category_name,
                                 images: JSON.stringify(item.images),
                                 item_type: item.item_type,
                             }
