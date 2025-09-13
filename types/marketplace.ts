@@ -2,7 +2,7 @@ import { ItemCreateBase, ItemImage, ItemType } from "./item-types";
 
 export interface CreateProduct extends ItemCreateBase {
   stock: number;
-  sizes: string;
+  sizes?: string;
   colors?: string[];
   description: string;
 }

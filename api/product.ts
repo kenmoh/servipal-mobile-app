@@ -23,8 +23,12 @@ export const createProduct = async (
   data.append("name", prodData.name);
   data.append("price", prodData.price.toString());
   data.append("description", prodData.description);
-  data.append("sizes", prodData.sizes);
+  // data.append("sizes", prodData.sizes);
   data.append("stock", prodData.stock.toString());
+
+  if (prodData.sizes) {
+    data.append("sizes", prodData.sizes);
+  }
 
   if (prodData.category_id !== undefined) {
     data.append("category_id", prodData.category_id);
@@ -126,7 +130,6 @@ export const createProduct = async (
 //   }
 // };
 
-
 // export const updateProduct = async (
 //   productId: string,
 //   prodData: CreateProduct
@@ -137,7 +140,7 @@ export const createProduct = async (
 //   data.append("description", prodData.description);
 //   data.append("sizes", prodData.sizes || "");
 //   data.append("stock", prodData.stock.toString());
-  
+
 //   if (prodData.category_id !== undefined) {
 //     data.append("category_id", prodData.category_id);
 //   }
@@ -192,7 +195,6 @@ export const createProduct = async (
 //   }
 // };
 
-
 export const updateProduct = async (
   productId: string,
   prodData: CreateProduct
@@ -203,7 +205,7 @@ export const updateProduct = async (
   data.append("description", prodData.description);
   data.append("sizes", prodData.sizes || "");
   data.append("stock", prodData.stock.toString());
-  
+
   if (prodData.category_id !== undefined) {
     data.append("category_id", prodData.category_id);
   }
@@ -214,7 +216,7 @@ export const updateProduct = async (
       // Create file object for all images (new and existing)
       data.append("images", {
         uri: imageUrl,
-        type: "image/jpeg", 
+        type: "image/jpeg",
         name: `image_${index}.jpg`,
       } as any);
     });

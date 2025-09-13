@@ -75,8 +75,8 @@ const AddProductScreen = () => {
             name: "",
             category_id: "",
             description: "",
-            price: 0,
-            stock: 0,
+            // price: 0,
+            // stock: 0,
             sizes: "",
             images: [],
             colors: [],
@@ -89,6 +89,8 @@ const AddProductScreen = () => {
         queryFn: () => fetchProduct(productId!),
         enabled: !!productId,
     });
+
+
     // Populate form when product data is loaded
     useEffect(() => {
         if (existingProduct) {
@@ -119,6 +121,7 @@ const AddProductScreen = () => {
             showSuccess("Success", `${data?.name} created successfully`)
             queryClient.invalidateQueries({ queryKey: ["products"] });
             queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
+            queryClient.invalidateQueries({ queryKey: ['product', productId] });
 
             router.back();
         },
@@ -141,23 +144,25 @@ const AddProductScreen = () => {
 
 
     const updateMutation = useMutation({
-    mutationFn: ({ productId, data }: { productId: string; data: any }) => 
-        updateProduct(productId, data),
-    onSuccess: (data) => {
-        showSuccess("Success", "Product updated successfully");
-        
-        // Invalidate relevant queries to refresh cached data
-        queryClient.invalidateQueries({ queryKey: ["products"] });
-        queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
-        queryClient.invalidateQueries({ queryKey: ["product", productId] });
-        
-        router.back();
-    },
-    onError: (error) => {
-        console.log("Update error:", error);
-        showError("Error", error.message);
-    },
-});
+        mutationFn: ({ productId, data }: { productId: string; data: any }) => updateProduct(productId, data),
+
+
+        onSuccess: (data) => {
+          
+            showSuccess("Success", "Product updated successfully");
+
+            // Invalidate relevant queries to refresh cached data
+            queryClient.invalidateQueries({ queryKey: ["products"] });
+            queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
+            queryClient.invalidateQueries({ queryKey: ["product", productId] });
+            queryClient.invalidateQueries({ queryKey: ['user-products', user?.sub] })
+
+            router.back();
+        },
+        onError: (error) => {
+            showError("Error", error.message);
+        },
+    });
 
 
 
@@ -168,7 +173,7 @@ const AddProductScreen = () => {
         if (isEditing && productId) {
             updateMutation.mutate({ productId, data });
         } else {
-            createMutation.mutate(data);
+            createMutation.mutate(data as any);
         }
     };
 
@@ -226,8 +231,9 @@ const AddProductScreen = () => {
                         label="Price"
                         width={"50%"}
                         onBlur={onBlur}
-                        onChangeText={(text) => onChange(Number(text))}
-                        value={value?.toString()}
+                        onChangeText={onChange}
+                        // onChangeText={(text) => onChange(Number(text))}
+                        value={(value?.toString()) || ""}
                         keyboardType="numeric"
                         errorMessage={errors.price?.message}
                     />
@@ -251,7 +257,7 @@ const AddProductScreen = () => {
                 render={({ field: { onChange, value, onBlur } }) => (
                     <AppTextInput
                         label="Stock"
-                        placeholder="Quantity Available"
+                        // placeholder="Quantity Available"
                         onBlur={onBlur}
                         value={value?.toString()}
                         onChangeText={(text) => onChange(Number(text))}

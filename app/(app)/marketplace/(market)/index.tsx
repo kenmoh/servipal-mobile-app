@@ -16,7 +16,8 @@ const MarketPlace = () => {
     const { user } = useAuth()
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const { data, isLoading, isPending, isFetching, refetch } = useQuery({
-        queryKey: ['products', selectedCategory],
+        // queryKey: ['products', selectedCategory],
+        queryKey: ['products'],
         queryFn: () => {
             const categoryParam = selectedCategory === null ? undefined : selectedCategory;
             return fetchProducts(categoryParam);
