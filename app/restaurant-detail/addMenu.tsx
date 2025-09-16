@@ -1,10 +1,9 @@
-import React, { useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
-import { createCategory, createMenuItem, fetchCategories, updateItem } from "@/api/item";
+import { createMenuItem, fetchCategories, fetchItem, updateMenuItem } from "@/api/item";
 import ImagePickerInput from "@/components/AppImagePicker";
 import AppTextInput from "@/components/AppInput";
-import AppModal from "@/components/AppModal";
 import AppPicker from "@/components/AppPicker";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -12,11 +11,11 @@ import { Controller, useForm } from "react-hook-form";
 
 import { z } from "zod";
 
-import AppButton from "@/components/AppButton";
+import AppVariantButton from "@/components/core/AppVariantButton";
+import LoadingIndicator from "@/components/LoadingIndicator";
 import { useToast } from "@/components/ToastProvider";
-import { useAuth } from '@/context/authContext';
-import type { FoodGroup, ItemType } from "@/types/item-types";
-import { useLocalSearchParams } from 'expo-router';
+
+import { router, useLocalSearchParams, Stack } from 'expo-router';
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 const foodGroupOption = [
@@ -30,7 +29,10 @@ const foodGroupOption = [
 
 const schema = z.object({
     name: z.string().min(1, "Name is a required field"),
-    price: z.number().int().gt(0, "Price MUST be greater than 0").lte(999999),
+    // price: z.number().int().gt(0, "Price MUST be greater than 0").lte(999999),
+    price: z.coerce
+        .number("Price must be a number")
+        .positive("Price must be greater than 0"),
     description: z.string().min(1, "Ingredients is a required field"),
     category_id: z.string({ message: "Category is a required field" }),
     itemType: z.string({ message: "Item type is a required field" }),
@@ -41,42 +43,18 @@ const schema = z.object({
     }),
 });
 
-const categorySchema = z.object({
-    name: z.string().min(1, "Category name is required"),
-});
 
-type CategoryFormData = z.infer<typeof categorySchema>;
-
-type FormData = z.infer<typeof schema>;
+type MenuFormData = z.infer<typeof schema>;
 
 const addMenu = () => {
-    const [visble, setVisble] = useState(false);
-    const { user } = useAuth()
-    const params = useLocalSearchParams();
-    const isEditing = Boolean(params.id);
+    
+    
+    const { id } = useLocalSearchParams<{ id?: string }>();
+    const isEditing = Boolean(id);
     const { showError, showSuccess } = useToast()
 
     const queryClient = useQueryClient();
 
-    console.log(params)
-
-    // If params are present, use them to prefill
-    const paramItem = isEditing && params.name ? {
-        id: params.id,
-        name: params.name as string,
-        description: params.description as string,
-        price: Number(params.price),
-        images: params.images ? (() => {
-            try {
-                const parsed = JSON.parse(params.images as string);
-                return Array.isArray(parsed) ? parsed : [];
-            } catch {
-                return [];
-            }
-        })() : [],
-        item_type: params.item_type as string,
-        side: params.side ? params.side as string : '',
-    } : null;
 
 
     const {
@@ -84,7 +62,7 @@ const addMenu = () => {
         handleSubmit,
         reset,
         formState: { errors },
-    } = useForm<FormData>({
+    } = useForm<MenuFormData>({
         resolver: zodResolver(schema),
         mode: "onBlur",
         defaultValues: {
@@ -98,15 +76,7 @@ const addMenu = () => {
         },
     });
 
-    const {
-        control: categoryControl,
-        handleSubmit: handleCategorySubmit,
-        formState: { errors: categoryErrors },
-        reset: resetCategoryForm,
-    } = useForm<CategoryFormData>({
-        resolver: zodResolver(categorySchema),
-        defaultValues: { name: "" },
-    });
+
 
     const { data: categories } = useQuery({
         queryKey: ["food-categories"],
@@ -115,103 +85,82 @@ const addMenu = () => {
 
     });
 
+    // Fetch menu data if editing
+    const { data: existingMenuItem, isLoading: isLoadingProduct } = useQuery({
+        queryKey: ["menu", id],
+        queryFn: () => fetchItem(id as string),
+        enabled: !!id,
+    });
 
 
-    const { mutate, isPending } = useMutation({
-        mutationFn: createCategory,
+    useEffect(() => {
+        if (existingMenuItem && isEditing) {
+            reset({
+                name: existingMenuItem.name || "",
+                category_id: existingMenuItem.category_id || "",
+                description: existingMenuItem.description || "",
+                price: existingMenuItem.price || 0,
+                images: existingMenuItem.images?.map((img) => img.url) || [],
+                side: existingMenuItem?.side || "",
+                itemType: existingMenuItem.item_type,
+
+
+            });
+        }
+    }, [existingMenuItem, reset]);
+
+    const updateMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: MenuFormData }) => updateMenuItem(id, data),
+
         onSuccess: () => {
-
-            showSuccess("Success", "Category created successfully")
-            setVisble(false);
-            resetCategoryForm();
-
-            queryClient.invalidateQueries({ queryKey: ['restaurantItems', user?.sub] })
-            queryClient.invalidateQueries({ queryKey: ["food-categories"] });
-            queryClient.invalidateQueries({ queryKey: ["product-categories"] });
-            queryClient.invalidateQueries({ queryKey: ['restaurants'] })
-
-            return;
+            showSuccess("Success", "Item updated successfully");
+            queryClient.invalidateQueries({ queryKey: ["restaurantItems", existingMenuItem?.user_id, existingMenuItem?.food_group] });
+            router.back();
         },
         onError: (error) => {
-            showError("Error", error.message)
-
+            showError("Error", error.message);
         },
     });
-    const { mutate: itemMutate, isPending: isCreating } = useMutation({
+
+
+    const createMutation = useMutation({
         mutationFn: createMenuItem,
         onSuccess: (data) => {
-            showSuccess("Success", `${data?.name} created successfully.`)
-            reset();
-            queryClient.invalidateQueries({ queryKey: ["items"] });
-            return;
+            showSuccess("Success", `${data?.name} created successfully`)
+            queryClient.invalidateQueries({ queryKey: ["restaurantItems", data?.user_id, data?.food_group] });
+            router.back();
         },
+
         onError: (error) => {
             showError("Error", error.message)
-
         },
     });
 
-    const { mutate: updateMutate, isPending: isUpdating } = useMutation({
-        mutationFn: ({ id, data }: { id: string, data: any }) => updateItem(id, data),
-        onSuccess: (data) => {
-            showError("Success", "Item updated successfully")
 
-            reset();
-            queryClient.invalidateQueries({ queryKey: ["items"] });
-            return;
-        },
-        onError: (error) => {
-            showError("Error", error.message)
+    const isPending = createMutation.isPending || updateMutation.isPending;
 
-        },
-    });
+    const onSubmit = (data: MenuFormData) => {
+        if (isEditing && id) {
 
-    // Prefill form when paramItem or itemData is loaded
-    React.useEffect(() => {
-        if (paramItem) {
-            reset({
-                name: paramItem.name || '',
-                description: paramItem.description || '',
-                price: paramItem.price || 0,
-                images: paramItem.images && paramItem.images.length > 0 ? [paramItem.images[0].url] : [],
-                itemType: paramItem.item_type || 'food',
-                side: paramItem.side || '',
-                category_id: paramItem.category_name || ''
-
-                // category_id, foodGroup left as default
-            });
-        }
-
-    }, []);
-
-    const onSubmit = (data: FormData) => {
-        if (isEditing && paramItem?.id) {
-            updateMutate({
-                id: paramItem.id as string,
-                data: {
-                    name: data.name,
-                    price: data.price,
-                    category_id: data.category_id,
-                    description: data.description,
-                    images: data.images ?? [],
-                    itemType: data.itemType as ItemType,
-                    food_group: data.foodGroup as FoodGroup,
-                    side: data.side,
-                }
-            });
+            updateMutation.mutate({ id, data });
         } else {
-            itemMutate({
-                ...data,
-                images: data.images ?? [],
-                itemType: data.itemType as ItemType,
-                food_group: data.foodGroup as FoodGroup,
-            });
+
+            createMutation.mutate(data);
         }
     };
+
+    if (isLoadingProduct) {
+        return <LoadingIndicator />
+    }
+
 
     return (
         <>
             <KeyboardAwareScrollView className="bg-background" >
+                <Stack.Screen options={{
+                    title: isEditing ? 'Update Menu' : "Add Menu"
+
+                }}/>
                 <View className="mt-3 mb-8">
                     <Controller
                         control={control}
@@ -303,8 +252,8 @@ const addMenu = () => {
                                     height={60}
                                     onBlur={onBlur}
                                     onChangeText={onChange}
-                                      multiline={true}
-                                        numberOfLines={4}
+                                    multiline={true}
+                                    numberOfLines={4}
                                     value={value}
                                     errorMessage={errors.description?.message}
                                 />
@@ -341,54 +290,21 @@ const addMenu = () => {
                         )}
                     />
                     <View className="my-4">
-                        <AppButton
-                            title={(isCreating || isUpdating) ? 'Sending...' : (isEditing ? "Update" : "Submit")}
+                        <AppVariantButton
+                            label={isEditing ? "Update" : "Submit"}
 
 
-                            disabled={isCreating || isUpdating}
-                            icon={(isCreating || isUpdating) && <ActivityIndicator color="#ccc" />}
+                            disabled={createMutation.isPending || updateMutation.isPending}
+                            icon={(createMutation.isPending || updateMutation.isPending) && <ActivityIndicator color="#ccc" />}
 
-                            backgroundColor={isCreating || isUpdating ? "bg-input" : "$bg-button-primary"}
+
                             width={"90%"}
                             onPress={handleSubmit(onSubmit)}
-                        >
+                        />
 
-                        </AppButton>
+
                     </View>
                 </View>
-
-
-
-                <AppModal visible={visble} onClose={() => setVisble(false)}>
-                    <Text style={{ fontFamily: "Poppins-Medium" }}>Add New Category</Text>
-                    <Controller
-                        control={categoryControl}
-                        name="name"
-                        render={({ field: { onChange, onBlur, value } }) => (
-                            <AppTextInput
-                                placeholder="Category"
-                                onBlur={onBlur}
-                                onChangeText={onChange}
-                                value={value}
-                                errorMessage={categoryErrors.name?.message}
-                            />
-                        )}
-                    />
-
-                    <AppButton
-                        title="Add Category"
-
-                        disabled={isPending}
-                        icon={isPending && <ActivityIndicator color="#ccc" />}
-                        backgroundColor={isPending ? "bg-input" : "bg-button-primary"}
-                        width={"90%"}
-                        onPress={handleCategorySubmit((data) => {
-                            mutate(data);
-                        })}
-                    />
-
-
-                </AppModal>
             </KeyboardAwareScrollView>
         </>
     );
@@ -396,4 +312,4 @@ const addMenu = () => {
 
 export default addMenu;
 
-const styles = StyleSheet.create({});
+

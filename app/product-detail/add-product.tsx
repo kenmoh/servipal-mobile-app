@@ -122,6 +122,7 @@ const AddProductScreen = () => {
             queryClient.invalidateQueries({ queryKey: ["products"] });
             queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
             queryClient.invalidateQueries({ queryKey: ['product', productId] });
+            queryClient.invalidateQueries({ queryKey: ['user-products', user?.sub] });
 
             router.back();
         },
@@ -147,8 +148,8 @@ const AddProductScreen = () => {
         mutationFn: ({ productId, data }: { productId: string; data: any }) => updateProduct(productId, data),
 
 
-        onSuccess: (data) => {
-          
+        onSuccess: () => {
+
             showSuccess("Success", "Product updated successfully");
 
             // Invalidate relevant queries to refresh cached data
@@ -156,6 +157,7 @@ const AddProductScreen = () => {
             queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
             queryClient.invalidateQueries({ queryKey: ["product", productId] });
             queryClient.invalidateQueries({ queryKey: ['user-products', user?.sub] })
+
 
             router.back();
         },

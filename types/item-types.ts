@@ -22,27 +22,36 @@ export interface ItemCreateBase {
   name: string;
   description?: string;
   price: number;
-  itemType?: ItemType;
+  itemType?: ItemType | string;
   category_id?: string;
   images: ItemImage[];
 }
 
-export interface CreateMenuItmItem extends ItemCreateBase {
+export interface CreateMenuItmItem {
+  name: string;
+  description?: string;
+  price: number;
+  itemType?: ItemType | string;
+  category_id?: string;
+  images: ItemImage[];
   side?: string;
-  food_group?: FoodGroup;
+  foodDroup: string;
 }
-export interface RestaurantMenuResponse extends ItemCreateBase {
+export interface UpdateMenuItmItem extends CreateMenuItmItem {}
+export interface ItemMenuResponse extends CreateMenuItmItem {
   id: string;
   user_id: string;
+  item_type: ItemType;
   category_name: string;
-  food_group: FoodGroup;
+  // food_group: FoodGroup;
 }
+
 export interface LaundryMenuResponse extends ItemCreateBase {
   id: string;
   user_id: string;
 }
 
-export type CombinedResponse = RestaurantMenuResponse | LaundryMenuResponse;
+// export type CombinedResponse = RestaurantMenuResponse | LaundryMenuResponse;
 
 export interface CreateCategory {
   name: string;
@@ -56,7 +65,7 @@ interface MenuBase {
   id: string;
   name: string;
   item_type: string;
-  category_name?: string;
+  category_id?: string;
   price: string;
   images: ItemImage[];
 }

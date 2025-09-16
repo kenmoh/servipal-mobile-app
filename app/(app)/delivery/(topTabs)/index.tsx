@@ -92,7 +92,6 @@ const DeliveryScreen = () => {
 
   });
 
-  console.log(userLocation)
 
   const { data: userProfile, isSuccess } = useQuery({
     queryKey: ["profile", user?.sub],
@@ -102,8 +101,10 @@ const DeliveryScreen = () => {
   });
 
 
+console.log(expoPushToken, userLocation)
+
   useEffect(() => {
-    if (expoPushToken || userLocation) {
+    if (expoPushToken && userLocation) {
       // Send the token to server when it exists
       registerMutation.mutate({
         notification_token: expoPushToken!,
@@ -117,6 +118,9 @@ const DeliveryScreen = () => {
       })
     }
   }, [expoPushToken, userLocation]);
+
+
+
 
 
   useEffect(() => {
