@@ -160,14 +160,12 @@ const Cart = () => {
 
 
 
-        console.log("DISTANCE0: ", distance, "DURATION0: ", duration)
 
         // const distanceText = data?.rows?.[0]?.elements?.[0]?.distance?.text;
         // const durationText = data?.rows?.[0]?.elements?.[0]?.duration?.text;
 
         if (distance && duration) {
 
-          console.log("DISTANCE1: ", distance, "DURATION1: ", duration);
 
           // if (distanceText && durationText) {
           //   const distanceValue = parseFloat(

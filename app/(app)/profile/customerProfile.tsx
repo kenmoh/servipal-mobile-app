@@ -92,7 +92,7 @@ const Profile = () => {
     };
 
     const onSubmit = (values: ProfileFormData) => {
-        console.log(values);
+
 
         mutate({
             ...values,
@@ -136,7 +136,7 @@ const Profile = () => {
                         />
                     )}
                 />
-                 <Controller
+                <Controller
                     control={control}
                     name="storeName"
                     render={({ field }) => (

@@ -88,7 +88,6 @@ const DeliveryScreen = () => {
 
   const registerCoordinatesMutation = useMutation({
     mutationFn: registerCoordinates,
-    onError: (error) => console.log(error)
 
   });
 
@@ -101,7 +100,6 @@ const DeliveryScreen = () => {
   });
 
 
-console.log(expoPushToken, userLocation)
 
   useEffect(() => {
     if (expoPushToken && userLocation) {
@@ -290,7 +288,7 @@ console.log(expoPushToken, userLocation)
 
   if (error) return <RefreshButton onPress={refetch} label="Error loading delivery items" />
 
-  console.log(data)
+
 
   return (
     <View className="bg-background flex-1 p-2">

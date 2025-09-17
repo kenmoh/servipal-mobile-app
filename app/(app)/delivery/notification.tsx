@@ -48,7 +48,7 @@ const NotificationScreen = () => {
         queryFn: fetchNotificationStatistics,
     });
 
-    console.log(stats)
+
 
     // Mark as read mutation
     const markReadMutation = useMutation({

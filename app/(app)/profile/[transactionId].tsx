@@ -61,7 +61,6 @@ const TransactionDetails = () => {
     useEffect(() => {
         if (!paymentStatusFromUrl) return;
 
-        console.log('Payment status from URL:', paymentStatusFromUrl);
 
         const timer = setTimeout(() => {
             // Normalize status for consistent comparison
@@ -70,7 +69,6 @@ const TransactionDetails = () => {
             switch (normalizedStatus) {
                 case 'successful':
                 case 'success':
-                    console.log('Payment successful, redirecting to success page');
                     router.replace({
                         pathname: "/payment/payment-complete",
                         params: { paymentStatus: "success" },

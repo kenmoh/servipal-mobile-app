@@ -32,8 +32,6 @@ export const getCoordinatesFromAddress = async (
     if (data.results?.[0]?.geometry?.location) {
       const coordinates = data.results[0].geometry.location;
 
-      console.log(coordinates, "XXXXXXXXXXXXXXX");
-
       // Cache the result
       geocodingCache[address] = {
         coordinates,

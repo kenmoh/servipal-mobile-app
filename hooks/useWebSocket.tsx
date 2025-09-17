@@ -28,21 +28,18 @@ export const useWebSocket = ({
     const maxReconnectAttempts = 5;
     const baseReconnectDelay = 1000;
 
-    const connect = useCallback(async() => {
+    const connect = useCallback(async () => {
         try {
             // Replace with your actual WebSocket URL
             const wsUrl = process.env.EXPO_PUBLIC_WS_URL;
-            
+
             // You might need to add authentication token here
-            const token = await authStorage.getToken(); 
+            const token = await authStorage.getToken();
             const urlWithAuth = `${wsUrl}?token=${token}`;
 
-            console.log(token)
-            
             wsRef.current = new WebSocket(urlWithAuth);
 
             wsRef.current.onopen = () => {
-                console.log('WebSocket connected');
                 setIsConnected(true);
                 reconnectAttemptsRef.current = 0;
                 onConnect?.();
@@ -59,7 +56,6 @@ export const useWebSocket = ({
             };
 
             wsRef.current.onclose = (event) => {
-                console.log('WebSocket disconnected:', event.code, event.reason);
                 setIsConnected(false);
                 onDisconnect?.();
 
@@ -67,7 +63,7 @@ export const useWebSocket = ({
                 if (event.code !== 1000 && reconnectAttemptsRef.current < maxReconnectAttempts) {
                     const delay = baseReconnectDelay * Math.pow(2, reconnectAttemptsRef.current);
                     console.log(`Attempting to reconnect in ${delay}ms (attempt ${reconnectAttemptsRef.current + 1})`);
-                    
+
                     reconnectTimeoutRef.current = setTimeout(() => {
                         reconnectAttemptsRef.current += 1;
                         connect();
@@ -90,12 +86,12 @@ export const useWebSocket = ({
         if (reconnectTimeoutRef.current) {
             clearTimeout(reconnectTimeoutRef.current);
         }
-        
+
         if (wsRef.current) {
             wsRef.current.close(1000, 'Manual disconnect');
             wsRef.current = null;
         }
-        
+
         setIsConnected(false);
         reconnectAttemptsRef.current = 0;
     }, []);

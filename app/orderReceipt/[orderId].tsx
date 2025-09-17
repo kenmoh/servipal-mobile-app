@@ -550,7 +550,6 @@ const OrderReceiptPage = () => {
     if (isLoading) {
         return <LoadingIndicator />;
     }
-    console.log(data?.order?.order_status)
     return (
         <ScrollView
             className="flex-1 bg-background content-center"

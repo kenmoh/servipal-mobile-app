@@ -140,7 +140,6 @@ const ProductDetail = () => {
         }).format(price)
     }
 
-    console.log(data.order_items[0].item_id)
     return (
         <ProductDetailWrapper images={data?.order_items[0]?.images}>
             <View className="flex-1 px-6 space-y-6">

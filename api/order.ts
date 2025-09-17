@@ -541,7 +541,7 @@ export const getTravelDistance = async (
 
     if (data.code !== "Ok" && data.message) {
       console.warn(`Mapbox API error: ${data.code} - ${data.message}`);
-      console.log("Mapbox URL for failed request:", url);
+
       return null;
     }
 

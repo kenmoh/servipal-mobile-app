@@ -143,8 +143,7 @@ export const fetchProducts = async (
     // Build URL with optional categoryId parameter
     const url = categoryId ? `${BASE_URL}?category_id=${categoryId}` : BASE_URL;
 
-    console.log("fetchProducts - categoryId:", categoryId);
-    console.log("fetchProducts - URL:", url);
+   
 
     const response: ApiResponse<ProductResponse[] | ErrorResponse> =
       await apiClient.get(url, {

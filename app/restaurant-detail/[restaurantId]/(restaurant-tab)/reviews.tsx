@@ -16,9 +16,6 @@ const reviews = () => {
         queryFn: () => fetchVendorReviews(storeId as string)
     })
 
-    console.log(data)
-    console.log(storeId)
-
     return (
         <View className='flex-1 bg-background'>
             <FlatList

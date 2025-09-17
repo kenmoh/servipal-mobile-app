@@ -38,7 +38,6 @@ export const ChatWrapper = ({ children }: { children: React.ReactNode }) => {
 
   // client.connectUser(chatUser, user.chat_token);
 
-  console.log("client", client.user);
 
   if (!client) {
     return (

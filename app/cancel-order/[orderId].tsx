@@ -87,7 +87,7 @@ const ReviewPage = () => {
     });
 
     const onSubmit = (data: CancelFormData) => {
-        console.log(data)
+
         mutate(data);
 
     };
