@@ -16,7 +16,6 @@ const reviews = () => {
         queryFn: () => fetchVendorReviews(storeId as string)
     })
 
-    console.log(data)
     console.log(storeId)
 
     return (
