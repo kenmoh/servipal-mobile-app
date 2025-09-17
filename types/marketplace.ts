@@ -32,6 +32,7 @@ export interface ProductResponse {
   price: string;
   item_type?: ItemType;
   images: ItemImage[];
+  is_deleted: boolean;
   sizes: string;
   colors: string[];
 }

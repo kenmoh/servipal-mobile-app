@@ -3,6 +3,8 @@ import { LinearGradient } from "expo-linear-gradient"
 import { router } from "expo-router"
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 
+
+
 type ItemProps = {
     item: ProductResponse
 }
@@ -14,7 +16,9 @@ const ProductItemCard = ({ item }: ItemProps) => {
             style={{ borderWidth: StyleSheet.hairlineWidth }}
             className='bg-input rounded-2xl w-[45%] my-[2.5%] h-[200px] overflow-hidden  border-gray-800/25'
         >
+           
             <TouchableOpacity onPress={() => router.push({ pathname: '/product-detail/add-product', params: { productId: item?.id } })}>
+                
                 <Image
                     source={{ uri: item?.images[0]?.url }}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -32,6 +36,7 @@ const ProductItemCard = ({ item }: ItemProps) => {
                 />
 
             </TouchableOpacity>
+           
         </View>
     )
 }

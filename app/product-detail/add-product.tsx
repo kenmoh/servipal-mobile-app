@@ -4,7 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import { ScrollView, View } from "react-native";
 
 import { fetchCategories } from "@/api/item";
-import { createProduct, fetchProduct, updateProduct } from "@/api/product";
+import { createProduct, fetchProduct, updateProduct, deleteProduct } from "@/api/product";
 import AppTextInput from "@/components/AppInput";
 import AppPicker from "@/components/AppPicker";
 import ColorPickerInput from "@/components/ColorPickerInput";
@@ -132,17 +132,23 @@ const AddProductScreen = () => {
         },
     });
 
-    // const updateMutation = useMutation({
-    //     mutationFn: ({ productId, data }: { productId: string; data: any }) => updateProduct(productId, data),
-    //     onSuccess: () => {
-    //         router.back();
-    //     },
-    //    onError: (error) => {
-    //     console.log(error)
-    //         showError("Error", error.message)
-    //     },
-    // });
 
+    const deleteMutation = useMutation({
+        mutationFn: () => deleteProduct(productId as string),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["products"] });
+            queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
+            queryClient.invalidateQueries({ queryKey: ['user-products', user?.sub] });
+
+            showSuccess("Success", 'Item deleted successfully.')
+            router.back()
+        },
+
+        onError: (error) => {
+            showError("Error", error.message)
+        },
+    });
+  
 
     const updateMutation = useMutation({
         mutationFn: ({ productId, data }: { productId: string; data: any }) => updateProduct(productId, data),
@@ -178,6 +184,10 @@ const AddProductScreen = () => {
             createMutation.mutate(data as any);
         }
     };
+
+    const onDelete = () => {
+        deleteMutation.mutate()
+    }
 
     if (isLoadingProduct) {
         return <LoadingIndicator />
@@ -305,7 +315,7 @@ const AddProductScreen = () => {
             />
 
             {/* Submit Button */}
-            <View style={{ padding: 20 }} className="mb-7">
+            <View style={{ padding: 20 }} className="mb-7 gap-3">
                 <AppVariantButton
                     label={
                         isPending
@@ -319,6 +329,13 @@ const AddProductScreen = () => {
                     onPress={handleSubmit(onSubmit)}
                     disabled={isPending}
                 />
+                {isEditing &&   <AppVariantButton
+                    label="Delete"
+                    onPress={handleSubmit(onDelete)}
+                    disabled={isPending}
+                    outline={true}
+                    filled={false}
+                />}
             </View>
         </ScrollView>
     );

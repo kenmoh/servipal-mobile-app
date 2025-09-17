@@ -16,6 +16,7 @@ const items = () => {
     const { data, isLoading, isPending, isFetching, refetch } = useQuery({
         queryKey: ['user-products', user?.sub],
         queryFn: () => fetchUserProducts(user?.sub as string),
+        
         enabled: !!user?.sub
     })
 
