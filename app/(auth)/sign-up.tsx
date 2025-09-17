@@ -163,9 +163,12 @@ const SignUp = () => {
               />
             )}
           />
-          <Text className="text-primary text-[8px] font-poppins-thin">
+          <View className="w-[90%] self-center">
+            
+            <Text className="text-primary text-[9px] font-poppins-thin">
             Password must be at least 8 characters long, contains at least 1 special character, 1 uppercase, 1 number
           </Text>
+          </View>
           <Controller
             control={control}
             name="confirmPassword"
