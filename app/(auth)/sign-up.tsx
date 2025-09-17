@@ -163,7 +163,7 @@ const SignUp = () => {
               />
             )}
           />
-          <Text className="self-start text-primary text-xs font-poppins-thin">
+          <Text className="text-primary text-[8px] font-poppins-thin">
             Password must be at least 8 characters long, contains at least 1 special character, 1 uppercase, 1 number
           </Text>
           <Controller
