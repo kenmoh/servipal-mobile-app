@@ -38,7 +38,13 @@ const signUpSchema = z
       .regex(phoneRegEx, "Enter a valid phone number")
       .min(10, "Phone number must be at least 10 digits")
       .max(11, "Phone number must be at most 11 digits"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    // password: z.string().min(8, "Password must be at least 8 characters"),
+    password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character'),
     confirmPassword: z.string().min(8, "Confirm Password is required"),
   })
   .refine((data) => data.password === data.confirmPassword, {
