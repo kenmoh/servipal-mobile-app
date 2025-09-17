@@ -220,7 +220,7 @@ export const fetchItem = async (itemId: string): Promise<ItemMenuResponse> => {
 export const deleteItem = async (itemId: string): Promise<ItemMenuResponse> => {
   try {
     const response: ApiResponse<ItemMenuResponse | ErrorResponse> =
-      await apiClient.delete(`/items/${itemId}`, {
+      await apiClient.delete(`/items/${itemId}/delete`, {
         headers: {
           "Content-Type": "application/json",
         },
