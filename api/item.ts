@@ -225,6 +225,7 @@ export const deleteItem = async (itemId: string): Promise<ItemMenuResponse> => {
           "Content-Type": "application/json",
         },
       });
+      
 
     if (!response.ok || !response.data || "detail" in response.data) {
       const errorMessage =
