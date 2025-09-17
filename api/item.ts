@@ -217,24 +217,15 @@ export const fetchItem = async (itemId: string): Promise<ItemMenuResponse> => {
 };
 
 // Delete Item
-export const deleteItem = async (itemId: string): Promise<ItemMenuResponse> => {
+export const deleteItem = async (itemId: string): Promise<null> => {
   try {
-    const response: ApiResponse<ItemMenuResponse | ErrorResponse> =
+    const response: ApiResponse<null | ErrorResponse> =
       await apiClient.delete(`/items/${itemId}/delete`, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-      
 
-    if (!response.ok || !response.data || "detail" in response.data) {
-      const errorMessage =
-        response.data && "detail" in response.data
-          ? response.data.detail
-          : "Error deleting item.";
-      throw new Error(errorMessage);
-    }
-    return response.data;
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(error.message);
