@@ -8,9 +8,7 @@ import { FoodGroup, MenuItem } from "@/types/item-types";
 import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
-import { FlatList, View, Alert } from "react-native";
-import { deleteItem } from '@/api/item'
-import { useToast } from './ToastProvider'
+import { FlatList, View } from "react-native";
 
 import { fetchRestaurantMenu } from "@/api/user";
 import FAB from "@/components/FAB";
@@ -25,7 +23,6 @@ const groups: CategoryType[] = [
 
 const StoreDetails = () => {
     const { user } = useAuth();
-    const { showSuccess } = useToast()
     const { storeId, restaurantId } = useLocalSearchParams();
     const { cart, addItem, totalCost, removeItem } = useCartStore();
     const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
@@ -35,8 +32,16 @@ const StoreDetails = () => {
         queryKey: ["restaurantItems", storeId, selectedFoodGroup],
         queryFn: () => fetchRestaurantMenu(selectedFoodGroup as FoodGroup, restId as string),
         select: (items) =>
-            items?.filter((item) => item.item_type === "food") || [],
-    });
+            items?.filter((item) => 
+                item.item_type === "food" && item.is_deleted === false
+            ) || [],
+});
+    // const { data, refetch, isFetching } = useQuery({
+    //     queryKey: ["restaurantItems", storeId, selectedFoodGroup],
+    //     queryFn: () => fetchRestaurantMenu(selectedFoodGroup as FoodGroup, restId as string),
+    //     select: (items) =>
+    //         items?.filter((item) => item.item_type === "food") || [],
+    // });
 
 
 
@@ -65,38 +70,6 @@ const StoreDetails = () => {
         [addItem, removeItem, storeId, checkedItems]
     );
 
-
-        const deleteMutation = useMutation({
-        mutationFn: () => deleteItem(item?.id!),
-        onSuccess: (data) => {
-            if (!data) {
-                showSuccess('Deleted', `${item.name} deleted successfully.`)
-                queryClient.invalidateQueries({ queryKey: ["restaurantItems", storeId, selectedFoodGroup] });
-                refetch()
-            }
-
-        },
-        onError: (error: any) => {
-            Alert.alert('Failed to delete', error.message || `Failed to delete ${item.name}. Please try again.`)
-        }
-    })
-
-    const openDialog = () => {
-        Alert.alert('Warning', `Are you sure you want to delete ${item.name}`, [
-            {
-                text: 'Cancel',
-                style: 'cancel',
-
-            },
-            {
-                text: 'OK', onPress: () => {
-                    deleteMutation.mutate()
-
-                }
-            }
-        ])
-    }
-
     return (
         <View className="flex-1 bg-background p-2">
 
@@ -107,7 +80,7 @@ const StoreDetails = () => {
                     renderItem={({ item }: { item: MenuItem }) => (
                         <FoodCard
                             item={item}
-                            openDialog={openDialog}
+
                             onPress={() => handleAddToCart(item)}
                         />
                     )}

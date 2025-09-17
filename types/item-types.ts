@@ -74,6 +74,7 @@ export interface MenuItem extends MenuBase {
   user_id: string;
   description?: string;
   food_group: FoodGroup;
+  is_deleted: boolean
 }
 
 export interface LaundryMenuItem extends MenuBase {

@@ -12,10 +12,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useToast } from './ToastProvider'
 
 
-const FoodCard = ({ item, onPress, onPenDialog }: {
+const FoodCard = ({ item, onPress }: {
     item: MenuItem,
     onPress: (id: string) => void,
-    onPenDialog: () => void
 }) => {
 
     const { user } = useAuth()
@@ -27,35 +26,35 @@ const FoodCard = ({ item, onPress, onPenDialog }: {
 
     const isOwner = user?.user_type === 'restaurant_vendor' && user?.sub === item.user_id;
 
-    // const deleteMutation = useMutation({
-    //     mutationFn: () => deleteItem(item?.id!),
-    //     onSuccess: (data) => {
-    //         if (!data) {
-    //             showSuccess('Deleted', `${item.name} deleted successfully.`)
-    //             queryClient.invalidateQueries({ queryKey: ["restaurantItems", user?.sub, item?.food_group] });
-    //         }
+    const deleteMutation = useMutation({
+        mutationFn: () => deleteItem(item?.id!),
+        onSuccess: (data) => {
+            if (!data) {
+                showSuccess('Deleted', `${item.name} deleted successfully.`)
+                queryClient.invalidateQueries({ queryKey: ["restaurantItems", user?.sub, item?.food_group] });
+            }
 
-    //     },
-    //     onError: (error: any) => {
-    //         Alert.alert('Failed to delete', error.message || `Failed to delete ${item.name}. Please try again.`)
-    //     }
-    // })
+        },
+        onError: (error: any) => {
+            Alert.alert('Failed to delete', error.message || `Failed to delete ${item.name}. Please try again.`)
+        }
+    })
 
-    // const openDialog = () => {
-    //     Alert.alert('Warning', `Are you sure you want to delete ${item.name}`, [
-    //         {
-    //             text: 'Cancel',
-    //             style: 'cancel',
+    const openDialog = () => {
+        Alert.alert('Warning', `Are you sure you want to delete ${item.name}`, [
+            {
+                text: 'Cancel',
+                style: 'cancel',
 
-    //         },
-    //         {
-    //             text: 'OK', onPress: () => {
-    //                 deleteMutation.mutate()
+            },
+            {
+                text: 'OK', onPress: () => {
+                    deleteMutation.mutate()
 
-    //             }
-    //         }
-    //     ])
-    // }
+                }
+            }
+        ])
+    }
 
 
 
@@ -85,7 +84,7 @@ const FoodCard = ({ item, onPress, onPenDialog }: {
                         <Edit color='gray' size={18} />
                     </Pressable>
                     <TouchableOpacity
-                        onPress={onPenDialog}
+                        onPress={openDialog}
                         // onPress={() => onDelete ? onDelete(item.id) : () => showError("Success", "Item deleted.")}
                         hitSlop={10}
                     >
