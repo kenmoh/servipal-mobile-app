@@ -33,7 +33,7 @@ const StoreDetails = () => {
         queryFn: () => fetchRestaurantMenu(selectedFoodGroup as FoodGroup, restId as string),
         select: (items) =>
             items?.filter((item) => 
-                item.item_type === "food" && item.is_deleted === false
+                item.item_type === "food" 
             ) || [],
 });
     // const { data, refetch, isFetching } = useQuery({
@@ -44,7 +44,7 @@ const StoreDetails = () => {
     // });
 
 
-
+console.log(data)
     const handleAddToCart = useCallback(
         (item: MenuItem) => {
             if (checkedItems.has(item.id)) {
