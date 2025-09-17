@@ -35,7 +35,7 @@ export interface CreateMenuItmItem {
   category_id?: string;
   images: ItemImage[];
   side?: string;
-  foodDroup: string;
+  foodGroup: string;
 }
 export interface UpdateMenuItmItem extends CreateMenuItmItem {}
 export interface ItemMenuResponse extends CreateMenuItmItem {
@@ -73,6 +73,7 @@ interface MenuBase {
 export interface MenuItem extends MenuBase {
   user_id: string;
   description?: string;
+  food_group: FoodGroup;
 }
 
 export interface LaundryMenuItem extends MenuBase {

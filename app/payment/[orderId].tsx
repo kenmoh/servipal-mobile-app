@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   ScrollView,
   StyleSheet,
@@ -79,6 +80,9 @@ const Payment = () => {
 
     },
   });
+
+
+
   const { mutate: payWithWalletMutation, isPending } = useMutation({
     mutationFn: () => payWithWallet(orderId as string),
     onSuccess: () => {
@@ -121,6 +125,21 @@ const Payment = () => {
     },
   });
 
+  const openDialog = () => {
+    Alert.alert('Confirm', `Are you sure you want to continue?`, [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+
+      },
+      {
+        text: 'OK', onPress: () => {
+          payWithWalletMutation()
+
+        }
+      }
+    ])
+  }
 
   const { mutate: generatePaymentLinkMutation, data, isPending: isGeneratingPaymentLink } = useMutation({
     mutationFn: () => generateOrderPaymentLink(orderId as string),
@@ -365,7 +384,7 @@ const Payment = () => {
               filled={false}
               disabled={isPending}
               outline={true}
-              onPress={() => payWithWalletMutation()}
+              onPress={openDialog}
               width={"47.5%"}
               label="Wallet"
               icon={
