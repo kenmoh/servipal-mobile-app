@@ -140,7 +140,6 @@ const AddProductScreen = () => {
         mutationFn: () => deleteProduct(productId as string),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["products"] });
-            queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
             queryClient.invalidateQueries({ queryKey: ['user-products', user?.sub] });
 
             showSuccess("Success", 'Item deleted successfully.')
@@ -180,7 +179,6 @@ const AddProductScreen = () => {
 
             // Invalidate relevant queries to refresh cached data
             queryClient.invalidateQueries({ queryKey: ["products"] });
-            queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
             queryClient.invalidateQueries({ queryKey: ["product", productId] });
             queryClient.invalidateQueries({ queryKey: ['user-products', user?.sub] })
 
