@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ScrollView, View } from "react-native";
+import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
 
 import { fetchCategories } from "@/api/item";
-import { createProduct, fetchProduct, updateProduct, deleteProduct } from "@/api/product";
+import { createProduct, deleteProduct, fetchProduct, updateProduct } from "@/api/product";
 import AppTextInput from "@/components/AppInput";
 import AppPicker from "@/components/AppPicker";
 import ColorPickerInput from "@/components/ColorPickerInput";
@@ -16,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 
 import { useToast } from "@/components/ToastProvider";
+import { Trash } from "lucide-react-native";
 import z from "zod";
 
 // Zod enum for ItemType
@@ -83,6 +84,8 @@ const AddProductScreen = () => {
         },
     });
 
+
+
     // Fetch product data if editing
     const { data: existingProduct, isLoading: isLoadingProduct } = useQuery({
         queryKey: ["product", productId],
@@ -148,7 +151,24 @@ const AddProductScreen = () => {
             showError("Error", error.message)
         },
     });
-  
+
+
+    // const openDialog = () => {
+    //     Alert.alert('Confirm', `Are you sure you want to delete ${existingProduct?.name}`, [
+    //         {
+    //             text: 'Cancel',
+    //             style: 'cancel',
+
+    //         },
+    //         {
+    //             text: 'OK', onPress: () => {
+    //                 deleteMutation.mutate()
+
+    //             }
+    //         }
+    //     ])
+    // }
+
 
     const updateMutation = useMutation({
         mutationFn: ({ productId, data }: { productId: string; data: any }) => updateProduct(productId, data),
@@ -185,8 +205,21 @@ const AddProductScreen = () => {
         }
     };
 
-    const onDelete = () => {
-        deleteMutation.mutate()
+    const openDialog = () => {
+        // deleteMutation.mutate()
+        Alert.alert('Confirm', `Are you sure you want to delete ${existingProduct?.name}`, [
+            {
+                text: 'Cancel',
+                style: 'cancel',
+
+            },
+            {
+                text: 'OK', onPress: () => {
+                    deleteMutation.mutate()
+
+                }
+            }
+        ])
     }
 
     if (isLoadingProduct) {
@@ -327,14 +360,17 @@ const AddProductScreen = () => {
                                 : "Create Product"
                     }
                     onPress={handleSubmit(onSubmit)}
+                    icon={isPending ? <ActivityIndicator color={'white'} size={'large'} /> : ""}
                     disabled={isPending}
                 />
-                {isEditing &&   <AppVariantButton
+                {isEditing && <AppVariantButton
                     label="Delete"
-                    onPress={handleSubmit(onDelete)}
+                    onPress={handleSubmit(openDialog)}
                     disabled={isPending}
                     outline={true}
                     filled={false}
+                    icon={isPending ? <ActivityIndicator color={'white'} size={'large'} /> : <Trash color={'red'} size={20} />}
+
                 />}
             </View>
         </ScrollView>
