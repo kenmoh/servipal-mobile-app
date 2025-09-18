@@ -89,6 +89,7 @@ const GoogleTextInput = ({ placeholder, onPlaceSelect, value, error, onChangeTex
 
       <GooglePlacesTextInput
         apiKey={`${process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY}`}
+        // apiKey='AIzaSyAgNolNtWaGhGU_UKC0WM-TVmOUq1rWWRQ'
         // onPlaceSelect={handlePlaceSelect}
         ref={ref}
         languageCode="en"
