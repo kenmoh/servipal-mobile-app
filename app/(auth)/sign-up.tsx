@@ -20,6 +20,7 @@ import AppButton from "@/components/AppButton";
 import { useToast } from "@/components/ToastProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
+import * as Linking from 'expo-linking';
 import { z } from "zod";
 
 const roleData = [
@@ -72,6 +73,10 @@ const SignUp = () => {
       confirmPassword: "",
     },
   });
+
+  const openURL = () => {
+  Linking.openURL('https://www.servi-pal.com/terms');
+};
 
   const { mutate, isPending } = useMutation({
     mutationFn: registerApi,
@@ -195,7 +200,7 @@ const SignUp = () => {
             />
            <View className="w-[90%] self-center my-2">
               <Text className="text-sm font-poppins text-gray-500">By clicking on Register, you agree to ServiPal {" "}
-              <Text onPress={() => console.log('Terms and condition')} className="text-sm underline font-poppins text-orange-400">
+              <Text onPress={(openURL} className="text-sm underline font-poppins text-orange-400">
                 terms and conditions
               </Text>
             </Text>
