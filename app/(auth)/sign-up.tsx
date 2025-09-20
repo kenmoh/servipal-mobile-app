@@ -40,11 +40,11 @@ const signUpSchema = z
       .max(11, "Phone number must be at most 11 digits"),
     // password: z.string().min(8, "Password must be at least 8 characters"),
     password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number')
-    .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character'),
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+      .regex(/[0-9]/, 'Password must contain at least one number')
+      .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character'),
     confirmPassword: z.string().min(8, "Confirm Password is required"),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -164,10 +164,10 @@ const SignUp = () => {
             )}
           />
           <View className="w-[90%] self-center">
-            
-            <Text className="text-primary text-[9px] font-poppins-thin">
-            Password must be at least 8 characters long, contains at least 1 special character, 1 uppercase, 1 number
-          </Text>
+
+            <Text className="text-primary text-[10px] font-poppins-thin">
+              Password must be at least 8 characters long, contains at least 1 special character, 1 uppercase, 1 number
+            </Text>
           </View>
           <Controller
             control={control}
@@ -193,6 +193,11 @@ const SignUp = () => {
               width={"90%"}
               onPress={handleSubmit(onSubmit)}
             />
+            <Text className="text-sm font-poppins text-gray-500">By clicking on Register, you agree to ServiPal
+              <Text onPress={() => console.log('Terms and condition')} className="text-sm underline font-poppins text-orange-400">
+                terms and conditions
+              </Text>
+            </Text>
           </View>
         </View>
         <View className="items-center self-center justify-center w-[90%] mt-[30px]">

@@ -7,7 +7,7 @@ interface RadioButtonProps {
     onPress: () => void;
 }
 
-const RadioButton: React.FC<RadioButtonProps> = ({ label, selected, onPress }) => {
+const RadioButton = ({ label, selected, onPress }: RadioButtonProps) => {
     return (
         <TouchableOpacity onPress={onPress} style={styles.container}>
             <View style={[styles.radio, selected && styles.selectedRadio]}>

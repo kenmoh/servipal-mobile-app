@@ -221,7 +221,7 @@ const Cart = () => {
               <Text className="font-bold text-icon-default">₦ {totalCost}</Text>
             </View>
 
-            <View className="gap-3t font-poppins-bold rounded-lg self-center flex-row justify-between  items-center w-[85%] mt-5">
+            <View className="gap-3 font-poppins-bold rounded-lg self-center flex-row justify-between  items-center w-[85%] mt-5">
               <RadioButton
                 label="Delivery"
                 selected={require_delivery === "delivery"}

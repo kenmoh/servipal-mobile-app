@@ -152,23 +152,6 @@ const AddProductScreen = () => {
     });
 
 
-    // const openDialog = () => {
-    //     Alert.alert('Confirm', `Are you sure you want to delete ${existingProduct?.name}`, [
-    //         {
-    //             text: 'Cancel',
-    //             style: 'cancel',
-
-    //         },
-    //         {
-    //             text: 'OK', onPress: () => {
-    //                 deleteMutation.mutate()
-
-    //             }
-    //         }
-    //     ])
-    // }
-
-
     const updateMutation = useMutation({
         mutationFn: ({ productId, data }: { productId: string; data: any }) => updateProduct(productId, data),
 
