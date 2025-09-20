@@ -200,7 +200,7 @@ const SignUp = () => {
             />
            <View className="w-[90%] self-center my-2">
               <Text className="text-sm font-poppins text-gray-500">By clicking on Register, you agree to ServiPal {" "}
-              <Text onPress={(openURL} className="text-sm underline font-poppins text-orange-400">
+              <Text onPress={openURL} className="text-sm underline font-poppins text-orange-400">
                 terms and conditions
               </Text>
             </Text>
