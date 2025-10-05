@@ -18,6 +18,7 @@ import { useMutation } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { ShoppingCart } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
+
 import {
   ActivityIndicator,
   ScrollView,
