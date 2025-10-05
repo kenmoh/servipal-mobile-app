@@ -9,8 +9,8 @@ import { logOutUser } from "@/api/auth";
 import { ImageData, ImageUpload, uploadProfileImage } from "@/api/user";
 import ProfileImagePicker from "@/components/ProfileImagePicker";
 import { useToast } from "@/components/ToastProvider";
-import { useAuth } from "@/context/authContext";
 import authStorage from "@/storage/authStorage";
+import { useUserStore } from "@/store/userStore";
 import { ImageType } from "@/types/order-types";
 import { ImageUrl } from "@/types/user-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -27,7 +27,7 @@ const profile = () => {
     ImageType | ImageUpload | null | string
   >(null);
   const [profileUri, setProfileUri] = useState<ImageUrl | null | string>(null);
-  const { user, profile, setImages, setStoreId } = useAuth();
+  const { user, profile, setImages, setStoreId } = useUserStore();
   const { colorScheme, setColorScheme } = useColorScheme();
   const queryClient = useQueryClient();
   const [theme, setTheme] = useState(colorScheme);
@@ -173,7 +173,7 @@ const profile = () => {
     });
   };
 
-  const { signOut } = useAuth();
+  const { signOut } = useUserStore();
 
   const handleLogout = async () => {
     try {

@@ -1,4 +1,3 @@
-import { useAuth } from '@/context/authContext'
 import { useCartStore } from '@/store/cartStore'
 import { LaundryMenuItem } from "@/types/item-types"
 import Checkbox from 'expo-checkbox'
@@ -15,7 +14,7 @@ const LaundryCard = ({ item, onPress, onDelete }: {
     onDelete?: (id: string) => void
 }) => {
 
-    const { user } = useAuth()
+    const { user } = useUserStore();
     const cartItems = useCartStore(state => state.cart.order_items)
     const { showError, showInfo, showSuccess, showWarning } = useToast()
 

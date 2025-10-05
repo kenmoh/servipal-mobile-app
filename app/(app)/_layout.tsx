@@ -4,7 +4,8 @@ import React, { useMemo } from "react";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 import { useColorScheme, View } from "react-native";
 
-import { useAuth } from "@/context/authContext";
+// import { useUserStore } from "@/store/userStore";
+import { useUserStore } from "@/store/userStore";
 import {
   createNativeBottomTabNavigator,
   NativeBottomTabNavigationEventMap,
@@ -23,7 +24,7 @@ export const Tabs = withLayoutContext<
 >(BottomTabNavigator);
 
 export default function TabLayout() {
-  const { user } = useAuth();
+  const { user } = useUserStore();
 
   const isTabBarItemHidden = user?.user_type === "dispatch" || user?.user_type === "rider" ? true : false;
 
@@ -33,7 +34,7 @@ export default function TabLayout() {
 
 
   if (!user?.sub) {
-    return <Redirect href="/(auth)/sign-in" />;
+    return <Redirect href="/sign-in" />;
   }
 
   const theme = useColorScheme();
@@ -103,7 +104,7 @@ export default function TabLayout() {
 
 //     const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
 
-//     const { user } = useAuth()
+//     const { user } = useUserStore();
 //     const activeColor = 'orange';
 //     const iconColor = "#9BA1A6"
 //     const text = "#ddd"

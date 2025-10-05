@@ -5,8 +5,8 @@ import { fetchLaundryMenu } from "@/api/user";
 import CartInfoBtn from "@/components/CartInfoBtn";
 import EmptyList from "@/components/EmptyList";
 import LaundryCard from "@/components/LaundryCard";
-import { useAuth } from "@/context/authContext";
 import { useCartStore } from "@/store/cartStore";
+import { useUserStore } from "@/store/userStore";
 import { LaundryMenuItem } from "@/types/item-types";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
@@ -15,7 +15,7 @@ import FAB from "@/components/FAB";
 import { Menu } from "lucide-react-native";
 
 const StoreDetails = () => {
-    const { user } = useAuth();
+    const { user } = useUserStore();
     const { laundryId, storeId, address } = useLocalSearchParams();
     const { cart, addItem, totalCost, removeItem } = useCartStore();
 

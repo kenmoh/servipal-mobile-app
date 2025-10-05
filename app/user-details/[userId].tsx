@@ -63,7 +63,7 @@ const Modal = () => {
                                 <Text className="text-muted font-poppins text-sm">Name</Text>
                             </View>
                             <Text className="text-primary font-poppins text-sm">
-                                {data?.full_name} kenneth
+                                {data?.full_name}
                             </Text>
                         </View>
                         <View className="flex-row justify-between">
@@ -74,7 +74,7 @@ const Modal = () => {
                                 </Text>
                             </View>
                             <Text className="text-primary font-poppins text-sm">
-                                +{data?.phone_number}
+                                {data?.phone_number}
                             </Text>
                         </View>
                         <View className="flex-row justify-between">

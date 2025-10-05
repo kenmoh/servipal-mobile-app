@@ -13,7 +13,8 @@ import HDivider from "@/components/HDivider";
 import { StoreListSkeleton } from "@/components/LoadingSkeleton";
 import RefreshButton from "@/components/RefreshButton";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
-import { useAuth } from "@/context/authContext";
+// import { useUserStore } from "@/store/userStore";
+import { useUserStore } from "@/store/userStore";
 import { CompanyProfile } from "@/types/user-types";
 import { getCoordinatesFromAddress } from "@/utils/geocoding";
 import { useQuery } from "@tanstack/react-query";
@@ -109,7 +110,7 @@ export const featuredLaundryVendors = [
 
 const Page = () => {
     const theme = useColorScheme();
-    const { user } = useAuth();
+    const { user } = useUserStore();
     const [userLocation, setUserLocation] = useState<{
         latitude: number;
         longitude: number;

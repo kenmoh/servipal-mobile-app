@@ -1,5 +1,4 @@
 import AddItemBtn from "@/components/AddItemBtn";
-import AuthProvider from "@/components/AuthProvider";
 import { NetworkNotifier } from "@/components/NetworkNotifier";
 import { NetworkProvider } from "@/components/NetworkProvider";
 import { NotificationProvider } from "@/components/NotificationProvider";
@@ -11,6 +10,7 @@ import { ProductModalProvider } from "@/contexts/ProductModalContext";
 import "@/global.css";
 import { useCartStore } from "@/store/cartStore";
 import { useLocationStore } from "@/store/locationStore";
+import { useUserStore } from "@/store/userStore";
 
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -41,6 +41,7 @@ export default function RootLayout() {
 
   const { clearCart } = useCartStore();
   const { reset } = useLocationStore();
+  const { user, restoreToken } = useUserStore()
 
   const BG_COLOR = colorScheme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
 
@@ -66,9 +67,15 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
+  useEffect(() => {
+    restoreToken();
+  }, []);
+
   if (!loaded) {
     return null;
   }
+
+
   return (
     <>
       <KeyboardProvider statusBarTranslucent={true}>
@@ -82,31 +89,41 @@ export default function RootLayout() {
                     <ToastProvider>
                       <NetworkNotifier />
 
-                      <AuthProvider>
+                      {/* <AuthProvider> */}
 
-                        <ProductModalProvider>
-                          <Stack
-                            screenOptions={{
+                      <ProductModalProvider>
+                        <Stack
+                          screenOptions={{
 
-                              headerTintColor:
-                                colorScheme === "dark" ? "white" : "black",
-                              headerShadowVisible: false,
-                              headerStyle: {
-                                backgroundColor: BG_COLOR,
-                              },
-                            }}
+                            headerTintColor:
+                              colorScheme === "dark" ? "white" : "black",
+                            headerShadowVisible: false,
+                            headerStyle: {
+                              backgroundColor: BG_COLOR,
+                            },
+                          }}
 
-                          >
+                        >
+                          <Stack.Protected guard={!user?.sub}>
+                            {/* Routes for NON-authenticated users */}
+                            <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+                            <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+                            <Stack.Screen name="sign-up" options={{ headerShown: true, title: "" }} />
+                            <Stack.Screen name="confirm-account" options={{ headerShown: false }} />
+                            <Stack.Screen name="forgot-password" options={{ headerShown: false }} />
+                            <Stack.Screen name="reset-password" options={{ headerShown: false }} />
+
+                          </Stack.Protected>
+
+
+                          <Stack.Protected guard={!!user?.sub}>
+                            {/* Routes for authenticated users */}
                             <Stack.Screen
                               name="(app)"
                               options={{ headerShown: false }}
                             />
                             <Stack.Screen
                               name="index"
-                              options={{ headerShown: false }}
-                            />
-                            <Stack.Screen
-                              name="(auth)"
                               options={{ headerShown: false }}
                             />
 
@@ -248,11 +265,12 @@ export default function RootLayout() {
                                 },
                               }}
                             />
-                          </Stack>
-                          <ProductDetailModal />
-                        </ProductModalProvider>
+                          </Stack.Protected>
+                        </Stack>
+                        <ProductDetailModal />
+                      </ProductModalProvider>
 
-                      </AuthProvider>
+                      {/* </AuthProvider> */}
 
                     </ToastProvider>
                   </NetworkProvider>

@@ -1,5 +1,4 @@
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
-import { useAuth } from "@/context/authContext";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useLocalSearchParams, withLayoutContext } from "expo-router";
@@ -15,8 +14,7 @@ import {
 const StoreTabs = withLayoutContext(createMaterialTopTabNavigator().Navigator);
 
 const StoreHeader = () => {
-    const theme = useColorScheme();
-    const { user } = useAuth();
+
     const {
         backDrop,
         companyName,

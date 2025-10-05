@@ -19,8 +19,9 @@ import HDivider from "@/components/HDivider";
 import { StoreListSkeleton } from "@/components/LoadingSkeleton";
 import RefreshButton from "@/components/RefreshButton";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
-import { useAuth } from "@/context/authContext";
+// import { useUserStore } from "@/store/userStore";
 import { useSwiperCleanup } from "@/hooks/useSwiperCleanup";
+import { useUserStore } from "@/store/userStore";
 
 export interface RestaurantWithDistance extends CompanyProfile {
     distance: number;
@@ -112,7 +113,7 @@ export const featuredRestaurants = [
 const Page = () => {
     const theme = useColorScheme();
     const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
-    const { user } = useAuth();
+    const { user } = useUserStore();
     const [userLocation, setUserLocation] = useState<{
         latitude: number;
         longitude: number;

@@ -2,6 +2,16 @@ import { registerForPushNotificationAsync } from "@/utils/registerForPushNotific
 import * as Notifications from 'expo-notifications';
 import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
 
+// Configure how notifications are handled when app is in foreground
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
 interface NotificationContextType {
   expoPushToken: string | null;
   notification: Notifications.Notification | null;
@@ -39,28 +49,32 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
   useEffect(() => {
     registerForPushNotificationAsync().then(
-      (token) => setExpoPushToken(token),
-      (error) => setError(error)
+      (token) => {
+        console.log("🔔 Push token received:", token);
+        setExpoPushToken(token);
+      },
+      (error) => {
+        console.error("🔔 Push token error:", error);
+        setError(error);
+      }
     );
+
+    console.log("🔔 Setting up notification listeners...");
 
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
+        console.log("🔔 Notification received:", notification);
         setNotification(notification);
       });
 
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log(
-          "🔔 Notification Response: ",
-          JSON.stringify(response, null, 2),
-          JSON.stringify(response.notification.request.content.data, null, 2)
-        );
+        console.log("🔔 Notification response:", response);
         // Handle the notification response here
       });
 
     return () => {
       if (notificationListener.current) {
-
         Notifications.removeNotificationSubscription(
           notificationListener.current
         );

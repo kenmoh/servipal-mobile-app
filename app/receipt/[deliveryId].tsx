@@ -18,7 +18,6 @@ import * as FileSystem from "expo-file-system";
 import * as Print from "expo-print";
 import { useLocalSearchParams } from "expo-router";
 import * as Sharing from "expo-sharing";
-import * as MediaLibrary from 'expo-media-library';
 import { Alert, Platform } from 'react-native';
 import { Download, Share2 } from "lucide-react-native";
 

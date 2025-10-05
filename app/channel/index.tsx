@@ -1,4 +1,4 @@
-import { useAuth } from "@/context/authContext";
+import { useUserStore } from "@/store/userStore";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useMemo } from "react";
@@ -110,7 +110,7 @@ const ChatItem = ({ chat, onPress }: { chat: any; onPress: () => void }) => {
 
 export default function ChannelListScreen() {
   const theme = useColorScheme();
-  const { user } = useAuth();
+  const { user } = useUserStore();
   const isDark = theme === 'dark';
 
   if (!user) {

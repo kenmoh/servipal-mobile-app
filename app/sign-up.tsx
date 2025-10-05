@@ -18,9 +18,10 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 // RHF & Zod imports
 import AppButton from "@/components/AppButton";
 import { useToast } from "@/components/ToastProvider";
+import { useUserStore } from "@/store/userStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
 import * as Linking from 'expo-linking';
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
 const roleData = [
@@ -57,6 +58,9 @@ type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 const SignUp = () => {
   const { showSuccess, showError, showInfo } = useToast();
+  const { isFirstLaunch } = useUserStore()
+
+  console.log(isFirstLaunch)
 
   const {
     control,
@@ -75,15 +79,15 @@ const SignUp = () => {
   });
 
   const openURL = () => {
-  Linking.openURL('https://www.servi-pal.com/terms');
-};
+    Linking.openURL('https://www.servi-pal.com/terms');
+  };
 
   const { mutate, isPending } = useMutation({
     mutationFn: registerApi,
     onSuccess: (data) => {
       authStorage.storeEmail(data.email);
       showInfo("Pending Confirmation", "Please confirm your account with the code sent to your email and phone.")
-      router.replace("/(auth)/confirm-account");
+      router.replace("/confirm-account");
       return;
     },
     onError: (error) => {
@@ -96,8 +100,8 @@ const SignUp = () => {
   };
 
   return (
-    <KeyboardAwareScrollView>
-      <View className="w-full items-center content-center justify-center  bg-background">
+    <KeyboardAwareScrollView className="flex-1 w-full bg-background">
+      <View className="w-full h-full items-center content-center justify-center  bg-background">
         <View className="items-center w-[90%] mb-5">
           <Text className="self-start font-poppins-bold text-primary text-[24px] font-bold">
             Let's get you started
@@ -198,13 +202,13 @@ const SignUp = () => {
               width={"90%"}
               onPress={handleSubmit(onSubmit)}
             />
-           <View className="w-[90%] self-center my-2">
+            <View className="w-[90%] self-center my-2">
               <Text className="text-sm font-poppins text-gray-500">By clicking on Register, you agree to ServiPal {" "}
-              <Text onPress={openURL} className="text-sm underline font-poppins text-orange-400">
-                terms and conditions
+                <Text onPress={openURL} className="text-sm underline font-poppins text-orange-400">
+                  terms and conditions
+                </Text>
               </Text>
-            </Text>
-           </View>
+            </View>
           </View>
         </View>
         <View className="items-center self-center justify-center w-[90%] mt-[30px]">

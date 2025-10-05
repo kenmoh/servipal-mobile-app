@@ -4,6 +4,7 @@ import FAB from '@/components/FAB'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import ProductItemCard from '@/components/ProductItemCard'
 import { useAuth } from '@/context/authContext'
+import { useUserStore } from '@/store/userStore'
 import { useQuery } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { Plus } from 'lucide-react-native'
@@ -11,12 +12,12 @@ import React, { useCallback } from 'react'
 import { FlatList, StyleSheet, Text, View } from 'react-native'
 
 const items = () => {
-    const { user } = useAuth()
+    const { user } = useUserStore()
 
     const { data, isLoading, isPending, isFetching, refetch } = useQuery({
         queryKey: ['user-products', user?.sub],
         queryFn: () => fetchUserProducts(user?.sub as string),
-        
+
         enabled: !!user?.sub
     })
 

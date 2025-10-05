@@ -3,7 +3,7 @@ import { getCurrentUserWallet } from "@/api/user";
 import BalanceShimmer from "@/components/BalanceShimmer";
 import { useToast } from "@/components/ToastProvider";
 import Transactioncard from "@/components/Transactioncard";
-import { useAuth } from "@/context/authContext";
+import { useUserStore } from "@/store/userStore";
 import { Transaction } from "@/types/user-types";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -27,7 +27,7 @@ import {
 import Animated, { FadeInUp } from "react-native-reanimated";
 
 const index = () => {
-    const { user, profile } = useAuth();
+    const { user, profile } = useUserStore();
     const [isBalanceHidden, setIsBalanceHidden] = useState(false);
     const { showError, showSuccess } = useToast();
 

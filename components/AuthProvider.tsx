@@ -125,7 +125,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       setStoreId(null);
 
       // Navigate to login screen
-      router.replace("/(auth)/sign-in");
+      router.replace("/sign-in");
     } catch (error) {
       console.error("Error signing out:", error);
     }

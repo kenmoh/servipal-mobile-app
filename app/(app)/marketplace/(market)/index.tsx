@@ -4,7 +4,8 @@ import Category from '@/components/Category'
 import FAB from '@/components/FAB'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import ProductCard from '@/components/ProductCard'
-import { useAuth } from '@/context/authContext'
+// import { useAuth } from '@/context/authContext'
+import { useUserStore } from '@/store/userStore'
 import { useQuery } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { Plus } from 'lucide-react-native'
@@ -13,11 +14,10 @@ import { FlatList, Text, View } from 'react-native'
 
 
 const MarketPlace = () => {
-    const { user } = useAuth()
+    const { user } = useUserStore()
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const { data, isLoading, isPending, isFetching, refetch } = useQuery({
-        // queryKey: ['products', selectedCategory],
-        queryKey: ['products'],
+        queryKey: ['products', selectedCategory],
         queryFn: () => {
             const categoryParam = selectedCategory === null ? undefined : selectedCategory;
             return fetchProducts(categoryParam);
@@ -66,7 +66,7 @@ const MarketPlace = () => {
                             <Text className="text-muted text-base font-poppins text-center">
                                 {selectedCategory ? 'No products found in this category' : 'No products available'}
                             </Text>
-                            <Text className="text-muted-foreground tex t-sm font-poppins-light text-center mt-2">
+                            <Text className="text-muted text-sm font-poppins-light text-center mt-2">
                                 {selectedCategory ? 'Try selecting a different category' : 'Check back later for new products'}
                             </Text>
                         </View>

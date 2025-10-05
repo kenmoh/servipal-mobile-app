@@ -10,6 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import * as Location from "expo-location";
 
+import * as Notifications from 'expo-notifications';
 import { getCurrentUserProfile, registerCoordinates, registerForNotifications } from "@/api/user";
 import AppTextInput from "@/components/AppInput";
 import FAB from "@/components/FAB";
@@ -17,16 +18,17 @@ import { DeliveryListSkeleton, SearchBarSkeleton } from "@/components/LoadingSke
 import LocationPermission from "@/components/Locationpermission";
 import { useNotification } from "@/components/NotificationProvider";
 import RefreshButton from "@/components/RefreshButton";
-import { useAuth } from "@/context/authContext";
+// import { useUserStore } from "@/store/userStore";
 import { useLocationTracking } from "@/hooks/useLocationTracking";
 import authStorage from "@/storage/authStorage";
+import { useUserStore } from "@/store/userStore";
 import { UserDetails } from "@/types/user-types";
 import { distanceCache } from "@/utils/distance-cache";
 import { router } from "expo-router";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 
 const DeliveryScreen = () => {
-  const { user, setProfile } = useAuth();
+  const { user, setProfile } = useUserStore();
   const { expoPushToken } = useNotification()
   const [searchQuery, setSearchQuery] = useState("");
   const [locationPermission, setLocationPermission] = useState<boolean | null>(
@@ -84,6 +86,12 @@ const DeliveryScreen = () => {
 
   const registerMutation = useMutation({
     mutationFn: registerForNotifications,
+    onSuccess: (data) => {
+      console.log("🔔 Token registered successfully:", data);
+    },
+    onError: (error) => {
+      console.error("🔔 Token registration failed:", error);
+    },
   });
 
   const registerCoordinatesMutation = useMutation({
@@ -103,6 +111,7 @@ const DeliveryScreen = () => {
 
   useEffect(() => {
     if (expoPushToken && userLocation) {
+      console.log("🔔 Sending token to server:", expoPushToken);
       // Send the token to server when it exists
       registerMutation.mutate({
         notification_token: expoPushToken!,
@@ -231,7 +240,7 @@ const DeliveryScreen = () => {
             pickupCoords[0],
             pickupCoords[1],
           ]);
-          if (distance === null || distance > 100) return null;
+          if (distance === null || distance > 200) return null;
           return {
             ...item,
             distance,
@@ -299,6 +308,8 @@ const DeliveryScreen = () => {
         value={searchQuery}
       />
       <HDivider />
+
+      {/* <DeliveryCard itemTypeIcon={<Package2 size={24} color={'orange'} />} toLocation="Abijo GRA second gate" key={1} receiverName="Kenneth Aremoh" startTime="16: 40" status="Pending" receiverImage="" fromLocation="5 Boku street, Abijo" trackingId="#DEL-123" dueDate="12-10-2025" estimatedTime="5 mins" /> */}
 
       <LegendList
         data={data || []}

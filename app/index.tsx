@@ -1,12 +1,23 @@
-import { Redirect } from 'expo-router'
-import React from 'react'
-import { StyleSheet } from 'react-native'
+import { useEffect } from 'react';
+import { Redirect } from 'expo-router';
+import { useUserStore } from '@/store/userStore';
 
-const index = () => {
-  return <Redirect href={'/(app)/delivery'} />
+export default function Index() {
+  const { user, isFirstLaunch, checkFirstLaunch } = useUserStore();
 
+  useEffect(() => {
+    checkFirstLaunch();
+  }, []);
+
+  if (isFirstLaunch === null) return null;
+
+  if (isFirstLaunch) {
+    return <Redirect href="/onboarding" />;
+  }
+
+  if (!user) {
+    return <Redirect href="/sign-in" />;
+  }
+
+  return <Redirect href="/(app)/delivery/(topTabs)" />;
 }
-
-export default index
-
-const styles = StyleSheet.create({})

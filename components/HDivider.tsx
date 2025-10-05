@@ -4,13 +4,14 @@ import { DimensionValue } from "react-native";
 
 const HDivider = ({ width = "100%" }: { width?: DimensionValue }) => {
   const theme = useColorScheme();
-  const color = theme === "dark" ? "rgba(30, 33, 39,1)" : "#aaa";
+  const color = theme === "dark" ? "#222" : "#ddd";
   return (
     <View
-      className="bg-gray-800/25 self-center"
+      className="bg-gray-800 self-center"
       style={{
         height: StyleSheet.hairlineWidth,
         width,
+        backgroundColor: color,
 
       }}
     />

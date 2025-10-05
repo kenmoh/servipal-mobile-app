@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
     },
     iconContainer: {
         marginRight: 8,
+        
     },
     text: {
         fontSize: 16,

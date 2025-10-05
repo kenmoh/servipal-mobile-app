@@ -31,7 +31,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     adaptiveIcon: {
       foregroundImage: "./assets/images/android-icon.png",
-      backgroundColor: "#ffffff",
+      backgroundColor: "#000000",
     },
     softwareKeyboardLayoutMode: "pan",
     package: "com.kenmoh.servipal",
@@ -39,6 +39,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "android.permission.ACCESS_COARSE_LOCATION",
       "android.permission.ACCESS_FINE_LOCATION",
       "android.permission.RECORD_AUDIO",
+    ],
+    blockedPermissions: [
+      "android.permission.READ_MEDIA_IMAGES",
+      "android.permission.READ_MEDIA_VIDEO"
     ],
     edgeToEdgeEnabled: true,
     intentFilters: [
@@ -105,7 +109,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         icon: "./assets/images/notification-icon.png",
         color: "#000000",
         defaultChannel: "default",
-        enableBackgroundRemoteNotifications: false,
+        enableBackgroundRemoteNotifications: false
       },
     ],
     ["react-native-bottom-tabs", { theme: "material2" }],

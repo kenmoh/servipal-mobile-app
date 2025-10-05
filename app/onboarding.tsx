@@ -7,6 +7,7 @@ import Swiper from "react-native-swiper";
 import { onboardingSlides } from "@/constants/onboarding";
 
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
+import { useUserStore } from "@/store/userStore";
 import { AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
 
@@ -16,6 +17,7 @@ const Onboarding = () => {
     const theme = useColorScheme();
     const swiperRef = useRef<Swiper>(null);
     const [activeIndex, setActiveIndex] = useState(0);
+    const { checkFirstLaunch, isFirstLaunch, setFirstLaunchComplete } = useUserStore()
 
     const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
 
@@ -65,12 +67,21 @@ const Onboarding = () => {
         });
     };
 
+    const handleFirstLaunch = async () => {
+        if (isFirstLaunch) {
+            await setFirstLaunchComplete(); // Mark onboarding complete
+            router.replace('/sign-up'); // Show sign-up for first time users
+        } else {
+            router.replace('/sign-in'); // Show sign-in for returning users
+        }
+    }
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: BG_COLOR }}>
             <TouchableOpacity
                 className="bg-button-primary-transparent"
                 activeOpacity={0.6}
-                onPress={() => router.replace('/(auth)/sign-in')}
+                onPress={handleFirstLaunch}
                 style={{
                     width: 75,
                     alignItems: 'center',
@@ -146,7 +157,7 @@ const Onboarding = () => {
             {activeIndex === onboardingSlides.length - 1 && (
                 <TouchableOpacity
                     activeOpacity={0.6}
-                    onPress={() => router.replace({ pathname: '/(auth)/sign-in' })}
+                    onPress={handleFirstLaunch}
                     style={{
                         position: 'absolute',
                         bottom: 10,
@@ -199,4 +210,4 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
-});
+})

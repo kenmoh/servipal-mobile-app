@@ -2,7 +2,6 @@ import { buyerRejectedItem, fetProductOrderDetails, orderDelivered, orderReceive
 import AppVariantButton from '@/components/core/AppVariantButton'
 import ProductDetailWrapper from '@/components/ProductDetailWrapper'
 import { useToast } from '@/components/ToastProvider'
-import { useAuth } from '@/context/authContext'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams } from 'expo-router'
 import React from 'react'
@@ -10,7 +9,7 @@ import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native'
 
 
 const ProductDetail = () => {
-    const { user } = useAuth()
+    const { user } = useUserStore();
     const { orderId } = useLocalSearchParams<{ orderId: string }>()
     const { showSuccess, showError, showWarning, showInfo, } = useToast();
 

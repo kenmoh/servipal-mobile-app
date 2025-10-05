@@ -3,7 +3,8 @@ import { updateRider } from "@/api/user";
 import AppButton from "@/components/AppButton";
 import AppTextInput from "@/components/AppInput";
 import { useToast } from "@/components/ToastProvider";
-import { useAuth } from '@/context/authContext';
+import { useUserStore } from "@/store/userStore";
+// import { useAuth } from '@/context/authContext';
 import { RiderResponse } from "@/types/user-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -40,7 +41,7 @@ type UpdateFormData = z.infer<typeof editSchema>;
 type FormData = CreateFormData | UpdateFormData;
 
 const AddRider = () => {
-    const { user } = useAuth()
+    const { user } = useUserStore()
     const { riderParams, isEditing } = useLocalSearchParams();
     const rider = riderParams ? JSON.parse(riderParams as string) as RiderResponse : null;
     const { showError, showSuccess } = useToast()

@@ -14,6 +14,7 @@ import { z } from "zod";
 import AppButton from "@/components/AppButton";
 import { useToast } from "@/components/ToastProvider";
 import { useAuth } from '@/context/authContext';
+import { useUserStore } from "@/store/userStore";
 
 const itemTypeEnum = z.enum(["food", "package", "product", "laundry"]);
 
@@ -37,7 +38,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const adLaundryItem = () => {
-    const { user } = useAuth()
+    const { user } = useUserStore()
     const { showError, showSuccess } = useToast()
 
     const {

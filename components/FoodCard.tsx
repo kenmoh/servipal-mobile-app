@@ -1,14 +1,12 @@
-import { useAuth } from '@/context/authContext'
+import { deleteItem } from '@/api/item'
 import { useCartStore } from '@/store/cartStore'
 import { MenuItem } from "@/types/item-types"
-import { deleteItem } from '@/api/item'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import Checkbox from 'expo-checkbox'
 import { router } from 'expo-router'
 import { Edit, Trash } from 'lucide-react-native'
-import LoadingIndicator from "@/components/LoadingIndicator";
 import React from 'react'
-import { Image, Pressable, Text, TouchableOpacity, View, Alert } from 'react-native'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Alert, Image, Pressable, Text, TouchableOpacity, View } from 'react-native'
 import { useToast } from './ToastProvider'
 
 
@@ -17,7 +15,7 @@ const FoodCard = ({ item, onPress }: {
     onPress: (id: string) => void,
 }) => {
 
-    const { user } = useAuth()
+    const { user } = useUserStore();
     const { showError, showSuccess } = useToast()
     const cartItems = useCartStore(state => state.cart.order_items)
     const queryClient = useQueryClient()

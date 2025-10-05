@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "948431925639",
-    "project_id": "servipal-65889",
-    "storage_bucket": "servipal-65889.firebasestorage.app"
+    "project_number": "514896176467",
+    "project_id": "servi-pal",
+    "storage_bucket": "servi-pal.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:948431925639:android:cdfef1b0ca2a6e710f2322",
+        "mobilesdk_app_id": "1:514896176467:android:a78c89fa7625703b506da6",
         "android_client_info": {
           "package_name": "com.kenmoh.servipal"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyApb0mSPnczNyDTBYOwJfpUNJYEmFpPM6k"
+          "current_key": "AIzaSyBvgslO_qNUQi38JehJ74fR5HZO-l6prGc"
         }
       ],
       "services": {

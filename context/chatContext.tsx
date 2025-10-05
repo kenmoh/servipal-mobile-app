@@ -10,7 +10,6 @@ import { PropsWithChildren, useEffect, useState } from "react";
 import { ActivityIndicator, useColorScheme, View } from "react-native";
 import { StreamChat } from "stream-chat";
 import { Chat, OverlayProvider } from "stream-chat-expo";
-import { useAuth } from "./authContext";
 
 // Initialize the Stream Chat client with the API key from environment variables
 const client = StreamChat.getInstance(
@@ -37,7 +36,7 @@ export default function AppChatProvider({ children }: PropsWithChildren) {
   // Track whether the chat client is ready (connected)
   const [isReady, setIsReady] = useState(false);
   // Get authentication state from AuthProvider
-  const { user, profile } = useAuth();
+  const { user, profile } = useUserStore();;
   const typedUser = user as User | null;
   const theme = useColorScheme()
 

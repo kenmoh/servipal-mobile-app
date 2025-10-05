@@ -1,5 +1,5 @@
-import { useAuth } from '@/context/authContext'
 import { useLocationStore } from '@/store/locationStore'
+import { useUserStore } from '@/store/userStore'
 import { DeliveryDetail, DeliveryStatus, PaymentStatus } from '@/types/order-types'
 import { AntDesign, Feather, MaterialCommunityIcons } from '@expo/vector-icons'
 import { router } from 'expo-router'
@@ -115,7 +115,7 @@ Status.displayName = 'Status';
 const ItemCard = React.memo(({ data, isHomeScreen = false }: CardProp) => {
     const theme = useColorScheme();
     const { setOrigin, setDestination } = useLocationStore();
-    const { user } = useAuth()
+    const { user } = useUserStore();
 
 
 
@@ -265,14 +265,14 @@ const ItemCard = React.memo(({ data, isHomeScreen = false }: CardProp) => {
                                 <View className='flex-row gap-[5px] items-center flex-shrink-0'>
                                     <Feather name="clock" color='gray' size={10} />
                                     <View className='flex-row justify-between flex-1'>
-                                        
+
                                         <Text className='text-muted font-poppins text-xs'>
-                                        {data?.delivery ? data?.delivery?.duration : ''}
-                                    </Text>
-                                    {user?.user_type==='rider' && <Text className='text-muted font-poppins text-xs'>{data?.distance?.toFixed(2)} km away</Text>}
+                                            {data?.delivery ? data?.delivery?.duration : ''}
+                                        </Text>
+                                        {user?.user_type === 'rider' && <Text className='text-muted font-poppins text-xs'>{data?.distance?.toFixed(2)} km away</Text>}
 
 
-                                   
+
                                     </View>
 
                                 </View>

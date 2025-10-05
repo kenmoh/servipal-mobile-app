@@ -1,6 +1,7 @@
 import { fetchUnreadBadgeCount } from "@/api/report";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
-import { useAuth } from "@/context/authContext";
+// import { useUserStore } from "@/store/userStore";
+import { useUserStore } from "@/store/userStore";
 import { useQuery } from "@tanstack/react-query";
 import { router, Stack } from "expo-router";
 import { BellIcon } from "lucide-react-native";
@@ -19,7 +20,7 @@ const HeaderRight = ({
 }: {
   onPressNotification: () => void;
 }) => {
-  const { user } = useAuth();
+  const { user } = useUserStore();
   const theme = useColorScheme();
   const { data: badges } = useQuery({
     queryKey: ["notification-badge"],

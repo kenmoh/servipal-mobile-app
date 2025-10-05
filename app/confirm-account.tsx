@@ -56,7 +56,7 @@ const ConfirmAccount = () => {
     onSuccess: () => {
       showSuccess('Success', 'Account creation successful')
       authStorage.removeEmail();
-      router.replace("/(auth)/sign-in");
+      router.replace("/sign-in");
     },
     onError: (error) => {
       showError('Error', error.message || 'An error occurred while verifying your account. Please try again later.')

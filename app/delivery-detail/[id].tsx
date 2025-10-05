@@ -21,7 +21,7 @@ import DeliveryWrapper from "@/components/DeliveryWrapper";
 import { Status } from "@/components/ItemCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { useToast } from "@/components/ToastProvider";
-import { useAuth } from "@/context/authContext";
+import { useUserStore } from "@/store/userStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import {
@@ -29,13 +29,14 @@ import {
   Info,
   MapPin,
   Phone,
-  Wallet
+  Wallet,
+  UserRound
 } from "lucide-react-native";
-import { User } from "stream-chat-expo";
+
 
 const ItemDetails = () => {
   const { id } = useLocalSearchParams();
-  const { user } = useAuth();
+  const { user } = useUserStore();
   const { showError, showSuccess, showInfo } = useToast()
 
   const { data, isLoading, refetch } = useQuery({
@@ -314,7 +315,7 @@ const ItemDetails = () => {
           data?.delivery?.delivery_status !== "received" && (
 
             <View className="self-center w-full justify-center items-center">
-              <AppVariantButton icon={<User color={'orange'} />} width={"85%"} borderRadius={50} filled={false} outline={true} label="Contact Ridery" onPress={() =>
+              <AppVariantButton icon={<UserRound color='orange' />} width={"85%"} borderRadius={50} filled={false} outline={true} label="Contact Rider" onPress={() =>
                 router.push({
                   pathname: "/user-details/[userId]",
                   params: {
@@ -330,7 +331,7 @@ const ItemDetails = () => {
             <AppButton
               title="MAKE PAYMENT"
               width={"85%"}
-              icon={<DollarSignIcon className="text-white" />}
+              icon={<DollarSignIcon color="white" />}
               onPress={() =>
                 router.push({
                   pathname: "/payment/[orderId]",

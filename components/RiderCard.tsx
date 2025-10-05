@@ -2,7 +2,6 @@ import React from "react";
 import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { deleteRider } from "@/api/user";
-import { useAuth } from '@/context/authContext';
 import { RiderResponse } from "@/types/user-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
@@ -14,7 +13,7 @@ import { useToast } from "./ToastProvider";
 
 const RiderCard = ({ rider }: { rider: RiderResponse }) => {
 
-    const { user } = useAuth()
+    const { user } = useUserStore();
     const queryClient = useQueryClient();
     const { showError, showSuccess } = useToast()
 

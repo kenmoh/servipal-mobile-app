@@ -17,13 +17,14 @@ import {
 } from "@/api/report";
 import AppButton from "@/components/AppButton";
 import LoadingIndicator from "@/components/LoadingIndicator";
-import { useAuth } from "@/context/authContext";
+// import { useUserStore } from "@/store/userStore";
+import { useUserStore } from "@/store/userStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 
 const NotificationScreen = () => {
     const queryClient = useQueryClient();
-    const { user } = useAuth();
+    const { user } = useUserStore();
 
     // Fetch notifications
     const {

@@ -1,11 +1,12 @@
+import React, { useEffect } from 'react'
+
 import { recoverPassword } from "@/api/auth";
 import AppButton from "@/components/AppButton";
 import AppTextInput from "@/components/AppInput";
-import { useToast } from "@/components/ToastProvider";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -17,27 +18,47 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from "zod";
+import { useToast } from '@/components/ToastProvider';
 
-const schema = z.object({
-  email: z.email().trim(),
-});
+const schema = z
+  .object({
+    token: z.string(),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string().min(8, "Confirm Password is required"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords must match",
+    path: ["confirmPassword"],
+  });
 
-type FormData = z.infer<typeof schema>;
+type PasswordFormValues = z.infer<typeof schema>;
 
-const RecoverPassword = () => {
+const ResetPassword = () => {
   const theme = useColorScheme();
   const { showSuccess, showError } = useToast();
+
+  const { token } = useLocalSearchParams()
+
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
-  } = useForm<FormData>({
+  } = useForm<PasswordFormValues>({
     resolver: zodResolver(schema),
     mode: "onBlur",
     defaultValues: {
-      email: "",
+      password: "",
+      confirmPassword: "",
+      token: token || ''
     },
   });
+
+  useEffect(() => {
+    if (token) {
+      setValue('token', token);
+    }
+  }, [token, setValue]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: recoverPassword,
@@ -45,8 +66,10 @@ const RecoverPassword = () => {
       showError('Error', error.message)
     },
     onSuccess: () => {
-      showSuccess('Success', 'Password reset link sent to your email. It will expire in 24 hours.')
-      router.replace("/(auth)/sign-in");
+      showSuccess('Success', 'Password reset successful')
+
+
+      router.replace("/sign-in");
     },
   });
 
@@ -70,26 +93,63 @@ const RecoverPassword = () => {
         <View className="flexx-1 bg-background w-full items-center content-center justify-center">
           <View className="items-center w-[90%] mb-10">
             <Text className="self-start text-[20px] text-primary font-poppins-bold">
-              Recover password
+              Reset password
             </Text>
 
             <Text className="self-start text-primary font-poppins text-xs">
-              Enter the email you registered with.
+              Enter new Password
             </Text>
           </View>
           <View className="gap-5 w-full">
+            {/*      <View className="display-none"> 
+
+  <Controller
+            control={control}
+            name="token"
+            render={({ field: { onChange, value, onBlur } }) => (
+              <AppTextInput
+                value={token}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                secureTextEntry
+                showPasswordToggle
+                placeholder="Password"
+                errorMessage={errors.password?.message}
+                editable={!isPending}
+              />
+            )}
+          />
+          </View>
+*/}
             <Controller
-              name="email"
               control={control}
-              render={({ field: { onChange, onBlur, value } }) => (
+              name="password"
+              render={({ field: { onChange, value, onBlur } }) => (
                 <AppTextInput
-                  label={"Email"}
-                  placeholder="email@example.com"
-                  onBlur={onBlur}
-                  onChangeText={onChange}
                   value={value}
-                  keyboardType="email-address"
-                  errorMessage={errors.email?.message}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  secureTextEntry
+                  showPasswordToggle
+                  placeholder="Password"
+                  errorMessage={errors.password?.message}
+                  editable={!isPending}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="confirmPassword"
+              render={({ field: { onChange, value, onBlur } }) => (
+                <AppTextInput
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  secureTextEntry
+                  showPasswordToggle
+                  placeholder="Confirm Password"
+                  errorMessage={errors.confirmPassword?.message}
                   editable={!isPending}
                 />
               )}
@@ -120,4 +180,4 @@ const RecoverPassword = () => {
   );
 };
 
-export default RecoverPassword;
+export default ResetPassword;

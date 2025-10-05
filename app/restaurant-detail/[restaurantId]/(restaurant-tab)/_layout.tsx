@@ -1,6 +1,5 @@
 import BackButton from "@/components/BackButton";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
-import { useAuth } from "@/context/authContext";
 import { AntDesign } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useLocalSearchParams, withLayoutContext } from "expo-router";
@@ -18,7 +17,7 @@ const StoreTabs = withLayoutContext(createMaterialTopTabNavigator().Navigator);
 
 const StoreHeader = () => {
     const theme = useColorScheme();
-    const { user } = useAuth();
+    const { user } = useUserStore();;
     const {
         backDrop,
         companyName,
@@ -80,7 +79,7 @@ const StoreHeader = () => {
                                     <Star size={12} color='orange' />
                                     <Text className="text-gray-500  font-poppins text-sm">
                                         {/*{rating.toFix(1)}*/}
-                                         {Number(rating).toFixed(1)}
+                                        {Number(rating).toFixed(1)}
                                     </Text>
                                 </View>
                                 <Text className="text-gray-500 font-poppins text-sm">

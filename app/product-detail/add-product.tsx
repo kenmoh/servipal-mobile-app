@@ -11,11 +11,11 @@ import ColorPickerInput from "@/components/ColorPickerInput";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import ImagePickerInput from "@/components/ImagePickerInput";
 import LoadingIndicator from "@/components/LoadingIndicator";
-import { useAuth } from "@/context/authContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 
 import { useToast } from "@/components/ToastProvider";
+import { useUserStore } from "@/store/userStore";
 import { Trash } from "lucide-react-native";
 import z from "zod";
 
@@ -59,7 +59,7 @@ type ProductCreateFormData = z.infer<typeof productCreateSchema>;
 
 const AddProductScreen = () => {
     const { productId } = useLocalSearchParams<{ productId?: string }>();
-    const { user } = useAuth()
+    const { user } = useUserStore();
     const isEditing = !!productId;
     const queryClient = useQueryClient();
     const { showError, showSuccess } = useToast()

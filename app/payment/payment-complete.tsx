@@ -1,19 +1,18 @@
-import { useAuth } from "@/context/authContext";
+import { useUserStore } from "@/store/userStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { Check, Download, Home, X } from "lucide-react-native";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const PaymentComplete = () => {
   const params = useLocalSearchParams();
-  const theme = useColorScheme();
 
   const paymentStatus = params.paymentStatus as string;
   const txRef = params.txRef as string;
-  const transactionId = params.transactionId as string;
+
   const queryClient = useQueryClient()
-  const { user } = useAuth();
+  const { user } = useUserStore();
 
   const isSuccess = paymentStatus === "success";
 

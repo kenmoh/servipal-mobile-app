@@ -6,9 +6,9 @@ import AppVariantButton from "@/components/core/AppVariantButton";
 import CurrentLocationButton from "@/components/CurrentLocationButton";
 import { useToast } from "@/components/ToastProvider";
 import { states } from "@/constants/states";
-import { useAuth } from "@/context/authContext";
 import authStorage from "@/storage/authStorage";
 import { useLocationStore } from "@/store/locationStore";
+import { useUserStore } from "@/store/userStore";
 import { phoneRegEx } from "@/types/user-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -42,7 +42,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 
 const Profile = () => {
 
-  const { user, profile, setProfile } = useAuth();
+  const { user, profile, setProfile } = useUserStore();
   const [showOpeningHour, setShowOpeningHour] = useState(false);
   const [showClosingHour, setShowClosingHour] = useState(false);
   const { setOrigin } = useLocationStore();

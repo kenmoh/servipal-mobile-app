@@ -4,6 +4,7 @@ import FAB from '@/components/FAB'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import RiderCard from '@/components/RiderCard'
 import { useAuth } from '@/context/authContext'
+import { useUserStore } from '@/store/userStore'
 import { RiderResponse } from '@/types/user-types'
 import { useQuery } from '@tanstack/react-query'
 import { router } from 'expo-router'
@@ -14,7 +15,7 @@ import { FlatList, View } from 'react-native'
 
 const riders = () => {
 
-    const { user } = useAuth()
+    const { user } = useUserStore()
 
     const { data, refetch, isFetching } = useQuery({
         queryKey: ['riders', user?.sub],

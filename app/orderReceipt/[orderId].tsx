@@ -2,7 +2,7 @@ import { fetchOrder, senderConfirmDeliveryReceived, updateOrderStatus } from "@/
 import AppVariantButton from "@/components/core/AppVariantButton";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { useToast } from "@/components/ToastProvider";
-import { useAuth } from "@/context/authContext";
+import { useUserStore } from "@/store/userStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import * as FileSystem from "expo-file-system";
@@ -25,7 +25,7 @@ const OrderReceiptPage = () => {
     const { orderId, paymentStatus } = useLocalSearchParams();
     const screenWidth = Dimensions.get("window").width;
     const theme = useColorScheme();
-    const { user } = useAuth()
+    const { user } = useUserStore()
     const { showError, showSuccess } = useToast()
     const queryClient = useQueryClient()
     const ICON_COLOR = theme === 'dark' ? 'white' : 'black'

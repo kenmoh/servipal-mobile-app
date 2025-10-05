@@ -1,14 +1,12 @@
 import React from "react";
 import { Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StreamChat } from "stream-chat";
 import { Chat, OverlayProvider, useCreateChatClient } from "stream-chat-expo";
 
-import { useAuth } from "@/context/authContext";
 import { chatApiKey } from "@/utils/chatConfig";
 
 export const ChatWrapper = ({ children }: { children: React.ReactNode }) => {
-  const { user, profile } = useAuth();
+  const { user, profile } = useUserStore();;
 
   if (!user || !profile) return null;
 

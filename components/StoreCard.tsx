@@ -1,10 +1,10 @@
-import { useAuth } from "@/context/authContext";
 import { useLocationStore } from "@/store/locationStore";
 import { CompanyProfile } from "@/types/user-types";
 import { getCoordinatesFromAddress } from '@/utils/geocoding';
 import { AntDesign } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { RelativePathString, router, type Href } from "expo-router";
+import { useUserStore } from "@/store/userStore";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
 
 const IMAGET_HEIGHT = Dimensions.get("window").height * 0.25;
@@ -22,7 +22,7 @@ const StoreCard = ({
     const theme = useColorScheme();
     const { setOrigin } = useLocationStore()
 
-    const { setStoreId, setStoreAddress } = useAuth()
+    const { setStoreId, setStoreAddress } = useUserStore();
 
 
 

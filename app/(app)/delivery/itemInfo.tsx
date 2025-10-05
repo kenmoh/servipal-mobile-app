@@ -8,9 +8,11 @@ import AppTextInput from "@/components/AppInput";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import HDivider from "@/components/HDivider";
 import LoadingIndicator from "@/components/LoadingIndicator";
-import { useAuth } from "@/context/authContext";
+// import { useUserStore } from "@/store/userStore";
 import { useLocationStore } from "@/store/locationStore";
 import { ImageType } from "@/types/order-types";
+import { formatDuration } from '@/utils/distance-cache';
+import { getDirections } from "@/utils/map";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -18,10 +20,9 @@ import { router } from "expo-router";
 import { Clock } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import { getDirections } from "@/utils/map";
-import {formatDuration} from '@/utils/distance-cache'
 
 import { useToast } from "@/components/ToastProvider";
+import { useUserStore } from "@/store/userStore";
 import { z } from "zod";
 
 const coordinatesSchema = z.tuple([
@@ -63,7 +64,7 @@ const ItemInfo = () => {
     useLocationStore();
 
   const { showError, showInfo, showSuccess } = useToast();
-  const { user } = useAuth()
+  const { user } = useUserStore()
   const [duration, setDuration] = useState("");
   const [distance, setDistance] = useState(0);
 
@@ -189,39 +190,39 @@ const ItemInfo = () => {
   // Fetch distance and duration when origin or destination changes
 
   useEffect(() => {
-  const fetchAndUseTravelInfo = async () => {
-    if (!originCoords || !destinationCoords) return;
+    const fetchAndUseTravelInfo = async () => {
+      if (!originCoords || !destinationCoords) return;
 
-    try {
-      const { distance, duration } = await getDirections(
-        originCoords as [number, number],
-        destinationCoords as [number, number]
-      );
+      try {
+        const { distance, duration } = await getDirections(
+          originCoords as [number, number],
+          destinationCoords as [number, number]
+        );
 
-      // Convert distance meters → km
-      const distanceKm = (distance / 1000).toFixed(2);
+        // Convert distance meters → km
+        const distanceKm = (distance / 1000).toFixed(2);
 
-      // Convert duration seconds → hr/min format
-      const durationText = formatDuration(duration);
+        // Convert duration seconds → hr/min format
+        const durationText = formatDuration(duration);
 
-      setValue("distance", parseFloat(distanceKm));
-      setValue("duration", durationText);
+        setValue("distance", parseFloat(distanceKm));
+        setValue("duration", durationText);
 
-      setDistance(parseFloat(distanceKm));
-      setDuration(durationText);
+        setDistance(parseFloat(distanceKm));
+        setDuration(durationText);
 
-      setFormValues((prev) => ({
-        ...prev,
-        distance: parseFloat(distanceKm),
-        duration: durationText,
-      }));
-    } catch (error) {
-      console.error("Failed to fetch Mapbox travel info:", error);
-    }
-  };
+        setFormValues((prev) => ({
+          ...prev,
+          distance: parseFloat(distanceKm),
+          duration: durationText,
+        }));
+      } catch (error) {
+        console.error("Failed to fetch Mapbox travel info:", error);
+      }
+    };
 
-  fetchAndUseTravelInfo();
-}, [originCoords, destinationCoords]);
+    fetchAndUseTravelInfo();
+  }, [originCoords, destinationCoords]);
 
 
   // Format coordinates for display

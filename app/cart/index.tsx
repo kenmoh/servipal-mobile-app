@@ -7,9 +7,9 @@ import RadioButton from "@/components/core/RadioButton";
 import CurrentLocationButton from "@/components/CurrentLocationButton";
 import GoogleTextInput from "@/components/GoogleTextInput";
 import { useToast } from "@/components/ToastProvider";
-import { useAuth } from "@/context/authContext";
 import { useCartStore } from "@/store/cartStore";
 import { useLocationStore } from "@/store/locationStore";
+import { useUserStore } from "@/store/userStore";
 import { OrderFoodOLaundry } from "@/types/order-types";
 import { formatDistanceAndTime } from "@/utils/formatCurrency";
 import { getCoordinatesFromAddress } from "@/utils/geocoding";
@@ -36,7 +36,7 @@ const Cart = () => {
   const [infoText, setInfoText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const theme = useColorScheme();
-  const { user, storeAddress } = useAuth();
+  const { user, storeAddress } = useUserStore();
   const {
     setDeliveryOption,
     cart,

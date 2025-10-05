@@ -1,7 +1,6 @@
 import { buyItem } from '@/api/product'
 import AppVariantButton from '@/components/core/AppVariantButton'
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from '@/constants/theme'
-import { useAuth } from '@/context/authContext'
 import { usePurchaseActions, usePurchaseSelectors } from '@/store/productStore'
 import { Ionicons } from '@expo/vector-icons'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -24,7 +23,7 @@ import {
 const PurchaseSummary = () => {
     const { productId } = useLocalSearchParams<{ productId: string }>()
     const theme = useColorScheme()
-    const { user } = useAuth()
+    const { user } = useUserStore();
     const queryClient = useQueryClient()
 
 

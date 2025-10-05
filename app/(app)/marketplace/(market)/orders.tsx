@@ -3,7 +3,8 @@ import EmptyList from '@/components/EmptyList'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import ProductOrderCard from '@/components/ProductOrderCard'
 import StatCard from '@/components/StatCard'
-import { useAuth } from '@/context/authContext'
+// import { useAuth } from '@/context/authContext'
+import { useUserStore } from '@/store/userStore'
 import { useQuery } from '@tanstack/react-query'
 import { useFocusEffect } from 'expo-router'
 import { Check, ClockIcon, CoinsIcon, X } from 'lucide-react-native'
@@ -11,7 +12,7 @@ import React, { useCallback, useMemo } from 'react'
 import { FlatList, ScrollView, View } from 'react-native'
 
 const orders = () => {
-    const { user } = useAuth()
+    const { user } = useUserStore()
 
     const { data, isLoading, isPending, refetch, isFetching, isFetched } = useQuery({
         queryKey: ['products', user?.sub],

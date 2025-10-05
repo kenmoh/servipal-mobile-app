@@ -2,7 +2,6 @@ import CartInfoBtn from "@/components/CartInfoBtn";
 import Category, { CategoryType } from "@/components/Category";
 import EmptyList from "@/components/EmptyList";
 import FoodCard from "@/components/FoodCard";
-import { useAuth } from "@/context/authContext";
 import { useCartStore } from "@/store/cartStore";
 import { FoodGroup, MenuItem } from "@/types/item-types";
 import { useQuery } from "@tanstack/react-query";
@@ -22,7 +21,7 @@ const groups: CategoryType[] = [
 ];
 
 const StoreDetails = () => {
-    const { user } = useAuth();
+    const { user } = useUserStore();;
     const { storeId, restaurantId } = useLocalSearchParams();
     const { cart, addItem, totalCost, removeItem } = useCartStore();
     const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
@@ -32,10 +31,10 @@ const StoreDetails = () => {
         queryKey: ["restaurantItems", storeId, selectedFoodGroup],
         queryFn: () => fetchRestaurantMenu(selectedFoodGroup as FoodGroup, restId as string),
         select: (items) =>
-            items?.filter((item) => 
-                item.item_type === "food" 
+            items?.filter((item) =>
+                item.item_type === "food"
             ) || [],
-});
+    });
     // const { data, refetch, isFetching } = useQuery({
     //     queryKey: ["restaurantItems", storeId, selectedFoodGroup],
     //     queryFn: () => fetchRestaurantMenu(selectedFoodGroup as FoodGroup, restId as string),
@@ -44,7 +43,7 @@ const StoreDetails = () => {
     // });
 
 
-console.log(data)
+    console.log(data)
     const handleAddToCart = useCallback(
         (item: MenuItem) => {
             if (checkedItems.has(item.id)) {

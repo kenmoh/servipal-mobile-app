@@ -1,14 +1,15 @@
 import AppTextInput from "@/components/AppInput";
-import { useAuth } from "@/context/authContext";
-import { router } from "expo-router";
-import { jwtDecode } from "jwt-decode";
+// import { useUserStore } from "@/store/userStore";
 import { loginApi } from "@/api/auth";
 import AppButton from "@/components/AppButton";
 import { useToast } from "@/components/ToastProvider";
 import authStorage from "@/storage/authStorage";
+import { useUserStore } from "@/store/userStore";
 import { Login, User } from "@/types/user-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { router } from "expo-router";
+import { jwtDecode } from "jwt-decode";
 import { Controller, useForm } from "react-hook-form";
 import { ActivityIndicator, Text, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -25,7 +26,7 @@ type SignInFormValues = z.infer<typeof signInSchema>;
 
 const SignIn = () => {
   const { showSuccess, showError, showInfo } = useToast();
-  const authContext = useAuth();
+  const { setUser } = useUserStore();
 
   const {
     control,
@@ -53,14 +54,14 @@ const SignIn = () => {
         showInfo('Account Pending Confirmation', 'Please confirm your account with the code sent to your email and phone.')
 
 
-        router.replace("/(auth)/confirm-account");
+        router.replace("/confirm-account");
         return;
       }
 
       if (user?.account_status === "confirmed") {
         try {
           await authStorage.storeToken(data?.access_token);
-          authContext.setUser(user);
+          setUser(user);
           showSuccess('Welcome back!', 'Login Successful')
           router.replace("/(app)/delivery/(topTabs)");
         } catch (error) {

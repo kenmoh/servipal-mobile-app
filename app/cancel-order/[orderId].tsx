@@ -1,7 +1,7 @@
 import { cancelDelivery } from "@/api/order";
 import AppButton from "@/components/AppButton";
 import { useToast } from "@/components/ToastProvider";
-import { useAuth } from "@/context/authContext";
+import { useUserStore } from "@/store/userStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
@@ -28,7 +28,7 @@ const ReviewPage = () => {
     const { orderId } = useLocalSearchParams();
     const queryClient = useQueryClient();
     const theme = useColorScheme()
-    const { user } = useAuth()
+    const { user } = useUserStore()
     const { showError, showSuccess } = useToast()
 
     const COLOR = theme === 'dark' ? "rgba(30, 33, 39, 0.5)" : '#ddd'

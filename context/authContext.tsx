@@ -33,7 +33,7 @@ export const AuthContext = createContext<AuthContextType>({
 });
 
 // This hook is used to access the user info.
-export function useAuth() {
+export function useAuth(); {
   return useContext(AuthContext);
 }
 
@@ -58,17 +58,17 @@ export function useProtectedRoute(user: {} | null) {
     checkFirstLaunch();
   }, []);
 
-  useEffect(() => {
-    if (!navigationState?.key || isFirstLaunch === null) return;
+  // useEffect(() => {
+  //   if (!navigationState?.key || isFirstLaunch === null) return;
 
-    const inAuthGroup = segments[0] === "(auth)";
+  //   const inAuthGroup = segments[0] === "(auth)";
 
-    if (isFirstLaunch) {
-      router.replace("/(auth)/onboarding");
-    } else if (!user && !inAuthGroup) {
-      router.replace("/(auth)/sign-in");
-    } else if (user && inAuthGroup) {
-      router.replace("/(app)/delivery/(topTabs)");
-    }
-  }, [user, segments, isFirstLaunch, navigationState?.key]);
+  //   if (isFirstLaunch) {
+  //     router.replace("/(auth)/onboarding");
+  //   } else if (!user && !inAuthGroup) {
+  //     router.replace("/(auth)/sign-in");
+  //   } else if (user && inAuthGroup) {
+  //     router.replace("/(app)/delivery/(topTabs)");
+  //   }
+  // }, [user, segments, isFirstLaunch, navigationState?.key]);
 }

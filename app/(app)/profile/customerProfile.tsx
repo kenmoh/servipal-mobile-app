@@ -8,9 +8,9 @@ import AppVariantButton from "@/components/core/AppVariantButton";
 import CurrentLocationButton from "@/components/CurrentLocationButton";
 import { useToast } from "@/components/ToastProvider";
 import { states } from "@/constants/states";
-import { useAuth } from "@/context/authContext";
 import authStorage from "@/storage/authStorage";
 import { useLocationStore } from "@/store/locationStore";
+import { useUserStore } from "@/store/userStore";
 import { phoneRegEx } from "@/types/user-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -37,7 +37,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 
 const Profile = () => {
 
-    const { profile, setProfile } = useAuth();
+    const { profile, setProfile } = useUserStore();
     const { setOrigin } = useLocationStore();
     const { showError, showSuccess } = useToast()
 

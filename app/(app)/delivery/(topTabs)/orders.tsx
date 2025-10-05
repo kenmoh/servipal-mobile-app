@@ -3,7 +3,8 @@ import HDivider from "@/components/HDivider";
 import ItemCard from "@/components/ItemCard";
 import { DeliveryListSkeleton, StatsSkeleton } from "@/components/LoadingSkeleton";
 import RefreshButton from "@/components/RefreshButton";
-import { useAuth } from "@/context/authContext";
+import { useUserStore } from "@/store/userStore";
+// import { useUserStore } from "@/store/userStore";
 import { DeliveryDetail } from "@/types/order-types";
 import { LegendList } from "@legendapp/list";
 import { useQuery } from "@tanstack/react-query";
@@ -22,7 +23,7 @@ import { ScrollView, Text, useColorScheme, View } from "react-native";
 
 const UserOrders = () => {
 
-    const { user } = useAuth();
+    const { user } = useUserStore();
 
     const { data, isLoading, error, refetch, isFetching, isPending, isFetched } = useQuery({
         queryKey: ["orders", user?.sub],

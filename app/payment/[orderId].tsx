@@ -19,7 +19,7 @@ import AppVariantButton from "@/components/core/AppVariantButton";
 import HDivider from "@/components/HDivider";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { useToast } from "@/components/ToastProvider";
-import { useAuth } from "@/context/authContext";
+import { useUserStore } from "@/store/userStore";
 import { OrderItemResponse } from "@/types/order-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router, Stack, useLocalSearchParams } from "expo-router";
@@ -41,7 +41,7 @@ const Payment = () => {
   } = useLocalSearchParams();
   const theme = useColorScheme();
   const { showError, showSuccess, showInfo } = useToast()
-  const { user } = useAuth();
+  const { user } = useUserStore();
   const [showWebView, setShowWebView] = useState(false);
   const [redirectedUrl, setRedirectedUrl] = useState<{ url?: string } | null>(
     null
