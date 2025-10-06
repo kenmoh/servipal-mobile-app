@@ -1,8 +1,7 @@
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from '@/constants/theme';
-import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { ChevronDown } from 'lucide-react-native';
-import React, { useCallback, useMemo, useRef } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import React, { useCallback, useRef, useState } from 'react';
+import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 
 export interface CategoryType {
     id: string;
@@ -27,15 +26,11 @@ const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryPr
 
     const scrollViewRef = useRef<ScrollView>(null);
     const categoryRefs = useRef<{ [key: string]: View | null }>({});
+    const [modalVisible, setModalVisible] = useState(false);
 
-    const bottomSheetRef = useRef<BottomSheetModal>(null);
-
-
-    const handlePresentModal = useCallback(() => {
-        bottomSheetRef.current?.present();
-    }, []);
-
-    const snapPoints = useMemo(() => ['25%', '50%'], []);
+    const handlePresentModal = () => {
+        setModalVisible(true);
+    };
 
     // Get first 3 categories
     const displayedCategories = categories.slice(0, 2);
@@ -56,9 +51,18 @@ const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryPr
 
     const handleModalCategorySelect = useCallback((categoryId: string) => {
         onCategorySelect(categoryId);
-        bottomSheetRef.current?.dismiss();
-        scrollToCategory(categoryId);
-    }, [onCategorySelect, scrollToCategory]);
+        setModalVisible(false);
+        
+        // Scroll to the More button to show the selected category
+        setTimeout(() => {
+            const moreRef = categoryRefs.current['more'];
+            if (moreRef && scrollViewRef.current) {
+                moreRef.measure((x, y, width, height, pageX, pageY) => {
+                    scrollViewRef.current?.scrollTo({ x: Math.max(0, pageX - 20), animated: true });
+                });
+            }
+        }, 100);
+    }, [onCategorySelect]);
 
     const CategoryItem = ({ item, isSelected }: { item: CategoryType; isSelected: boolean }) => (
         <View
@@ -145,7 +149,10 @@ const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryPr
                         >
                             <View className='flex-row items-center gap-1' >
                                 <Text className='text-primary text-sm'>
-                                    More
+                                    {selectedCategory && !categories.slice(0, 2).some(cat => cat.id === selectedCategory)
+                                        ? categories.find(cat => cat.id === selectedCategory)?.name
+                                        : 'More'
+                                    }
                                 </Text>
                                 <ChevronDown size={16} color={theme === 'dark' ? 'white' : 'black'} />
                             </View>
@@ -153,50 +160,46 @@ const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryPr
                     </View>
                 )}
             </ScrollView>
-            <BottomSheetModal
-                ref={bottomSheetRef}
-                index={1}
-                snapPoints={snapPoints}
-                backgroundStyle={{ backgroundColor: BG_COLOR }}
-                handleIndicatorStyle={{ backgroundColor: HANDLE_COLOR }}
+            <Modal
+                visible={modalVisible}
+                animationType="slide"
+                presentationStyle="pageSheet"
+                onRequestClose={() => setModalVisible(false)}
             >
-
-                <BottomSheetScrollView>
-                    <View className='gap-4 p-4'>
+                <View style={[styles.modalContainer, { backgroundColor: BG_COLOR }]}>
+                    <View style={styles.modalHeader}>
                         <Text className='text-primary font-poppins-medium text-lg'>
                             All Categories
                         </Text>
+                        <TouchableOpacity onPress={() => setModalVisible(false)}>
+                            <Text className='text-primary font-poppins'>Done</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <ScrollView style={styles.modalContent}>
                         <View style={styles.modalCategoriesContainer}>
                             {categories.map((item) => (
-                                <View
+                                <TouchableOpacity
                                     key={item.id}
-                                    ref={ref => categoryRefs.current[item.id] = ref}
-                                    collapsable={false}
+                                    onPress={() => handleModalCategorySelect(item.id)}
+                                    style={[
+                                        styles.modalCategoryItem,
+                                        {
+                                            backgroundColor: selectedCategory === item.id ? 'orange' : BG_COLOR,
+                                            borderColor: selectedCategory === item.id ? 'orange' : BORDER_COLOR,
+                                        },
+                                    ]}
                                 >
-                                    <TouchableOpacity
-                                        onPress={() => handleModalCategorySelect(item.id)}
-                                        style={[
-                                            styles.modalCategoryItem,
-                                            {
-                                                backgroundColor: selectedCategory === item.id ? 'orange' : BG_COLOR,
-                                                borderColor: selectedCategory === item.id ? 'orange' : BORDER_COLOR,
-                                            },
-                                        ]}
+                                    <Text
+                                        className={`${selectedCategory === item.id ? 'text-white' : 'text-primary'} ${selectedCategory === item.id ? 'font-poppins-medium' : 'font-poppins-light'} text-sm`}
                                     >
-                                        <Text
-                                            className={`${selectedCategory === item.id ? 'text-white' : 'text-primary'} ${selectedCategory === item.id ? 'font-poppins-medium' : 'font-poppins-light'} text-sm`}
-
-                                        >
-                                            {item.name}
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
+                                        {item.name}
+                                    </Text>
+                                </TouchableOpacity>
                             ))}
                         </View>
-                    </View>
-                </BottomSheetScrollView>
-
-            </BottomSheetModal>
+                    </ScrollView>
+                </View>
+            </Modal>
 
         </View>
     );
@@ -215,6 +218,23 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         marginRight: 8,
     },
+    modalContainer: {
+        flex: 1,
+        paddingTop: 50,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#2f4550',
+    },
+    modalContent: {
+        flex: 1,
+        padding: 16,
+    },
     modalCategoriesContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -226,9 +246,6 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 1,
         marginBottom: 8,
-    },
-    contentContainer: {
-        flex: 1,
     },
 });
 

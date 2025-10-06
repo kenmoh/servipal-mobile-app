@@ -143,6 +143,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     [
+      "@sentry/react-native/expo",
+      {
+        "url": "https://sentry.io/",
+        "project": "servipal-mobile-app",
+        "organization": "mohstack"
+      }
+    ],
+
+    [
       "@react-native-community/datetimepicker",
       {
         android: {

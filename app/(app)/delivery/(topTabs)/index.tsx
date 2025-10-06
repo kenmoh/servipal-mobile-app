@@ -8,6 +8,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 
 import * as Location from "expo-location";
+// import * as Sentry from '@sentry/react-native';
 
 import { getCurrentUserProfile, registerCoordinates, registerForNotifications } from "@/api/user";
 import AppTextInput from "@/components/AppInput";
@@ -24,7 +25,7 @@ import { useUserStore } from "@/store/userStore";
 import { UserDetails } from "@/types/user-types";
 import { distanceCache } from "@/utils/distance-cache";
 import { router } from "expo-router";
-import { View } from "react-native";
+import { View, Button } from "react-native";
 
 const DeliveryScreen = () => {
   const { user, setProfile } = useUserStore();
@@ -110,8 +111,6 @@ const DeliveryScreen = () => {
 
   useEffect(() => {
     if (expoPushToken && userLocation) {
-      console.log("🔔 Sending token to server:", expoPushToken);
-      // Send the token to server when it exists
       registerMutation.mutate({
         notification_token: expoPushToken!,
       });
@@ -308,10 +307,11 @@ const DeliveryScreen = () => {
       />
       <HDivider />
 
+{/*<Button title='Try!' onPress={ () => { Sentry.captureException(new Error('First error')) }}/>*/}
 
 
       <LegendList
-        data={data || []}
+        data={filteredData || []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
         ItemSeparatorComponent={renderSeparator}

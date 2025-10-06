@@ -24,6 +24,24 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-get-random-values";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { OverlayProvider } from "stream-chat-expo";
+import * as Sentry from '@sentry/react-native';
+
+Sentry.init({
+  dsn: 'https://945bccd1ed4b5bcb5eab8cf7e3c776fa@o4505603287023616.ingest.us.sentry.io/4510143988629504',
+
+  sendDefaultPii: true,
+
+  // Enable Logs
+  enableLogs: true,
+
+  // Configure Session Replay
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1,
+  integrations: [Sentry.mobileReplayIntegration(), Sentry.feedbackIntegration()],
+
+  // uncomment the line below to enable Spotlight (https://spotlightjs.com)
+  spotlight: __DEV__,
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,7 +54,7 @@ const queryClient = new QueryClient({
   },
 });
 
-export default function RootLayout() {
+export default Sentry.wrap(function RootLayout() {
   const colorScheme = useColorScheme();
 
   const { clearCart } = useCartStore();
@@ -291,4 +309,4 @@ export default function RootLayout() {
       </KeyboardProvider>
     </>
   );
-}
+});

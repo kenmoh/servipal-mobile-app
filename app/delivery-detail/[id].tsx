@@ -153,6 +153,7 @@ const ItemDetails = () => {
   const markDeliveredMutation = useMutation({
     mutationFn: () => riderMarkDelivered(data?.delivery?.id as string),
     onSuccess: () => {
+      // Invalidate all related queries
       queryClient.invalidateQueries({
         queryKey: ["order", id],
         exact: false,
@@ -166,6 +167,12 @@ const ItemDetails = () => {
         exact: false,
       });
 
+       queryClient.invalidateQueries({
+        queryKey: ["orders", data?.delivery?.sender_id],
+        exact: false,
+      });
+
+      // Force refetch of all order-related queries
       queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
       queryClient.refetchQueries({
         queryKey: ["orders", user?.sub],
@@ -173,12 +180,10 @@ const ItemDetails = () => {
       });
 
       refetch();
-      // router.push('/(app)/delivery/(topTabs)/orders');
       showSuccess("Success", "Item delivered.")
     },
     onError: (error: Error) => {
       showError("Error", error.message)
-
     },
   });
 
