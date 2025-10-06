@@ -16,8 +16,7 @@ import {
 const StoreTabs = withLayoutContext(createMaterialTopTabNavigator().Navigator);
 
 const StoreHeader = () => {
-    const theme = useColorScheme();
-    const { user } = useUserStore();;
+
     const {
         backDrop,
         companyName,

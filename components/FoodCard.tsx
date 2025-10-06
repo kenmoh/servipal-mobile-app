@@ -1,5 +1,6 @@
 import { deleteItem } from '@/api/item'
 import { useCartStore } from '@/store/cartStore'
+import { useUserStore } from '@/store/userStore'
 import { MenuItem } from "@/types/item-types"
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import Checkbox from 'expo-checkbox'

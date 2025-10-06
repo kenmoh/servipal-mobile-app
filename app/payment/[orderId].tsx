@@ -64,7 +64,11 @@ const Payment = () => {
     setShowWebView(true);
   };
 
-  const { mutate, } = useMutation({
+  const comingSoon = () => {
+    showInfo("Coming Soon")
+  }
+
+  const { mutate } = useMutation({
     mutationFn: () => payWithBankTransfer(orderId as string),
     onSuccess: (data) => {
       router.replace({
@@ -399,7 +403,7 @@ const Payment = () => {
               filled={false}
 
               outline={true}
-              onPress={() => mutate()}
+              onPress={comingSoon}
               width={"47.5%"}
               label="Transfer"
               icon={<ArrowLeftRight size={20} color={theme === 'dark' ? 'white' : 'black'} />}

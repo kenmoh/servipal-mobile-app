@@ -60,8 +60,7 @@ const SignUp = () => {
   const { showSuccess, showError, showInfo } = useToast();
   const { isFirstLaunch } = useUserStore()
 
-  console.log(isFirstLaunch)
-
+ 
   const {
     control,
     handleSubmit,
@@ -101,7 +100,7 @@ const SignUp = () => {
 
   return (
     <KeyboardAwareScrollView className="flex-1 w-full bg-background">
-      <View className="w-full h-full items-center content-center justify-center  bg-background">
+      <View className="w-full items-center content-center justify-center  bg-background">
         <View className="items-center w-[90%] mb-5">
           <Text className="self-start font-poppins-bold text-primary text-[24px] font-bold">
             Let's get you started
@@ -198,7 +197,7 @@ const SignUp = () => {
             <AppButton
               disabled={isPending}
               title={isPending ? "Registering..." : "Register"}
-              icon={isPending && <ActivityIndicator size={"large"} />}
+              icon={isPending && <ActivityIndicator size={"large"} color="white"/>}
               width={"90%"}
               onPress={handleSubmit(onSubmit)}
             />

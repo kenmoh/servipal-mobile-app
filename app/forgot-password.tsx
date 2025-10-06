@@ -67,7 +67,7 @@ const RecoverPassword = () => {
           justifyContent: "center",
         }}
       >
-        <View className="flexx-1 bg-background w-full items-center content-center justify-center">
+        <View className="flex-1 bg-background w-full items-center content-center justify-center">
           <View className="items-center w-[90%] mb-10">
             <Text className="self-start text-[20px] text-primary font-poppins-bold">
               Recover password

@@ -19,6 +19,8 @@ const Onboarding = () => {
     const [activeIndex, setActiveIndex] = useState(0);
     const { checkFirstLaunch, isFirstLaunch, setFirstLaunchComplete } = useUserStore()
 
+    console.log(isFirstLaunch)
+
     const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
 
     // Create shared values for each slide's image and text
@@ -42,38 +44,34 @@ const Onboarding = () => {
         }));
     };
 
-    const getTextAnimatedStyle = (index: number) => {
-        return useAnimatedStyle(() => ({
-            transform: [{
-                translateY: withTiming(scales[index].text.value * 20, {
-                    duration: 500,
-                    easing: Easing.ease
+    // const getTextAnimatedStyle = (index: number) => {
+    //     return useAnimatedStyle(() => ({
+    //         transform: [{
+    //             translateY: withTiming(scales[index].text.value * 20, {
+    //                 duration: 500,
+    //                 easing: Easing.ease
 
-                })
-            }],
-            opacity: withTiming(scales[index].text.value, {
-                duration: 500
-            })
-        }));
-    };
+    //             })
+    //         }],
+    //         opacity: withTiming(scales[index].text.value, {
+    //             duration: 500
+    //         })
+    //     }));
+    // };
 
     const handleIndexChanged = (index: number) => {
         setActiveIndex(index);
 
         // Reset all scales
-        scales.forEach((scale, i) => {
-            scale.image.value = i === index ? 1 : 0.8;
-            scale.text.value = i === index ? 1 : 0;
-        });
+        // scales.forEach((scale, i) => {
+        //     scale.image.value = i === index ? 1 : 0.8;
+        //     scale.text.value = i === index ? 1 : 0;
+        // });
     };
 
     const handleFirstLaunch = async () => {
-        if (isFirstLaunch) {
-            await setFirstLaunchComplete(); // Mark onboarding complete
-            router.replace('/sign-up'); // Show sign-up for first time users
-        } else {
-            router.replace('/sign-in'); // Show sign-in for returning users
-        }
+        await setFirstLaunchComplete(); // Mark onboarding complete
+        router.replace('/sign-up'); // Show sign-up for first time users
     }
 
     return (
@@ -115,27 +113,34 @@ const Onboarding = () => {
                 }
                 activeDot={
                     <View
-                        style={[styles.dot, { backgroundColor: BG_COLOR }]}
+                        style={[styles.dot, { backgroundColor: 'orange' }]}
                     />
                 }
                 onIndexChanged={handleIndexChanged}
             >
                 {onboardingSlides.map((slide, index) => (
                     <View key={slide.id} style={styles.container}>
-                        <Animated.View style={[styles.imageContainer, getImageAnimatedStyle(index)]}>
+                       {/* <Animated.View style={[styles.imageContainer, getImageAnimatedStyle(index)]}>
                             <Image
-                                src={slide.image}
+                                source={slide.image}
                                 style={styles.image}
 
                             />
-                        </Animated.View>
-                        <Animated.View style={[
+                        </Animated.View>*/}
+                         <View style={[styles.imageContainer]}>
+                            <Image
+                                source={slide.image}
+                                style={styles.image}
+
+                            />
+                        </View>
+                        <View style={[
                             {
                                 marginTop: 50,
                                 justifyContent: 'center',
                                 paddingHorizontal: 20
                             },
-                            getTextAnimatedStyle(index)
+                            // getTextAnimatedStyle(index)
                         ]}>
                             <Text className="text-primary" style={[
                                 styles.titleText,
@@ -149,7 +154,28 @@ const Onboarding = () => {
                             ]}>
                                 {slide.description}
                             </Text>
-                        </Animated.View>
+                        </View>
+                     {/*   <Animated.View style={[
+                            {
+                                marginTop: 50,
+                                justifyContent: 'center',
+                                paddingHorizontal: 20
+                            },
+                            // getTextAnimatedStyle(index)
+                        ]}>
+                            <Text className="text-primary" style={[
+                                styles.titleText,
+
+                            ]}>
+                                {slide.name}
+                            </Text>
+                            <Text className="text-primary" style={[
+                                styles.body,
+
+                            ]}>
+                                {slide.description}
+                            </Text>
+                        </Animated.View>*/}
                     </View>
                 ))}
             </Swiper>
@@ -160,7 +186,7 @@ const Onboarding = () => {
                     onPress={handleFirstLaunch}
                     style={{
                         position: 'absolute',
-                        bottom: 10,
+                        bottom: 60,
                         right: 15,
                         zIndex: 999,
                         backgroundColor: 'orange',

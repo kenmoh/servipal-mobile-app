@@ -3,12 +3,13 @@ import { FlatList, View } from 'react-native';
 
 import { fetchVendorReviews } from '@/api/review';
 import ReviewCard from '@/components/ReviewCard';
+import { useUserStore } from '@/store/userStore';
 import { VendorReviewResponse } from '@/types/review-types';
 import { useQuery } from '@tanstack/react-query';
 
 
 const reviews = () => {
-    const { storeId } = useUserStore();;
+    const { storeId } = useUserStore();
 
     const { data } = useQuery({
         queryKey: ['vendor-reviews', storeId],

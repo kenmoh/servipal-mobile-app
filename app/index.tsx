@@ -1,23 +1,27 @@
-import { useEffect } from 'react';
 import { Redirect } from 'expo-router';
 import { useUserStore } from '@/store/userStore';
 
 export default function Index() {
-  const { user, isFirstLaunch, checkFirstLaunch } = useUserStore();
+  const { user, isFirstLaunch } = useUserStore();
 
-  useEffect(() => {
-    checkFirstLaunch();
-  }, []);
-
+  // Wait for initialization to complete
   if (isFirstLaunch === null) return null;
 
-  if (isFirstLaunch) {
+  // First launch - show onboarding
+  if (isFirstLaunch === true) {
     return <Redirect href="/onboarding" />;
   }
 
-  if (!user) {
+  // Not first launch but no user - show sign-in
+  if (isFirstLaunch === false && !user) {
     return <Redirect href="/sign-in" />;
   }
 
-  return <Redirect href="/(app)/delivery/(topTabs)" />;
+  // User exists - go to main app
+  if (user) {
+    return <Redirect href="/(app)/delivery/(topTabs)" />;
+  }
+
+  // Fallback
+  return <Redirect href="/sign-in" />;
 }

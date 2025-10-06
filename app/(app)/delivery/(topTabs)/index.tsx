@@ -1,6 +1,5 @@
 import { fetchPaidPendingDeliveries, getTravelDistance } from "@/api/order";
 import HDivider from "@/components/HDivider";
-import ItemCard from "@/components/ItemCard";
 import { LegendList } from '@legendapp/list';
 import React from "react";
 
@@ -10,7 +9,6 @@ import { useCallback, useEffect, useState } from "react";
 
 import * as Location from "expo-location";
 
-import * as Notifications from 'expo-notifications';
 import { getCurrentUserProfile, registerCoordinates, registerForNotifications } from "@/api/user";
 import AppTextInput from "@/components/AppInput";
 import FAB from "@/components/FAB";
@@ -19,13 +17,14 @@ import LocationPermission from "@/components/Locationpermission";
 import { useNotification } from "@/components/NotificationProvider";
 import RefreshButton from "@/components/RefreshButton";
 // import { useUserStore } from "@/store/userStore";
+import DeliveryCard from "@/components/DeliveryCard";
 import { useLocationTracking } from "@/hooks/useLocationTracking";
 import authStorage from "@/storage/authStorage";
 import { useUserStore } from "@/store/userStore";
 import { UserDetails } from "@/types/user-types";
 import { distanceCache } from "@/utils/distance-cache";
 import { router } from "expo-router";
-import { View, Text } from "react-native";
+import { View } from "react-native";
 
 const DeliveryScreen = () => {
   const { user, setProfile } = useUserStore();
@@ -191,7 +190,7 @@ const DeliveryScreen = () => {
   }, [userLocation]);
 
 
-  const renderItem = useCallback(({ item }: { item: DeliveryDetail }) => <ItemCard data={item} />, []);
+  const renderItem = useCallback(({ item }: { item: DeliveryDetail }) => <DeliveryCard data={item} />, []);
 
   const renderSeparator = useCallback(() => <HDivider />, []);
 
@@ -309,7 +308,7 @@ const DeliveryScreen = () => {
       />
       <HDivider />
 
-      {/* <DeliveryCard itemTypeIcon={<Package2 size={24} color={'orange'} />} toLocation="Abijo GRA second gate" key={1} receiverName="Kenneth Aremoh" startTime="16: 40" status="Pending" receiverImage="" fromLocation="5 Boku street, Abijo" trackingId="#DEL-123" dueDate="12-10-2025" estimatedTime="5 mins" /> */}
+
 
       <LegendList
         data={data || []}

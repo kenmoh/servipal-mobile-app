@@ -40,18 +40,25 @@ export const useUserStore = create<UserStore>((set, get) => ({
   setStoreAddress: (storeAddress) => set({ storeAddress }),
 
   checkFirstLaunch: async () => {
-    const hasLaunched = await SecureStore.getItemAsync("hasLaunched");
-    if (hasLaunched === null) {
+    try {
+      const hasLaunched = await SecureStore.getItemAsync("hasLaunched");
+      const isFirst = hasLaunched === null;
+      set({ isFirstLaunch: isFirst });
+      return isFirst;
+    } catch (error) {
+      console.error("Error checking first launch:", error);
       set({ isFirstLaunch: true });
-      await SecureStore.setItemAsync("hasLaunched", "true");
-    } else {
-      set({ isFirstLaunch: false });
+      return true;
     }
   },
 
   setFirstLaunchComplete: async () => {
-    await SecureStore.setItemAsync("hasLaunched", "true");
-    set({ isFirstLaunch: false });
+    try {
+      await SecureStore.setItemAsync("hasLaunched", "true");
+      set({ isFirstLaunch: false });
+    } catch (error) {
+      console.error("Error setting first launch complete:", error);
+    }
   },
 
   restoreToken: async () => {
@@ -100,7 +107,3 @@ export const useUserStore = create<UserStore>((set, get) => ({
     }
   },
 }));
-
-
-// `removeNotificationSubscription` is deprecated. Call `subscription.remove()` instead.
-//  WARN  `removeNotificationSubscription` is deprecated. Call `subscription.remove()` instead.

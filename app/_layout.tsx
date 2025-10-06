@@ -41,7 +41,7 @@ export default function RootLayout() {
 
   const { clearCart } = useCartStore();
   const { reset } = useLocationStore();
-  const { user, restoreToken } = useUserStore()
+  const { user, restoreToken, checkFirstLaunch, isFirstLaunch } = useUserStore()
 
   const BG_COLOR = colorScheme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
 
@@ -68,7 +68,13 @@ export default function RootLayout() {
   }, [loaded]);
 
   useEffect(() => {
-    restoreToken();
+    const initializeApp = async () => {
+      await Promise.all([
+        restoreToken(),
+        checkFirstLaunch()
+      ]);
+    };
+    initializeApp();
   }, []);
 
   if (!loaded) {
@@ -78,7 +84,7 @@ export default function RootLayout() {
 
   return (
     <>
-      <KeyboardProvider statusBarTranslucent={true}>
+      <KeyboardProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <QueryClientProvider client={queryClient}>
             <BottomSheetModalProvider>
@@ -104,15 +110,18 @@ export default function RootLayout() {
                           }}
 
                         >
-                          <Stack.Protected guard={!user?.sub}>
-                            {/* Routes for NON-authenticated users */}
+                          <Stack.Protected guard={!user?.sub && isFirstLaunch === true}>
+                            {/* Routes for first launch */}
                             <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+                          </Stack.Protected>
+
+                          <Stack.Protected guard={!user?.sub && isFirstLaunch === false}>
+                            {/* Routes for NON-authenticated users */}
                             <Stack.Screen name="sign-in" options={{ headerShown: false }} />
                             <Stack.Screen name="sign-up" options={{ headerShown: true, title: "" }} />
-                            <Stack.Screen name="confirm-account" options={{ headerShown: false }} />
-                            <Stack.Screen name="forgot-password" options={{ headerShown: false }} />
-                            <Stack.Screen name="reset-password" options={{ headerShown: false }} />
-
+                            <Stack.Screen name="confirm-account" options={{ headerShown: true, title: "" }} />
+                            <Stack.Screen name="forgot-password" options={{ headerShown: true, title: "" }} />
+                            <Stack.Screen name="reset-password" options={{ headerShown: true, title: "" }} />
                           </Stack.Protected>
 
 

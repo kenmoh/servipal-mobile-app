@@ -11,6 +11,7 @@ import { FlatList, View } from "react-native";
 
 import { fetchRestaurantMenu } from "@/api/user";
 import FAB from "@/components/FAB";
+import { useUserStore } from "@/store/userStore";
 import { Menu } from "lucide-react-native";
 
 const groups: CategoryType[] = [
@@ -21,7 +22,7 @@ const groups: CategoryType[] = [
 ];
 
 const StoreDetails = () => {
-    const { user } = useUserStore();;
+    const { user } = useUserStore();
     const { storeId, restaurantId } = useLocalSearchParams();
     const { cart, addItem, totalCost, removeItem } = useCartStore();
     const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
