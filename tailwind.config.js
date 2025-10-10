@@ -25,6 +25,7 @@ module.exports = {
 
         // Text Colors
         primary: "var(--color-text-primary)",
+        secondary: "var(--color-text-secondary)",
         muted: "var(--color-text-muted)",
 
         // Interactive Elements

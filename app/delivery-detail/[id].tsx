@@ -22,6 +22,7 @@ import { Status } from "@/components/ItemCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { useToast } from "@/components/ToastProvider";
 import { useUserStore } from "@/store/userStore";
+import { useOptimisticUpdate } from "@/hooks/useOptimisticUpdate";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import {

@@ -31,12 +31,12 @@ const ProductCard = ({ product }: { product: ProductResponse }) => {
         <TouchableOpacity
             activeOpacity={0.7}
             onPress={handlePress}
-            className="my-4"
+            className="my-2 border border-collapse-transparent border-border-subtle overflow-hidden rounded-lg"
             style={{ width: CARD_WIDTH }}
         >
             <View
                 style={styles.container}
-                className="rounded-lg bg-input self-center overflow-hidden"
+                className="self-center overflow-hidden"
             >
                 <Image
                     source={{
@@ -45,10 +45,10 @@ const ProductCard = ({ product }: { product: ProductResponse }) => {
                     className="w-full h-full object-cover"
                 />
             </View>
-            <View style={{ width: CARD_WIDTH }} className="bg-background self-center mt-2 rounded-b-lg">
+            <View style={{ width: CARD_WIDTH }} className="bg-background p-2 self-center mt-2 rounded-b-lg">
                 <View className="justify-between">
                     <Text
-                        className="text-muted text-base font-poppins flex-1"
+                        className="text-primary text-base font-poppins flex-1"
                         numberOfLines={1}
                     >
                         {product.name}

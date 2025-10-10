@@ -96,6 +96,7 @@ const SignUp = () => {
 
   const onSubmit = (values: SignUpFormValues) => {
     mutate(values);
+    authStorage.storeEmail(values.email);
   };
 
   return (

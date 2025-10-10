@@ -1,6 +1,7 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRef, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { FadeInUp } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Swiper from "react-native-swiper";
 
@@ -11,191 +12,127 @@ import { useUserStore } from "@/store/userStore";
 import { AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
 
+import type { ColorValue } from "react-native";
 
+const gradients: ReadonlyArray<readonly [ColorValue, ColorValue, ColorValue, ColorValue, ColorValue]> = [
+    [
+        "#18191c", "#232526", "#434343", "#5a5a5a", "#7b7b7b"
+    ],
+    [
+        "#2c3e50", "#2c3e50", "#6a89cc", "#b8c6db", "#f5f7fa"
+    ],
+    [
+        "#6a89cc", "#8B5CF6", "#a18cd1", "#fbc2eb", "#f5f7fa"
+    ],
+
+    [
+        "#fbc2eb", "#f7cac9", "#f5e6e8", "#e3e3e3", "#f5f7fa" 
+    ],
+    [
+        "#a18cd1", "#b8c6db", "#dbe6e4", "#f5f7fa", "#e3e3e3"
+    ],
+];
 
 const Onboarding = () => {
     const theme = useColorScheme();
     const swiperRef = useRef<Swiper>(null);
     const [activeIndex, setActiveIndex] = useState(0);
-    const { checkFirstLaunch, isFirstLaunch, setFirstLaunchComplete } = useUserStore()
+    const { setFirstLaunchComplete } = useUserStore();
 
-    console.log(isFirstLaunch)
-
-    const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
-
-    // Create shared values for each slide's image and text
-    const scales = onboardingSlides.map(() => ({
-        image: useSharedValue(0.8),
-        text: useSharedValue(0)
-    }));
-
-    // Animated style for image and text
-    const getImageAnimatedStyle = (index: number) => {
-        return useAnimatedStyle(() => ({
-            transform: [{
-                scale: withTiming(scales[index].image.value, {
-                    duration: 500,
-                    easing: Easing.ease
-                })
-            }],
-            opacity: withTiming(scales[index].image.value === 1 ? 1 : 0.7, {
-                duration: 500
-            })
-        }));
-    };
-
-    // const getTextAnimatedStyle = (index: number) => {
-    //     return useAnimatedStyle(() => ({
-    //         transform: [{
-    //             translateY: withTiming(scales[index].text.value * 20, {
-    //                 duration: 500,
-    //                 easing: Easing.ease
-
-    //             })
-    //         }],
-    //         opacity: withTiming(scales[index].text.value, {
-    //             duration: 500
-    //         })
-    //     }));
-    // };
+    const BG_COLOR = theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
 
     const handleIndexChanged = (index: number) => {
         setActiveIndex(index);
-
-        // Reset all scales
-        // scales.forEach((scale, i) => {
-        //     scale.image.value = i === index ? 1 : 0.8;
-        //     scale.text.value = i === index ? 1 : 0;
-        // });
     };
 
     const handleFirstLaunch = async () => {
-        await setFirstLaunchComplete(); // Mark onboarding complete
-        router.replace('/sign-up'); // Show sign-up for first time users
-    }
+        await setFirstLaunchComplete();
+        router.replace("/sign-up");
+    };
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: BG_COLOR }}>
+            <LinearGradient
+                colors={gradients[activeIndex] || gradients[0]}
+                style={{ ...StyleSheet.absoluteFillObject, zIndex: 0 }}
+                start={{ x: 0.2, y: 0.8 }}
+                end={{ x: 0.8, y: 0.2 }}
+            />
+
             <TouchableOpacity
                 className="bg-button-primary-transparent"
                 activeOpacity={0.6}
                 onPress={handleFirstLaunch}
                 style={{
                     width: 75,
-                    alignItems: 'center',
-                    position: 'absolute',
+                    alignItems: "center",
+                    position: "absolute",
                     top: 50,
                     right: 25,
-                    zIndex: 999,
-
+                    zIndex: 2,
                     paddingVertical: 5,
                     paddingHorizontal: 15,
-                    borderRadius: 20
+                    borderRadius: 20,
                 }}
             >
-                <Text className='text-primary font-poppins-medium' style={{
-
-                    fontSize: 14
-                }}>
+                <Text className="text-primary font-poppins-medium" style={{ fontSize: 14 }}>
                     Skip
                 </Text>
             </TouchableOpacity>
 
             <Swiper
-                showsButtons
-                buttonWrapperStyle={{ alignItems: 'flex-end' }}
+                showsButtons={false}
                 ref={swiperRef}
                 loop={false}
-                dot={
-                    <View
-                        style={[styles.dot, { backgroundColor: '#ddd', width: 10 }]}
-                    />
-                }
-                activeDot={
-                    <View
-                        style={[styles.dot, { backgroundColor: 'orange' }]}
-                    />
-                }
+                dot={<View className="w-2 h-2 rounded-full bg-gray-400 mx-1" />}
+                activeDot={<View className="w-4 h-2 rounded-full bg-orange-500 mx-1" />}
                 onIndexChanged={handleIndexChanged}
             >
                 {onboardingSlides.map((slide, index) => (
-                    <View key={slide.id} style={styles.container}>
-                       {/* <Animated.View style={[styles.imageContainer, getImageAnimatedStyle(index)]}>
+                    <View key={slide.id} className="flex-1 justify-center items-center px-4">
+                        <View className="w-full h-72 justify-center items-center overflow-hidden rounded-2xl">
                             <Image
                                 source={slide.image}
-                                style={styles.image}
-
-                            />
-                        </Animated.View>*/}
-                         <View style={[styles.imageContainer]}>
-                            <Image
-                                source={slide.image}
-                                style={styles.image}
-
+                                className="w-full h-full"
+                                resizeMode="cover"
+                                style={{ borderRadius: 24 }}
                             />
                         </View>
-                        <View style={[
-                            {
-                                marginTop: 50,
-                                justifyContent: 'center',
-                                paddingHorizontal: 20
-                            },
-                            // getTextAnimatedStyle(index)
-                        ]}>
-                            <Text className="text-primary" style={[
-                                styles.titleText,
-
-                            ]}>
+                        <Animated.View
+                            entering={FadeInUp.duration(600).delay(100)}
+                            className="w-full mt-12 px-2"
+                            style={{ alignItems: "center" }}
+                        >
+                            <Text className="text-primary font-poppins-semibold text-2xl text-center mb-2">
                                 {slide.name}
                             </Text>
-                            <Text className="text-primary" style={[
-                                styles.body,
-
-                            ]}>
+                            <Text className="text-primary font-poppins-medium text-base text-center opacity-80">
                                 {slide.description}
                             </Text>
-                        </View>
-                     {/*   <Animated.View style={[
-                            {
-                                marginTop: 50,
-                                justifyContent: 'center',
-                                paddingHorizontal: 20
-                            },
-                            // getTextAnimatedStyle(index)
-                        ]}>
-                            <Text className="text-primary" style={[
-                                styles.titleText,
-
-                            ]}>
-                                {slide.name}
-                            </Text>
-                            <Text className="text-primary" style={[
-                                styles.body,
-
-                            ]}>
-                                {slide.description}
-                            </Text>
-                        </Animated.View>*/}
+                        </Animated.View>
                     </View>
                 ))}
             </Swiper>
 
             {activeIndex === onboardingSlides.length - 1 && (
                 <TouchableOpacity
-                    activeOpacity={0.6}
+                    activeOpacity={0.7}
                     onPress={handleFirstLaunch}
                     style={{
-                        position: 'absolute',
+                        position: "absolute",
                         bottom: 60,
                         right: 15,
-                        zIndex: 999,
-                        backgroundColor: 'orange',
-                        paddingVertical: 5,
-                        paddingHorizontal: 20,
-                        borderRadius: 20
+                        zIndex: 2,
+                        backgroundColor: "orange",
+                        paddingVertical: 8,
+                        paddingHorizontal: 24,
+                        borderRadius: 24,
+                        flexDirection: "row",
+                        alignItems: "center",
                     }}
                 >
-                    <AntDesign name="check" size={20} />
+                    <AntDesign name="check" size={20} color="#fff" />
+                    {/* <Text className="text-white font-poppins-medium ml-2">Get Started</Text> */}
                 </TouchableOpacity>
             )}
         </SafeAreaView>
@@ -203,37 +140,3 @@ const Onboarding = () => {
 };
 
 export default Onboarding;
-
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-    },
-    dot: {
-        width: 25,
-        height: 10,
-        borderRadius: 10,
-        marginLeft: 10
-    },
-    image: {
-        width: '100%',
-        height: 300,
-        objectFit: 'cover'
-    },
-    titleText: {
-        fontFamily: 'Poppins-SemiBold',
-        fontSize: 20
-    },
-    body: {
-        fontFamily: 'Poppins-Light',
-        fontSize: 14,
-        textAlign: 'justify'
-    },
-    imageContainer: {
-        width: '100%',
-        height: 300,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-})

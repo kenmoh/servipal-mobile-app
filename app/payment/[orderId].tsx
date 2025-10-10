@@ -113,10 +113,10 @@ const Payment = () => {
         exact: false,
       });
 
-      showSuccess('Bank Details', 'Please make a transfer to the account details provided.')
-      queryClient.invalidateQueries({
-        queryKey: ["order", orderId],
-      });
+      // showSuccess('Payment Successful', 'Please make a transfer to the account details provided.')
+      // queryClient.invalidateQueries({
+      //   queryKey: ["order", orderId],
+      // });
 
     },
     onError: (error) => {
@@ -139,6 +139,9 @@ const Payment = () => {
       {
         text: 'OK', onPress: () => {
           payWithWalletMutation()
+          queryClient.invalidateQueries({
+            queryKey: ["orders"],
+          });
 
         }
       }

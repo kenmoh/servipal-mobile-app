@@ -94,10 +94,17 @@ const ConfirmAccount = () => {
   }, [countdown, canResend]);
 
   useEffect(() => {
+
     authStorage.getEmail().then((e) => {
       if (e) setEmail(e);
     });
+
   }, []);
+
+
+  console.log(email)
+
+
 
   const onSubmit = (data: FormData) => {
     mutate({

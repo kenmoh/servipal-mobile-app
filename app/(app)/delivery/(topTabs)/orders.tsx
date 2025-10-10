@@ -3,8 +3,8 @@ import HDivider from "@/components/HDivider";
 import ItemCard from "@/components/ItemCard";
 import { DeliveryListSkeleton, StatsSkeleton } from "@/components/LoadingSkeleton";
 import RefreshButton from "@/components/RefreshButton";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { useUserStore } from "@/store/userStore";
-// import { useUserStore } from "@/store/userStore";
 import { DeliveryDetail } from "@/types/order-types";
 import { LegendList } from "@legendapp/list";
 import { useQuery } from "@tanstack/react-query";
@@ -30,8 +30,10 @@ const UserOrders = () => {
         queryFn: () => fetchUserRelatedOrders(user?.sub as string),
         refetchOnWindowFocus: true,
         refetchOnMount: true,
-
-
+        enabled: !!user?.sub,
+        staleTime: 30000,
+        retry: 3,
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     });
 
 
@@ -86,90 +88,87 @@ const UserOrders = () => {
     if (error) return <RefreshButton onPress={refetch} label="Error loading orders" />
 
     return (
-        <View className="bg-background flex-1 px-2">
-            <View
-                className="my-2 bg-background items-center justify-center h-[110px]"
-
-            >
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{
-                        paddingHorizontal: 10,
-                        gap: 10,
-                        paddingVertical: 10,
-                        height: "100%",
-                    }}
+        <ErrorBoundary>
+            <View className="bg-background flex-1 px-2">
+                <View
+                    className="my-2 bg-background items-center justify-center h-[110px]"
                 >
-                    <StatCard
-                        icon={CoinsIcon}
-                        label="Total Orders"
-                        value={data?.length || 0}
-                        color={'gray'}
-                    />
-                    <StatCard
-                        icon={Check}
-                        label="Received"
-                        value={stats.received}
-                        color={"green"}
-                    />
-                    <StatCard
-                        icon={ClockIcon}
-                        label="Pending"
-                        value={stats.pending}
-                        color={"orange"}
-                    />
-                    <StatCard
-                        icon={Handshake}
-                        label="Assigned"
-                        value={stats.acepted}
-                        color={"blue"}
-                    />
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{
+                            paddingHorizontal: 10,
+                            gap: 10,
+                            paddingVertical: 10,
+                            height: "100%",
+                        }}
+                    >
+                        <StatCard
+                            icon={CoinsIcon}
+                            label="Total Orders"
+                            value={data?.length || 0}
+                            color={'gray'}
+                        />
+                        <StatCard
+                            icon={Check}
+                            label="Received"
+                            value={stats.received}
+                            color={"green"}
+                        />
+                        <StatCard
+                            icon={ClockIcon}
+                            label="Pending"
+                            value={stats.pending}
+                            color={"orange"}
+                        />
+                        <StatCard
+                            icon={Handshake}
+                            label="Assigned"
+                            value={stats.acepted}
+                            color={"blue"}
+                        />
 
-                    <StatCard
-                        icon={Package2}
-                        label="Delivered"
-                        value={stats.delivered}
-                        color={"lightblue"}
+                        <StatCard
+                            icon={Package2}
+                            label="Delivered"
+                            value={stats.delivered}
+                            color={"lightblue"}
+                        />
+                        <StatCard
+                            icon={Utensils}
+                            label="Food"
+                            value={stats.foodOrders}
+                            color={"red"}
+                        />
+                        <StatCard
+                            icon={Package}
+                            label="Package"
+                            value={stats.packageOrders}
+                            color={"brown"}
+                        />
+                        <StatCard
+                            icon={Shirt}
+                            label="Laundry"
+                            value={stats.laundryOrders}
+                            color={"purple"}
+                        />
+                    </ScrollView>
+                </View>
+
+                <HDivider width="100%" />
+
+                <View className="bg-background flex-1">
+                    <LegendList
+                        data={data}
+                        keyExtractor={keyExtractor}
+                        renderItem={renderItem}
+                        ItemSeparatorComponent={renderSeparator}
+                        refreshing={isFetching}
+                        onRefresh={refetch}
                     />
-                    <StatCard
-                        icon={Utensils}
-                        label="Food"
-                        value={stats.foodOrders}
-                        color={"red"}
-                    />
-                    <StatCard
-                        icon={Package}
-                        label="Package"
-                        value={stats.packageOrders}
-                        color={"brown"}
-                    />
-                    <StatCard
-                        icon={Shirt}
-                        label="Laundry"
-                        value={stats.laundryOrders}
-                        color={"purple"}
-                    />
-                </ScrollView>
+                </View>
             </View>
-
-            <HDivider width="100%" />
-
-            <View className="bg-background flex-1">
-                <LegendList
-                    data={data}
-                    keyExtractor={keyExtractor}
-                    renderItem={renderItem}
-                    ItemSeparatorComponent={renderSeparator}
-                    refreshing={isFetching}
-                    onRefresh={refetch}
-
-
-
-
-                />
-            </View>
-        </View>
+        </ErrorBoundary>
     );
 };
 

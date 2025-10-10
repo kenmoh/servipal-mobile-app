@@ -4,9 +4,10 @@ import Category from '@/components/Category'
 import FAB from '@/components/FAB'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import ProductCard from '@/components/ProductCard'
-// import { useAuth } from '@/context/authContext'
+import GradientCard from '@/components/GradientCard'
 import { useUserStore } from '@/store/userStore'
 import { useQuery } from '@tanstack/react-query'
+import { LinearGradient } from "expo-linear-gradient"
 import { router } from 'expo-router'
 import { Plus } from 'lucide-react-native'
 import React, { useCallback, useState } from 'react'
@@ -59,6 +60,10 @@ const MarketPlace = () => {
                                 onCategorySelect={setSelectedCategory}
                                 selectedCategory={selectedCategory}
                             />
+                           
+
+                                <GradientCard label="Explore Peer-to-Peer Marketplace" description="Browse, buy, and sell items securely with confidence using our built-in escrow service. What you ordered is what you get! 😊"/>
+                    
                         </>
                     )}
                     ListEmptyComponent={() => (
@@ -74,13 +79,12 @@ const MarketPlace = () => {
                     refreshing={isFetching}
                     onRefresh={handleRefresh}
                     numColumns={2}
-                    columnWrapperStyle={{ gap: 10, justifyContent: 'center' }}
+                    columnWrapperStyle={{ gap: 10, alignItems: 'flex-start', justifyContent: 'center' }}
 
                 />
 
             </View>
             {user?.user_type === 'laundry_vendor' || user?.user_type === 'restaurant_vendor' ? '' :
-
                 <FAB icon={<Plus color={'white'} />} onPress={() => router.push('/product-detail/add-product')} />
             }
         </View>

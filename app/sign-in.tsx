@@ -155,7 +155,9 @@ const SignIn = () => {
               </Text>
             </Text>
           </View>
+
         </View>
+
       </KeyboardAwareScrollView>
     </>
   );

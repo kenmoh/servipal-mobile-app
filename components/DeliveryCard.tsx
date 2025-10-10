@@ -93,7 +93,7 @@ export default function DeliveryCard({ data }: CardProp) {
   return (
     <TouchableOpacity
       disabled={!canViewOrderDetail} activeOpacity={0.6} onPress={handlePress}
-      className="bg-input rounded-2xl p-4 mb-4 shadow-sm w-[95%] self-center my-2">
+      className="bg-input rounded-2xl border border-collapse-transparent border-border-subtle p-4 mb-4 shadow-sm w-[95%] self-center my-2">
       {/* Header */}
       <View className="flex-row items-center justify-between mb-4">
         <View className="flex-row items-center gap-2">
@@ -110,7 +110,7 @@ export default function DeliveryCard({ data }: CardProp) {
             ₦ {Number(data?.order?.total_price).toFixed(2)}
           </Text>)}
         </View>
-        <Text className="font-poppins-medium text-primary">ORDER #: {data?.order?.order_number}</Text>
+        <Text className="font-poppins-medium text-primary">#ORDN{data?.order?.order_number}</Text>
 
       </View>
 
@@ -127,7 +127,7 @@ export default function DeliveryCard({ data }: CardProp) {
 
 
           <Text
-            className='flex-1 text-muted font-poppins-light text-xs'
+            className='flex-1 text-secondary font-poppins-light text-xs'
 
             numberOfLines={2}
           >
@@ -142,7 +142,7 @@ export default function DeliveryCard({ data }: CardProp) {
             style={styles.iconStyle}
           />
           <Text
-            className='flex-1 text-muted font-poppins-light text-xs'
+            className='flex-1 text-secondary font-poppins-light text-xs'
 
             numberOfLines={2}
           >

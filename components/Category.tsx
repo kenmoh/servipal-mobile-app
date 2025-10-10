@@ -1,6 +1,6 @@
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from '@/constants/theme';
 import { ChevronDown } from 'lucide-react-native';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useMemo, useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 
 export interface CategoryType {
@@ -17,23 +17,27 @@ export interface CategoryProps {
 
 const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryProps) => {
     const theme = useColorScheme();
+    const [modalVisible, setModalVisible] = useState(false);
 
-    const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT;
-    const HANDLE_COLOR = theme === 'dark' ? HEADER_BG_LIGHT : HEADER_BG_DARK;
-
-    const BORDER_COLOR = '#2f4550'
-
+    // Memoize theme-dependent values
+    const themeColors = useMemo(() => ({
+        BG_COLOR: theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT,
+        HANDLE_COLOR: theme === 'dark' ? HEADER_BG_LIGHT : HEADER_BG_DARK,
+        BORDER_COLOR: '#2f4550'
+    }), [theme]);
 
     const scrollViewRef = useRef<ScrollView>(null);
     const categoryRefs = useRef<{ [key: string]: View | null }>({});
-    const [modalVisible, setModalVisible] = useState(false);
+
+    // Memoize displayed categories
+    const displayedCategories = useMemo(() => 
+        categories.length > 4 ? categories.slice(0, 2) : categories, 
+        [categories]
+    );
 
     const handlePresentModal = () => {
         setModalVisible(true);
     };
-
-    // Get first 3 categories
-    const displayedCategories = categories.slice(0, 2);
 
     const scrollToCategory = useCallback((categoryId: string | null) => {
         const ref = categoryId === null ? categoryRefs.current['all'] : categoryRefs.current[categoryId];
@@ -71,19 +75,16 @@ const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryPr
         >
             <TouchableOpacity
                 onPress={() => handleCategoryPress(item.id)}
-
                 style={[
                     styles.categoryItem,
                     {
-                        backgroundColor: isSelected ? 'orange' : BG_COLOR,
-                        borderColor: isSelected ? 'orange' : BORDER_COLOR,
+                        backgroundColor: isSelected ? 'orange' : themeColors.BG_COLOR,
+                        borderColor: isSelected ? 'orange' : themeColors.BORDER_COLOR,
                     },
                 ]}
             >
                 <Text
                     className={`${isSelected ? 'white' : 'text-primary'} text-sm font-poppins-medium`}
-
-
                 >
                     {item.name}
                 </Text>
@@ -97,7 +98,7 @@ const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryPr
                 ref={scrollViewRef}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={[styles.scrollContainer, { backgroundColor: BG_COLOR }]}
+                contentContainerStyle={[styles.scrollContainer, { backgroundColor: themeColors.BG_COLOR }]}
             >
                 {categories.length > 4 && (
                     <View
@@ -109,8 +110,8 @@ const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryPr
                             style={[
                                 styles.categoryItem,
                                 {
-                                    backgroundColor: selectedCategory === null ? 'orange' : BG_COLOR,
-                                    borderColor: selectedCategory === null ? 'orange' : BORDER_COLOR,
+                                    backgroundColor: selectedCategory === null ? 'orange' : themeColors.BG_COLOR,
+                                    borderColor: selectedCategory === null ? 'orange' : themeColors.BORDER_COLOR,
                                 },
                             ]}
                         >
@@ -142,8 +143,8 @@ const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryPr
                             style={[
                                 styles.categoryItem,
                                 {
-                                    backgroundColor: BG_COLOR,
-                                    borderColor: BORDER_COLOR,
+                                    backgroundColor: themeColors.BG_COLOR,
+                                    borderColor: themeColors.BORDER_COLOR,
                                 },
                             ]}
                         >
@@ -166,7 +167,7 @@ const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryPr
                 presentationStyle="pageSheet"
                 onRequestClose={() => setModalVisible(false)}
             >
-                <View style={[styles.modalContainer, { backgroundColor: BG_COLOR }]}>
+                <View style={[styles.modalContainer, { backgroundColor: themeColors.BG_COLOR }]}>
                     <View style={styles.modalHeader}>
                         <Text className='text-primary font-poppins-medium text-lg'>
                             All Categories
@@ -184,8 +185,8 @@ const Category = ({ categories, onCategorySelect, selectedCategory }: CategoryPr
                                     style={[
                                         styles.modalCategoryItem,
                                         {
-                                            backgroundColor: selectedCategory === item.id ? 'orange' : BG_COLOR,
-                                            borderColor: selectedCategory === item.id ? 'orange' : BORDER_COLOR,
+                                            backgroundColor: selectedCategory === item.id ? 'orange' : themeColors.BG_COLOR,
+                                            borderColor: selectedCategory === item.id ? 'orange' : themeColors.BORDER_COLOR,
                                         },
                                     ]}
                                 >

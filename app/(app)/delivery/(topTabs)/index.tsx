@@ -1,14 +1,12 @@
 import { fetchPaidPendingDeliveries, getTravelDistance } from "@/api/order";
 import HDivider from "@/components/HDivider";
 import { LegendList } from '@legendapp/list';
-import React from "react";
+import React, { useCallback, useEffect, useState, useMemo, useRef } from "react";
 
 import { DeliveryDetail } from "@/types/order-types";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
 
 import * as Location from "expo-location";
-// import * as Sentry from '@sentry/react-native';
 
 import { getCurrentUserProfile, registerCoordinates, registerForNotifications } from "@/api/user";
 import AppTextInput from "@/components/AppInput";
@@ -17,7 +15,7 @@ import { DeliveryListSkeleton, SearchBarSkeleton } from "@/components/LoadingSke
 import LocationPermission from "@/components/Locationpermission";
 import { useNotification } from "@/components/NotificationProvider";
 import RefreshButton from "@/components/RefreshButton";
-// import { useUserStore } from "@/store/userStore";
+import GradientCard from '@/components/GradientCard';
 import DeliveryCard from "@/components/DeliveryCard";
 import { useLocationTracking } from "@/hooks/useLocationTracking";
 import authStorage from "@/storage/authStorage";
@@ -25,32 +23,51 @@ import { useUserStore } from "@/store/userStore";
 import { UserDetails } from "@/types/user-types";
 import { distanceCache } from "@/utils/distance-cache";
 import { router } from "expo-router";
-import { View, Button } from "react-native";
+import { View } from "react-native";
 
 const DeliveryScreen = () => {
   const { user, setProfile } = useUserStore();
-  const { expoPushToken } = useNotification()
+  const { expoPushToken } = useNotification();
   const [searchQuery, setSearchQuery] = useState("");
-  const [locationPermission, setLocationPermission] = useState<boolean | null>(
-    null
-  );
-  const [isLayoutComplte, setIsLayoutComplete] = useState(false);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const [locationPermission, setLocationPermission] = useState<boolean | null>(null);
+  const [isLayoutComplete, setIsLayoutComplete] = useState(false);
   const [userLocation, setUserLocation] = useState<{
     latitude: number;
     longitude: number;
   } | null>(null);
+  const [filteredData, setFilteredData] = useState<DeliveryDetail[]>([]);
 
-  const handleLayoutComplete = () => {
-    if (!isLayoutComplte) {
-      setIsLayoutComplete(true);
+  const debounceTimer = useRef<NodeJS.Timeout>();
 
+  // Debounce search query
+  useEffect(() => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
     }
-  };
+    debounceTimer.current = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
 
-  const storeUserProfile = async (profile: UserDetails) => {
-    await authStorage.removeProfile()
-    await authStorage.storeProfile(profile)
-  }
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, [searchQuery]);
+
+  const handleLayoutComplete = useCallback(() => {
+    setIsLayoutComplete(true);
+  }, []);
+
+  const storeUserProfile = useCallback(async (profile: UserDetails) => {
+    try {
+      await authStorage.removeProfile();
+      await authStorage.storeProfile(profile);
+    } catch (error) {
+      console.error('Error storing profile:', error);
+    }
+  }, []);
 
   const checkLocationPermission = useCallback(async () => {
     const { status } = await Location.getForegroundPermissionsAsync();
@@ -92,11 +109,15 @@ const DeliveryScreen = () => {
     onError: (error) => {
       console.error("🔔 Token registration failed:", error);
     },
+    retry: 2,
   });
 
   const registerCoordinatesMutation = useMutation({
     mutationFn: registerCoordinates,
-
+    onError: (error) => {
+      console.error("📍 Coordinates registration failed:", error);
+    },
+    retry: 1,
   });
 
 
@@ -141,10 +162,12 @@ const DeliveryScreen = () => {
 
   const { data, isLoading, error, refetch, isFetching, isPending, isFetched } = useQuery({
     queryKey: ["orders"],
-    queryFn: () => fetchPaidPendingDeliveries(),
+    queryFn: fetchPaidPendingDeliveries,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
-
+    staleTime: 30000, // 30 seconds
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
   // Handle location change
   const handleLocationChange = useCallback(
@@ -213,71 +236,72 @@ const DeliveryScreen = () => {
     setSearchQuery(text);
   }, []);
 
-  // Filter deliveries within 30km
-  const [filteredData, setFilteredData] = useState<DeliveryDetail[]>([]);
+  // Memoize filtered data to prevent unnecessary re-computations
+  const memoizedFilteredData = useMemo(() => {
+    if (!debouncedSearchQuery.trim()) return filteredData;
+    const searchTerm = debouncedSearchQuery.toLowerCase().trim();
+    return filteredData.filter((item) => {
+      const origin = item?.delivery?.origin?.toLowerCase() || "";
+      const destination = item?.delivery?.destination?.toLowerCase() || "";
+      return origin.includes(searchTerm) || destination.includes(searchTerm);
+    });
+  }, [filteredData, debouncedSearchQuery]);
 
+  // Filter deliveries within 30km with optimized logic
   useEffect(() => {
     let isMounted = true;
+    
     const filterDeliveries = async () => {
       if (!data || !locationPermission || !userLocation) {
         if (isMounted) setFilteredData([]);
         return;
       }
-      const itemsWithinRange = await Promise.all(
-        data.map(async (item) => {
-          const pickupCoords = item.delivery?.pickup_coordinates;
-          if (
-            !pickupCoords ||
-            pickupCoords[0] === null ||
-            pickupCoords[1] === null ||
-            typeof pickupCoords[0] !== "number" ||
-            typeof pickupCoords[1] !== "number"
-          )
-            return null;
-          const distance = await getItemDistance([
-            pickupCoords[0],
-            pickupCoords[1],
-          ]);
-          if (distance === null || distance > 200) return null;
-          return {
-            ...item,
-            distance,
-          };
-        })
-      );
-      let filtered = itemsWithinRange.filter(Boolean) as (DeliveryDetail & {
-        distance: number;
-      })[];
-      // Sort by distance (closest first)
-      filtered.sort((a, b) => a.distance - b.distance);
-      if (searchQuery.trim()) {
-        const searchTerm = searchQuery.toLowerCase().trim();
-        filtered = filtered.filter((item) => {
-          const origin = item?.delivery?.origin?.toLowerCase() || "";
-          const destination = item?.delivery?.destination?.toLowerCase() || "";
-          return (
-            origin.includes(searchTerm) || destination.includes(searchTerm)
-          );
-        });
-      }
-      // Only update state if changed
-      setFilteredData((prev) => {
-        const prevIds = prev.map((i) => (i.delivery?.id ?? '') + (typeof (i as any).distance !== 'undefined' ? (i as any).distance : ''));
-        const nextIds = filtered.map((i) => (i.delivery?.id ?? '') + (typeof (i as any).distance !== 'undefined' ? (i as any).distance : ''));
-        if (
-          prev.length === filtered.length &&
-          prevIds.every((id, idx) => id === nextIds[idx])
-        ) {
-          return prev;
+
+      try {
+        const itemsWithinRange = await Promise.all(
+          data.map(async (item) => {
+            const pickupCoords = item.delivery?.pickup_coordinates;
+            if (
+              !pickupCoords ||
+              pickupCoords[0] === null ||
+              pickupCoords[1] === null ||
+              typeof pickupCoords[0] !== "number" ||
+              typeof pickupCoords[1] !== "number"
+            ) return null;
+
+            const distance = await getItemDistance([pickupCoords[0], pickupCoords[1]]);
+            if (distance === null || distance > 200) return null;
+            
+            return { ...item, distance };
+          })
+        );
+
+        let filtered = itemsWithinRange.filter(Boolean) as (DeliveryDetail & { distance: number })[];
+        filtered.sort((a, b) => a.distance - b.distance);
+
+        if (isMounted) {
+          setFilteredData((prev) => {
+            const prevIds = prev.map((i) => `${i.delivery?.id}-${(i as any).distance || 0}`);
+            const nextIds = filtered.map((i) => `${i.delivery?.id}-${i.distance}`);
+            
+            if (prev.length === filtered.length && prevIds.every((id, idx) => id === nextIds[idx])) {
+              return prev;
+            }
+            return filtered;
+          });
         }
-        return filtered;
-      });
+      } catch (error) {
+        console.error('Error filtering deliveries:', error);
+        if (isMounted) setFilteredData([]);
+      }
     };
+
     filterDeliveries();
+    
     return () => {
       isMounted = false;
     };
-  }, [data, searchQuery, locationPermission, userLocation, getItemDistance]);
+  }, [data, locationPermission, userLocation, getItemDistance]);
 
   if (!locationPermission) {
     return <LocationPermission onRetry={checkLocationPermission} />;
@@ -311,13 +335,22 @@ const DeliveryScreen = () => {
 
 
       <LegendList
-        data={filteredData || []}
+        data={memoizedFilteredData || []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
-        ItemSeparatorComponent={renderSeparator}
+        // ItemSeparatorComponent={renderSeparator}
         refreshing={isFetching}
         onRefresh={handleRefresh}
         onLayout={handleLayoutComplete}
+         ListHeaderComponent={() => (
+                        <>
+                           
+                           
+
+                                <GradientCard label="Quick & Reliable Delivery" description="Send and receive packages with ease, anywhere, anytime."/>
+                    
+                        </>
+                    )}
       />
 
       {user?.user_type === 'dispatch' || user?.user_type === 'rider' ? '' : <FAB onPress={handleSendItemPress} />}

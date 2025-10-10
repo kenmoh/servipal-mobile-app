@@ -16,7 +16,6 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 
 import { useToast } from "@/components/ToastProvider";
 import { useUserStore } from "@/store/userStore";
-import { Trash } from "lucide-react-native";
 import z from "zod";
 
 // Zod enum for ItemType
@@ -343,14 +342,15 @@ const AddProductScreen = () => {
                     onPress={handleSubmit(onSubmit)}
                     icon={isPending ? <ActivityIndicator color={'white'} size={'large'} /> : ""}
                     disabled={isPending}
+                    borderRadius={50}
                 />
                 {isEditing && <AppVariantButton
                     label="Delete"
                     onPress={handleSubmit(openDialog)}
-                    disabled={isPending}
+                    borderRadius={50}
                     outline={true}
                     filled={false}
-                    icon={isPending ? <ActivityIndicator color={'white'} size={'large'} /> : <Trash color={'red'} size={20} />}
+
 
                 />}
             </View>
