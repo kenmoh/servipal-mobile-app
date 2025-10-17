@@ -298,6 +298,8 @@ export const updateCurrentVendorUser = async (
     closing_hours: userData.closingHour,
     opening_hours: userData.openingHour,
     state: userData.state,
+    can_pickup_and_deliver: userData.canPickup,
+    pickup_and_delivery_charge: userData.pickupCharge,
   };
   try {
     const response: ApiResponse<UserDetails | ErrorResponse> =
@@ -553,5 +555,32 @@ export const registerCoordinates = async (
       throw new Error(error.message);
     }
     throw new Error("An unexpected error occurred");
+  }
+};
+
+// Delete Account
+export const deleteAccount = async (): Promise<void> => {
+  try {
+    const response: ApiResponse<null | ErrorResponse> = await apiClient.delete(
+      `${BASE_URL}/me`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error deleting account.";
+      throw new Error(errorMessage);
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error("An unexpected error occurred while deleting the account.");
   }
 };

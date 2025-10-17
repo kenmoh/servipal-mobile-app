@@ -82,7 +82,7 @@ const StoreDetails = () => {
                 label="View Cart"
                 totalCost={totalCost?.toString()!}
                 totalItem={cart.order_items.length}
-                onPress={() => router.push({ pathname: "/cart", params: { address } })}
+                onPress={() => router.push({ pathname: "/cart", params: { address, isLaundry: 'true' } })}
             />
 
             {user?.user_type === "laundry_vendor" && laundryVendorId === user?.sub && data && data?.length > 0 && (

@@ -59,12 +59,12 @@ const ProductCard = ({ product }: { product: ProductResponse }) => {
                 </View>
                 <View className="justify-between mt-1">
                     <View className="flex-row items-center gap-2">
-                        {product?.total_sold > 0 && <Text className="text-muted text-sm font-poppins">Sold: {product.total_sold}</Text>}
-                        <Text className="text-muted text-sm font-poppins">Available: {product.stock || 0}</Text>
+                        {product?.total_sold > 0 && <Text className="text-secondary text-sm font-poppins">Sold: {product.total_sold}</Text>}
+                        <Text className="text-secondary text-sm font-poppins">Available: {product.stock || 0}</Text>
                     </View>
                     <View className="flex-row gap-2 items-center">
                         <Store size={16} color="gray" />
-                        <Text className="text-muted text-sm flex-1 font-poppins" numberOfLines={1}>
+                        <Text className="text-secondary text-sm flex-1 font-poppins" numberOfLines={1}>
                             {product?.store_name}
                         </Text>
                     </View>

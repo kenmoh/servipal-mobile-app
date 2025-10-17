@@ -4,7 +4,7 @@ import { Switch, Text, TouchableOpacity, View } from "react-native";
 
 interface ProfileCardProp {
   name: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   bgColor: string;
   onPress?: () => void;
   isThemeToggle?: boolean;

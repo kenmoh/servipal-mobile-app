@@ -16,6 +16,7 @@ export interface ItemImage {
   id: string;
   item_id: string;
   url: string;
+  is_primary: boolean;
 }
 
 export interface ItemCreateBase {
@@ -74,7 +75,7 @@ export interface MenuItem extends MenuBase {
   user_id: string;
   description?: string;
   food_group: FoodGroup;
-  is_deleted: boolean
+  is_deleted: boolean;
 }
 
 export interface LaundryMenuItem extends MenuBase {

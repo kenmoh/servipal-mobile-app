@@ -34,6 +34,7 @@ export interface CompanyProfile {
   company_name: string;
   email: string;
   phone_number: string;
+  review_count: number;
   profile_image: string;
   location: string;
   backdrop_image_url: string;
@@ -42,6 +43,8 @@ export interface CompanyProfile {
   total_items: number;
   total_orders: number;
   distance: number;
+  can_pickup_and_deliver?: boolean;
+  pickup_and_delivery_charge?: number;
   rating: {
     average_rating: string;
     number_of_reviews: number;
@@ -80,6 +83,10 @@ export interface Profile {
   profile_image_url: string;
   backdrop_image_url: string;
   state: string;
+  review_count: number;
+  avg_rating: number;
+  can_pickup_and_deliver: boolean;
+  pickup_and_delivery_charge: number;
 }
 
 export interface UserProfileUpdate {
@@ -94,6 +101,8 @@ export interface UserProfileUpdate {
   fullName?: string;
   storeName?: string;
   state?: string;
+  canPickup?: boolean;
+  pickupCharge?: number;
 }
 
 type TransactionType =

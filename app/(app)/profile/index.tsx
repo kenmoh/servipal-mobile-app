@@ -1,13 +1,29 @@
 import ProfileCard from "@/components/ProfileCard";
 import RadioButton from "@/components/core/RadioButton";
-import { KeyRound, LogOutIcon, MoonIcon, Store, SunIcon, UserRound, UsersRound, Wallet } from "lucide-react-native";
+import {
+  KeyRound,
+  LogOutIcon,
+  MoonIcon,
+  Store,
+  SunIcon,
+  UserRound,
+  UsersRound,
+  Wallet,
+  Trash2
+} from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { Dimensions, StyleSheet, Text, View, Alert, ScrollView } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 import { logOutUser } from "@/api/auth";
-import { ImageData, ImageUpload, uploadProfileImage } from "@/api/user";
+import {
+  ImageData,
+  ImageUpload,
+  uploadProfileImage,
+  deleteAccount,
+} from "@/api/user";
 import ProfileImagePicker from "@/components/ProfileImagePicker";
+import AppVariantButton from "@/components/core/AppVariantButton";
 import { useToast } from "@/components/ToastProvider";
 import authStorage from "@/storage/authStorage";
 import { useUserStore } from "@/store/userStore";
@@ -16,8 +32,6 @@ import { ImageUrl } from "@/types/user-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useColorScheme } from "nativewind";
-
-
 
 const BACKDROP_IMAGE_HEIGHT = Dimensions.get("window").height * 0.2;
 const BACKDROP_IMAGE_WIDTH = Dimensions.get("window").width;
@@ -31,7 +45,8 @@ const profile = () => {
   const { colorScheme, setColorScheme } = useColorScheme();
   const queryClient = useQueryClient();
   const [theme, setTheme] = useState(colorScheme);
-  const { showError, showSuccess } = useToast()
+  const { showError, showSuccess } = useToast();
+   const { signOut } = useUserStore();
 
   useEffect(() => {
     const loadTheme = async () => {
@@ -73,6 +88,29 @@ const profile = () => {
     },
   });
 
+  // Logout user (server side)
+  const { mutate: handleDeleteAccount } = useMutation({
+    mutationFn: deleteAccount,
+    onSuccess: () => {
+       
+          signOut();
+          showSuccess("Account deleted successfully.");
+    },
+  });
+
+  const openDialog = () => {
+    Alert.alert("Confirm", `Are you sure you want to delete your account?`, [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        onPress: () => handleDeleteAccount()
+      },
+    ]);
+  };
+
   const handleProfileScreen = () => {
     if (
       user?.user_type === "laundry_vendor" ||
@@ -85,9 +123,11 @@ const profile = () => {
     }
   };
 
+
+console.log(profile)
   const handleAddItem = () => {
     if (user?.user_type === "restaurant_vendor") {
-      setStoreId(user?.sub)
+      setStoreId(user?.sub);
       router.push({
         pathname: "/restaurant-detail/[restaurantId]",
         params: {
@@ -98,12 +138,13 @@ const profile = () => {
           openingHour: profile?.profile?.opening_hours,
           closingHour: profile?.profile?.closing_hours,
           address: profile?.profile?.business_address,
-          // rating: profile?.profile?.bank_name,
-          // numberOfReviews: profile?.profile?.number_of_reviews,
+          reviews: profile?.profile?.review_count,
+          rating: profile?.profile?.avg_rating,
+         
         },
       });
     } else if (user?.user_type === "laundry_vendor") {
-      setStoreId(user?.sub)
+      setStoreId(user?.sub);
       router.push({
         pathname: "/laundry-detail/[laundryId]",
         params: {
@@ -114,6 +155,8 @@ const profile = () => {
           openingHour: profile?.profile?.opening_hours,
           closingHour: profile?.profile?.closing_hours,
           address: profile?.profile?.business_address,
+          reviews: profile?.profile?.review_count,
+          rating: profile?.profile?.avg_rating,
         },
       });
     }
@@ -126,14 +169,14 @@ const profile = () => {
       const newImages = {
         profile_image_url:
           typeof data?.profile_image_url === "object" &&
-            data?.profile_image_url !== null
+          data?.profile_image_url !== null
             ? data.profile_image_url.uri
             : (data?.profile_image_url ??
               profile?.profile?.profile_image_url ??
               undefined),
         backdrop_image_url:
           typeof data?.backdrop_image_url === "object" &&
-            data?.backdrop_image_url !== null
+          data?.backdrop_image_url !== null
             ? data.backdrop_image_url.uri
             : (data?.backdrop_image_url ??
               profile?.profile?.backdrop_image_url ??
@@ -150,12 +193,13 @@ const profile = () => {
       queryClient.invalidateQueries({ queryKey: ["user"] });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       queryClient.invalidateQueries({ queryKey: ["deliveries"] });
-      showSuccess("Success", "Images uploaded successfully")
-
+      showSuccess("Success", "Images uploaded successfully");
     },
     onError: (error) => {
-      showError("Failed to upload images", "There was an error uploading the images. Please try again.")
-
+      showError(
+        "Failed to upload images",
+        "There was an error uploading the images. Please try again.",
+      );
     },
   });
 
@@ -173,7 +217,7 @@ const profile = () => {
     });
   };
 
-  const { signOut } = useUserStore();
+ 
 
   const handleLogout = async () => {
     try {
@@ -189,23 +233,23 @@ const profile = () => {
           // Even if server logout fails, clean up locally
           await authStorage.removeProfile();
           signOut();
-        }
+        },
       });
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       // Fallback: still clean up locally even if everything fails
       try {
         await authStorage.removeProfile();
         signOut();
       } catch (fallbackError) {
-        console.error('Fallback logout error:', fallbackError);
+        console.error("Fallback logout error:", fallbackError);
       }
     }
   };
 
   return (
     <>
-      <View className="flex-1 bg-background">
+      <ScrollView className="flex-1 bg-background">
         <View>
           <View className="'w-full">
             <ProfileImagePicker
@@ -253,15 +297,15 @@ const profile = () => {
             )}
             {(user?.user_type === "restaurant_vendor" ||
               user?.user_type === "laundry_vendor") && (
-                <Animated.View entering={FadeInDown.duration(300).delay(100)}>
-                  <ProfileCard
-                    name={"Store"}
-                    onPress={handleAddItem}
-                    bgColor={"rgba(9, 3, 94, 0.3)"}
-                    icon={<Store color={"white"} />}
-                  />
-                </Animated.View>
-              )}
+              <Animated.View entering={FadeInDown.duration(300).delay(100)}>
+                <ProfileCard
+                  name={"Store"}
+                  onPress={handleAddItem}
+                  bgColor={"rgba(9, 3, 94, 0.3)"}
+                  icon={<Store color={"white"} />}
+                />
+              </Animated.View>
+            )}
             {user?.user_type !== "rider" && (
               <Animated.View entering={FadeInDown.duration(300).delay(100)}>
                 <ProfileCard
@@ -305,7 +349,13 @@ const profile = () => {
                   )
                 }
               >
-                <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 10 }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                    marginTop: 10,
+                  }}
+                >
                   <RadioButton
                     label="Light"
                     selected={theme === "light"}
@@ -324,17 +374,42 @@ const profile = () => {
                 </View>
               </ProfileCard>
             </Animated.View>
-            <Animated.View entering={FadeInDown.duration(300).delay(100)}>
-              <ProfileCard
-                name={"Logout"}
-                onPress={handleLogout}
-                bgColor={"rgba(255, 0, 0, 0.3)"}
-                icon={<LogOutIcon color={"white"} />}
-              />
+            <Animated.View
+              className=""
+              entering={FadeInDown.duration(300).delay(100)}
+            >
+              
+                <ProfileCard
+                  name={"Logout"}
+                  onPress={handleLogout}
+                  bgColor={"rgba(255, 0, 0, 0.3)"}
+                  icon={<LogOutIcon color={"white"} />}
+                />
+             
             </Animated.View>
+
+            {
+              user?.user_type !== 'rider' &&
+
+              <Animated.View
+              className=""
+              entering={FadeInDown.duration(300).delay(100)}
+            >
+              
+    
+               <ProfileCard
+                  name={"Delete Account"}
+                  onPress={openDialog}
+                  bgColor={"rgba(255, 0, 0, 0.3)"}
+                  icon={<Trash2 color={"white"} />}
+                />
+              
+            </Animated.View>
+            }
+             
           </View>
         </View>
-      </View>
+      </ScrollView>
     </>
   );
 };

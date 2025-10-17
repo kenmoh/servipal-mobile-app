@@ -6,6 +6,7 @@ import { Edit, Trash } from 'lucide-react-native'
 import React from 'react'
 import { Image, Pressable, Text, TouchableOpacity, View } from 'react-native'
 
+import { useUserStore } from '@/store/userStore'
 import { useToast } from './ToastProvider'
 
 const LaundryCard = ({ item, onPress, onDelete }: {
@@ -16,7 +17,7 @@ const LaundryCard = ({ item, onPress, onDelete }: {
 
     const { user } = useUserStore();
     const cartItems = useCartStore(state => state.cart.order_items)
-    const { showError, showInfo, showSuccess, showWarning } = useToast()
+    const { showInfo, showSuccess, showWarning } = useToast()
 
     // Check if item exists in cart
     const isChecked = cartItems.some(cartItem => cartItem.item_id === item.id)
@@ -27,7 +28,7 @@ const LaundryCard = ({ item, onPress, onDelete }: {
     return (
         <>
 
-            <TouchableOpacity onPress={() => onPress(item)} disabled={isOwner}>
+            <TouchableOpacity onPress={!isOwner ? () => onPress(item) : () => showWarning("Not Allowed!", "You can not order from your store")} disabled={isOwner}>
 
                 <View
                     className='my-1 p-2 bg-profile-card rounded-md'
@@ -88,7 +89,7 @@ const LaundryCard = ({ item, onPress, onDelete }: {
                         value={isChecked}
                         hitSlop={25}
                         disabled={isOwner}
-                        onValueChange={!isOwner ? () => onPress(item) : () => showWarning("Not Allowed!", "You can not order your own laundry")}
+                        onValueChange={() => onPress(item)}
                     >
 
                     </Checkbox>

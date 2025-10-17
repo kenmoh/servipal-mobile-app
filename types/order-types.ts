@@ -1,7 +1,11 @@
 export type Coordinates = [number | null, number | null];
 export type OrderType = "package" | "food" | "laundry" | "product";
 export type OrderStatus = "pending" | "in-transit" | "delivered" | "received";
-export type RequireDelivery = "pickup" | "delivery";
+export type RequireDelivery =
+  | "pickup"
+  | "delivery"
+  | "user-dropoff-and-pickup"
+  | "vendor-pickup-and-dropoff";
 export type PaymentStatus = "pending" | "paid" | "failed" | "cancelled";
 export type RiderDeliveryStatus = "in transit" | "delivered" | "canceled";
 export type SenderDeliveryStatus = "received";
@@ -72,6 +76,7 @@ export interface OrderResponse {
   order_type: OrderType;
   order_number: string;
   require_delivery: "pickup" | "delivery";
+  is_one_way_delivery: boolean;
   total_price: string;
   order_payment_status: PaymentStatus;
   order_status: OrderStatus;
@@ -85,7 +90,7 @@ export interface OrderResponse {
 export interface DeliveryDetail {
   delivery?: Delivery;
   order: OrderResponse;
-  distance?: number
+  distance?: number;
 }
 
 interface OrderItem {
@@ -104,12 +109,17 @@ export interface OrderFoodOLaundry {
   origin?: string;
   destination?: string;
   additional_info?: string;
+  is_one_way_delivery: boolean;
+}
+
+export interface OrderLaundry {
+  order_items: OrderItem[];
+  pickup_location?: string;
+  require_delivery: RequireDelivery;
+  additional_info?: string;
 }
 
 export interface CreateReview {
   rating: number;
   comment: string;
 }
-// /api/orders/delivery-by-type -> GET(delivery-by-type)
-
-// /api/orders/{order_id}/review

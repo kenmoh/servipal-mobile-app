@@ -347,7 +347,7 @@ const DeliveryScreen = () => {
                            
                            
 
-                                <GradientCard label="Quick & Reliable Delivery" description="Send and receive packages with ease, anywhere, anytime."/>
+                                <GradientCard label="Quick & Reliable Delivery" description="Send and receive items with ease, anywhere, anytime."/>
                     
                         </>
                     )}

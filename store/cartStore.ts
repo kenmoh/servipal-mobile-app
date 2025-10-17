@@ -1,3 +1,4 @@
+import { RequireDelivery } from "@/types/order-types";
 import { create } from "zustand";
 
 export type CartItem = {
@@ -16,9 +17,10 @@ type CartType = {
   // pickup_coordinates: [number | null, number | null];
   // dropoff_coordinates: [number | null, number | null];
   distance: number;
-  require_delivery: "pickup" | "delivery";
+  require_delivery: RequireDelivery;
   duration: string;
   additional_info: string;
+  is_one_way_delivery: boolean;
 };
 
 type CartState = {
@@ -34,7 +36,7 @@ type CartState = {
   updateItemQuantity: (item_id: string, quantity: number) => void;
   // setPickupCoordinates: (lat: number | null, lng: number | null) => void;
   // setDropOffCoordinates: (lat: number | null, lng: number | null) => void;
-  setDeliveryOption: (option: "pickup" | "delivery") => void;
+  setDeliveryOption: (option: RequireDelivery) => void;
   updateDistance: (distance: number) => void;
   updateDuration: (duration: string) => void;
   setAdditionalInfo: (info: string) => void;
@@ -57,6 +59,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     require_delivery: "pickup",
     duration: "",
     additional_info: "",
+    is_one_way_delivery: true,
   },
   totalCost: 0,
 
@@ -224,6 +227,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         require_delivery: "pickup",
         duration: "",
         additional_info: "",
+        is_one_way_delivery: true,
       },
       totalCost: 0,
     }));

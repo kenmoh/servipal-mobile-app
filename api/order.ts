@@ -2,6 +2,7 @@ import {
   CreateReview,
   DeliveryDetail,
   OrderFoodOLaundry,
+  OrderLaundry,
   SendItem,
 } from "@/types/order-types";
 import { PaymentLink } from "@/types/payment";
@@ -201,7 +202,7 @@ export const sendItem = async (itemData: SendItem): Promise<DeliveryDetail> => {
   }
 };
 
-// Order Food/Laundry
+// Order Food
 export const createOrder = async (
   vendorId: string,
   orderData: OrderFoodOLaundry
@@ -216,6 +217,7 @@ export const createOrder = async (
     origin: orderData.origin,
     destination: orderData.destination,
     additional_info: orderData.additional_info,
+    is_one_way_delivery: orderData.is_one_way_delivery,
   };
 
   try {
@@ -230,7 +232,42 @@ export const createOrder = async (
       const errorMessage =
         response.data && "detail" in response.data
           ? response.data.detail
-          : "Error creating category.";
+          : "Error creating order.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+// Order Laundry
+export const createLaunryOrder = async (
+  vendorId: string,
+  orderData: OrderLaundry
+): Promise<DeliveryDetail> => {
+  const data = {
+    order_items: orderData.order_items,
+    require_delivery: orderData.require_delivery,
+    pickup_location: orderData.pickup_location,
+    additional_info: orderData.additional_info,
+  };
+
+  try {
+    const response: ApiResponse<DeliveryDetail | ErrorResponse> =
+      await apiClient.post(`${BASE_URL}/${vendorId}/laundry`, data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error creating order.";
       throw new Error(errorMessage);
     }
     return response.data;

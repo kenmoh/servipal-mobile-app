@@ -9,16 +9,19 @@ import { fetchLaundryVendors } from "@/api/user";
 import AppHeader from "@/components/AppHeader";
 import AppTextInput from "@/components/AppInput";
 import Card from "@/components/Card";
+import GradientCard from '@/components/GradientCard';
 import HDivider from "@/components/HDivider";
 import { StoreListSkeleton } from "@/components/LoadingSkeleton";
 import RefreshButton from "@/components/RefreshButton";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 // import { useUserStore } from "@/store/userStore";
+import ComingSoon from "@/components/ComingSoon";
 import { useUserStore } from "@/store/userStore";
 import { CompanyProfile } from "@/types/user-types";
 import { getCoordinatesFromAddress } from "@/utils/geocoding";
 import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Swiper from "react-native-swiper";
 
@@ -131,6 +134,8 @@ const Page = () => {
 
     const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
 
+    const [showComingSoon, setShowComingSoon] = useState(false);
+
 
     // Get user's location
     useEffect(() => {
@@ -148,6 +153,9 @@ const Page = () => {
 
         getUserLocation();
     }, []);
+    useEffect(() => {
+        setShowComingSoon(!isFetching && (!data || filteredlaundryVendors.length === 0));
+    }, [isFetching, data, filteredlaundryVendors.length]);
 
     useEffect(() => {
         const filterLaundryVendors = async () => {
@@ -222,7 +230,7 @@ const Page = () => {
                         <AppTextInput
 
                             borderRadius={50}
-                            placeholder="Search laundry vedours.."
+                            placeholder="Search laundry vendors.."
                         />
                     }
                 />
@@ -250,18 +258,25 @@ const Page = () => {
             />
             <HDivider />
 
-            {filteredlaundryVendors.length > 0 && (
+            {filteredlaundryVendors.length > 0 ? (
                 <FlatList
                     // data={data}
                     data={filteredlaundryVendors}
+                    // ListHeaderComponent={() => (
+                    //     <>
+
+                    //         <FeaturedLaundryVendors />
+                    //         {/* <FeaturedRestaurants restaurants={data || []} /> */}
+                    //     </>
+                    // )}
+                    stickyHeaderIndices={[1]}
                     ListHeaderComponent={() => (
                         <>
 
-                            <FeaturedLaundryVendors />
-                            {/* <FeaturedRestaurants restaurants={data || []} /> */}
+                            <GradientCard label="Laundry Services Made Simple" description="Choose from a wide range of laundry services providers and have your clothes cleaned and delivered." />
+                            {/*<FeaturedRestaurants />*/}
                         </>
                     )}
-                    stickyHeaderIndices={[1]}
                     showsVerticalScrollIndicator={false}
                     keyExtractor={(item) => item.id}
                     renderItem={({
@@ -279,15 +294,22 @@ const Page = () => {
                         paddingBottom: 10,
                     }}
                 />
-            )}
+            ) :
 
-            {/* {user?.user_type === "laundry_vendor" && !hasItem && (
 
-                <FAB
-                    icon={<Plus size={25} color={theme.text.val} />}
-                    onPress={() => router.push({ pathname: "/laundry-detail/addLaundryItem" })}
+
+                <ComingSoon
+                    visible={showComingSoon}
+                    title="Laundry Coming Soon"
+                    description="We're expanding our network of laundry partners near you. Check back later or explore other services."
+                    ctaLabel="Browse Marketplace"
+                    onClose={() => setShowComingSoon(true)}
+                    onCTAPress={() => router.push("/marketplace")}
                 />
-            )} */}
+
+            }
+
+
         </SafeAreaView>
     );
 };

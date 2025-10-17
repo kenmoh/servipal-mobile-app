@@ -13,15 +13,21 @@ import { phoneRegEx } from "@/types/user-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import Checkbox from "expo-checkbox";
 import { router } from "expo-router";
 import { Clock } from "lucide-react-native";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ActivityIndicator, Platform, ScrollView, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import { z } from "zod";
-
-
 
 const profileSchema = z.object({
   phoneNumber: z
@@ -32,25 +38,30 @@ const profileSchema = z.object({
   location: z.string().min(1, "Location is required"),
   state: z.string().min(1, "Location is required"),
   bankName: z.string().min(1, "Bank Name is required"),
-  accountNumber: z.string().min(10, "Account Number must be 10 digits").max(10, "Account Number must be 10 digits"),
+  accountNumber: z
+    .string()
+    .min(10, "Account Number must be 10 digits")
+    .max(10, "Account Number must be 10 digits"),
   companyName: z.string().optional(),
   companyRegNo: z.string().optional(),
   openingHour: z.string().min(1, "Opening Hour is required"),
   closingHour: z.string().min(1, "Closing Hour is required"),
+  pickupCharge: z.number().optional(),
+  canPickup: z.boolean().optional(),
 });
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 const Profile = () => {
-
   const { user, profile, setProfile } = useUserStore();
   const [showOpeningHour, setShowOpeningHour] = useState(false);
   const [showClosingHour, setShowClosingHour] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
   const { setOrigin } = useLocationStore();
 
-  const { showError, showSuccess } = useToast()
+  const { showError, showSuccess } = useToast();
 
   const { data } = useQuery({
-    queryKey: ['banks'],
+    queryKey: ["banks"],
     queryFn: getBanks,
     staleTime: 72 * 60 * 60 * 1000,
   });
@@ -61,22 +72,22 @@ const Profile = () => {
       await authStorage.removeProfile();
       await authStorage.storeProfile(data);
       setProfile(data);
-      showSuccess("Success", "Profile Updated.")
+      showSuccess("Success", "Profile Updated.");
 
       router.back();
       return;
     },
     onError: (error) => {
-      showError("Error", error.message)
-
+      showError("Error", error.message);
     },
   });
+
 
   const {
     control,
     handleSubmit,
     setValue,
-    formState: { errors, touchedFields },
+    formState: { errors },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -89,6 +100,8 @@ const Profile = () => {
       companyRegNo: profile?.profile?.business_registration_number || "",
       phoneNumber: profile?.profile?.phone_number || "",
       state: profile?.profile?.state || "",
+      canPickup: profile?.profile.can_pickup_and_deliver || isChecked,
+      pickupCharge: profile?.profile.pickup_and_delivery_charge,
     },
   });
 
@@ -101,15 +114,16 @@ const Profile = () => {
   };
 
   const onSubmit = (values: ProfileFormData) => {
+    // console.log(values)
     mutate(values);
   };
 
   return (
-    <ScrollView className="flex-1 bg-background"
-
+    <ScrollView
+      className="flex-1 bg-background"
       showsVerticalScrollIndicator={false}
     >
-      <View>
+      <View className="flex-1 bg-background mb-5">
         <Controller
           control={control}
           name="phoneNumber"
@@ -153,7 +167,6 @@ const Profile = () => {
               placeholder="Business Location"
               editable={false}
               label="Business Address"
-
               onChangeText={field.onChange}
               value={field.value}
               errorMessage={errors.location?.message}
@@ -178,8 +191,49 @@ const Profile = () => {
           )}
         />
 
+        <TouchableOpacity className="flex-row w-[90%] self-center h-10 my-2 items-center">
+          <Controller
+            control={control}
+            name="canPickup"
+            render={({ field: { value, onChange } }) => (
+              <Checkbox
+                style={{
+                  borderWidth: 1,
+                  height: 20,
+                  width: 20,
+                  borderRadius: 3,
+                }}
+                className="absolute right-2 bottom-2"
+                value={value}
+                hitSlop={35}
+                onValueChange={onChange}
+                onChange={() => setIsChecked(!isChecked)}
+              />
+            )}
+          />
 
-        <View className="w-[95%] flex-row items-center " >
+          <Text className="text-muted mb-0 self-start mt-2 font-poppins text-sm" >
+            Pickup/Dropoff
+          </Text>
+        </TouchableOpacity>
+
+        <Controller
+          control={control}
+          name="pickupCharge"
+          render={({ field }) => (
+            <AppTextInput
+              placeholder="0.00"
+              onChangeText={field.onChange}
+              keyboardType="numeric"
+              width={"40%"}
+              label="Pickup/Dropoff Charge"
+              value={field.value?.toString()}
+              errorMessage={errors.pickupCharge?.message}
+            />
+          )}
+        />
+
+        <View className="w-[95%] flex-row items-center ">
           <View className="flex-1">
             <Controller
               control={control}
@@ -189,7 +243,6 @@ const Profile = () => {
                   editable={false}
                   placeholder="Opening Hour"
                   label="Opening Hour"
-
                   value={field.value}
                   onChangeText={field.onChange}
                   errorMessage={errors.openingHour?.message}
@@ -198,7 +251,6 @@ const Profile = () => {
             />
           </View>
           <TimeSelectorBtn onPress={() => setShowOpeningHour(true)} />
-
         </View>
 
         <View className="flex-row items-center w-[95%]">
@@ -268,9 +320,12 @@ const Profile = () => {
           disabled={isPending}
           width={"90%"}
           onPress={handleSubmit(onSubmit)}
-          icon={isPending && <ActivityIndicator className="text-icon-default" size={"large"} />}
+          icon={
+            isPending && (
+              <ActivityIndicator className="text-icon-default" size={"large"} />
+            )
+          }
         />
-
 
         {showOpeningHour && (
           <DateTimePicker
@@ -294,7 +349,10 @@ const Profile = () => {
                   .getMinutes()
                   .toString()
                   .padStart(2, "0");
-                setValue("openingHour", `${hours}:${minutes}`, { shouldValidate: true, shouldTouch: true });
+                setValue("openingHour", `${hours}:${minutes}`, {
+                  shouldValidate: true,
+                  shouldTouch: true,
+                });
               }
             }}
           />
@@ -321,7 +379,10 @@ const Profile = () => {
                   .getMinutes()
                   .toString()
                   .padStart(2, "0");
-                setValue("closingHour", `${hours}:${minutes}`, { shouldValidate: true, shouldTouch: true });
+                setValue("closingHour", `${hours}:${minutes}`, {
+                  shouldValidate: true,
+                  shouldTouch: true,
+                });
               }
             }}
           />
@@ -333,11 +394,13 @@ const Profile = () => {
 
 export default Profile;
 
-
 const TimeSelectorBtn = ({ onPress }: { onPress: () => void }) => {
   return (
-    <TouchableOpacity onPress={onPress} className="bg-input rounded-md p-3 mt-6">
-      <Clock size={20} color={'gray'} />
+    <TouchableOpacity
+      onPress={onPress}
+      className="bg-input rounded-md p-3 mt-6"
+    >
+      <Clock size={20} color={"gray"} />
     </TouchableOpacity>
-  )
-}
+  );
+};

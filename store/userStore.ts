@@ -1,9 +1,9 @@
-import { create } from "zustand";
-import { User, UserDetails, ImageUrl } from "@/types/user-types";
 import authStorage from "@/storage/authStorage";
-import { jwtDecode } from "jwt-decode";
+import { ImageUrl, User, UserDetails } from "@/types/user-types";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import { jwtDecode } from "jwt-decode";
+import { create } from "zustand";
 
 interface UserStore {
   user: User | null;
@@ -21,7 +21,7 @@ interface UserStore {
 
   restoreToken: () => Promise<void>;
   signOut: () => Promise<void>;
-  checkFirstLaunch: () => Promise<void>;
+  checkFirstLaunch: () => Promise<boolean>;
   setFirstLaunchComplete: () => Promise<void>;
 }
 

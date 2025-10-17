@@ -38,6 +38,7 @@ const Payment = () => {
     deliveryFee,
     orderType,
     orderItems,
+    isLaundry
   } = useLocalSearchParams();
   const theme = useColorScheme();
   const { showError, showSuccess, showInfo } = useToast()

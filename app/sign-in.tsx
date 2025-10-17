@@ -62,7 +62,7 @@ const SignIn = () => {
         try {
           await authStorage.storeToken(data?.access_token);
           setUser(user);
-          showSuccess('Welcome back!', 'Login Successful')
+          showSuccess('Welcome!', 'Login Successful')
           router.replace("/(app)/delivery/(topTabs)");
         } catch (error) {
           throw new Error(`Error storing token: ${error}`);

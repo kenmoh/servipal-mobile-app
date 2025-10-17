@@ -10,7 +10,7 @@ import { useToast } from "@/components/ToastProvider";
 import { useCartStore } from "@/store/cartStore";
 import { useLocationStore } from "@/store/locationStore";
 import { useUserStore } from "@/store/userStore";
-import { OrderFoodOLaundry } from "@/types/order-types";
+import { OrderFoodOLaundry, RequireDelivery } from "@/types/order-types";
 import { formatDistanceAndTime } from "@/utils/formatCurrency";
 import { getCoordinatesFromAddress } from "@/utils/geocoding";
 import { getDirections } from "@/utils/map";
@@ -32,12 +32,13 @@ import {
 const Cart = () => {
   const [duration, setDuration] = useState("");
   const [distance, setDistance] = useState(0);
-  const { address } = useLocalSearchParams();
+  const { isLaundry } = useLocalSearchParams();
   const [error, setError] = useState({ origin: "", destination: "" });
   const [infoText, setInfoText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const theme = useColorScheme();
   const { user, storeAddress } = useUserStore();
+
   const {
     setDeliveryOption,
     cart,
@@ -63,7 +64,7 @@ const Cart = () => {
   const { showError } = useToast()
 
 
-  const handleDeliveryOptionChange = (option: "delivery" | "pickup") => {
+  const handleDeliveryOptionChange = (option: RequireDelivery) => {
     setDeliveryOption(option);
     if (option === "delivery") {
       setModalVisible(true);
@@ -86,6 +87,7 @@ const Cart = () => {
       dropoff_coordinates: destinationCoords || [0, 0],
       distance: cart.distance,
       require_delivery: cart.require_delivery,
+      is_one_way_delivery: cart.is_one_way_delivery,
       duration: cart.duration,
       origin: origin!,
       destination: destination ?? undefined,
@@ -95,7 +97,7 @@ const Cart = () => {
 
   const orderData = prepareOrderForServer();
 
-  const { mutate, data, isPending } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationKey: ["createOrder", user?.sub],
     mutationFn: () => createOrder(cart.order_items[0].vendor_id, orderData),
     onSuccess: (data) => {
@@ -117,9 +119,33 @@ const Cart = () => {
 
     },
   });
+  // const { mutate: laundryMutaion, isPending: laundryIspending } = useMutation({
+  //   mutationKey: ["createLaundryOrder", user?.sub],
+  //   mutationFn: () => createLaunryOrder(cart.order_items[0].vendor_id, orderData),
+  //   onSuccess: (data) => {
+  //     router.push({
+  //       pathname: "/payment/[orderId]",
+  //       params: {
+  //         orderNumber: data?.order?.order_number,
+  //         deliveryType: data?.delivery?.delivery_type,
+  //         orderType: data?.order?.order_type,
+  //         paymentLink: data?.order?.payment_link,
+  //         orderId: data?.order?.id,
+  //         deliveryFee: data?.delivery?.delivery_fee,
+  //         orderItems: JSON.stringify(data?.order?.order_items),
+  //       },
+  //     });
+  //   },
+  //   onError: (error) => {
+  //     showError("Error", error.message)
+
+  //   },
+  // });
 
 
-
+  const handleOrderCreate = () => {
+    mutate()
+  }
 
   // Fetch distance and duration when origin or destination changes
   useEffect(() => {
@@ -315,7 +341,7 @@ const Cart = () => {
                   disabled={isPending}
                   width={"90%"}
                   label="Proceed to Payment"
-                  onPress={() => mutate()}
+                  onPress={handleOrderCreate}
                   icon={
                     isPending && <ActivityIndicator size="large" color="white" />
                   }

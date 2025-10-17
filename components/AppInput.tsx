@@ -1,6 +1,6 @@
 import { Eye, EyeOff } from 'lucide-react-native'
 import { useState } from 'react'
-import { Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native'
+import { DimensionValue, Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native'
 
 interface InputProp extends TextInputProps {
     label?: string,
@@ -8,13 +8,13 @@ interface InputProp extends TextInputProps {
     numberOfLines?: number
     height?: number
     value?: string
-    width?: number | string
+    width?: DimensionValue
     errorMessage?: string
     borderRadius?: number
     onPressIn?: () => void;
     showPasswordToggle?: boolean;
 }
-const AppTextInput = ({ label, numberOfLines, multiline, value, onPressIn, placeholder, onBlur, onChangeText, errorMessage, borderRadius = 10, height = 45, keyboardType = 'default', editable = true, secureTextEntry = false, showPasswordToggle = false }: InputProp) => {
+const AppTextInput = ({ label, numberOfLines, multiline, value, onPressIn, placeholder, onBlur, onChangeText, errorMessage, width = '100%', borderRadius = 10, height = 45, keyboardType = 'default', editable = true, secureTextEntry = false, showPasswordToggle = false }: InputProp) => {
     const [showPassword, setShowPassword] = useState(false);
 
     const togglePasswordVisibility = () => {
@@ -37,7 +37,7 @@ const AppTextInput = ({ label, numberOfLines, multiline, value, onPressIn, place
                     style={{
                         height,
                         borderRadius,
-                        width: '100%',
+                        width,
                     }}
                     multiline={multiline}
                     textAlignVertical={multiline ? 'top' : 'center'}

@@ -16,6 +16,7 @@ import Swiper from "react-native-swiper";
 import { fetchCategories } from "@/api/item";
 import Card from "@/components/Card";
 import HDivider from "@/components/HDivider";
+import GradientCard from '@/components/GradientCard';
 import { StoreListSkeleton } from "@/components/LoadingSkeleton";
 import RefreshButton from "@/components/RefreshButton";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
@@ -303,6 +304,7 @@ const Page = () => {
                             onCategorySelect={setSelectedCategory}
                             selectedCategory={selectedCategory}
                         />
+                        <GradientCard label="Delicious Meals at Your Doorstep" description="Order from your favourite restaurants and enjoy fast, fresh food delivery." />
                         {/*<FeaturedRestaurants />*/}
                     </>
                 )}
