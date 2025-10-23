@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import React, { useEffect, } from "react";
+import { ActivityIndicator, View } from "react-native";
 
 import { createMenuItem, fetchCategories, fetchItem, updateMenuItem } from "@/api/item";
 import ImagePickerInput from "@/components/AppImagePicker";
@@ -15,7 +15,7 @@ import AppVariantButton from "@/components/core/AppVariantButton";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { useToast } from "@/components/ToastProvider";
 
-import { router, useLocalSearchParams, Stack } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 const foodGroupOption = [
@@ -47,8 +47,8 @@ const schema = z.object({
 type MenuFormData = z.infer<typeof schema>;
 
 const addMenu = () => {
-    
-    
+
+
     const { id } = useLocalSearchParams<{ id?: string }>();
     const isEditing = Boolean(id);
     const { showError, showSuccess } = useToast()
@@ -137,8 +137,6 @@ const addMenu = () => {
     });
 
 
-    const isPending = createMutation.isPending || updateMutation.isPending;
-
     const onSubmit = (data: MenuFormData) => {
         if (isEditing && id) {
 
@@ -160,7 +158,7 @@ const addMenu = () => {
                 <Stack.Screen options={{
                     title: isEditing ? 'Update Menu' : "Add Menu"
 
-                }}/>
+                }} />
                 <View className="mt-3 mb-8">
                     <Controller
                         control={control}

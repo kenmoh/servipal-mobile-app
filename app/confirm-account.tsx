@@ -9,7 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, ActivityIndicator,View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from "zod";
 
@@ -102,8 +102,15 @@ const ConfirmAccount = () => {
   }, []);
 
 
-  console.log(email)
-
+  const createTwoButtonAlert = () =>
+    Alert.alert('Alert Title', 'My Alert Msg', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'OK', onPress: () => console.log('OK Pressed')},
+    ]);
 
 
   const onSubmit = (data: FormData) => {
@@ -164,12 +171,16 @@ const ConfirmAccount = () => {
             )}
           />
           <View className="flex-row self-center justify-center mt-10 w-[90%] gap-5">
-            <AppButton
+              <AppVariantButton
+              outline
               width={"45%"}
-              title="Submit"
+              filled={true}
+              label={'Submit'}
               disabled={isPending}
               onPress={handleSubmit(onSubmit)}
+              icon={isPending && <ActivityIndicator size={"large"} color="white"/>}
             />
+          
             <AppVariantButton
               outline
               width={"45%"}

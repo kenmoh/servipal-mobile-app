@@ -15,9 +15,9 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Checkbox from "expo-checkbox";
 import { router } from "expo-router";
-import { Clock } from "lucide-react-native";
-import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Clock, Info } from "lucide-react-native";
+import React, { useState, useEffect } from "react";
+import { Controller, useForm,  useWatch, type Resolver } from "react-hook-form";
 import {
   ActivityIndicator,
   Platform,
@@ -25,7 +25,9 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Alert
 } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
 import { z } from "zod";
 
@@ -46,17 +48,22 @@ const profileSchema = z.object({
   companyRegNo: z.string().optional(),
   openingHour: z.string().min(1, "Opening Hour is required"),
   closingHour: z.string().min(1, "Closing Hour is required"),
-  pickupCharge: z.number().optional(),
+  pickupCharge: z
+  .coerce.number()
+  .positive("Price must be greater than 0")
+  .optional(),
   canPickup: z.boolean().optional(),
 });
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 const Profile = () => {
-  const { user, profile, setProfile } = useUserStore();
+  const { profile, setProfile, user } = useUserStore();
   const [showOpeningHour, setShowOpeningHour] = useState(false);
   const [showClosingHour, setShowClosingHour] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const { setOrigin } = useLocationStore();
+  
+
 
   const { showError, showSuccess } = useToast();
 
@@ -69,6 +76,7 @@ const Profile = () => {
   const { isPending, mutate } = useMutation({
     mutationFn: updateCurrentVendorUser,
     onSuccess: async (data) => {
+    
       await authStorage.removeProfile();
       await authStorage.storeProfile(data);
       setProfile(data);
@@ -82,6 +90,13 @@ const Profile = () => {
     },
   });
 
+  const showInfo = () =>
+    Alert.alert('Set Charge', 'Set your delivery charge. For laundry service providers, the system automatically multiply it by 2 for pickup and drop-off', [
+     
+      {text: 'OK'},
+    ]);
+
+
 
   const {
     control,
@@ -89,7 +104,7 @@ const Profile = () => {
     setValue,
     formState: { errors },
   } = useForm<ProfileFormData>({
-    resolver: zodResolver(profileSchema),
+    resolver: zodResolver(profileSchema) as unknown as Resolver<ProfileFormData>,
     defaultValues: {
       openingHour: profile?.profile?.opening_hours || "",
       closingHour: profile?.profile?.closing_hours || "",
@@ -100,11 +115,17 @@ const Profile = () => {
       companyRegNo: profile?.profile?.business_registration_number || "",
       phoneNumber: profile?.profile?.phone_number || "",
       state: profile?.profile?.state || "",
-      canPickup: profile?.profile.can_pickup_and_deliver || isChecked,
-      pickupCharge: profile?.profile.pickup_and_delivery_charge,
+      canPickup: profile?.profile?.can_pickup_and_dropoff,
+      pickupCharge: profile?.profile?.pickup_and_delivery_charge,
     },
   });
 
+
+useEffect(() => {
+  setIsChecked(!!profile?.profile?.can_pickup_and_dropoff);
+}, [profile?.profile?.can_pickup_and_dropoff]);
+
+console.log(isChecked, profile?.profile?.can_pickup_and_dropoff)
   const handleLocationSet = async (
     address: string,
     coords: [number, number]
@@ -114,9 +135,10 @@ const Profile = () => {
   };
 
   const onSubmit = (values: ProfileFormData) => {
-    // console.log(values)
     mutate(values);
   };
+
+  const canPickup = useWatch({ control, name: 'canPickup' });
 
   return (
     <ScrollView
@@ -191,49 +213,82 @@ const Profile = () => {
           )}
         />
 
-        <TouchableOpacity className="flex-row w-[90%] self-center h-10 my-2 items-center">
-          <Controller
-            control={control}
-            name="canPickup"
-            render={({ field: { value, onChange } }) => (
-              <Checkbox
-                style={{
-                  borderWidth: 1,
-                  height: 20,
-                  width: 20,
-                  borderRadius: 3,
-                }}
-                className="absolute right-2 bottom-2"
-                value={value}
-                hitSlop={35}
-                onValueChange={onChange}
-                onChange={() => setIsChecked(!isChecked)}
-              />
-            )}
-          />
 
-          <Text className="text-muted mb-0 self-start mt-2 font-poppins text-sm" >
-            Pickup/Dropoff
-          </Text>
+        {/* Pickup/Delivery Toggle */}
+<Controller
+  control={control}
+  name="canPickup"
+  render={({ field: { value, onChange } }) => (
+    <View className="flex-row w-[90%] self-center h-10 my-2 items-center justify-between">
+        <View className="flex-row gap-2 items-center ml-2">
+        <Text className="text-muted mb-0 self-start mt-2 font-poppins text-sm">
+          {user?.user_type === "laundry_vendor"
+            ? "Pickup/Drop-off"
+            : "Delivery"}
+        </Text>
+        <TouchableOpacity onPress={showInfo}>
+          <Info color={"orange"} size={18} />
         </TouchableOpacity>
+      </View>
+     
 
-        <Controller
-          control={control}
-          name="pickupCharge"
-          render={({ field }) => (
-            <AppTextInput
-              placeholder="0.00"
-              onChangeText={field.onChange}
-              keyboardType="numeric"
-              width={"40%"}
-              label="Pickup/Dropoff Charge"
-              value={field.value?.toString()}
-              errorMessage={errors.pickupCharge?.message}
-            />
-          )}
-        />
+         <Checkbox
+        style={{
+          borderWidth: 1,
+          height: 20,
+          width: 20,
+          borderRadius: 3,
+        }}
+        value={!!value}
+        onValueChange={(newValue) => {
+          onChange(newValue);
+          if (!newValue) {
+            setValue("pickupCharge", undefined, {
+              shouldValidate: true,
+              shouldDirty: true,
+            });
+          }
+        }}
+        hitSlop={35}
+      />
 
-        <View className="w-[95%] flex-row items-center ">
+    
+    </View>
+  )}
+/>
+
+{/* Conditional Pickup Charge Input */}
+{canPickup && (
+
+  
+  <Controller
+    control={control}
+    name="pickupCharge"
+    render={({ field: { value, onChange } }) => (
+      <Animated.View entering={FadeInDown.duration(300).delay(100)}>
+      <AppTextInput
+        placeholder="0.00"
+        onChangeText={(text) => {
+          const num = text === "" ? undefined : parseFloat(text);
+          onChange(isNaN(num) ? undefined : num);
+        }}
+        value={value?.toString() || ""}
+        keyboardType="numeric"
+        width={"40%"}
+        label={
+          user?.user_type === "laundry_vendor"
+            ? "Pickup/Drop-off Charge"
+            : "Delivery Charge"
+        }
+        errorMessage={errors.pickupCharge?.message}
+      />
+      </View>
+    )}
+  />
+
+)}
+
+            <View className="w-[95%] flex-row items-center ">
           <View className="flex-1">
             <Controller
               control={control}

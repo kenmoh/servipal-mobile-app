@@ -23,7 +23,6 @@ import {
   deleteAccount,
 } from "@/api/user";
 import ProfileImagePicker from "@/components/ProfileImagePicker";
-import AppVariantButton from "@/components/core/AppVariantButton";
 import { useToast } from "@/components/ToastProvider";
 import authStorage from "@/storage/authStorage";
 import { useUserStore } from "@/store/userStore";
@@ -46,7 +45,7 @@ const profile = () => {
   const queryClient = useQueryClient();
   const [theme, setTheme] = useState(colorScheme);
   const { showError, showSuccess } = useToast();
-   const { signOut } = useUserStore();
+  const { signOut } = useUserStore();
 
   useEffect(() => {
     const loadTheme = async () => {
@@ -92,9 +91,9 @@ const profile = () => {
   const { mutate: handleDeleteAccount } = useMutation({
     mutationFn: deleteAccount,
     onSuccess: () => {
-       
-          signOut();
-          showSuccess("Account deleted successfully.");
+
+      signOut();
+      showSuccess("Account deleted successfully.");
     },
   });
 
@@ -124,7 +123,7 @@ const profile = () => {
   };
 
 
-console.log(profile)
+  console.log(profile)
   const handleAddItem = () => {
     if (user?.user_type === "restaurant_vendor") {
       setStoreId(user?.sub);
@@ -140,7 +139,7 @@ console.log(profile)
           address: profile?.profile?.business_address,
           reviews: profile?.profile?.review_count,
           rating: profile?.profile?.avg_rating,
-         
+
         },
       });
     } else if (user?.user_type === "laundry_vendor") {
@@ -169,14 +168,14 @@ console.log(profile)
       const newImages = {
         profile_image_url:
           typeof data?.profile_image_url === "object" &&
-          data?.profile_image_url !== null
+            data?.profile_image_url !== null
             ? data.profile_image_url.uri
             : (data?.profile_image_url ??
               profile?.profile?.profile_image_url ??
               undefined),
         backdrop_image_url:
           typeof data?.backdrop_image_url === "object" &&
-          data?.backdrop_image_url !== null
+            data?.backdrop_image_url !== null
             ? data.backdrop_image_url.uri
             : (data?.backdrop_image_url ??
               profile?.profile?.backdrop_image_url ??
@@ -217,7 +216,7 @@ console.log(profile)
     });
   };
 
- 
+
 
   const handleLogout = async () => {
     try {
@@ -297,15 +296,15 @@ console.log(profile)
             )}
             {(user?.user_type === "restaurant_vendor" ||
               user?.user_type === "laundry_vendor") && (
-              <Animated.View entering={FadeInDown.duration(300).delay(100)}>
-                <ProfileCard
-                  name={"Store"}
-                  onPress={handleAddItem}
-                  bgColor={"rgba(9, 3, 94, 0.3)"}
-                  icon={<Store color={"white"} />}
-                />
-              </Animated.View>
-            )}
+                <Animated.View entering={FadeInDown.duration(300).delay(100)}>
+                  <ProfileCard
+                    name={"Store"}
+                    onPress={handleAddItem}
+                    bgColor={"rgba(9, 3, 94, 0.3)"}
+                    icon={<Store color={"white"} />}
+                  />
+                </Animated.View>
+              )}
             {user?.user_type !== "rider" && (
               <Animated.View entering={FadeInDown.duration(300).delay(100)}>
                 <ProfileCard
@@ -378,35 +377,35 @@ console.log(profile)
               className=""
               entering={FadeInDown.duration(300).delay(100)}
             >
-              
-                <ProfileCard
-                  name={"Logout"}
-                  onPress={handleLogout}
-                  bgColor={"rgba(255, 0, 0, 0.3)"}
-                  icon={<LogOutIcon color={"white"} />}
-                />
-             
+
+              <ProfileCard
+                name={"Logout"}
+                onPress={handleLogout}
+                bgColor={"rgba(255, 0, 0, 0.3)"}
+                icon={<LogOutIcon color={"white"} />}
+              />
+
             </Animated.View>
 
             {
               user?.user_type !== 'rider' &&
 
               <Animated.View
-              className=""
-              entering={FadeInDown.duration(300).delay(100)}
-            >
-              
-    
-               <ProfileCard
+                className=""
+                entering={FadeInDown.duration(300).delay(100)}
+              >
+
+
+                <ProfileCard
                   name={"Delete Account"}
                   onPress={openDialog}
                   bgColor={"rgba(255, 0, 0, 0.3)"}
                   icon={<Trash2 color={"white"} />}
                 />
-              
-            </Animated.View>
+
+              </Animated.View>
             }
-             
+
           </View>
         </View>
       </ScrollView>

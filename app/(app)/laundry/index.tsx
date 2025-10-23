@@ -135,8 +135,7 @@ const Page = () => {
     const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
 
     const [showComingSoon, setShowComingSoon] = useState(false);
-
-
+    
     // Get user's location
     useEffect(() => {
         const getUserLocation = async () => {

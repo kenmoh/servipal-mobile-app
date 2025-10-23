@@ -40,6 +40,7 @@ type CartState = {
   updateDistance: (distance: number) => void;
   updateDuration: (duration: string) => void;
   setAdditionalInfo: (info: string) => void;
+  toggleOneWayDelivery: () => void;
   clearCart: (resetLocationCallback?: () => void) => void;
   calculateTotal: () => void;
   prepareOrderForServer: (locationData: {
@@ -208,6 +209,14 @@ export const useCartStore = create<CartState>((set, get) => ({
       cart: {
         ...state.cart,
         additional_info: info,
+      },
+    })),
+
+  toggleOneWayDelivery: () =>
+    set((state) => ({
+      cart: {
+        ...state.cart,
+        is_one_way_delivery: !state.cart.is_one_way_delivery,
       },
     })),
 

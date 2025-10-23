@@ -298,7 +298,7 @@ export const updateCurrentVendorUser = async (
     closing_hours: userData.closingHour,
     opening_hours: userData.openingHour,
     state: userData.state,
-    can_pickup_and_deliver: userData.canPickup,
+    can_pickup_and_dropoff: userData.canPickup,
     pickup_and_delivery_charge: userData.pickupCharge,
   };
   try {

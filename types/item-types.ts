@@ -44,7 +44,7 @@ export interface ItemMenuResponse extends CreateMenuItmItem {
   user_id: string;
   item_type: ItemType;
   category_name: string;
-  // food_group: FoodGroup;
+  food_group: FoodGroup;
 }
 
 export interface LaundryMenuResponse extends ItemCreateBase {

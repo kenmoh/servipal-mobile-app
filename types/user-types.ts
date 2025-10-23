@@ -43,7 +43,7 @@ export interface CompanyProfile {
   total_items: number;
   total_orders: number;
   distance: number;
-  can_pickup_and_deliver?: boolean;
+  can_pickup_and_dropoff: boolean;
   pickup_and_delivery_charge?: number;
   rating: {
     average_rating: string;
@@ -85,8 +85,8 @@ export interface Profile {
   state: string;
   review_count: number;
   avg_rating: number;
-  can_pickup_and_deliver: boolean;
-  pickup_and_delivery_charge: number;
+  can_pickup_and_dropoff: boolean;
+  pickup_and_delivery_charge?: number;
 }
 
 export interface UserProfileUpdate {

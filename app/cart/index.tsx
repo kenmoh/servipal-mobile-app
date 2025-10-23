@@ -15,6 +15,7 @@ import { formatDistanceAndTime } from "@/utils/formatCurrency";
 import { getCoordinatesFromAddress } from "@/utils/geocoding";
 import { getDirections } from "@/utils/map";
 import { useMutation } from "@tanstack/react-query";
+import Checkbox from "expo-checkbox";
 import { router, useLocalSearchParams } from "expo-router";
 import { ShoppingCart } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
@@ -48,6 +49,7 @@ const Cart = () => {
     // prepareOrderForServer,
     totalCost,
   } = useCartStore();
+  const { toggleOneWayDelivery } = useCartStore();
   const {
     require_delivery,
     duration: storeDelivery,
@@ -248,14 +250,31 @@ const Cart = () => {
               <Text className="font-bold text-icon-default">₦ {totalCost}</Text>
             </View>
 
+
+
+            {isLaundry === 'true' && <View className="w-[90%] self-center my-2 flex-row items-center">
+              <Checkbox
+                style={{
+                  borderWidth: 1,
+                  height: 20,
+                  width: 20,
+                  borderRadius: 3,
+                }}
+                value={cart.is_one_way_delivery}
+                hitSlop={35}
+                onValueChange={() => toggleOneWayDelivery()}
+              />
+              <Text className="ml-3 text-muted font-poppins text-sm">Vendor pickup and delivery</Text>
+            </View>}
+
             <View className="gap-3 font-poppins-bold rounded-lg self-center flex-row justify-between  items-center w-[85%] mt-5">
               <RadioButton
-                label="Delivery"
-                selected={require_delivery === "delivery"}
-                onPress={() => handleDeliveryOptionChange("delivery")}
+                label={"Vendor Delivery"}
+                selected={require_delivery === "vendor-pickup-and-dropoff"}
+                onPress={() => handleDeliveryOptionChange("vendor-pickup-and-dropoff")}
               />
               <RadioButton
-                label="Pickup"
+                label={isLaundry === 'true' ? "Self Drop-off" : "Self Pickup"}
                 selected={require_delivery === "pickup"}
                 onPress={() => handleDeliveryOptionChange("pickup")}
               />
