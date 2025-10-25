@@ -58,102 +58,102 @@ const index = () => {
     );
     return (
         <View className="flex-1 bg-background ">
-            <Animated.View
-                className="mt-5"
-                entering={FadeInUp.duration(300).delay(300)}
-            >
-                <View className="w-[90%] self-center rounded-[15px] overflow-hidden">
-                    <LinearGradient
-                        colors={["#ff9966", "#ff5e62", "#ff7955", "#ffb347"]}
-                        style={[styles.background]}
-                        start={[0, 0]}
-                        end={[1, 1]}
-                    >
-                        <View className="flex-row justify-between items-center">
-                            <View className="p-3">
-                                <View className=" gap-2 flex-row">
-                                    <Text style={styles.label}>Main Balance</Text>
-                                    <TouchableOpacity
-                                        hitSlop={35}
-                                        onPress={() => setIsBalanceHidden(!isBalanceHidden)}
-                                    >
-                                        {isBalanceHidden ? (
-                                            <Eye color="white" size={16} />
-                                        ) : (
-                                            <EyeOff color="white" size={16} />
-                                        )}
-                                    </TouchableOpacity>
-                                </View>
-                                <View className="flex-row items-baseline gap-2 mt-2">
-                                    <Text style={styles.currency}>₦</Text>
-                                    {isFetching ? (
-                                        <BalanceShimmer width={80} height={24} borderRadius={8} />
-                                    ) : (
-                                        <Text style={styles.amount}>
-                                            {isBalanceHidden
-                                                ? "****"
-                                                : formatCurrency(data?.balance || 0)}
-                                        </Text>
-                                    )}
-                                </View>
-                            </View>
-                            <View className="p-3">
-                                <Text style={[styles.label]}>Escrow Balance</Text>
-                                <View className="flex-row items-baseline gap-2 mt-2">
-                                    <Text
-                                        style={[styles.currency, { fontFamily: "Poppins-Thin" }]}
-                                    >
-                                        ₦
-                                    </Text>
-                                    {isFetching ? (
-                                        <BalanceShimmer width={80} height={24} borderRadius={8} />
-                                    ) : (
-                                        <Text
-                                            style={[styles.amount, { fontFamily: "Poppins-Thin" }]}
-                                        >
-                                            {isBalanceHidden
-                                                ? "****"
-                                                : formatCurrency(data?.escrow_balance || 0)}
-                                        </Text>
-                                    )}
-                                </View>
-                            </View>
-                        </View>
-
-                        <View className="flex-row justify-between items-center self-center gap-3">
-                            {profile?.profile?.bank_account_number && (
-                                <Text className="text-white font-poppins-medium">
-                                    Account: {profile?.profile?.bank_account_number}
-                                </Text>
+        <Animated.View
+    className="mt-5"
+    entering={FadeInUp.duration(300).delay(300)}
+>
+    <View className="w-[90%] self-center rounded-[15px] overflow-hidden">
+        <LinearGradient
+            colors={["#ff9966", "#ff5e62", "#ff7955", "#ffb347"]}
+            style={[styles.background, { height: 'auto', paddingBottom: 16 }]}
+            start={[0, 0]}
+            end={[1, 1]}
+        >
+            <View className="flex-row justify-between items-center">
+                <View className="p-3">
+                    <View className=" gap-2 flex-row">
+                        <Text style={styles.label}>Main Balance</Text>
+                        <TouchableOpacity
+                            hitSlop={35}
+                            onPress={() => setIsBalanceHidden(!isBalanceHidden)}
+                        >
+                            {isBalanceHidden ? (
+                                <Eye color="white" size={16} />
+                            ) : (
+                                <EyeOff color="white" size={16} />
                             )}
-                            {(profile?.profile?.bank_name ||
-                                profile?.profile?.business_name) && (
-                                    <Text className="text-white font-poppins">
-                                        Name:{" "}
-                                        {profile?.profile?.full_name ||
-                                            profile?.profile.business_name}
-                                    </Text>
-                                )}
-                        </View>
-                        <View className="flex-row items-center gap-6 self-center">
-                            <ActionBtn
-                                label="Withdraw"
-                                icon={<ArrowUpCircle color={"gray"} size={20} />}
-                                onPress={() => withdrawMutation()}
-                            />
-                            <ActionBtn
-                                label="Deposit"
-                                icon={<ArrowDownCircle color={"gray"} size={20} />}
-                                onPress={() =>
-                                    router.push({ pathname: "/profile/fund-wallet" })
-                                }
-                            />
-                        </View>
-                    </LinearGradient>
+                        </TouchableOpacity>
+                    </View>
+                    <View className="flex-row items-baseline gap-2 mt-2">
+                        <Text style={styles.currency}>₦</Text>
+                        {isFetching ? (
+                            <BalanceShimmer width={80} height={24} borderRadius={8} />
+                        ) : (
+                            <Text style={styles.amount}>
+                                {isBalanceHidden
+                                    ? "****"
+                                    : formatCurrency(data?.balance || 0)}
+                            </Text>
+                        )}
+                    </View>
                 </View>
-            </Animated.View>
+                <View className="p-3">
+                    <Text style={[styles.label]}>Escrow Balance</Text>
+                    <View className="flex-row items-baseline gap-2 mt-1">
+                        <Text
+                            style={[styles.currency, { fontFamily: "Poppins-Thin" }]}
+                        >
+                            ₦
+                        </Text>
+                        {isFetching ? (
+                            <BalanceShimmer width={80} height={24} borderRadius={8} />
+                        ) : (
+                            <Text
+                                style={[styles.amount, { fontFamily: "Poppins-Thin" }]}
+                            >
+                                {isBalanceHidden
+                                    ? "****"
+                                    : formatCurrency(data?.escrow_balance || 0)}
+                            </Text>
+                        )}
+                    </View>
+                </View>
+            </View>
 
-            <View className="w-[90%] self-center gap-[4%] my-4">
+            <View className="justify-between self-center gap-3 mt-1">
+                {profile?.profile?.bank_account_number && (
+                    <Text className="text-white font-poppins-medium">
+                        Account: {profile?.profile?.bank_account_number}
+                    </Text>
+                )}
+                {(profile?.profile?.bank_name ||
+                    profile?.profile?.business_name) && (
+                        <Text className="text-white font-poppins">
+                            Name:{" "}
+                            {profile?.profile?.full_name ||
+                                profile?.profile.business_name}
+                        </Text>
+                    )}
+            </View>
+            <View className="flex-row items-center gap-6 self-center mt-2 pb-2">
+                <ActionBtn
+                    label="Withdraw"
+                    icon={<ArrowUpCircle color={"gray"} size={20} />}
+                    onPress={() => withdrawMutation()}
+                />
+                <ActionBtn
+                    label="Deposit"
+                    icon={<ArrowDownCircle color={"gray"} size={20} />}
+                    onPress={() =>
+                        router.push({ pathname: "/profile/fund-wallet" })
+                    }
+                />
+            </View>
+        </LinearGradient>
+    </View>
+</Animated.View>
+
+            <View className="w-[90%] self-center gap-[4%] my-2">
                 <Text className="text-primary text-lg">Transactions</Text>
             </View>
 
@@ -191,7 +191,7 @@ export default index;
 
 const styles = StyleSheet.create({
     background: {
-        height: 185,
+        height: 'auto',
         position: "relative",
     },
     label: {

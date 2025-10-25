@@ -6,21 +6,21 @@ import {
   MoonIcon,
   Store,
   SunIcon,
+  Trash2,
   UserRound,
   UsersRound,
-  Wallet,
-  Trash2
+  Wallet
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { Dimensions, StyleSheet, Text, View, Alert, ScrollView } from "react-native";
+import { Alert, Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 import { logOutUser } from "@/api/auth";
 import {
+  deleteAccount,
   ImageData,
   ImageUpload,
   uploadProfileImage,
-  deleteAccount,
 } from "@/api/user";
 import ProfileImagePicker from "@/components/ProfileImagePicker";
 import { useToast } from "@/components/ToastProvider";
@@ -137,8 +137,9 @@ const profile = () => {
           openingHour: profile?.profile?.opening_hours,
           closingHour: profile?.profile?.closing_hours,
           address: profile?.profile?.business_address,
-          reviews: profile?.profile?.review_count,
+          numberOfReviews: profile?.profile?.review_count,
           rating: profile?.profile?.avg_rating,
+          delivery: JSON.stringify(profile?.profile?.can_pickup_and_dropoff),
 
         },
       });
@@ -154,8 +155,9 @@ const profile = () => {
           openingHour: profile?.profile?.opening_hours,
           closingHour: profile?.profile?.closing_hours,
           address: profile?.profile?.business_address,
-          reviews: profile?.profile?.review_count,
+          numberOfReviews: profile?.profile?.review_count,
           rating: profile?.profile?.avg_rating,
+          delivery: JSON.stringify(profile?.profile?.can_pickup_and_dropoff),
         },
       });
     }
@@ -272,8 +274,8 @@ const profile = () => {
               />
             </View>
 
-            <View className="items-center mt-2">
-              <Text className="capitalize tracking-wide text-lg font-bold text-primary text-center">
+            <View className="items-center mt-2 ml-1">
+              <Text numOfLines={1} className="capitalize tracking-wide text-sm font-bold text-primary text-center">
                 {profile?.profile?.full_name || profile?.profile?.business_name}
               </Text>
               <Text className="text-center text-muted">

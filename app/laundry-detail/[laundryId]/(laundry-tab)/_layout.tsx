@@ -2,6 +2,7 @@ import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useLocalSearchParams, withLayoutContext } from "expo-router";
+import { Bike } from "lucide-react-native";
 import {
     Dimensions,
     Image,
@@ -22,10 +23,11 @@ const StoreHeader = () => {
         closingHour,
         address,
         rating,
-        reviews,
+        numberOfReviews,
         profileImage,
+        delivery
     } = useLocalSearchParams();
-
+    const canDeliver = JSON.parse(delivery as string)
     return (
         <View className="bg-background">
             <View className="bg-background">
@@ -72,8 +74,9 @@ const StoreHeader = () => {
                                 </Text>
                             </View>
                             <Text className="text-gray-500 font-poppins text-sm">
-                                ({reviews} reviews)
+                                ({numberOfReviews} reviews)
                             </Text>
+                            {canDeliver && <Bike color={'orange'} size={20} />}
 
                             <View className="flex-row gap-2 items-baseline">
                                 <AntDesign name="clockcircleo" color="gray" />

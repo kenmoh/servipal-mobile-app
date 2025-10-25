@@ -282,13 +282,13 @@ console.log(isChecked, profile?.profile?.can_pickup_and_dropoff)
         }
         errorMessage={errors.pickupCharge?.message}
       />
-      </View>
+      </Animated.View>
     )}
   />
 
 )}
 
-            <View className="w-[95%] flex-row items-center ">
+          <View className="w-[95%] flex-row items-center ">
           <View className="flex-1">
             <Controller
               control={control}

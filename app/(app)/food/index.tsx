@@ -304,7 +304,7 @@ const Page = () => {
                             onCategorySelect={setSelectedCategory}
                             selectedCategory={selectedCategory}
                         />
-                        <GradientCard label="Delicious Meals at Your Doorstep" description="Order from your favourite restaurants and enjoy fast, fresh food delivery." />
+                       {data.length === 0 &&  <GradientCard label="Delicious Meals at Your Doorstep" description="Order from your favourite restaurants and enjoy fast, fresh food delivery." />}
                         {/*<FeaturedRestaurants />*/}
                     </>
                 )}

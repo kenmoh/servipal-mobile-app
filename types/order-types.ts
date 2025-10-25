@@ -4,7 +4,6 @@ export type OrderStatus = "pending" | "in-transit" | "delivered" | "received";
 export type RequireDelivery =
   | "pickup"
   | "delivery"
-  | "user-dropoff-and-pickup"
   | "vendor-pickup-and-dropoff";
 export type PaymentStatus = "pending" | "paid" | "failed" | "cancelled";
 export type RiderDeliveryStatus = "in transit" | "delivered" | "canceled";
@@ -78,6 +77,7 @@ export interface OrderResponse {
   require_delivery: "pickup" | "delivery";
   is_one_way_delivery: boolean;
   total_price: string;
+  vendor_pickup_dropoff_charge: string
   order_payment_status: PaymentStatus;
   order_status: OrderStatus;
   amount_due_vendor: string;

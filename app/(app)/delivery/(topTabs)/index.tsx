@@ -23,7 +23,8 @@ import { useUserStore } from "@/store/userStore";
 import { UserDetails } from "@/types/user-types";
 import { distanceCache } from "@/utils/distance-cache";
 import { router } from "expo-router";
-import { View } from "react-native";
+import { View , Button} from "react-native";
+
 
 const DeliveryScreen = () => {
   const { user, setProfile } = useUserStore();
@@ -330,27 +331,18 @@ const DeliveryScreen = () => {
         value={searchQuery}
       />
       <HDivider />
+      {memoizedFilteredData.length === 0 && <GradientCard label="Quick & Reliable Delivery" description="Send and receive items with ease, anywhere, anytime."/>}
 
-{/*<Button title='Try!' onPress={ () => { Sentry.captureException(new Error('First error')) }}/>*/}
 
-
-      <LegendList
+    <LegendList
         data={memoizedFilteredData || []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
-        // ItemSeparatorComponent={renderSeparator}
+        ItemSeparatorComponent={renderSeparator}
         refreshing={isFetching}
         onRefresh={handleRefresh}
         onLayout={handleLayoutComplete}
-         ListHeaderComponent={() => (
-                        <>
-                           
-                           
-
-                                <GradientCard label="Quick & Reliable Delivery" description="Send and receive items with ease, anywhere, anytime."/>
-                    
-                        </>
-                    )}
+       
       />
 
       {user?.user_type === 'dispatch' || user?.user_type === 'rider' ? '' : <FAB onPress={handleSendItemPress} />}

@@ -304,6 +304,38 @@ export const senderConfirmDeliveryReceived = async (
   }
 };
 
+
+// Confirm Item Received by customer(food/laundry order)
+export const customerConfirmDeliveryReceived = async (
+  orderId: string
+): Promise<DeliveryDetail> => {
+  try {
+    const response: ApiResponse<DeliveryDetail | ErrorResponse> =
+      await apiClient.put(
+        `${BASE_URL}/${orderId}/customer-confirm-order-received`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error confirming delivery.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
 // Rider Accept Delivery
 export const riderAcceptDelivery = async (
   orderId: string

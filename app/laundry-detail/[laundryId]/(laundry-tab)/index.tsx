@@ -21,6 +21,7 @@ const StoreDetails = () => {
 
     const laundryVendorId = storeId || laundryId;
 
+
     const { data, refetch, isFetching } = useQuery({
         queryKey: ["laundryItems", laundryVendorId],
         queryFn: () => fetchLaundryMenu(laundryVendorId as string),
@@ -85,7 +86,7 @@ const StoreDetails = () => {
                 onPress={() => router.push({ pathname: "/cart", params: { address, isLaundry: 'true' } })}
             />
 
-            {user?.user_type === "laundry_vendor" && laundryVendorId === user?.sub && data && data?.length > 0 && (
+            {user?.user_type === "laundry_vendor" && laundryVendorId === user?.sub && (
                 <View className="absolute bottom-[40px] right-[10px]" >
                     <FAB
                         icon={<Menu color={"white"} />}

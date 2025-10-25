@@ -1,4 +1,8 @@
-import { fetchOrder, senderConfirmDeliveryReceived, updateOrderStatus } from "@/api/order";
+import {
+    customerConfirmDeliveryReceived,
+    fetchOrder,
+    updateOrderStatus,
+} from "@/api/order";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { useToast } from "@/components/ToastProvider";
@@ -20,20 +24,18 @@ import {
     View,
 } from "react-native";
 
-
 const OrderReceiptPage = () => {
     const { orderId, paymentStatus } = useLocalSearchParams();
     const screenWidth = Dimensions.get("window").width;
     const theme = useColorScheme();
-    const { user } = useUserStore()
-    const { showError, showSuccess } = useToast()
-    const queryClient = useQueryClient()
-    const ICON_COLOR = theme === 'dark' ? 'white' : 'black'
+    const { user } = useUserStore();
+    const { showError, showSuccess } = useToast();
+    const queryClient = useQueryClient();
+    const ICON_COLOR = theme === "dark" ? "white" : "black";
     const { data, isLoading } = useQuery({
         queryKey: ["order", orderId],
         queryFn: () => fetchOrder(orderId as string),
     });
-
 
     const handleGotoPayment = () => {
         router.push({
@@ -43,15 +45,15 @@ const OrderReceiptPage = () => {
                 deliveryFee: data?.delivery?.delivery_fee,
                 orderNumber: data?.order?.order_number,
                 deliveryType: `${data?.order?.require_delivery === "delivery"
-                    ? data?.delivery?.delivery_type
-                    : data?.order?.order_type
+                        ? data?.delivery?.delivery_type
+                        : data?.order?.order_type
                     }`,
                 orderItems: JSON.stringify(data?.order.order_items ?? []),
                 paymentLink: data?.order.payment_link,
                 orderType: data?.order?.order_type || data?.delivery?.delivery_type,
             },
-        })
-    }
+        });
+    };
 
     const generateReceiptHTML = () => {
         if (!data) return "";
@@ -231,7 +233,10 @@ const OrderReceiptPage = () => {
                             <div class="row">
                                 <span>Date</span>
                                 <span>${data.order?.created_at
-                ? format(new Date(data.order.created_at), "PPP")
+                ? format(
+                    new Date(data.order.created_at),
+                    "PPP"
+                )
                 : "N/A"
             }</span>
                             </div>
@@ -330,16 +335,17 @@ const OrderReceiptPage = () => {
                 queryKey: ["orders", data?.order?.owner_id],
             });
 
-            showSuccess("Success", "Order marked as delivered.")
+            showSuccess("Success", "Order marked as delivered.");
 
-            router.back()
+            router.back();
         },
         onError: (error: Error) => {
-            showError("Error", error.message)
+            showError("Error", error.message);
         },
     });
     const customerreceivedMutation = useMutation({
-        mutationFn: () => senderConfirmDeliveryReceived(data?.order?.id as string),
+        mutationFn: () =>
+            customerConfirmDeliveryReceived(data?.order?.id as string),
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: ["order", orderId],
@@ -351,10 +357,10 @@ const OrderReceiptPage = () => {
                 queryKey: ["orders", data?.order?.owner_id],
             });
 
-            showSuccess("Success", "Pickup confirmed successfully!")
+            showSuccess("Success", "Order received!");
         },
         onError: (error: Error) => {
-            showError("Error", error.message)
+            showError("Error", error.message);
         },
     });
 
@@ -374,11 +380,10 @@ const OrderReceiptPage = () => {
 
             // For iOS and Android sharing
             if (await Sharing.isAvailableAsync()) {
-
                 await Sharing.shareAsync(uri, {
-                    UTI: '.pdf',
-                    mimeType: 'application/pdf',
-                    dialogTitle: 'Share Receipt'
+                    UTI: ".pdf",
+                    mimeType: "application/pdf",
+                    dialogTitle: "Share Receipt",
                 });
 
                 showSuccess("Success", "Receipt ready to share or save");
@@ -392,84 +397,10 @@ const OrderReceiptPage = () => {
 
                 showSuccess("Success", `Receipt saved to ${destinationUri}`);
             }
-
         } catch (error) {
-            console.error('PDF Download Error:', error);
             showError("Error", "Failed to download receipt");
         }
     };
-
-
-    // const handleDownloadWithOptions = async () => {
-    //   try {
-    //     const html = generateReceiptHTML();
-
-    //     const { uri } = await Print.printToFileAsync({
-    //       html,
-    //       width: screenWidth,
-    //       height: screenWidth * 1.4,
-    //       base64: false,
-    //     });
-
-    //     const fileName = `Receipt_${data?.order?.order_number || "unknown"}.pdf`;
-
-    //     // Show options to user
-    //     Alert.alert(
-    //       "Download Receipt",
-    //       "Choose how you'd like to save your receipt:",
-    //       [
-    //         {
-    //           text: "Share",
-    //           onPress: async () => {
-    //             if (await Sharing.isAvailableAsync()) {
-    //               await Sharing.shareAsync(uri, {
-    //                 UTI: '.pdf',
-    //                 mimeType: 'application/pdf',
-    //                 dialogTitle: 'Share Receipt'
-    //               });
-    //             }
-    //           }
-    //         },
-    //         {
-    //           text: "Save to Photos", 
-    //           onPress: async () => {
-    //             try {
-    //               // Request permissions first
-    //               const { status } = await MediaLibrary.requestPermissionsAsync();
-    //               if (status === 'granted') {
-    //                 await MediaLibrary.saveToLibraryAsync(uri);
-    //                 showSuccess("Success", "Receipt saved to Photos");
-    //               } else {
-    //                 showError("Permission Denied", "Cannot save to Photos without permission");
-    //               }
-    //             } catch (error) {
-    //               showError("Error", "Failed to save to Photos");
-    //             }
-    //           }
-    //         },
-    //         {
-    //           text: "Open PDF",
-    //           onPress: async () => {
-    //             if (await Sharing.isAvailableAsync()) {
-    //               await Sharing.shareAsync(uri, {
-    //                 UTI: '.pdf',
-    //                 mimeType: 'application/pdf'
-    //               });
-    //             }
-    //           }
-    //         },
-    //         {
-    //           text: "Cancel",
-    //           style: "cancel"
-    //         }
-    //       ]
-    //     );
-
-    //   } catch (error) {
-    //     console.error('PDF Download Error:', error);
-    //     showError("Error", "Failed to generate receipt");
-    //   }
-    // };
 
     const handleShare = async () => {
         try {
@@ -488,15 +419,12 @@ const OrderReceiptPage = () => {
                     UTI: "com.adobe.pdf",
                 });
             } else {
-                showError("Error", "Sharing is not available on this device")
+                showError("Error", "Sharing is not available on this device");
             }
         } catch (error) {
-
-            showError("Error", "Failed to share receipt")
+            showError("Error", "Failed to share receipt");
         }
     };
-
-
 
     const getActionButton = (): {
         label: string;
@@ -514,7 +442,10 @@ const OrderReceiptPage = () => {
         }
 
         // Vendor can mark order as delivered
-        if (data?.order?.order_status === "pending" && user.sub === data.order.vendor_id) {
+        if (
+            data?.order?.order_status === "pending" &&
+            user.sub === data.order.vendor_id
+        ) {
             return {
                 label: "Mark as Delivered",
                 onPress: () => vendorDeliveryMutation.mutate(),
@@ -524,7 +455,10 @@ const OrderReceiptPage = () => {
         }
 
         // Customer can confirm order delivered
-        if (data?.order?.order_status === "delivered" && user.sub === data.order.owner_id) {
+        if (
+            data?.order?.order_status === "delivered" &&
+            user.sub === data.order.owner_id
+        ) {
             return {
                 label: "Confirm Delivery",
                 onPress: () => customerreceivedMutation.mutate(),
@@ -551,39 +485,39 @@ const OrderReceiptPage = () => {
         return <LoadingIndicator />;
     }
     return (
-        <ScrollView
-            className="flex-1 bg-background content-center"
-
-        >
-            <View className="gap-4 px-5 flex-1 overflow-scroll" >
+        <ScrollView className="flex-1 bg-background content-center">
+            <View className="gap-4 px-5 flex-1 overflow-scroll">
                 {/* <Text fontSize={20} fontWeight="bold" textAlign="center">Receipt</Text> */}
 
-                <View className="p-4 bg-background border border-border-subtle rounded-lg" >
-                    <View className="gap-3" >
+                <View className="p-4 bg-background border border-border-subtle rounded-lg">
+                    <View className="gap-3">
                         <View className="flex-row justify-between">
                             <Text className="font-poppins text-primary">Order Number</Text>
-                            <Text className="font-poppins text-primary">#{data?.order?.order_number}</Text>
-                        </View>
-
-                        <View className="flex-row justify-between" >
-                            <Text className="font-poppins text-primary">Date</Text>
                             <Text className="font-poppins text-primary">
-                                {data?.order?.created_at ? format(new Date(data.order.created_at), "PPP") : "N/A"}
+                                #{data?.order?.order_number}
                             </Text>
                         </View>
 
-                        <View className="flex-row justify-between" >
+                        <View className="flex-row justify-between">
+                            <Text className="font-poppins text-primary">Date</Text>
+                            <Text className="font-poppins text-primary">
+                                {data?.order?.created_at
+                                    ? format(new Date(data.order.created_at), "PPP")
+                                    : "N/A"}
+                            </Text>
+                        </View>
+
+                        <View className="flex-row justify-between">
                             <Text className="font-poppins text-primary">Total Amount</Text>
                             <Text className="font-poppins text-primary">
                                 ₦{Number(data?.order?.total_price).toFixed(2)}
                             </Text>
                         </View>
 
-                        <View className="flex-row justify-between" >
+                        <View className="flex-row justify-between">
                             <Text className="font-poppins text-primary">Payment Status</Text>
                             <Text
-                                className={`${data?.order?.order_payment_status === "paid" ? "text-green-700 bg-green-600/20 " : "text-red-700 bg-red-600/25"} rounded-full px-3 py-1`}
-
+                                className={`${data?.order?.order_payment_status === "paid" ? "text-green-500 bg-green-600/30 " : "text-red-500 bg-red-600/30"} rounded-full px-3 py-1`}
                             >
                                 {data?.order?.order_payment_status?.toUpperCase()}
                             </Text>
@@ -593,97 +527,127 @@ const OrderReceiptPage = () => {
 
                 {data?.order?.order_items && data.order.order_items.length > 0 && (
                     <View className="p-4 bg-input border border-border-subtle rounded-lg">
-                        <View className="gap-3" >
-                            <Text className="font-poppins-bold text-primary">Order Items</Text>
+                        <View className="gap-3">
+                            <Text className="font-poppins-bold text-primary">
+                                Order Items
+                            </Text>
+                            {data?.order?.vendor_pickup_dropoff_charge && (
+                                <View className="flex-row justify-between ">
+                                    <Text className="font-poppins text-primary">
+                                        Delivery Fee
+                                    </Text>
+                                    <Text className="font-poppins text-primary">
+                                        ₦
+                                        {Number(data?.order?.vendor_pickup_dropoff_charge).toFixed(
+                                            2
+                                        )}
+                                    </Text>
+                                </View>
+                            )}
                             {data.order.order_items.map((item: any) => (
-                                <View className="flex-row justify-between " key={item.id} >
+                                <View className="flex-row justify-between " key={item.id}>
                                     <Text className="font-poppins text-primary">
                                         {item.quantity}X {item.name}
                                     </Text>
-                                    <Text className="font-poppins text-primary">₦{Number(item.price * item.quantity).toFixed(2)}</Text>
+                                    <Text className="font-poppins text-primary">
+                                        ₦
+                                        {Number(Number(item.price * item.quantity).toFixed(2) +
+                                            Number(data?.order?.vendor_pickup_dropoff_charge).toFixed(2)).toFixed(2)}
+                                    </Text>
                                 </View>
                             ))}
                         </View>
                     </View>
                 )}
 
-                <View className="p-4 bg-input border border-border-subtle rounded-lg" >
+                <View className="p-4 bg-input border border-border-subtle rounded-lg">
                     <View className="gap-3">
-                        <Text className="font-poppins-bold text-primary">Delivery Details</Text>
+                        <Text className="font-poppins-bold text-primary">
+                            Delivery Details
+                        </Text>
 
                         <View className="flex-row justify-between">
-                            <Text className="text-gray-300" >Delivery Type</Text>
-                            <Text className="font-poppins text-primary" numberOfLines={2} ellipsizeMode="tail">
+                            <Text className="text-gray-300">Delivery Type</Text>
+                            <Text
+                                className="font-poppins text-sm text-primary"
+                                numberOfLines={2}
+                                ellipsizeMode="tail"
+                            >
                                 {data?.order?.require_delivery?.toUpperCase()}
                             </Text>
                         </View>
                         <View className="flex-row justify-between">
                             <Text className="font-poppins text-primary">Status</Text>
-                            <Text className="font-poppins text-primary">{data?.order?.order_status?.toUpperCase()}</Text>
+                            <Text className="font-poppins text-sm text-primary">
+                                {data?.order?.order_status?.toUpperCase()}
+                            </Text>
                         </View>
                     </View>
                 </View>
 
-                {data?.order?.order_status === 'delivered' && user?.sub === data?.order?.user_id && (
-                    <AppVariantButton
-                        filled={true}
-                        borderRadius={50}
-                        width="100%"
-                        disabled={customerreceivedMutation.isPending}
-                        label={'MARK AS RECEIVED'}
-                        onPress={customerreceivedMutation.mutate}
-                        icon={customerreceivedMutation.isPending && <ActivityIndicator size={'small'} className="text-primary" />}
-                    />
-                )}
-                {data?.order?.order_status === 'pending' && user?.sub === data?.order?.vendor_id && (
-                    <AppVariantButton
-                        filled={true}
-                        borderRadius={50}
-                        width="100%"
-                        disabled={vendorDeliveryMutation.isPending}
-                        label={'MARK AS DELIVERED'}
-                        onPress={vendorDeliveryMutation.mutate}
-                        icon={vendorDeliveryMutation.isPending && <ActivityIndicator size={'small'} className="text-primary" />}
-                    />
-                )}
+                {data?.order?.order_status === "delivered" &&
+                    user?.sub === data?.order?.user_id && (
+                        <AppVariantButton
+                            filled={true}
+                            borderRadius={50}
+                            width="100%"
+                            disabled={customerreceivedMutation.isPending}
+                            label={"MARK AS RECEIVED"}
+                            onPress={customerreceivedMutation.mutate}
+                            icon={
+                                customerreceivedMutation.isPending && (
+                                    <ActivityIndicator size={"small"} className="text-primary" />
+                                )
+                            }
+                        />
+                    )}
+                {data?.order?.order_status === "pending" &&
+                    user?.sub === data?.order?.vendor_id && (
+                        <AppVariantButton
+                            filled={true}
+                            borderRadius={50}
+                            width="100%"
+                            disabled={vendorDeliveryMutation.isPending}
+                            label={"MARK AS DELIVERED"}
+                            onPress={vendorDeliveryMutation.mutate}
+                            icon={
+                                vendorDeliveryMutation.isPending && (
+                                    <ActivityIndicator size={"small"} className="text-primary" />
+                                )
+                            }
+                        />
+                    )}
 
-                {data?.order?.order_payment_status !== "paid" && user?.sub === data?.order?.user_id && <AppVariantButton
-
-                    filled
-                    borderRadius={50}
-                    width="100%"
-                    label="P A Y"
-                    icon={<CreditCard color={'white'} />}
-                    onPress={handleGotoPayment}
-                />}
-
-
-
+                {data?.order?.order_payment_status !== "paid" &&
+                    user?.sub === data?.order?.user_id && (
+                        <AppVariantButton
+                            filled
+                            borderRadius={50}
+                            width="100%"
+                            label="P A Y"
+                            icon={<CreditCard color={"white"} />}
+                            onPress={handleGotoPayment}
+                        />
+                    )}
             </View>
-            <View
-                className="mt-4 w-[90%] flex-row justify-between self-center"
-
-            >
+            <View className="mt-4 w-[90%] flex-row justify-between self-center">
                 <>
                     <AppVariantButton
                         outline={true}
                         filled={false}
                         borderRadius={50}
-                        width={'30%'}
+                        width={"30%"}
                         label="Share"
                         icon={<Share2 color={ICON_COLOR} />}
                         onPress={handleShare}
-
                     />
-
 
                     <AppVariantButton
                         outline={true}
                         filled={false}
                         borderRadius={50}
-                        width={'30%'}
+                        width={"30%"}
                         label="Review"
-
                         onPress={() => {
                             router.push({
                                 pathname: "/review/[deliveryId]",
@@ -694,18 +658,16 @@ const OrderReceiptPage = () => {
                                     orderType: data?.order?.order_type,
                                     orderId: data?.order?.id as string,
                                     reviewType: data?.order?.order_type as string,
-
                                 },
                             });
                         }}
-
                     />
 
                     <AppVariantButton
                         outline={true}
                         filled={false}
                         borderRadius={50}
-                        width={'30%'}
+                        width={"30%"}
                         label="Report"
                         onPress={() => {
                             router.push({
@@ -713,7 +675,6 @@ const OrderReceiptPage = () => {
                                 params: { deliveryId: data?.order?.id as string },
                             });
                         }}
-
                     />
                 </>
             </View>

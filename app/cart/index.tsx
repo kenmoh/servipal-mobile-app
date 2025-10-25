@@ -68,7 +68,7 @@ const Cart = () => {
 
   const handleDeliveryOptionChange = (option: RequireDelivery) => {
     setDeliveryOption(option);
-    if (option === "delivery") {
+    if (option === "vendor-pickup-and-dropoff") {
       setModalVisible(true);
     }
   };
@@ -111,7 +111,8 @@ const Cart = () => {
           orderType: data?.order?.order_type,
           paymentLink: data?.order?.payment_link,
           orderId: data?.order?.id,
-          deliveryFee: data?.delivery?.delivery_fee,
+          // deliveryFee: data?.delivery?.delivery_fee,
+          deliveryFee: data?.order?.vendor_pickup_dropoff_charge,
           orderItems: JSON.stringify(data?.order?.order_items),
         },
       });
@@ -292,7 +293,7 @@ const Cart = () => {
               />
             </View>
 
-            {require_delivery === "delivery" && destination && !modalVisible && (
+            {require_delivery === "vendor-pickup-and-dropoff" && destination && !modalVisible && (
               <View className="w-[90%] rounded-lg bg-input self-center my-3 gap-3 p-4">
                 {/* DELIVERY INFO */}
                 <View className="flex-row">
