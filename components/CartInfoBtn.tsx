@@ -49,7 +49,7 @@ const CartInfoBtn = ({ totalCost, totalItem, onPress, label }: ViewCartBtnProps)
 
     return (
         <AnimatedTouchableOpacity
-            className={'rounded-full '}
+            className={'rounded-full bg-orange-500'}
             onPress={onPress}
             activeOpacity={0.9}
             style={[styles.container, animatedStyle, { backgroundColor: BG_COLOR }]}
