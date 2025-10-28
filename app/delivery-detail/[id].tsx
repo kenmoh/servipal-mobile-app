@@ -1,28 +1,34 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 
 import {
   fetchOrder,
-  markLaundryReceived,
   relistDelivery,
   riderAcceptDelivery,
   riderMarkDelivered,
-  senderConfirmDeliveryReceived
+  senderConfirmDeliveryReceived,
 } from "@/api/order";
+import {
+  startDeliveryTracking,
+  stopDeliveryTracking,
+} from "@/utils/location-tracking";
+
+import authStorage from "@/storage/authStorage";
+
 import AppButton from "@/components/AppButton";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import DeliveryWrapper from "@/components/DeliveryWrapper";
 import { Status } from "@/components/ItemCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { useToast } from "@/components/ToastProvider";
+import { useLocationStore } from "@/store/locationStore";
 import { useUserStore } from "@/store/userStore";
-import { useOptimisticUpdate } from "@/hooks/useOptimisticUpdate";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import {
@@ -30,15 +36,18 @@ import {
   Info,
   MapPin,
   Phone,
+  UserRound,
   Wallet,
-  UserRound
 } from "lucide-react-native";
-
 
 const ItemDetails = () => {
   const { id } = useLocalSearchParams();
   const { user } = useUserStore();
-  const { showError, showSuccess, showInfo } = useToast()
+  const { showError, showSuccess, showInfo } = useToast();
+  const [userToken, setUserToken] = useState("");
+  const isMountedRef = useRef(true);
+  const wsRef = useRef<WebSocket | null>(null);
+
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["order", id],
@@ -50,8 +59,7 @@ const ItemDetails = () => {
   const queryClient = useQueryClient();
 
   const confirmReceivedMutation = useMutation({
-    mutationFn: () =>
-      senderConfirmDeliveryReceived(data?.order?.id as string),
+    mutationFn: () => senderConfirmDeliveryReceived(id as string),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["order", id],
@@ -76,51 +84,16 @@ const ItemDetails = () => {
       refetch();
       // router.push('/(app)/delivery/(topTabs)/orders');
 
-      showSuccess("Success", "Delivery confirmed and received.")
-
+      showSuccess("Success", "Delivery confirmed and received.");
     },
     onError: (error: Error) => {
-      showError('Error', error.message)
-
-    },
-  });
-
-  const laundryReceivedMutation = useMutation({
-    mutationFn: () => markLaundryReceived(data?.delivery?.id as string),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["order", id],
-        exact: false,
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["orders"],
-        exact: false,
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
-      });
-      refetch();
-      // router.push('/(app)/delivery/(topTabs)/orders');
-
-      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-      queryClient.refetchQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
-      });
-
-      showSuccess('Success', "Laundry item received.")
-    },
-    onError: (error: Error) => {
-      showError("Error", error.message)
-
+      showError("Error", error.message);
     },
   });
 
   const acceptDeliveryMutation = useMutation({
-    mutationFn: () => riderAcceptDelivery(data?.order?.id as string),
-    onSuccess: () => {
+    mutationFn: (deliveryId: string) => riderAcceptDelivery(deliveryId),
+    onSuccess: async (_, deliveryId) => {
       queryClient.invalidateQueries({
         queryKey: ["order", id],
         exact: false,
@@ -141,19 +114,21 @@ const ItemDetails = () => {
       });
 
       refetch();
-      // router.push('/(app)/delivery/(topTabs)/orders');
+      await startDeliveryTracking(deliveryId, user?.sub!);
 
-      showSuccess("Success", "This order has been assigned to you. Drive carefully!")
-
+      showSuccess(
+        "Success",
+        "This order has been assigned to you. Drive carefully!"
+      );
     },
     onError: (error: Error) => {
-      showError("Error", error.message)
+      showError("Error", error.message);
     },
   });
 
   const markDeliveredMutation = useMutation({
-    mutationFn: () => riderMarkDelivered(data?.delivery?.id as string),
-    onSuccess: () => {
+    mutationFn: (deliveryId: string) => riderMarkDelivered(deliveryId),
+    onSuccess: (_, deliveryId) => {
       // Invalidate all related queries
       queryClient.invalidateQueries({
         queryKey: ["order", id],
@@ -168,7 +143,7 @@ const ItemDetails = () => {
         exact: false,
       });
 
-       queryClient.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ["orders", data?.delivery?.sender_id],
         exact: false,
       });
@@ -181,10 +156,12 @@ const ItemDetails = () => {
       });
 
       refetch();
-      showSuccess("Success", "Item delivered.")
+      stopDeliveryTracking();
+      useLocationStore.getState().clearRiderLocation();
+      showSuccess("Success", "Item delivered.");
     },
     onError: (error: Error) => {
-      showError("Error", error.message)
+      showError("Error", error.message);
     },
   });
 
@@ -213,13 +190,94 @@ const ItemDetails = () => {
       refetch();
       // router.push('/(app)/delivery/(topTabs)/orders');
 
-      showSuccess("Success", "Delivery cancelled!")
+      showSuccess("Success", "Delivery cancelled!");
     },
     onError: (error: Error) => {
-      showError("Error", error.message)
-
+      showError("Error", error.message);
     },
   });
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.close();
+      }
+    };
+  }, []);
+
+  // WebSocket connection effect
+  useEffect(() => {
+    // Skip if missing data or unmounted
+    if (!id || !user?.sub || !isMountedRef.current) return;
+
+    let isSubscribed = true; // local guard for this effect
+
+    const connectWebSocket = async () => {
+      try {
+        const token = await authStorage.getToken();
+        if (!token || !isSubscribed) return;
+
+        const wsUrl = `wss://api.servi-pal.com/ws?token=${token}&client_type=mobile`;
+        const ws = new WebSocket(wsUrl);
+        wsRef.current = ws;
+
+        ws.onopen = () => {
+          if (isSubscribed) {
+            console.log("✅ WebSocket connected");
+          }
+        };
+
+        ws.onmessage = (event) => {
+          if (!isSubscribed) return;
+          try {
+            const message = JSON.parse(event.data);
+            if (message.type === "rider_location_update") {
+              // Only update if for current delivery
+              if (message.delivery_id === id) {
+                const coords: [number, number] = [
+                  message.coordinates.latitude,
+                  message.coordinates.longitude,
+                ];
+                useLocationStore
+                  .getState()
+                  .setRiderLocation(id as string, coords);
+              }
+            }
+          } catch (e) {
+            console.error("WebSocket message error:", e);
+          }
+        };
+
+        ws.onerror = (error) => {
+          if (isSubscribed) {
+            console.error("WebSocket error:", error);
+          }
+        };
+
+        ws.onclose = () => {
+          if (isSubscribed) {
+            console.log("WebSocket closed");
+          }
+        };
+      } catch (error) {
+        if (isSubscribed) {
+          console.error("Failed to connect WebSocket:", error);
+        }
+      }
+    };
+
+    connectWebSocket();
+
+    // Cleanup function for this effect
+    return () => {
+      isSubscribed = false;
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.close();
+      }
+    };
+  }, [id, user?.sub]);
 
   const getActionButton = () => {
     if (!data || !user) return null;
@@ -233,7 +291,7 @@ const ItemDetails = () => {
       return {
         label: "Pickup",
         onPress: () => {
-          acceptDeliveryMutation.mutate();
+          acceptDeliveryMutation.mutate(data.order.id!);
         },
         loading: acceptDeliveryMutation.isPending,
       };
@@ -258,23 +316,11 @@ const ItemDetails = () => {
     ) {
       return {
         label: "Delivered",
-        onPress: () => markDeliveredMutation.mutate(),
+        onPress: () => markDeliveredMutation.mutate(data.order.id!),
         loading: markDeliveredMutation.isPending,
       };
     }
-    // Laundry vendour mark received
-    if (
-      data?.delivery?.delivery_status === "delivered" &&
-      data?.delivery?.delivery_type === "laundry" &&
-      user?.sub === data?.order?.vendor_id &&
-      user?.user_type === "laundry_vendor"
-    ) {
-      return {
-        label: "Item Received",
-        onPress: () => laundryReceivedMutation.mutate(),
-        loading: laundryReceivedMutation.isPending,
-      };
-    }
+
     if (data?.delivery?.delivery_status === "received") {
       return {
         label: "Received",
@@ -295,8 +341,8 @@ const ItemDetails = () => {
   }
 
   const showReview = () => {
-    if (data?.order?.order_type === 'package') {
-      showError('Not Allowed', 'Review for package delivery not allowed!');
+    if (data?.order?.order_type === "package") {
+      showError("Not Allowed", "Review for package delivery not allowed!");
       return;
     } else {
       router.push({
@@ -306,31 +352,37 @@ const ItemDetails = () => {
           revieweeId: data?.order?.vendor_id as string,
           orderId: data?.order?.id as string,
           orderType: data?.order?.order_type as string,
-          reviewType: data?.order?.order_type as string
+          reviewType: data?.order?.order_type as string,
         },
       });
     }
-  }
+  };
 
   return (
     <>
-      <DeliveryWrapper>
+      <DeliveryWrapper id={data?.delivery?.id!}>
         {user?.sub === data?.delivery?.sender_id &&
           data?.delivery?.rider_id &&
           data?.delivery?.delivery_status !== "pending" &&
           data?.delivery?.delivery_status !== "received" && (
-
             <View className="self-center w-full justify-center items-center">
-              <AppVariantButton icon={<UserRound color='orange' />} width={"85%"} borderRadius={50} filled={false} outline={true} label="Contact Rider" onPress={() =>
-                router.push({
-                  pathname: "/user-details/[userId]",
-                  params: {
-                    userId: data?.delivery?.rider_id!,
-                  },
-                })
-              } />
+              <AppVariantButton
+                icon={<UserRound color="orange" />}
+                width={"85%"}
+                borderRadius={50}
+                filled={false}
+                outline={true}
+                label="Contact Rider"
+                onPress={() =>
+                  router.push({
+                    pathname: "/user-details/[userId]",
+                    params: {
+                      userId: data?.delivery?.rider_id!,
+                    },
+                  })
+                }
+              />
             </View>
-
           )}
         {user?.sub === data?.delivery?.sender_id &&
           data?.order.order_payment_status !== "paid" && (
@@ -369,10 +421,12 @@ const ItemDetails = () => {
               {showCancel && (
                 <TouchableOpacity
                   // onPress={() => cancelDeliveryMutation.mutate()}
-                  onPress={() => router.push({
-                    pathname: '/cancel-order/[orderId]',
-                    params: { orderId: data?.order?.id as string }
-                  })}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/cancel-order/[orderId]",
+                      params: { orderId: data?.order?.id as string },
+                    })
+                  }
                   className="self-start"
                 >
                   <Text className="text-red-500 self-start bg-red-500/30 rounded-full px-5 py-2 font-poppins-semibold text-sm mb-5">
@@ -441,7 +495,12 @@ const ItemDetails = () => {
             {actionButton && (
               <AppVariantButton
                 borderRadius={50}
-                label={data?.delivery?.delivery_status === 'received' || data?.order?.order_status === 'received' ? 'Order Completed' : actionButton.label}
+                label={
+                  data?.delivery?.delivery_status === "received" ||
+                    data?.order?.order_status === "received"
+                    ? "Order Completed"
+                    : actionButton.label
+                }
                 backgroundColor={
                   data?.delivery?.delivery_status === "received"
                     ? "rgba(0,0,0, 0.5)"
@@ -467,10 +526,9 @@ const ItemDetails = () => {
           {/* Additional Action Buttons */}
           <View className="flex-row w-[90%] self-center justify-between mt-4 mb-8 gap-2">
             {/* Review Button - Hide for package deliveries */}
-            {
-              (data?.order?.order_status === "received" ||
-                data?.delivery?.delivery_status === "delivered" ||
-                data?.delivery?.delivery_status === "received") && (
+            {(data?.order?.order_status === "received" ||
+              data?.delivery?.delivery_status === "delivered" ||
+              data?.delivery?.delivery_status === "received") && (
                 <AppVariantButton
                   label="Review"
                   filled={false}
@@ -501,14 +559,18 @@ const ItemDetails = () => {
               )}
 
             {
-
               <AppVariantButton
                 label="Receipt"
                 borderRadius={50}
-                disabled={data?.delivery?.rider_id === user?.sub || data?.delivery?.dispatch_id === user?.sub ? true : false}
+                disabled={
+                  data?.delivery?.rider_id === user?.sub ||
+                    data?.delivery?.dispatch_id === user?.sub
+                    ? true
+                    : false
+                }
                 filled={false}
                 outline={true}
-                width={'32%'}
+                width={"32%"}
                 onPress={() => {
                   router.push({
                     pathname: "/receipt/[deliveryId]",

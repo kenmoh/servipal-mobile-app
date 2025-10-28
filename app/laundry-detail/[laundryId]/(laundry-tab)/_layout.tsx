@@ -9,7 +9,7 @@ import {
     StyleSheet,
     Text,
     useColorScheme,
-    View,
+    View
 } from "react-native";
 
 const StoreTabs = withLayoutContext(createMaterialTopTabNavigator().Navigator);
@@ -32,7 +32,7 @@ const StoreHeader = () => {
         <View className="bg-background">
             <View className="bg-background">
                 <Image
-                    source={{ uri: backDrop || require("@/assets/images/Burge.jpg") }}
+                    src={{ uri: backDrop || "https://picsum.photos/600/300.jpg" }}
                     style={{
                         height: 150,
                         width: "100%",
@@ -42,11 +42,7 @@ const StoreHeader = () => {
                 <View className="bg-background p-4">
                     <View className="absolute top-[-35px] left-[20px]">
                         <Image
-                            source={
-                                profileImage && profileImage !== ""
-                                    ? { uri: profileImage }
-                                    : require("@/assets/images/Burge.jpg")
-                            }
+                            src={profileImage || "https://picsum.photos/200/200.jpg"}
                             style={{
                                 height: 65,
                                 width: 65,

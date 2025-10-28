@@ -16,7 +16,24 @@ export interface Bank {
   name: string;
 }
 
+export interface RiderProps {
+  full_name: string;
+  business_name: string;
+  business_address: string;
+  phone_number: string;
+  profile_image_url: string;
+  average_rating: number;
+  distance_km: number;
+  reviews: number;
+  rider_id: string;
+  email: string;
+  bike_number: string;
+  review_count: number;
+  delivery_count: number;
+}
+
 export interface UserCoords {
+  user_id?: string;
   lat: number;
   lng: number;
 }

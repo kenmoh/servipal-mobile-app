@@ -1,29 +1,29 @@
 import { fetchPaidPendingDeliveries, getTravelDistance } from "@/api/order";
 import HDivider from "@/components/HDivider";
 import { LegendList } from '@legendapp/list';
-import React, { useCallback, useEffect, useState, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { DeliveryDetail } from "@/types/order-types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import * as Location from "expo-location";
 
-import { getCurrentUserProfile, registerCoordinates, registerForNotifications } from "@/api/user";
+import { fetchRiders, getCurrentUserProfile, registerCoordinates, registerForNotifications } from "@/api/user";
 import AppTextInput from "@/components/AppInput";
 import FAB from "@/components/FAB";
+import GradientCard from '@/components/GradientCard';
 import { DeliveryListSkeleton, SearchBarSkeleton } from "@/components/LoadingSkeleton";
 import LocationPermission from "@/components/Locationpermission";
 import { useNotification } from "@/components/NotificationProvider";
 import RefreshButton from "@/components/RefreshButton";
-import GradientCard from '@/components/GradientCard';
-import DeliveryCard from "@/components/DeliveryCard";
+import Rider from "@/components/Rider";
 import { useLocationTracking } from "@/hooks/useLocationTracking";
 import authStorage from "@/storage/authStorage";
 import { useUserStore } from "@/store/userStore";
-import { UserDetails } from "@/types/user-types";
+import { RiderProps, UserCoords, UserDetails } from "@/types/user-types";
 import { distanceCache } from "@/utils/distance-cache";
 import { router } from "expo-router";
-import { View , Button} from "react-native";
+import { View } from "react-native";
 
 
 const DeliveryScreen = () => {
@@ -39,7 +39,7 @@ const DeliveryScreen = () => {
   } | null>(null);
   const [filteredData, setFilteredData] = useState<DeliveryDetail[]>([]);
 
-  const debounceTimer = useRef<NodeJS.Timeout>();
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Debounce search query
   useEffect(() => {
@@ -129,6 +129,19 @@ const DeliveryScreen = () => {
     enabled: !!user?.sub,
   });
 
+  const coords: UserCoords = {
+    user_id: user?.sub,
+    lat: userLocation?.latitude!,
+    lng: userLocation?.longitude!,
+  };
+
+  const { data: riders } = useQuery({
+    queryKey: ["riders", user?.sub],
+    queryFn: () => fetchRiders(coords),
+    refetchOnWindowFocus: true,
+    enabled: !!user?.sub,
+  });
+
 
 
   useEffect(() => {
@@ -213,13 +226,13 @@ const DeliveryScreen = () => {
   }, [userLocation]);
 
 
-  const renderItem = useCallback(({ item }: { item: DeliveryDetail }) => <DeliveryCard data={item} />, []);
+  const renderItem = useCallback(({ item }: { item: RiderProps }) => <Rider rider={item} />, []);
 
   const renderSeparator = useCallback(() => <HDivider />, []);
 
   const keyExtractor = useCallback(
-    (item: DeliveryDetail, index: number) =>
-      item?.delivery?.id ?? `delivery-${index}`,
+    (item: RiderProps, index: number) =>
+      item.rider_id ?? `rider-${index}`,
     []
   );
 
@@ -251,7 +264,7 @@ const DeliveryScreen = () => {
   // Filter deliveries within 30km with optimized logic
   useEffect(() => {
     let isMounted = true;
-    
+
     const filterDeliveries = async () => {
       if (!data || !locationPermission || !userLocation) {
         if (isMounted) setFilteredData([]);
@@ -272,7 +285,7 @@ const DeliveryScreen = () => {
 
             const distance = await getItemDistance([pickupCoords[0], pickupCoords[1]]);
             if (distance === null || distance > 200) return null;
-            
+
             return { ...item, distance };
           })
         );
@@ -284,7 +297,7 @@ const DeliveryScreen = () => {
           setFilteredData((prev) => {
             const prevIds = prev.map((i) => `${i.delivery?.id}-${(i as any).distance || 0}`);
             const nextIds = filtered.map((i) => `${i.delivery?.id}-${i.distance}`);
-            
+
             if (prev.length === filtered.length && prevIds.every((id, idx) => id === nextIds[idx])) {
               return prev;
             }
@@ -298,7 +311,7 @@ const DeliveryScreen = () => {
     };
 
     filterDeliveries();
-    
+
     return () => {
       isMounted = false;
     };
@@ -331,18 +344,18 @@ const DeliveryScreen = () => {
         value={searchQuery}
       />
       <HDivider />
-      {memoizedFilteredData.length === 0 && <GradientCard label="Quick & Reliable Delivery" description="Send and receive items with ease, anywhere, anytime."/>}
+      {memoizedFilteredData.length === 0 && <GradientCard label="Quick & Reliable Delivery" description="Send and receive items with ease, anywhere, anytime." />}
 
 
-    <LegendList
-        data={memoizedFilteredData || []}
+      <LegendList
+        data={riders || []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
         ItemSeparatorComponent={renderSeparator}
         refreshing={isFetching}
         onRefresh={handleRefresh}
         onLayout={handleLayoutComplete}
-       
+
       />
 
       {user?.user_type === 'dispatch' || user?.user_type === 'rider' ? '' : <FAB onPress={handleSendItemPress} />}

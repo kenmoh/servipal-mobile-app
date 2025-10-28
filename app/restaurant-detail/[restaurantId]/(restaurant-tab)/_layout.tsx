@@ -35,7 +35,7 @@ const StoreHeader = () => {
         <View className="bg-background">
             <View className="bg-background">
                 <Image
-                    source={{ uri: backDrop || require("@/assets/images/Burge.jpg") }}
+                    source={{ uri: backDrop || "https://picsum.photos/600/300.jpg" }}
                     style={{
                         height: 150,
                         width: "100%",
@@ -51,7 +51,7 @@ const StoreHeader = () => {
                             source={
                                 profileImage && profileImage !== ""
                                     ? { uri: profileImage }
-                                    : require("@/assets/images/Burge.jpg")
+                                    : "https://picsum.photos/300/300.jpg"
                             }
                             style={{
                                 height: 65,

@@ -11,8 +11,10 @@ import "@/global.css";
 import { useCartStore } from "@/store/cartStore";
 import { useLocationStore } from "@/store/locationStore";
 import { useUserStore } from "@/store/userStore";
+import { startUpdatingUserLocation, stopUpdatingUserLocation } from "@/utils/location-tracking";
 
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import * as Sentry from '@sentry/react-native';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
@@ -24,15 +26,11 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-get-random-values";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { OverlayProvider } from "stream-chat-expo";
-import * as Sentry from '@sentry/react-native';
 
 Sentry.init({
   dsn: 'https://945bccd1ed4b5bcb5eab8cf7e3c776fa@o4505603287023616.ingest.us.sentry.io/4510143988629504',
 
   sendDefaultPii: true,
-
-  // Enable Logs
-  enableLogs: true,
 
   // Configure Session Replay
   replaysSessionSampleRate: 0.1,
@@ -94,6 +92,20 @@ export default Sentry.wrap(function RootLayout() {
     };
     initializeApp();
   }, []);
+
+  // Start background location tracking for authenticated users
+  useEffect(() => {
+    if (user?.sub) {
+      console.log("🚀 Starting global background location tracking...");
+      startUpdatingUserLocation();
+    }
+
+    // Cleanup: stop background tracking when component unmounts
+    return () => {
+      console.log("🛑 Stopping global background location tracking...");
+      stopUpdatingUserLocation();
+    };
+  }, [user?.sub]);
 
   if (!loaded) {
     return null;

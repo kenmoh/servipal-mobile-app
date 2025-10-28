@@ -3,6 +3,7 @@ import {
   CompanyProfile,
   Profile,
   RiderProfile,
+  RiderProps,
   RiderResponse,
   RiderUpdate,
   UserCoords,
@@ -548,6 +549,92 @@ export const registerCoordinates = async (
     }
     if (!response.data) {
       throw new Error("No data received from server");
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
+// Register for notifications
+export const updateUserLocation = async (
+  coords: UserCoords
+): Promise<UserCoords> => {
+  const data = {
+    lat: coords.lat,
+    lng: coords.lng,
+  };
+  try {
+    const response: ApiResponse<UserCoords | ErrorResponse> =
+      await apiClient.put(`${BASE_URL}/update-user-location`, data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    if (
+      !response.ok ||
+      (response.data &&
+        typeof response.data === "object" &&
+        "detail" in response.data)
+    ) {
+      const errorMessage =
+        response.data &&
+        typeof response.data === "object" &&
+        "detail" in response.data
+          ? response.data.detail
+          : "Error updating user location.";
+      throw new Error(errorMessage);
+    }
+    if (!response.data) {
+      throw new Error(
+        "No data received from server. Make sure your location is on"
+      );
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+// Register for notifications
+export const fetchRiders = async (
+  coords: UserCoords
+): Promise<RiderProps[]> => {
+  const data = {
+    user_id: coords.user_id,
+    lat: coords.lat,
+    lng: coords.lng,
+  };
+  try {
+    const response: ApiResponse<RiderProps[] | ErrorResponse> =
+      await apiClient.put(`${BASE_URL}/all-riders`, data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    if (
+      !response.ok ||
+      (response.data &&
+        typeof response.data === "object" &&
+        "detail" in response.data)
+    ) {
+      const errorMessage =
+        response.data &&
+        typeof response.data === "object" &&
+        "detail" in response.data
+          ? response.data.detail
+          : "Error fetching riders. Make sure your loation is on and try again";
+      throw new Error(errorMessage);
+    }
+    if (!response.data) {
+      throw new Error(
+        "No data received from server. Make sure your loation is on and try again"
+      );
     }
     return response.data;
   } catch (error) {

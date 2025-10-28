@@ -19,6 +19,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: "com.kenmoh.servipal",
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
+      UIBackgroundModes: ["location"],
     },
     associatedDomains: ["applinks:servi-pal.com"],
   },
@@ -38,11 +39,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     permissions: [
       "android.permission.ACCESS_COARSE_LOCATION",
       "android.permission.ACCESS_FINE_LOCATION",
+      "android.permission.ACCESS_BACKGROUND_LOCATION",
       "android.permission.RECORD_AUDIO",
     ],
     blockedPermissions: [
       "android.permission.READ_MEDIA_IMAGES",
-      "android.permission.READ_MEDIA_VIDEO"
+      "android.permission.READ_MEDIA_VIDEO",
     ],
     edgeToEdgeEnabled: true,
     intentFilters: [
@@ -109,7 +111,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         icon: "./assets/images/notification-icon.png",
         color: "#000000",
         defaultChannel: "default",
-        enableBackgroundRemoteNotifications: false
+        enableBackgroundRemoteNotifications: false,
       },
     ],
     ["react-native-bottom-tabs", { theme: "material2" }],
@@ -145,10 +147,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       "@sentry/react-native/expo",
       {
-        "url": "https://sentry.io/",
-        "project": "servipal-mobile-app",
-        "organization": "mohstack"
-      }
+        url: "https://sentry.io/",
+        project: "servipal-mobile-app",
+        organization: "mohstack",
+      },
     ],
 
     [

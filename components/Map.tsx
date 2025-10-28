@@ -3,7 +3,7 @@ import MapView, { PROVIDER_GOOGLE, Marker, Polyline } from "react-native-maps";
 import { useLocationStore } from "@/store/locationStore";
 import { getDirections } from "@/utils/map";
 import { View, Text, StyleSheet } from "react-native";
-
+import scooter from '@/assets/images/scooter.jpg'
 // helper to format duration into hr/min
 const formatDuration = (seconds: number): string => {
   const minutes = Math.round(seconds / 60);
@@ -16,8 +16,8 @@ const formatDuration = (seconds: number): string => {
     : `${hours} hr`;
 };
 
-const Map = () => {
-  const { originCoords, destinationCoords, origin, destination } =
+const Map = ({id}: {id: string}) => {
+  const { originCoords, destinationCoords, origin, destination, riderLocation } =
     useLocationStore();
 
   const [route, setRoute] = useState<number[][]>([]);
@@ -59,6 +59,7 @@ const Map = () => {
     fetchRoute();
   }, [originCoords, destinationCoords]);
 
+const showRider = riderLocation && riderLocation.deliveryId === id;
   return (
     <View style={{ flex: 1 }}>
       <MapView
@@ -78,6 +79,7 @@ const Map = () => {
             }}
             title={origin || "Origin"}
             description={origin || undefined}
+            pinColor="teal"
           />
         )}
         {destinationCoords && (
@@ -88,8 +90,20 @@ const Map = () => {
             }}
             title={destination || "Destination"}
             description={destination || undefined}
+            pinColor="red"
           />
         )}
+
+         {showRider && (
+          <Marker
+            coordinate={{
+              latitude: riderLocation.coordinates[0],
+              longitude: riderLocation.coordinates[1],
+            }}
+            title="Rider"
+            pinColor="yellow"
+            // image={scooter} 
+          />)}
         {route.length > 0 && (
           <Polyline
             coordinates={route.map((coord) => ({
@@ -133,97 +147,4 @@ const styles = StyleSheet.create({
 });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { useState, useEffect } from 'react'
-// import MapView, { PROVIDER_GOOGLE, Marker, Polyline } from "react-native-maps";
-// import { useLocationStore } from '@/store/locationStore';
-// import { getDirections } from '@/utils/map';
-
-
-// const Map = () => {
-//     const { originCoords, destinationCoords, origin, destination } = useLocationStore();
-//     const [route, setRoute] = useState<number[][]>([]);
-//     const [region, setRegion] = useState({
-//         latitude: 9.082,
-//         longitude: 8.6753,
-//         latitudeDelta: 5,
-//         longitudeDelta: 5,
-//     });
-
-//     useEffect(() => {
-//         const fetchRoute = async () => {
-//             if (originCoords && destinationCoords) {
-//                 const routeCoords = await getDirections(originCoords, destinationCoords);
-//                 setRoute(routeCoords.coordinates);
-//                 // Zoom to fit
-//                 const allCoords = [originCoords, destinationCoords, ...routeCoords];
-//                 const lats = allCoords.map(c => c[0]);
-//                 const lngs = allCoords.map(c => c[1]);
-//                 const minLat = Math.min(...lats);
-//                 const maxLat = Math.max(...lats);
-//                 const minLng = Math.min(...lngs);
-//                 const maxLng = Math.max(...lngs);
-//                 setRegion({
-//                     latitude: (minLat + maxLat) / 2,
-//                     longitude: (minLng + maxLng) / 2,
-//                     latitudeDelta: Math.max(0.05, (maxLat - minLat) * 1.5),
-//                     longitudeDelta: Math.max(0.05, (maxLng - minLng) * 1.5),
-//                 });
-//             }
-//         };
-//         fetchRoute();
-//     }, [originCoords, destinationCoords]);
-
-//     return (
-//         <MapView
-//             provider={PROVIDER_GOOGLE}
-//             style={{ height: '75%', width: '100%' }}
-//             tintColor={'black'}
-//             mapType={'standard'}
-//             showsUserLocation={true}
-//             userInterfaceStyle={'dark'}
-//             showsMyLocationButton={true}
-//             showsCompass={true}
-//             region={region}
-//         >
-//             {originCoords && (
-//                 <Marker
-//                     coordinate={{ latitude: originCoords[0], longitude: originCoords[1] }}
-//                     title={origin ? origin : "Origin"}
-//                     description={origin ? origin : undefined}
-//                 />
-//             )}
-//             {destinationCoords && (
-//                 <Marker
-//                     coordinate={{ latitude: destinationCoords[0], longitude: destinationCoords[1] }}
-//                     title={destination ? destination : "Destination"}
-//                     description={destination ? destination : undefined}
-//                 />
-//             )}
-//             {route.length > 0 && (
-//                 <Polyline
-//                     coordinates={route.map(coord => ({ latitude: coord[0], longitude: coord[1] }))}
-//                     strokeColor="blue"
-//                     strokeWidth={4}
-//                 />
-//             )}
-//         </MapView>
-//     );
-// }
-
-// export default Map
 

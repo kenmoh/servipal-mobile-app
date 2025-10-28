@@ -4,6 +4,8 @@ import {
   OrderFoodOLaundry,
   OrderLaundry,
   SendItem,
+  Coordinates,
+  UpdateDeliveryLocation
 } from "@/types/order-types";
 import { PaymentLink } from "@/types/payment";
 import { apiClient } from "@/utils/client";
@@ -368,6 +370,38 @@ export const riderAcceptDelivery = async (
   }
 };
 
+// Rider pickup Delivery
+export const riderPickupDelivery = async (
+  orderId: string
+): Promise<DeliveryDetail> => {
+  try {
+    const response: ApiResponse<DeliveryDetail | ErrorResponse> =
+      await apiClient.put(
+        `${BASE_URL}/${orderId}/pickup`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error picking up delivery order.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
 // Vendor pickup laundry
 export const vendorPickupLaundry = async (
   orderId: string
@@ -684,6 +718,49 @@ export const generateOrderPaymentLink = async (
         response.data && "detail" in response.data
           ? response.data.detail
           : "Error generating payment link.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
+
+
+// Update location
+export const updateDeliveryLocation = async (
+  deliveryId: string,
+  riderId: string,
+  coordinates: Coordinates
+): Promise<DeliveryDetail> => {
+
+  const body =   {
+        rider_id: riderId,
+        last_known_rider_coordinates: coordinates, 
+      }
+
+       console.log('📡 Request body:', body);
+
+  try {
+    const response: ApiResponse<DeliveryDetail | ErrorResponse> = await apiClient.put(
+      `${BASE_URL}/${deliveryId}/location-update`, body,
+      
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error updating delivery location.";
       throw new Error(errorMessage);
     }
     return response.data;

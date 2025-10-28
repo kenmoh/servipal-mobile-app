@@ -12,10 +12,11 @@ import Map from './Map'
 
 
 interface DeliveryWrapperProps {
+  id: string
   children: React.ReactNode
 }
 
-const DeliveryWrapper = ({ children }: DeliveryWrapperProps) => {
+const DeliveryWrapper = ({ children, id }: DeliveryWrapperProps) => {
 
   const bottomSheetRef = React.useRef(null)
 
@@ -26,7 +27,7 @@ const DeliveryWrapper = ({ children }: DeliveryWrapperProps) => {
 
 
     <View className='flex-1 bg-background'>
-      <Map />
+      <Map id={id} />
       <TouchableOpacity onPress={() => router.back()} className='absolute top-10 left-6 rounded-full p-3 bg-input'>
         {Platform.OS === 'ios' ? <ChevronLeft color={theme === 'dark' ? 'white' : 'black'} /> : <ArrowLeft color={theme === 'dark' ? 'white' : 'black'} />}
       </TouchableOpacity>

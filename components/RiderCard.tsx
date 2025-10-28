@@ -1,6 +1,6 @@
 import React from "react";
 import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
+import { useUserStore } from "@/store/userStore";
 import { deleteRider } from "@/api/user";
 import { RiderResponse } from "@/types/user-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

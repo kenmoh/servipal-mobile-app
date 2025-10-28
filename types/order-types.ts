@@ -36,6 +36,10 @@ export interface SendItem {
   imageUrl: string;
 }
 
+export interface UpdateDeliveryLocation {
+  last_known_rider_coordinates: Coordinates
+}
+
 interface Delivery {
   id: string;
   delivery_type: OrderType;

@@ -6,6 +6,12 @@ interface LocationStore {
   destination: string | null;
   originCoords: [number, number] | null;
   destinationCoords: [number, number] | null;
+  riderLocation: {
+    deliveryId: string;
+    coordinates: [number, number]; 
+  } | null;
+
+
   reset: () => void;
   setOrigin: (address: string | null, coords: [number, number] | null) => void;
   setDestination: (
@@ -16,6 +22,9 @@ interface LocationStore {
     coords: [number, number];
     address: string;
   } | null>;
+
+  setRiderLocation: (deliveryId: string, coords: [number, number]) => void;
+  clearRiderLocation: () => void;
 }
 
 export const useLocationStore = create<LocationStore>((set) => ({
@@ -23,6 +32,7 @@ export const useLocationStore = create<LocationStore>((set) => ({
   destination: null,
   originCoords: null,
   destinationCoords: null,
+  riderLocation: null,
 
   setOrigin: (address, coords) => {
     set({ origin: address, originCoords: coords });
@@ -32,6 +42,13 @@ export const useLocationStore = create<LocationStore>((set) => ({
     set({ destination: address, destinationCoords: coords });
   },
 
+  setRiderLocation: (deliveryId, coordinates) => {
+    set({ riderLocation: { deliveryId, coordinates } });
+  },
+
+  clearRiderLocation: () => {
+    set({ riderLocation: null });
+  },
   reset: () => {
     set({
       origin: null,
