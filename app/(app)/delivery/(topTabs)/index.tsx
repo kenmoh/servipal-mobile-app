@@ -1,17 +1,13 @@
-import { fetchPaidPendingDeliveries, getTravelDistance } from "@/api/order";
+;
 import HDivider from "@/components/HDivider";
 import { LegendList } from '@legendapp/list';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import { DeliveryDetail } from "@/types/order-types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import * as Location from "expo-location";
 
 import { fetchRiders, getCurrentUserProfile, registerCoordinates, registerForNotifications } from "@/api/user";
-import AppTextInput from "@/components/AppInput";
-import FAB from "@/components/FAB";
-import GradientCard from '@/components/GradientCard';
 import { DeliveryListSkeleton, SearchBarSkeleton } from "@/components/LoadingSkeleton";
 import LocationPermission from "@/components/Locationpermission";
 import { useNotification } from "@/components/NotificationProvider";
@@ -22,14 +18,19 @@ import authStorage from "@/storage/authStorage";
 import { useUserStore } from "@/store/userStore";
 import { RiderProps, UserCoords, UserDetails } from "@/types/user-types";
 import { distanceCache } from "@/utils/distance-cache";
+import BottomSheet, { BottomSheetBackdrop, BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
+
+import AppTextInput from "@/components/AppInput";
+import RiderProfile from "@/components/RiderProfile";
 import { router } from "expo-router";
-import { View } from "react-native";
+import { useColorScheme, View } from "react-native";
 
 
 const DeliveryScreen = () => {
-  const { user, setProfile } = useUserStore();
+  const { user, setProfile, setRiderId, riderId } = useUserStore();
   const { expoPushToken } = useNotification();
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRider, setSelectedRider] = useState<RiderProps | undefined>()
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [locationPermission, setLocationPermission] = useState<boolean | null>(null);
   const [isLayoutComplete, setIsLayoutComplete] = useState(false);
@@ -37,9 +38,25 @@ const DeliveryScreen = () => {
     latitude: number;
     longitude: number;
   } | null>(null);
-  const [filteredData, setFilteredData] = useState<DeliveryDetail[]>([]);
+
+  const theme = useColorScheme()
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+
+  const handleRiderPress = useCallback((rider: RiderProps) => {
+    setSelectedRider(rider);
+    bottomSheetRef.current?.snapToIndex(1)
+    setRiderId(rider.rider_id)
+  }, []);
+
+
+  const handleBookRider = useCallback(() => {
+    router.push({ pathname: '/(app)/delivery/sendItem', params: { riderId } })
+  }, []);
+
+
 
   // Debounce search query
   useEffect(() => {
@@ -69,6 +86,8 @@ const DeliveryScreen = () => {
       console.error('Error storing profile:', error);
     }
   }, []);
+
+
 
   const checkLocationPermission = useCallback(async () => {
     const { status } = await Location.getForegroundPermissionsAsync();
@@ -110,7 +129,7 @@ const DeliveryScreen = () => {
     onError: (error) => {
       console.error("🔔 Token registration failed:", error);
     },
-    retry: 2,
+    retry: 3,
   });
 
   const registerCoordinatesMutation = useMutation({
@@ -118,7 +137,7 @@ const DeliveryScreen = () => {
     onError: (error) => {
       console.error("📍 Coordinates registration failed:", error);
     },
-    retry: 1,
+    retry: 3,
   });
 
 
@@ -135,13 +154,21 @@ const DeliveryScreen = () => {
     lng: userLocation?.longitude!,
   };
 
-  const { data: riders } = useQuery({
-    queryKey: ["riders", user?.sub],
-    queryFn: () => fetchRiders(coords),
-    refetchOnWindowFocus: true,
-    enabled: !!user?.sub,
-  });
 
+  const { data: riders, isLoading, error, refetch, isFetching, isPending, isFetched } = useQuery({
+    queryKey: ["riders", user?.sub, coords.lat, coords.lng],
+    queryFn: () => {
+      // Validate coords before fetching
+      if (!coords.lat || !coords.lng) {
+        throw new Error("Location coordinates are not available");
+      }
+      return fetchRiders(coords.lat, coords.lng);
+    },
+    enabled: Boolean(user?.sub && coords.lat && coords.lng),
+    refetchOnWindowFocus: true,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
 
 
   useEffect(() => {
@@ -161,8 +188,6 @@ const DeliveryScreen = () => {
 
 
 
-
-
   useEffect(() => {
     if (isSuccess && userProfile) {
       // Update state with fresh API data
@@ -174,15 +199,6 @@ const DeliveryScreen = () => {
   }, [isSuccess, userProfile, user?.sub]);
 
 
-  const { data, isLoading, error, refetch, isFetching, isPending, isFetched } = useQuery({
-    queryKey: ["orders"],
-    queryFn: fetchPaidPendingDeliveries,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    staleTime: 30000, // 30 seconds
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-  });
   // Handle location change
   const handleLocationChange = useCallback(
     (newLocation: { latitude: number; longitude: number }) => {
@@ -195,38 +211,8 @@ const DeliveryScreen = () => {
 
   useLocationTracking(handleLocationChange);
 
-  // Memoize getItemDistance
-  const getItemDistance = useCallback(async (pickupCoords: [number, number]) => {
-    if (!userLocation) return null;
-    const cachedDistance = distanceCache.get(
-      userLocation.latitude,
-      userLocation.longitude,
-      pickupCoords[0],
-      pickupCoords[1]
-    );
-    if (cachedDistance !== null) {
-      return cachedDistance;
-    }
-    const distance = await getTravelDistance(
-      userLocation.latitude,
-      userLocation.longitude,
-      pickupCoords[0],
-      pickupCoords[1]
-    );
-    if (distance !== null) {
-      distanceCache.set(
-        userLocation.latitude,
-        userLocation.longitude,
-        pickupCoords[0],
-        pickupCoords[1],
-        distance
-      );
-    }
-    return distance;
-  }, [userLocation]);
 
-
-  const renderItem = useCallback(({ item }: { item: RiderProps }) => <Rider rider={item} />, []);
+  const renderItem = useCallback(({ item }: { item: RiderProps }) => <Rider onPress={() => handleRiderPress(item)} rider={item} />, [handleRiderPress]);
 
   const renderSeparator = useCallback(() => <HDivider />, []);
 
@@ -236,9 +222,7 @@ const DeliveryScreen = () => {
     []
   );
 
-  const handleSendItemPress = useCallback(() => {
-    router.push("/delivery/sendItem");
-  }, []);
+
 
   const handleRefresh = useCallback(() => {
     refetch();
@@ -250,78 +234,12 @@ const DeliveryScreen = () => {
     setSearchQuery(text);
   }, []);
 
-  // Memoize filtered data to prevent unnecessary re-computations
-  const memoizedFilteredData = useMemo(() => {
-    if (!debouncedSearchQuery.trim()) return filteredData;
-    const searchTerm = debouncedSearchQuery.toLowerCase().trim();
-    return filteredData.filter((item) => {
-      const origin = item?.delivery?.origin?.toLowerCase() || "";
-      const destination = item?.delivery?.destination?.toLowerCase() || "";
-      return origin.includes(searchTerm) || destination.includes(searchTerm);
-    });
-  }, [filteredData, debouncedSearchQuery]);
-
-  // Filter deliveries within 30km with optimized logic
-  useEffect(() => {
-    let isMounted = true;
-
-    const filterDeliveries = async () => {
-      if (!data || !locationPermission || !userLocation) {
-        if (isMounted) setFilteredData([]);
-        return;
-      }
-
-      try {
-        const itemsWithinRange = await Promise.all(
-          data.map(async (item) => {
-            const pickupCoords = item.delivery?.pickup_coordinates;
-            if (
-              !pickupCoords ||
-              pickupCoords[0] === null ||
-              pickupCoords[1] === null ||
-              typeof pickupCoords[0] !== "number" ||
-              typeof pickupCoords[1] !== "number"
-            ) return null;
-
-            const distance = await getItemDistance([pickupCoords[0], pickupCoords[1]]);
-            if (distance === null || distance > 200) return null;
-
-            return { ...item, distance };
-          })
-        );
-
-        let filtered = itemsWithinRange.filter(Boolean) as (DeliveryDetail & { distance: number })[];
-        filtered.sort((a, b) => a.distance - b.distance);
-
-        if (isMounted) {
-          setFilteredData((prev) => {
-            const prevIds = prev.map((i) => `${i.delivery?.id}-${(i as any).distance || 0}`);
-            const nextIds = filtered.map((i) => `${i.delivery?.id}-${i.distance}`);
-
-            if (prev.length === filtered.length && prevIds.every((id, idx) => id === nextIds[idx])) {
-              return prev;
-            }
-            return filtered;
-          });
-        }
-      } catch (error) {
-        console.error('Error filtering deliveries:', error);
-        if (isMounted) setFilteredData([]);
-      }
-    };
-
-    filterDeliveries();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [data, locationPermission, userLocation, getItemDistance]);
 
   if (!locationPermission) {
     return <LocationPermission onRetry={checkLocationPermission} />;
   }
 
-  if (isLoading || isFetching || isPending || !isFetched || !data) {
+  if (isLoading || isFetching || isPending || !isFetched || !riders) {
     return (
       <View className="bg-background flex-1 p-2" >
         <SearchBarSkeleton />
@@ -344,8 +262,6 @@ const DeliveryScreen = () => {
         value={searchQuery}
       />
       <HDivider />
-      {memoizedFilteredData.length === 0 && <GradientCard label="Quick & Reliable Delivery" description="Send and receive items with ease, anywhere, anytime." />}
-
 
       <LegendList
         data={riders || []}
@@ -358,10 +274,13 @@ const DeliveryScreen = () => {
 
       />
 
-      {user?.user_type === 'dispatch' || user?.user_type === 'rider' ? '' : <FAB onPress={handleSendItemPress} />}
+      {selectedRider && <RiderProfile ref={bottomSheetRef} riderData={selectedRider} showButton onPress={handleBookRider} />}
 
     </View>
   );
+
+
 };
 
 export default DeliveryScreen;
+

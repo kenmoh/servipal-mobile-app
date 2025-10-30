@@ -12,7 +12,7 @@ import {
   Wallet
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { Alert, Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Dimensions, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 import { logOutUser } from "@/api/auth";
@@ -20,7 +20,8 @@ import {
   deleteAccount,
   ImageData,
   ImageUpload,
-  uploadProfileImage,
+  toggleOnlineStatus,
+  uploadProfileImage
 } from "@/api/user";
 import ProfileImagePicker from "@/components/ProfileImagePicker";
 import { useToast } from "@/components/ToastProvider";
@@ -46,6 +47,7 @@ const profile = () => {
   const [theme, setTheme] = useState(colorScheme);
   const { showError, showSuccess } = useToast();
   const { signOut } = useUserStore();
+  const [isOnline, setIsOnline] = useState(true)
 
   useEffect(() => {
     const loadTheme = async () => {
@@ -218,7 +220,18 @@ const profile = () => {
     });
   };
 
+  const onlineMutation = useMutation({
+    mutationFn: toggleOnlineStatus,
+    onError: (error) => {
+      showError('Error', error.message || 'Something went wrong!')
+    },
+    onSuccess: () => showSuccess('Success', 'Online status updated.')
+  })
 
+  const handleToggleOnlineStatus = () => {
+    onlineMutation.mutate()
+    setIsOnline(!isOnline)
+  }
 
   const handleLogout = async () => {
     try {
@@ -275,7 +288,7 @@ const profile = () => {
             </View>
 
             <View className="items-center mt-2 ml-1">
-              <Text numOfLines={1} className="capitalize tracking-wide text-sm font-bold text-primary text-center">
+              <Text numberOfLines={1} className="capitalize tracking-wide text-sm font-bold text-primary text-center">
                 {profile?.profile?.full_name || profile?.profile?.business_name}
               </Text>
               <Text className="text-center text-muted">
@@ -373,6 +386,10 @@ const profile = () => {
                     onPress={() => handleThemeChange("system")}
                   />
                 </View>
+                {user?.user_type === 'rider' && <View className="flex-row justify-between items-center">
+                  <Text className="font-poppins text-sm text-secondary">{isOnline ? "Online" : "Offline"}</Text>
+                  <Switch value={isOnline} onValueChange={handleToggleOnlineStatus} thumbColor={theme === 'dark' ? '#fff' : 'orange'} trackColor={isOnline ? 'orange' : '#aaa'} />
+                </View>}
               </ProfileCard>
             </Animated.View>
             <Animated.View

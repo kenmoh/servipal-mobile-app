@@ -17,21 +17,25 @@ TaskManager.defineTask(BACKGROUND_LOCATION_TASK, async ({ data, error }) => {
     console.error("Background location task error:", error);
     return;
   }
-
   if (data) {
     const { locations } = data as { locations: Location.LocationObject[] };
     if (locations && locations.length > 0) {
       const location = locations[0];
       console.log("📍 Background location update received:", location.coords);
-
-      // Send user location update
-      await sendUserLocationUpdate(
-        location.coords.latitude,
-        location.coords.longitude
-      );
+      
+      try {
+        // Send user location update
+        await sendUserLocationUpdate(
+          location.coords.latitude,
+          location.coords.longitude
+        );
+      } catch (err) {
+        console.error("Failed to send location update:", err);
+      }
     }
   }
 });
+
 
 /**
  * Starts sending rider location every 5 minutes for the active delivery
@@ -73,6 +77,16 @@ export const startDeliveryTracking = async (
  */
 export const startUpdatingUserLocation = async (): Promise<void> => {
   try {
+    // Check if already running
+    const isRegistered = await TaskManager.isTaskRegisteredAsync(
+      BACKGROUND_LOCATION_TASK
+    );
+    
+    if (isRegistered) {
+      console.log("📍 Background location tracking already running");
+      return;
+    }
+
     // Request foreground permission first
     const { status: foregroundStatus } =
       await Location.requestForegroundPermissionsAsync();
@@ -88,9 +102,6 @@ export const startUpdatingUserLocation = async (): Promise<void> => {
       console.warn("Background location permission denied");
       return;
     }
-
-    // Stop any existing location updates
-    await Location.stopLocationUpdatesAsync(BACKGROUND_LOCATION_TASK);
 
     // Start background location updates
     await Location.startLocationUpdatesAsync(BACKGROUND_LOCATION_TASK, {
@@ -116,10 +127,10 @@ export const startUpdatingUserLocation = async (): Promise<void> => {
  */
 export const stopUpdatingUserLocation = async (): Promise<void> => {
   try {
-    // Check if the task is registered before trying to stop it
     const isRegistered = await TaskManager.isTaskRegisteredAsync(
       BACKGROUND_LOCATION_TASK
     );
+    
     if (isRegistered) {
       await Location.stopLocationUpdatesAsync(BACKGROUND_LOCATION_TASK);
       console.log("📍 Background location tracking stopped");

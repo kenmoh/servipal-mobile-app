@@ -11,7 +11,7 @@ type ReporTag = "complainant" | "defendant";
 
 export type ReportedUserType = "vendor" | "customer" | "dispatch";
 
-export type ReviewerType = "order" | "product";
+export type ReviewerType = "order" | "product" | "rider";
 
 export interface ReportCreate {
   order_id: string;
@@ -58,9 +58,10 @@ export interface ReviewCreate {
   order_id?: string;
   item_id?: string;
   reviewee_id: string;
+  dispatch_id?: string;
   rating: number;
   comment: string;
-  review_type: ReviewerType;
+  review_type?: ReviewerType;
 }
 
 export interface ReviewCreateResponse {
@@ -87,7 +88,7 @@ export interface VendorReviewResponse {
 }
 export interface ReviewsCount {
   reviews_count: number;
-  average_rating: number
+  average_rating: number;
 }
 
 export interface BadgeCount {

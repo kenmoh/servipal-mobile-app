@@ -17,7 +17,7 @@ type CancelType = {
 }
 
 const cancelSchema = z.object({
-
+    orderId: z.string(),
     cancelReason: z.string().min(10, "Reason must be at least 10 characters").max(500, "Reason must be less than 500 characters"),
 });
 
@@ -55,7 +55,7 @@ const ReviewPage = () => {
     const { mutate, isPending } = useMutation({
         mutationFn: async (data: CancelType) => {
 
-            return cancelDelivery(orderId as string, { ...data, });
+            return cancelDelivery(data);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({

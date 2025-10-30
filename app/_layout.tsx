@@ -94,18 +94,19 @@ export default Sentry.wrap(function RootLayout() {
   }, []);
 
   // Start background location tracking for authenticated users
-  useEffect(() => {
-    if (user?.sub) {
-      console.log("🚀 Starting global background location tracking...");
-      startUpdatingUserLocation();
-    }
-
-    // Cleanup: stop background tracking when component unmounts
-    return () => {
-      console.log("🛑 Stopping global background location tracking...");
+useEffect(() => {
+  if (user?.sub) {
+    console.log("🚀 Starting global background location tracking...");
+    startUpdatingUserLocation();
+  }
+  
+  return () => {
+    if (!user?.sub) {
+      console.log("🛑 User logged out, stopping location tracking...");
       stopUpdatingUserLocation();
-    };
-  }, [user?.sub]);
+    }
+  };
+}, [user?.sub]);
 
   if (!loaded) {
     return null;

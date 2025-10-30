@@ -1,4 +1,5 @@
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from '@/constants/theme';
+
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { withLayoutContext } from "expo-router";
 import { Dimensions, StyleSheet, useColorScheme } from 'react-native';
@@ -9,7 +10,7 @@ const DeliveryTabs = withLayoutContext(createMaterialTopTabNavigator().Navigator
 const DeliveryLayout = () => {
     const theme = useColorScheme()
     return (
-        <>
+   
 
             <DeliveryTabs
                 initialRouteName="index"
@@ -58,7 +59,7 @@ const DeliveryLayout = () => {
                     }}
                 />
             </DeliveryTabs>
-        </>
+    
     )
 }
 

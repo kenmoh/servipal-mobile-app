@@ -46,6 +46,7 @@ const imageSchema = z
 
 export const sendItemSchema = z.object({
   name: z.string().nonempty({ message: "Name is required" }),
+  riderId: z.string(),
   description: z.string().nonempty({ message: "Description is required" }),
   origin: z.string().nonempty({ message: "Origin is required" }),
   destination: z.string().nonempty({ message: "Destination is required" }),
@@ -64,9 +65,10 @@ const ItemInfo = () => {
     useLocationStore();
 
   const { showError, showInfo, showSuccess } = useToast();
-  const { user } = useUserStore()
+  const { user, riderId } = useUserStore()
   const [duration, setDuration] = useState("");
   const [distance, setDistance] = useState(0);
+
 
   // Initialize form with empty values
   const {
@@ -85,6 +87,7 @@ const ItemInfo = () => {
       destination: "",
       distance: 0,
       duration: "",
+      riderId: riderId!,
       pickup_coordinates: [null, null],
       dropoff_coordinates: [null, null],
     },
@@ -98,6 +101,7 @@ const ItemInfo = () => {
     dropoff_coordinates: [null, null] as [number | null, number | null],
     distance: 0,
     duration: "",
+    riderId: "",
   });
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
@@ -144,6 +148,7 @@ const ItemInfo = () => {
   });
 
   const onSubmit = (data: FormData) => {
+    console.log(data)
     mutate(data);
 
   };
@@ -159,6 +164,10 @@ const ItemInfo = () => {
     if (destination) {
       setValue("destination", destination);
       setFormValues((prev) => ({ ...prev, destination }));
+    }
+    if (riderId) {
+      setValue("riderId", riderId);
+      setFormValues((prev) => ({ ...prev, riderId }));
     }
 
     if (originCoords && originCoords.length === 2) {

@@ -2,7 +2,6 @@ import { FoodGroup, LaundryMenuItem, MenuItem } from "@/types/item-types";
 import {
   CompanyProfile,
   Profile,
-  RiderProfile,
   RiderProps,
   RiderResponse,
   RiderUpdate,
@@ -86,11 +85,9 @@ export const gettUserProfile = async (userId: string): Promise<Profile> => {
   }
 };
 // Get rider profile
-export const getRiderProfile = async (
-  userId: string
-): Promise<RiderProfile> => {
+export const getRiderProfile = async (userId: string): Promise<RiderProps> => {
   try {
-    const response: ApiResponse<RiderProfile | ErrorResponse> =
+    const response: ApiResponse<RiderProps | ErrorResponse> =
       await apiClient.get(`${BASE_URL}/${userId}/rider-profile`, {
         headers: {
           "Content-Type": "application/json",
@@ -601,22 +598,22 @@ export const updateUserLocation = async (
     throw new Error("An unexpected error occurred");
   }
 };
-// Register for notifications
+// Fetch riders
 export const fetchRiders = async (
-  coords: UserCoords
+  lat: number,
+  lng: number
 ): Promise<RiderProps[]> => {
-  const data = {
-    user_id: coords.user_id,
-    lat: coords.lat,
-    lng: coords.lng,
-  };
+  // Build query string properly
+  const params = new URLSearchParams({
+    lat: lat.toString(),
+    lng: lng.toString(),
+  });
+
   try {
+    // FIX: Proper URL construction with query string
     const response: ApiResponse<RiderProps[] | ErrorResponse> =
-      await apiClient.put(`${BASE_URL}/all-riders`, data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      await apiClient.get(`${BASE_URL}/all-riders?${params.toString()}`);
+
     if (
       !response.ok ||
       (response.data &&
@@ -628,18 +625,21 @@ export const fetchRiders = async (
         typeof response.data === "object" &&
         "detail" in response.data
           ? response.data.detail
-          : "Error fetching riders. Make sure your loation is on and try again";
+          : "Error fetching riders. Make sure your location is on and try again";
       throw new Error(errorMessage);
     }
+
     if (!response.data) {
       throw new Error(
-        "No data received from server. Make sure your loation is on and try again"
+        "No data received from server. Make sure your location is on and try again"
       );
     }
+
     return response.data;
   } catch (error) {
+    console.error("❌ Error fetching riders:", error);
     if (error instanceof Error) {
-      throw new Error(error.message);
+      throw error; // Don't wrap it again
     }
     throw new Error("An unexpected error occurred");
   }
@@ -656,6 +656,34 @@ export const deleteAccount = async (): Promise<void> => {
         },
       }
     );
+
+    if (!response.ok) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error deleting account.";
+      throw new Error(errorMessage);
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error("An unexpected error occurred while deleting the account.");
+  }
+};
+
+interface OnlineStatus {
+  is_online: boolean;
+}
+// Toggle online status
+export const toggleOnlineStatus = async (): Promise<void> => {
+  try {
+    const response: ApiResponse<OnlineStatus | ErrorResponse> =
+      await apiClient.put(`${BASE_URL}/online-status`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
     if (!response.ok) {
       const errorMessage =

@@ -18,6 +18,7 @@ import { z } from "zod";
 const reviewSchema = z.object({
     orderId: z.string().optional(),
     itemId: z.string().optional(),
+    dispatchId: z.string().optional(),
     revieweeId: z.string().min(1, "Reviewee ID is required"),
     reviewType: z.string().min(1, "Please select review type"),
     rating: z.number().min(1, "Please select a rating").max(5, "Rating must be between 1 and 5"),
@@ -35,7 +36,7 @@ const RATINGS = [
 ];
 
 const ReviewPage = () => {
-    const { revieweeId, deliveryId, orderId, itemId, orderType, reviewType } = useLocalSearchParams();
+    const { revieweeId, deliveryId, orderId, dispatchId, itemId, orderType, reviewType } = useLocalSearchParams();
     const queryClient = useQueryClient();
     const theme = useColorScheme()
     const { showError, showSuccess } = useToast()
@@ -49,11 +50,11 @@ const ReviewPage = () => {
         resolver: zodResolver(reviewSchema),
         mode: "onChange",
         defaultValues: {
-
             revieweeId: revieweeId as string,
             orderId: orderId as string,
             itemId: itemId as string,
             reviewType: orderType as string,
+            dispatchId: dispatchId as string,
             rating: 1,
             description: "",
         },
@@ -100,6 +101,16 @@ const ReviewPage = () => {
                 comment: data.description,
                 review_type: data.reviewType as ReviewerType,
             });
+        } else if (reviewType === 'rider') {
+            mutate({
+                order_id: data.orderId,
+                reviewee_id: data.revieweeId,
+                dispatch_id: data.dispatchId,
+                rating: data.rating,
+                comment: data.description,
+
+            });
+
         } else {
 
             mutate({
@@ -164,6 +175,21 @@ const ReviewPage = () => {
                                     value={`${revieweeId}`}
                                     editable={false}
                                     label="Reviewee ID"
+                                />
+                            )}
+                        />
+                    </View>
+                    <View>
+
+                        <Controller
+                            control={control}
+                            name="dispatchId"
+                            render={({ field: { onChange, value } }) => (
+                                <AppTextInput
+                                    autoCapitalize="none"
+                                    value={`${dispatchId}`}
+                                    editable={false}
+                                    label="Dispatch ID"
                                 />
                             )}
                         />

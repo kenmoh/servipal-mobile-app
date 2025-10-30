@@ -15,6 +15,23 @@ import { ActivityIndicator, Text, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { z } from "zod";
 
+
+
+const data = {
+  business_name: 'XZ Logistics',
+  business_address: "Banku Ogun state",
+  phone_number: "09088776655",
+  full_name: "John Doe",
+  average_rating: 4.32,
+  profile_image_url: 'image-url',
+  distance_km: 3,
+  reviews: 120,
+  rider_id: 'string-123',
+  email: 'string',
+  bike_number: 'string',
+  review_count: 3,
+  delivery_count: 4,
+}
 const signInSchema = z.object({
   username: z
     .email({ message: "Enter a valid email" })
@@ -158,8 +175,8 @@ const SignIn = () => {
 
         </View>
 
-
       </KeyboardAwareScrollView>
+
     </>
   );
 };

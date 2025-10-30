@@ -26,7 +26,7 @@ import {
   StyleSheet,
   Text,
   useColorScheme,
-  View,
+  View
 } from "react-native";
 
 
@@ -285,12 +285,27 @@ const Cart = () => {
               <Text className="font-poppins-light self-start text-muted ml-5">Additional Information(Optiona)</Text>
               <AppTextInput
                 // label="Additional Information (Optional)"
+                numberOfLines={4}
+                multiline={true}
                 value={infoText}
                 onChangeText={(text) => {
                   setInfoText(text);
                   setAdditionalInfo(text);
                 }}
               />
+              {/* <TextInput
+                multiline={true}
+                numberOfLines={4}
+                placeholder="Additional Information"
+                value={infoText}
+                placeholderTextColor={theme === "dark" ? "white" : "black"}
+                onChangeText={(text) => {
+                  setInfoText(text);
+                  setAdditionalInfo(text);
+                }}
+                className="bg-input rounded-lg text-primary"
+
+              /> */}
             </View>
 
             {require_delivery === "vendor-pickup-and-dropoff" && destination && !modalVisible && (

@@ -1,11 +1,9 @@
 import {
+  Coordinates,
   CreateReview,
   DeliveryDetail,
   OrderFoodOLaundry,
-  OrderLaundry,
   SendItem,
-  Coordinates,
-  UpdateDeliveryLocation
 } from "@/types/order-types";
 import { PaymentLink } from "@/types/payment";
 import { apiClient } from "@/utils/client";
@@ -157,6 +155,7 @@ export const sendItem = async (itemData: SendItem): Promise<DeliveryDetail> => {
   data.append("origin", itemData.origin);
   data.append("destination", itemData.destination);
   data.append("duration", itemData.duration);
+  data.append("rider_id", itemData.riderId);
 
   // Format coordinates without array brackets
   if (itemData.pickup_coordinates) {
@@ -246,18 +245,20 @@ export const createOrder = async (
   }
 };
 
-
 // Vendor mark order elivered
 export const updateOrderStatus = async (
   orderId: string
 ): Promise<DeliveryDetail> => {
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
-      await apiClient.put(`${BASE_URL}/${orderId}/vendor-mark-order-delivered`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      await apiClient.put(
+        `${BASE_URL}/${orderId}/vendor-mark-order-delivered`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
     if (!response.ok || !response.data || "detail" in response.data) {
       const errorMessage =
@@ -306,7 +307,6 @@ export const senderConfirmDeliveryReceived = async (
   }
 };
 
-
 // Confirm Item Received by customer(food/laundry order)
 export const customerConfirmDeliveryReceived = async (
   orderId: string
@@ -339,13 +339,13 @@ export const customerConfirmDeliveryReceived = async (
 };
 
 // Rider Accept Delivery
-export const riderAcceptDelivery = async (
+export const riderAcceptBooking = async (
   orderId: string
 ): Promise<DeliveryDetail> => {
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${orderId}/accept-delivery`,
+        `${BASE_URL}/${orderId}/accept-booking`,
         {},
         {
           headers: {
@@ -358,7 +358,38 @@ export const riderAcceptDelivery = async (
       const errorMessage =
         response.data && "detail" in response.data
           ? response.data.detail
-          : "Error confirming delivery.";
+          : "Error accepting booking.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+// Rider Decline Booking
+export const riderDeclineBooking = async (
+  orderId: string
+): Promise<DeliveryDetail> => {
+  try {
+    const response: ApiResponse<DeliveryDetail | ErrorResponse> =
+      await apiClient.put(
+        `${BASE_URL}/${orderId}/decline-booking`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "An unexpected error occurred";
       throw new Error(errorMessage);
     }
     return response.data;
@@ -434,7 +465,6 @@ export const vendorPickupLaundry = async (
   }
 };
 
-
 // Vendor return laundry
 export const vendorReturnLaundry = async (
   orderId: string
@@ -466,7 +496,6 @@ export const vendorReturnLaundry = async (
     throw new Error("An unexpected error occurred");
   }
 };
-
 
 // Vendor mark order delivered
 export const vendorMarkorderelivered = async (
@@ -532,31 +561,27 @@ export const riderMarkDelivered = async (
   }
 };
 
-type CancelData = {
+export type CancelData = {
+  orderId: string;
   cancelReason: string;
 };
 
-
 // Cancel delivery
 export const cancelDelivery = async (
-  orderId: string,
   cancelData: CancelData
 ): Promise<DeliveryDetail> => {
   const data = {
+    order_id: cancelData.orderId,
     reason: cancelData.cancelReason,
   };
 
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
-      await apiClient.put(
-        `${BASE_URL}/${orderId}/cancel-delivery`,
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      await apiClient.put(`${BASE_URL}/cancel-delivery`, data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
     if (!response.ok || !response.data || "detail" in response.data) {
       const errorMessage =
@@ -729,32 +754,31 @@ export const generateOrderPaymentLink = async (
   }
 };
 
-
-
 // Update location
 export const updateDeliveryLocation = async (
   deliveryId: string,
   riderId: string,
   coordinates: Coordinates
 ): Promise<DeliveryDetail> => {
+  const body = {
+    rider_id: riderId,
+    last_known_rider_coordinates: coordinates,
+  };
 
-  const body =   {
-        rider_id: riderId,
-        last_known_rider_coordinates: coordinates, 
-      }
-
-       console.log('📡 Request body:', body);
+  console.log("📡 Request body:", body);
 
   try {
-    const response: ApiResponse<DeliveryDetail | ErrorResponse> = await apiClient.put(
-      `${BASE_URL}/${deliveryId}/location-update`, body,
-      
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response: ApiResponse<DeliveryDetail | ErrorResponse> =
+      await apiClient.put(
+        `${BASE_URL}/${deliveryId}/location-update`,
+        body,
+
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
     if (!response.ok || !response.data || "detail" in response.data) {
       const errorMessage =

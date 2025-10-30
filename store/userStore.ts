@@ -10,6 +10,7 @@ interface UserStore {
   profile: UserDetails | null;
   images: ImageUrl | null;
   storeId: string | null;
+  riderId: string | null;
   storeAddress: string | null;
   isFirstLaunch: boolean | null;
 
@@ -17,6 +18,7 @@ interface UserStore {
   setProfile: (profile: UserDetails | null) => void;
   setImages: (images: ImageUrl | null) => void;
   setStoreId: (storeId: string | null) => void;
+  setRiderId: (riderId: string | null) => void;
   setStoreAddress: (storeAddress: string | null) => void;
 
   restoreToken: () => Promise<void>;
@@ -30,6 +32,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   profile: null,
   images: null,
   storeId: null,
+  riderId: null,
   storeAddress: null,
   isFirstLaunch: null,
 
@@ -37,6 +40,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   setProfile: (profile) => set({ profile }),
   setImages: (images) => set({ images }),
   setStoreId: (storeId) => set({ storeId }),
+  setRiderId: (riderId) => set({ riderId }),
   setStoreAddress: (storeAddress) => set({ storeAddress }),
 
   checkFirstLaunch: async () => {
