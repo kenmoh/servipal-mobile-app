@@ -11,7 +11,6 @@ import "@/global.css";
 import { useCartStore } from "@/store/cartStore";
 import { useLocationStore } from "@/store/locationStore";
 import { useUserStore } from "@/store/userStore";
-import { startUpdatingUserLocation, stopUpdatingUserLocation } from "@/utils/location-tracking";
 
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import * as Sentry from '@sentry/react-native';
@@ -44,8 +43,6 @@ Sentry.init({
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // staleTime: 1000 * 60 * 5,
-      // gcTime: 1000 * 60 * 30,
       retry: 2,
       refetchOnWindowFocus: true,
     },
@@ -93,25 +90,10 @@ export default Sentry.wrap(function RootLayout() {
     initializeApp();
   }, []);
 
-  // Start background location tracking for authenticated users
-useEffect(() => {
-  if (user?.sub) {
-    console.log("🚀 Starting global background location tracking...");
-    startUpdatingUserLocation();
-  }
-  
-  return () => {
-    if (!user?.sub) {
-      console.log("🛑 User logged out, stopping location tracking...");
-      stopUpdatingUserLocation();
-    }
-  };
-}, [user?.sub]);
 
   if (!loaded) {
     return null;
   }
-
 
   return (
     <>

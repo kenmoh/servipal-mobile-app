@@ -47,6 +47,8 @@ export const Status = React.memo(({ status, label }: { label?: string, status?: 
                 return { bg: 'rgba(18, 2, 75, 0.49)', color: '#bbb' };
             case 'received':
                 return { bg: 'rgba(5, 20, 105, 0.28)', color: 'rgb(44, 64, 179)' };
+            case 'picked-up':
+                return { bg: 'rgba(5, 20, 105, 0.28)', color: 'rgb(44, 64, 179)' };
             case 'laundry_received':
                 return { bg: 'rgba(255, 152, 0, 0.10)', color: '#E65100' };
             case 'canceled':

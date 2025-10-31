@@ -25,6 +25,7 @@ const RiderProfile = ({ ref, riderData, riderId, onPress, showButton = true }: P
 
     const HANDLE_INDICATOR_STYLE = theme === 'dark' ? HEADER_BG_LIGHT : HEADER_BG_DARK
     const HANDLE_STYLE = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
+     const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
 
     const handleCallPress = (phoneNumber: string) => {
         Linking.openURL(`tel:${phoneNumber}`);
@@ -43,7 +44,7 @@ const RiderProfile = ({ ref, riderData, riderId, onPress, showButton = true }: P
 
     return <BottomSheet
         ref={ref}
-        snapPoints={['55%']}
+        snapPoints={['65%']}
         index={-1}
         animateOnMount={true}
         animationConfigs={{
@@ -53,6 +54,7 @@ const RiderProfile = ({ ref, riderData, riderId, onPress, showButton = true }: P
         backgroundStyle={{
             borderTopLeftRadius: 40,
             borderTopRightRadius: 40,
+            backgroundColor: BG_COLOR,
             shadowColor: 'orange',
             shadowOffset: {
                 width: 0,
@@ -68,7 +70,7 @@ const RiderProfile = ({ ref, riderData, riderId, onPress, showButton = true }: P
 
     >
 
-        {isLoading ? <BottomSheetView className="flex-1 bg-primary justify-center items-center"><ActivityIndicator size={'large'} /></BottomSheetView> : <BottomSheetView className={'bg-background flex-1'}>
+        {isLoading ? <BottomSheetView style={{ flex: 1 }} className="flex-1 bg-primary justify-center items-center"><ActivityIndicator size={'large'} /></BottomSheetView> : <BottomSheetView style={{ flex: 1 }}  className={'bg-background flex-1'}>
 
             <>
 
@@ -79,7 +81,7 @@ const RiderProfile = ({ ref, riderData, riderId, onPress, showButton = true }: P
                     <Text className="text-primary font-poppins-semibold text-lg">{rider?.full_name} </Text>
                     {!showButton && <Text onPress={() => handleCallPress(rider?.phone_number!)} className="text-primary font-poppins text-sm">{rider?.phone_number} </Text>}
 
-                    <View className="flex-row gap-31 items-center">
+                    <View className="flex-row gap-1 items-center">
                         <Building color={"gray"} size={14} />
                         <Text className="text-muted font-poppins text-sm text-center"> {rider?.business_name}</Text>
                     </View>

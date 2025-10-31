@@ -2,39 +2,10 @@ import { updateDeliveryLocation } from "@/api/order";
 import { updateUserLocation } from "@/api/user";
 import { Coordinates } from "@/types/order-types";
 import * as Location from "expo-location";
-import * as TaskManager from "expo-task-manager";
 
 let currentTrackingInterval: NodeJS.Timeout | null = null;
 let currentDeliveryId: string | null = null;
 let currentRiderId: string | null = null;
-
-// Background task name
-const BACKGROUND_LOCATION_TASK = "background-location-task";
-
-// Define the background task
-TaskManager.defineTask(BACKGROUND_LOCATION_TASK, async ({ data, error }) => {
-  if (error) {
-    console.error("Background location task error:", error);
-    return;
-  }
-  if (data) {
-    const { locations } = data as { locations: Location.LocationObject[] };
-    if (locations && locations.length > 0) {
-      const location = locations[0];
-      console.log("📍 Background location update received:", location.coords);
-      
-      try {
-        // Send user location update
-        await sendUserLocationUpdate(
-          location.coords.latitude,
-          location.coords.longitude
-        );
-      } catch (err) {
-        console.error("Failed to send location update:", err);
-      }
-    }
-  }
-});
 
 
 /**
@@ -72,75 +43,6 @@ export const startDeliveryTracking = async (
   ) as unknown as NodeJS.Timeout;
 };
 
-/**
- * Starts sending user location using background location tracking
- */
-export const startUpdatingUserLocation = async (): Promise<void> => {
-  try {
-    // Check if already running
-    const isRegistered = await TaskManager.isTaskRegisteredAsync(
-      BACKGROUND_LOCATION_TASK
-    );
-    
-    if (isRegistered) {
-      console.log("📍 Background location tracking already running");
-      return;
-    }
-
-    // Request foreground permission first
-    const { status: foregroundStatus } =
-      await Location.requestForegroundPermissionsAsync();
-    if (foregroundStatus !== "granted") {
-      console.warn("Foreground location permission denied");
-      return;
-    }
-
-    // Request background permission
-    const { status: backgroundStatus } =
-      await Location.requestBackgroundPermissionsAsync();
-    if (backgroundStatus !== "granted") {
-      console.warn("Background location permission denied");
-      return;
-    }
-
-    // Start background location updates
-    await Location.startLocationUpdatesAsync(BACKGROUND_LOCATION_TASK, {
-      accuracy: Location.Accuracy.Balanced,
-      timeInterval: 5 * 60 * 1000, // 5 minutes
-      distanceInterval: 0, // Update based on time interval
-      showsBackgroundLocationIndicator: true, // iOS only
-      foregroundService: {
-        notificationTitle: "Location Tracking",
-        notificationBody: "Your location is being tracked in the background",
-        notificationColor: "#FF0000",
-      },
-    });
-
-    console.log("✅ Background location tracking started");
-  } catch (error) {
-    console.error("❌ Failed to start background location tracking:", error);
-  }
-};
-
-/**
- * Stops background location tracking
- */
-export const stopUpdatingUserLocation = async (): Promise<void> => {
-  try {
-    const isRegistered = await TaskManager.isTaskRegisteredAsync(
-      BACKGROUND_LOCATION_TASK
-    );
-    
-    if (isRegistered) {
-      await Location.stopLocationUpdatesAsync(BACKGROUND_LOCATION_TASK);
-      console.log("📍 Background location tracking stopped");
-    } else {
-      console.log("📍 Background location tracking was not running");
-    }
-  } catch (error) {
-    console.error("❌ Failed to stop background location tracking:", error);
-  }
-};
 
 /**
  * Stops tracking immediately
@@ -155,25 +57,7 @@ export const stopDeliveryTracking = (): void => {
   console.log("📍 Delivery tracking stopped");
 };
 
-/**
- * Helper function to send user location update
- */
-const sendUserLocationUpdate = async (
-  latitude: number,
-  longitude: number
-): Promise<void> => {
-  try {
-    const coords = {
-      lat: latitude,
-      lng: longitude,
-    };
 
-    await updateUserLocation(coords);
-    console.log("✅ User location sent from background:", coords);
-  } catch (error) {
-    console.error("❌ Failed to send user location from background:", error);
-  }
-};
 
 /**
  * Sends current location to backend (called every 5 min + on start)
@@ -188,19 +72,20 @@ const sendCurrentLocation = async (): Promise<void> => {
 
     const { latitude, longitude } = location.coords;
 
-    const coords: Coordinates = [latitude, longitude];
-    console.log("Coords before send:", coords);
+    const payload: UpdateDeliveryLocation = {
+      rider_id: currentRiderId,
+      last_known_rider_coordinates: [latitude, longitude] as Coordinates,
+    };
 
-    await updateDeliveryLocation(currentDeliveryId, currentRiderId, coords);
-    console.log("✅ Location sent for delivery:", currentDeliveryId, coords);
-  } catch (error) {
-    console.error("❌ Failed to send location:", error);
+    console.log("Sending location to API:", payload);
+
+    const response = await updateDeliveryLocation(currentDeliveryId, payload);
+    console.log("API Response:", response);
+  } catch (error: any) {
+    console.error("Failed to send location:", error?.message || error);
   }
 };
-/**
- * Sends current location to backend (called every 5 min + on start)
- */
-// const sendUserLocation = async (): Promise<void> => {
+// const sendCurrentLocation = async (): Promise<void> => {
 //   if (!currentDeliveryId || !currentRiderId) return;
 
 //   try {
@@ -210,14 +95,17 @@ const sendCurrentLocation = async (): Promise<void> => {
 
 //     const { latitude, longitude } = location.coords;
 
-//     const coords = {
-//       lat: latitude,
-//       lng: longitude,
-//     };
-//     console.log("Coords before send:", coords);
+//     const coords: Coordinates = [latitude, longitude];
+  
+//     const locationData = {
+//       rider_id: currentRiderId,
+//       last_known_rider_coordinates: coords
+//     }
 
-//     await updateUserLocation(coords);
-//     console.log("✅ User location sent:", coords);
+//     console.log("Location Data before send:", locationData);
+
+//     await updateDeliveryLocation(currentDeliveryId, locationData);
+//     console.log("✅ Location sent for delivery:", currentDeliveryId, locationData);
 //   } catch (error) {
 //     console.error("❌ Failed to send location:", error);
 //   }

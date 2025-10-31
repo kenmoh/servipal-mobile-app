@@ -3,6 +3,7 @@ import {
   CreateReview,
   DeliveryDetail,
   OrderFoodOLaundry,
+  UpdateDeliveryLocation,
   SendItem,
 } from "@/types/order-types";
 import { PaymentLink } from "@/types/payment";
@@ -245,7 +246,7 @@ export const createOrder = async (
   }
 };
 
-// Vendor mark order elivered
+// Vendor mark order delivered
 export const updateOrderStatus = async (
   orderId: string
 ): Promise<DeliveryDetail> => {
@@ -599,6 +600,40 @@ export const cancelDelivery = async (
   }
 };
 
+// Assign rider to existing delivery
+export const assignRiderToExistingDelivery = async (
+  deliveryId: string,
+  riderId: string
+): Promise<DeliveryDetail> => {
+  const params = new URLSearchParams({ rider_id: riderId });
+
+  try {
+    const response: ApiResponse<DeliveryDetail | ErrorResponse> =
+      await apiClient.put(
+        `${BASE_URL}/${deliveryId}/assign-rider-to-existing-delivery-order${params.toString()}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error assigning rider to this order.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
 // Relist item
 export const relistDelivery = async (
   deliveryId: string
@@ -757,20 +792,19 @@ export const generateOrderPaymentLink = async (
 // Update location
 export const updateDeliveryLocation = async (
   deliveryId: string,
-  riderId: string,
-  coordinates: Coordinates
-): Promise<DeliveryDetail> => {
+  locationData: UpdateDeliveryLocation
+): Promise<UpdateDeliveryLocation> => {
   const body = {
-    rider_id: riderId,
-    last_known_rider_coordinates: coordinates,
+    rider_id: locationData.rider_id,
+    last_known_rider_coordinates: locationData.last_known_rider_coordinates,
   };
 
   console.log("📡 Request body:", body);
 
   try {
-    const response: ApiResponse<DeliveryDetail | ErrorResponse> =
+    const response: ApiResponse<UpdateDeliveryLocation | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${deliveryId}/location-update`,
+        `${BASE_URL}/${deliveryId}/delivery-location-update`,
         body,
 
         {

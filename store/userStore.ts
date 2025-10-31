@@ -11,6 +11,7 @@ interface UserStore {
   images: ImageUrl | null;
   storeId: string | null;
   riderId: string | null;
+  isReassign: boolean;
   storeAddress: string | null;
   isFirstLaunch: boolean | null;
 
@@ -19,6 +20,7 @@ interface UserStore {
   setImages: (images: ImageUrl | null) => void;
   setStoreId: (storeId: string | null) => void;
   setRiderId: (riderId: string | null) => void;
+  setisReassign: (isReassign: boolean) => void;
   setStoreAddress: (storeAddress: string | null) => void;
 
   restoreToken: () => Promise<void>;
@@ -33,6 +35,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   images: null,
   storeId: null,
   riderId: null,
+  isReassign: false,
   storeAddress: null,
   isFirstLaunch: null,
 
@@ -41,6 +44,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   setImages: (images) => set({ images }),
   setStoreId: (storeId) => set({ storeId }),
   setRiderId: (riderId) => set({ riderId }),
+  setisReassign: (isReassign) => set({ isReassign }),
   setStoreAddress: (storeAddress) => set({ storeAddress }),
 
   checkFirstLaunch: async () => {

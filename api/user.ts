@@ -564,6 +564,7 @@ export const updateUserLocation = async (
     lat: coords.lat,
     lng: coords.lng,
   };
+
   try {
     const response: ApiResponse<UserCoords | ErrorResponse> =
       await apiClient.put(`${BASE_URL}/update-user-location`, data, {

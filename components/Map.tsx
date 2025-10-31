@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
-import MapView, { PROVIDER_GOOGLE, Marker, Polyline } from "react-native-maps";
 import { useLocationStore } from "@/store/locationStore";
 import { getDirections } from "@/utils/map";
-import { View, Text, StyleSheet } from "react-native";
-import scooter from '@/assets/images/scooter.jpg'
+import { useEffect, useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
+
 // helper to format duration into hr/min
 const formatDuration = (seconds: number): string => {
   const minutes = Math.round(seconds / 60);
@@ -16,9 +16,25 @@ const formatDuration = (seconds: number): string => {
     : `${hours} hr`;
 };
 
-const Map = ({id}: {id: string}) => {
+const Map = ({ id }: { id: string }) => {
   const { originCoords, destinationCoords, origin, destination, riderLocation } =
     useLocationStore();
+
+
+// const riderLocation = {
+//   deliveryId: id, // Use the current delivery ID
+//   coordinates: [6.6749798, 3.4221895] as [number, number],
+// };
+
+// console.log('HARDCODED RIDER:', riderLocation);
+const showRider = riderLocation && riderLocation.deliveryId === id;
+  
+console.log('MAP DEBUG:', {
+  id,
+  riderLocation,
+  showRider,
+  hasCoords: riderLocation?.coordinates,
+});
 
   const [route, setRoute] = useState<number[][]>([]);
   const [region, setRegion] = useState({
@@ -59,7 +75,7 @@ const Map = ({id}: {id: string}) => {
     fetchRoute();
   }, [originCoords, destinationCoords]);
 
-const showRider = riderLocation && riderLocation.deliveryId === id;
+  
   return (
     <View style={{ flex: 1 }}>
       <MapView
@@ -94,15 +110,16 @@ const showRider = riderLocation && riderLocation.deliveryId === id;
           />
         )}
 
-         {showRider && (
+        {showRider && (
           <Marker
+            key={`${riderLocation.deliveryId}-${riderLocation.coordinates.join(",")}`}
             coordinate={{
               latitude: riderLocation.coordinates[0],
               longitude: riderLocation.coordinates[1],
             }}
             title="Rider"
-            pinColor="yellow"
-            // image={scooter} 
+            pinColor="purple"
+          // image={scooter} 
           />)}
         {route.length > 0 && (
           <Polyline
@@ -118,7 +135,7 @@ const showRider = riderLocation && riderLocation.deliveryId === id;
 
       {/* Overlay box for distance & duration */}
       {distance > 0 && duration && (
-        <View  style={styles.overlay}>
+        <View style={styles.overlay}>
           <Text className="font-poppins text-sm text-white">Distance: {distance.toFixed(2)} km</Text>
           <Text className="font-poppins text-sm text-white">Duration: {duration}</Text>
         </View>

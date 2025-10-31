@@ -49,13 +49,19 @@ const DeliveryLayout = () => {
                 <DeliveryTabs.Screen
                     name="index"
                     options={{
+                        tabBarLabel: 'Riders',
+                    }}
+                />
+                  <DeliveryTabs.Screen
+                    name="delivery"
+                    options={{
                         tabBarLabel: 'Delivery',
                     }}
                 />
                 <DeliveryTabs.Screen
                     name="orders"
                     options={{
-                        tabBarLabel: 'My Orders',
+                        tabBarLabel: 'Food/Laundry',
                     }}
                 />
             </DeliveryTabs>
