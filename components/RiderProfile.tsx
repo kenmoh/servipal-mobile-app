@@ -3,7 +3,7 @@ import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 import { RiderProps } from "@/types/user-types";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { useQuery } from "@tanstack/react-query";
-import { Building, MapPin } from "lucide-react-native";
+import { Building, MapPin, Phone } from "lucide-react-native";
 import { Ref } from "react";
 import { ActivityIndicator, Image, Linking, Text, useColorScheme, View } from "react-native";
 import { Easing } from "react-native-reanimated";
@@ -44,7 +44,7 @@ const RiderProfile = ({ ref, riderData, riderId, onPress, showButton = true }: P
 
     return <BottomSheet
         ref={ref}
-        snapPoints={['65%']}
+        snapPoints={['50%']}
         index={-1}
         animateOnMount={true}
         animationConfigs={{
@@ -69,50 +69,62 @@ const RiderProfile = ({ ref, riderData, riderId, onPress, showButton = true }: P
         handleIndicatorStyle={{ backgroundColor: HANDLE_INDICATOR_STYLE }} style={{ flex: 1 }} handleStyle={{ backgroundColor: HANDLE_STYLE }}
 
     >
-
-        {isLoading ? <BottomSheetView style={{ flex: 1 }} className="flex-1 bg-primary justify-center items-center"><ActivityIndicator size={'large'} /></BottomSheetView> : <BottomSheetView style={{ flex: 1 }}  className={'bg-background flex-1'}>
-
-            <>
-
-                <View className="p-4 items-center flex-1 bg-background">
-                    <View className="w-28 h-28 rounded-full overflow-hidden">
-                        <Image src={rider?.profile_image_url} className="w-28 h-28 rounded-full" />
+       {isLoading ? (
+                <BottomSheetView style={{ flex: 1 }}>
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: BG_COLOR }}>
+                        <ActivityIndicator size={'large'} color="orange" />
                     </View>
-                    <Text className="text-primary font-poppins-semibold text-lg">{rider?.full_name} </Text>
-                    {!showButton && <Text onPress={() => handleCallPress(rider?.phone_number!)} className="text-primary font-poppins text-sm">{rider?.phone_number} </Text>}
+                </BottomSheetView>
+            ) : (
+                <BottomSheetView style={{ flex: 1 }} className={'bg-background'}>
+                    <View className="p-4 items-center flex-1 bg-background">
+                        <View className="w-28 h-28 rounded-full overflow-hidden">
+                            <Image src={rider?.profile_image_url} className="w-28 h-28 rounded-full" />
+                        </View>
+                        <Text className="text-primary font-poppins-semibold text-lg mt-1">{rider?.full_name}</Text>
+                        {!showButton && (
+                            <View className="flex-row gap-1 items-center mt-1">
+                            <Phone color="gray" size={15} />
+                            <Text onPress={() => handleCallPress(rider?.phone_number!)} className="text-primary font-poppins text-sm">
+                                {rider?.phone_number}
+                            </Text>
+                            </View>
+                        )}
 
-                    <View className="flex-row gap-1 items-center">
-                        <Building color={"gray"} size={14} />
-                        <Text className="text-muted font-poppins text-sm text-center"> {rider?.business_name}</Text>
+                        <View className="flex-row gap-1 items-center mt-1">
+                            <Building color={"gray"} size={14} />
+                            <Text className="text-muted font-poppins text-sm text-center">{rider?.business_name}</Text>
+                        </View>
+                        <View className="flex-row gap-1">
+                            <MapPin color={"gray"} size={14} />
+                            <Text className="text-muted font-poppins text-sm text-center">{rider?.business_address}</Text>
+                        </View>
                     </View>
-                    <View className="flex-row gap-1 ">
-                        <MapPin color={"gray"} size={14} />
-                        <Text className="text-muted font-poppins text-sm text-center"> {rider?.business_address}</Text>
+                    
+                    <HDivider />
+                    
+                    <View className="flex-row my-4 justify-between w-[80%] self-center">
+                        <View className="items-center">
+                            <Text className="text-xl font-poppins-bold text-primary">{rider?.delivery_count}</Text>
+                            <Text className="font-poppins-light text-muted text-sm">Trips</Text>
+                        </View>
+                        <View className="items-center">
+                            <Text className="text-xl font-poppins-bold text-primary">{rider?.average_rating}</Text>
+                            <Text className="font-poppins-light text-muted text-sm">Rating</Text>
+                        </View>
+                        <View className="items-center">
+                            <Text className="text-xl font-poppins-bold text-primary">{rider?.bike_number.toUpperCase()}</Text>
+                            <Text className="font-poppins-light text-muted text-sm">Bike Number</Text>
+                        </View>
                     </View>
-                </View>
-                <HDivider />
-                <View className="flex-row my-4 justify-between w-[80%] self-center">
-                    <View className="items-center">
-                        <Text className="text-xl font-poppins-bold text-primary">{rider?.delivery_count}</Text>
-                        <Text className="font-poppins-light text-muted text-sm">Trips</Text>
-                    </View>
-                    <View className="items-center">
-                        <Text className="text-xl font-poppins-bold text-primary">{rider?.average_rating}</Text>
-                        <Text className="font-poppins-light text-muted text-sm">Rating</Text>
-                    </View>
-                    <View className="items-center">
-                        <Text className="text-xl font-poppins-bold text-primary">{rider?.bike_number.toUpperCase()}</Text>
-                        <Text className="font-poppins-light text-muted text-sm">Bike Number</Text>
-                    </View>
-                </View>
 
-                {showButton && <View className=" bg-background mb-3">
-                    <AppVariantButton width={'70%'} borderRadius={50} label="Book Rider" onPress={onPress} />
-                </View>}
-
-            </>
-
-        </BottomSheetView>}
+                    {showButton && (
+                        <View className="bg-background mb-3">
+                            <AppVariantButton width={'70%'} borderRadius={50} label="Book Rider" onPress={onPress} />
+                        </View>
+                    )}
+                </BottomSheetView>
+            )}
     </BottomSheet>;
 }
 

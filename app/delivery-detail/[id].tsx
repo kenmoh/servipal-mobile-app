@@ -3,11 +3,14 @@ import React, { useEffect, useRef } from "react";
 import {
   ActivityIndicator,
   Alert,
-  StyleSheet,
+  Dimensions,
+  Image,
+  Modal,
   Text,
   TouchableOpacity,
   useColorScheme,
-  View,
+  StyleSheet,
+  View
 } from "react-native";
 
 import {
@@ -39,6 +42,7 @@ import { useLocationStore } from "@/store/locationStore";
 import { useOrderStore } from "@/store/orderStore";
 import { useUserStore } from "@/store/userStore";
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as Sentry from '@sentry/react-native';
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import {
@@ -51,7 +55,6 @@ import {
 } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
-import * as Sentry from '@sentry/react-native';
 
 const cancelSchema = z.object({
   orderId: z.string(),
@@ -66,6 +69,7 @@ const ItemDetails = () => {
   const { user, setisReassign } = useUserStore();
   const { setDeliveryId } = useOrderStore()
   const { showError, showSuccess, showInfo, showWarning } = useToast();
+  const [modalVisible, setModalVisible] = React.useState(false);
   const isMountedRef = useRef(true);
   const wsRef = useRef<WebSocket | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -113,32 +117,317 @@ const ItemDetails = () => {
 
   const queryClient = useQueryClient();
 
+  // const confirmReceivedMutation = useMutation({
+  //   mutationFn: () => senderConfirmDeliveryReceived(id as string),
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["order", id],
+  //       exact: false,
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["orders"],
+  //       exact: false,
+  //     });
+
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["orders", user?.sub],
+  //       exact: false,
+  //     });
+
+  //     queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
+  //     queryClient.refetchQueries({
+  //       queryKey: ["orders", user?.sub],
+  //       exact: false,
+  //     });
+
+  //     refetch();
+  //     router.push('/(app)/delivery/(topTabs)/orders');
+  //     showSuccess("Success", "Delivery confirmed and received.");
+  //   },
+
+
+  //   onError: (error: Error) => {
+  //     showError("Error", error.message);
+  //   },
+  // });
+
+  // const acceptDeliveryMutation = useMutation({
+  //   mutationFn: (deliveryId: string) => riderAcceptBooking(deliveryId),
+  //   onSuccess: async (_, deliveryId) => {
+  //     Sentry.addBreadcrumb({
+  //       message: 'Delivery accepted successfully',
+  //       category: 'delivery',
+  //       level: 'info',
+  //       data: { orderId: data?.order?.id }
+  //     });
+  //     router.back();
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["order", id],
+  //       exact: false,
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["orders"],
+  //       exact: false,
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["orders", user?.sub],
+  //       exact: false,
+  //     });
+
+  //     queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
+  //     queryClient.refetchQueries({
+  //       queryKey: ["orders", user?.sub],
+  //       exact: false,
+  //     });
+
+  //     refetch();
+  //     await startDeliveryTracking(data?.delivery?.id!, user?.sub!);
+
+  //     showSuccess(
+  //       "Success",
+  //       "This order has been assigned to you. Drive carefully!"
+  //     );
+  //   },
+  //   onError: (error: Error) => {
+  //     showError("Error", error.message);
+  //     Sentry.captureException(error, {
+  //       extra: {
+  //         orderId: data?.order?.id,
+  //         action: 'accept_delivery'
+  //       },
+  //       tags: {
+  //         feature: 'delivery-management'
+  //       }
+  //     });
+  //   },
+  // });
+  // const pickupDeliveryMutation = useMutation({
+  //   mutationFn: (deliveryId: string) => riderPickupDelivery(deliveryId),
+  //   onSuccess: async (_, deliveryId) => {
+  //     Sentry.addBreadcrumb({
+  //       message: 'Delivery accepted successfully',
+  //       category: 'delivery',
+  //       level: 'info',
+  //       data: { orderId: data?.order?.id }
+  //     });
+  //     router.back();
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["order", id],
+  //       exact: false,
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["orders"],
+  //       exact: false,
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["orders", user?.sub],
+  //       exact: false,
+  //     });
+
+  //     queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
+  //     queryClient.refetchQueries({
+  //       queryKey: ["orders", user?.sub],
+  //       exact: false,
+  //     });
+
+  //     refetch();
+  //     await startDeliveryTracking(data?.delivery?.id!, user?.sub!);
+
+  //     showWarning(
+  //       "Item Pickup",
+  //       "Please confirm the item is correct, complete and ok before living.",
+  //       5
+  //     );
+  //   },
+  //   onError: (error: Error) => {
+  //     showError("Error", error.message);
+  //     Sentry.captureException(error, {
+  //       extra: {
+  //         orderId: data?.order?.id,
+  //         action: 'accept_delivery'
+  //       },
+  //       tags: {
+  //         feature: 'delivery-management'
+  //       }
+  //     });
+  //   },
+  // });
+
+  // const declineBookingMutation = useMutation({
+  //   mutationFn: (deliveryId: string) => riderDeclineBooking(deliveryId),
+  //   onSuccess: async (_, deliveryId) => {
+  //     Sentry.addBreadcrumb({
+  //       message: 'Delivery accepted successfully',
+  //       category: 'delivery',
+  //       level: 'info',
+  //       data: { orderId: data?.order?.id }
+  //     });
+  //     router.back();
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["order", id],
+  //       exact: false,
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["orders"],
+  //       exact: false,
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["orders", user?.sub],
+  //       exact: false,
+  //     });
+
+  //     queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
+  //     queryClient.refetchQueries({
+  //       queryKey: ["orders", user?.sub],
+  //       exact: false,
+  //     });
+
+  //     refetch();
+  //     await startDeliveryTracking(data?.delivery?.id!, user?.sub!);
+
+  //     showWarning("Decline", "Booking declined!");
+  //   },
+  //   onError: (error: Error) => {
+  //     showError("Error", error.message);
+  //     Sentry.captureException(error, {
+  //       extra: {
+  //         orderId: data?.order?.id,
+  //         action: 'accept_delivery'
+  //       },
+  //       tags: {
+  //         feature: 'delivery-management'
+  //       }
+  //     });
+  //   },
+  // });
+
+  // const markDeliveredMutation = useMutation({
+  //   mutationFn: (deliveryId: string) => riderMarkDelivered(deliveryId),
+  //   onSuccess: (_, deliveryId) => {
+  //     Sentry.addBreadcrumb({
+  //       message: 'Delivery accepted successfully',
+  //       category: 'delivery',
+  //       level: 'info',
+  //       data: { orderId: data?.order?.id }
+  //     });
+  //     router.back();
+  //     // Invalidate all related queries
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["order", id],
+  //       exact: false,
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["orders"],
+  //       exact: false,
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["orders", user?.sub],
+  //       exact: false,
+  //     });
+
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["orders", data?.delivery?.sender_id],
+  //       exact: false,
+  //     });
+
+  //     // Force refetch of all order-related queries
+  //     queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
+  //     queryClient.refetchQueries({
+  //       queryKey: ["orders", user?.sub],
+  //       exact: false,
+  //     });
+
+  //     refetch();
+  //     stopDeliveryTracking();
+  //     useLocationStore.getState().clearRiderLocation();
+  //     showSuccess("Success", "Item delivered.");
+  //   },
+  //   onError: (error: Error) => {
+  //     showError("Error", error.message);
+  //     Sentry.captureException(error, {
+  //       extra: {
+  //         orderId: data?.order?.id,
+  //         action: 'accept_delivery'
+  //       },
+  //       tags: {
+  //         feature: 'delivery-management'
+  //       }
+  //     });
+  //   },
+  // });
+
+  // const cancelDeliveryMutation = useMutation({
+  //   mutationFn: cancelDelivery,
+  //   onSuccess: () => {
+  //     Sentry.addBreadcrumb({
+  //       message: 'Delivery accepted successfully',
+  //       category: 'delivery',
+  //       level: 'info',
+  //       data: { orderId: data?.order.id }
+  //     });
+  //     router.back();
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["order", id],
+  //       exact: false,
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["orders"],
+  //       exact: false,
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["orders", user?.sub],
+  //       exact: false,
+  //     });
+
+  //     queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
+  //     queryClient.refetchQueries({
+  //       queryKey: ["orders", user?.sub],
+  //       exact: false,
+  //     });
+
+  //     refetch();
+  //     router.push("/(app)/delivery/(topTabs)/orders");
+
+  //     showInfo("Delivery cancelled!");
+  //   },
+  //   onError: (error: Error) => {
+  //     showError("Error", error.message);
+  //     Sentry.captureException(error, {
+  //       extra: {
+  //         orderId: data?.order?.id,
+  //         action: 'accept_delivery'
+  //       },
+  //       tags: {
+  //         feature: 'delivery-management'
+  //       }
+  //     });
+  //   },
+  // });
+
+
   const confirmReceivedMutation = useMutation({
     mutationFn: () => senderConfirmDeliveryReceived(id as string),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      // Invalidate queries first
+      await queryClient.invalidateQueries({
         queryKey: ["order", id],
-        exact: false,
       });
-      queryClient.invalidateQueries({
-        queryKey: ["orders"],
-        exact: false,
+      await queryClient.invalidateQueries({
+        queryKey: ["user-orders", user?.sub],
       });
-
-      queryClient.invalidateQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
+      await queryClient.invalidateQueries({
+        queryKey: ["user-orders", data?.delivery?.sender_id],
       });
 
-      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-      queryClient.refetchQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
-      });
+      // Wait for refetch to complete
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["order", id] }),
+        queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
+      ]);
 
-      refetch();
-      router.push('/(app)/delivery/(topTabs)/orders');
+      // Then navigate and show success
       showSuccess("Success", "Delivery confirmed and received.");
+      router.back();
     },
     onError: (error: Error) => {
       showError("Error", error.message);
@@ -148,250 +437,246 @@ const ItemDetails = () => {
   const acceptDeliveryMutation = useMutation({
     mutationFn: (deliveryId: string) => riderAcceptBooking(deliveryId),
     onSuccess: async (_, deliveryId) => {
-        Sentry.addBreadcrumb({
+      Sentry.addBreadcrumb({
         message: 'Delivery accepted successfully',
         category: 'delivery',
         level: 'info',
-        data: { orderId: data.order.id }
-    });
-      queryClient.invalidateQueries({
+        data: { orderId: data?.order?.id }
+      });
+
+      // Invalidate queries first
+      await queryClient.invalidateQueries({
         queryKey: ["order", id],
-        exact: false,
       });
-      queryClient.invalidateQueries({
-        queryKey: ["orders"],
-        exact: false,
+      await queryClient.invalidateQueries({
+        queryKey: ["user-orders", user?.sub],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
+      await queryClient.invalidateQueries({
+        queryKey: ["user-orders", data?.delivery?.sender_id],
       });
 
-      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-      queryClient.refetchQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
-      });
+      // Wait for refetch to complete
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["order", id] }),
+        queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
+      ]);
 
-      refetch();
+      // Start tracking
       await startDeliveryTracking(data?.delivery?.id!, user?.sub!);
 
+      // Then navigate and show success
       showSuccess(
         "Success",
         "This order has been assigned to you. Drive carefully!"
       );
+      router.back();
     },
     onError: (error: Error) => {
       showError("Error", error.message);
       Sentry.captureException(error, {
-      extra: {
-        orderId: data.order.id,
-        action: 'accept_delivery'
-      },
-      tags: {
-        feature: 'delivery-management'
-      }
-    });
+        extra: {
+          orderId: data?.order?.id,
+          action: 'accept_delivery'
+        },
+        tags: {
+          feature: 'delivery-management'
+        }
+      });
     },
   });
+
   const pickupDeliveryMutation = useMutation({
     mutationFn: (deliveryId: string) => riderPickupDelivery(deliveryId),
     onSuccess: async (_, deliveryId) => {
-        Sentry.addBreadcrumb({
-        message: 'Delivery accepted successfully',
+      Sentry.addBreadcrumb({
+        message: 'Delivery pickup confirmed',
         category: 'delivery',
         level: 'info',
-        data: { orderId: data.order.id }
-    });
-      queryClient.invalidateQueries({
+        data: { orderId: data?.order?.id }
+      });
+
+      // Invalidate queries first
+      await queryClient.invalidateQueries({
         queryKey: ["order", id],
-        exact: false,
       });
-      queryClient.invalidateQueries({
-        queryKey: ["orders"],
-        exact: false,
+      await queryClient.invalidateQueries({
+        queryKey: ["user-orders", user?.sub],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
+      await queryClient.invalidateQueries({
+        queryKey: ["user-orders", data?.delivery?.sender_id],
       });
 
-      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-      queryClient.refetchQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
-      });
+      // Wait for refetch to complete
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["order", id] }),
+        queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
+      ]);
 
-      refetch();
+      // Start tracking
       await startDeliveryTracking(data?.delivery?.id!, user?.sub!);
 
+      // Then navigate and show warning
       showWarning(
         "Item Pickup",
-        "Please confirm the item is correct, complete and ok before living.",
+        "Please confirm the item is correct, complete and ok before leaving.",
         5
       );
+      router.back();
     },
     onError: (error: Error) => {
       showError("Error", error.message);
-        Sentry.captureException(error, {
-      extra: {
-        orderId: data.order.id,
-        action: 'accept_delivery'
-      },
-      tags: {
-        feature: 'delivery-management'
-      }
-    });
+      Sentry.captureException(error, {
+        extra: {
+          orderId: data?.order?.id,
+          action: 'pickup_delivery'
+        },
+        tags: {
+          feature: 'delivery-management'
+        }
+      });
     },
   });
 
   const declineBookingMutation = useMutation({
     mutationFn: (deliveryId: string) => riderDeclineBooking(deliveryId),
     onSuccess: async (_, deliveryId) => {
-        Sentry.addBreadcrumb({
-        message: 'Delivery accepted successfully',
+      Sentry.addBreadcrumb({
+        message: 'Booking declined',
         category: 'delivery',
         level: 'info',
-        data: { orderId: data.order.id }
-    });
-      queryClient.invalidateQueries({
+        data: { orderId: data?.order?.id }
+      });
+
+      // Invalidate queries first
+      await queryClient.invalidateQueries({
         queryKey: ["order", id],
-        exact: false,
       });
-      queryClient.invalidateQueries({
-        queryKey: ["orders"],
-        exact: false,
+      await queryClient.invalidateQueries({
+        queryKey: ["user-orders", user?.sub],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
+      await queryClient.invalidateQueries({
+        queryKey: ["user-orders", data?.delivery?.sender_id],
       });
 
-      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-      queryClient.refetchQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
-      });
+      // Wait for refetch to complete
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["order", id] }),
+        queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
+      ]);
 
-      refetch();
-      await startDeliveryTracking(data?.delivery?.id!, user?.sub!);
-
+      // Then navigate and show warning
       showWarning("Decline", "Booking declined!");
+      router.back();
     },
     onError: (error: Error) => {
       showError("Error", error.message);
-        Sentry.captureException(error, {
-      extra: {
-        orderId: data.order.id,
-        action: 'accept_delivery'
-      },
-      tags: {
-        feature: 'delivery-management'
-      }
-    });
+      Sentry.captureException(error, {
+        extra: {
+          orderId: data?.order?.id,
+          action: 'decline_booking'
+        },
+        tags: {
+          feature: 'delivery-management'
+        }
+      });
     },
   });
 
   const markDeliveredMutation = useMutation({
     mutationFn: (deliveryId: string) => riderMarkDelivered(deliveryId),
-    onSuccess: (_, deliveryId) => {
-        Sentry.addBreadcrumb({
-        message: 'Delivery accepted successfully',
+    onSuccess: async (_, deliveryId) => {
+      Sentry.addBreadcrumb({
+        message: 'Delivery marked as delivered',
         category: 'delivery',
         level: 'info',
-        data: { orderId: data.order.id }
-    });
-      // Invalidate all related queries
-      queryClient.invalidateQueries({
+        data: { orderId: data?.order?.id }
+      });
+
+      // Invalidate queries first
+      await queryClient.invalidateQueries({
         queryKey: ["order", id],
-        exact: false,
       });
-      queryClient.invalidateQueries({
-        queryKey: ["orders"],
-        exact: false,
+      await queryClient.invalidateQueries({
+        queryKey: ["user-orders", user?.sub],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
+      await queryClient.invalidateQueries({
+        queryKey: ["user-orders", data?.delivery?.sender_id],
       });
 
-      queryClient.invalidateQueries({
-        queryKey: ["orders", data?.delivery?.sender_id],
-        exact: false,
-      });
+      // Wait for refetch to complete
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["order", id] }),
+        queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
+      ]);
 
-      // Force refetch of all order-related queries
-      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-      queryClient.refetchQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
-      });
-
-      refetch();
+      // Stop tracking and clear location
       stopDeliveryTracking();
       useLocationStore.getState().clearRiderLocation();
+
+      // Then navigate and show success
       showSuccess("Success", "Item delivered.");
+      router.back();
     },
     onError: (error: Error) => {
       showError("Error", error.message);
-        Sentry.captureException(error, {
-      extra: {
-        orderId: data.order.id,
-        action: 'accept_delivery'
-      },
-      tags: {
-        feature: 'delivery-management'
-      }
-    });
+      Sentry.captureException(error, {
+        extra: {
+          orderId: data?.order?.id,
+          action: 'mark_delivered'
+        },
+        tags: {
+          feature: 'delivery-management'
+        }
+      });
     },
   });
 
   const cancelDeliveryMutation = useMutation({
     mutationFn: cancelDelivery,
-    onSuccess: () => {
-        Sentry.addBreadcrumb({
-        message: 'Delivery accepted successfully',
+    onSuccess: async () => {
+      Sentry.addBreadcrumb({
+        message: 'Delivery cancelled',
         category: 'delivery',
         level: 'info',
-        data: { orderId: data.order.id }
-    });
-      queryClient.invalidateQueries({
+        data: { orderId: data?.order.id }
+      });
+
+      // Invalidate queries first
+      await queryClient.invalidateQueries({
         queryKey: ["order", id],
-        exact: false,
       });
-      queryClient.invalidateQueries({
-        queryKey: ["orders"],
-        exact: false,
+      await queryClient.invalidateQueries({
+        queryKey: ["user-orders", user?.sub],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
+      await queryClient.invalidateQueries({
+        queryKey: ["user-orders", data?.delivery?.sender_id],
       });
 
-      queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-      queryClient.refetchQueries({
-        queryKey: ["orders", user?.sub],
-        exact: false,
-      });
+      // Wait for refetch to complete
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["order", id] }),
+        queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
+      ]);
 
-      refetch();
-      router.push("/(app)/delivery/(topTabs)/orders");
-
+      // Then navigate and show info
       showInfo("Delivery cancelled!");
+      router.back();
     },
     onError: (error: Error) => {
       showError("Error", error.message);
-        Sentry.captureException(error, {
-      extra: {
-        orderId: data.order.id,
-        action: 'accept_delivery'
-      },
-      tags: {
-        feature: 'delivery-management'
-      }
-    });
+      Sentry.captureException(error, {
+        extra: {
+          orderId: data?.order?.id,
+          action: 'cancel_delivery'
+        },
+        tags: {
+          feature: 'delivery-management'
+        }
+      });
     },
   });
+
+
 
 
   const onSubmit = (data: CancelFormData) => {
@@ -458,33 +743,49 @@ const ItemDetails = () => {
 
               if (deliveryId !== currentDeliveryId) {
                 console.log("Wrong delivery:", deliveryId, "vs", currentDeliveryId);
+                Sentry.captureException('error', {
+                  extra: {
+                    deliveryId: data?.delivery?.id,
+                    action: `Wrong delivery: ${deliveryId} vs ${currentDeliveryId}`
+                  },
+                  tags: {
+                    feature: 'WebSocket-management'
+                  }
+                });
                 return;
               }
-              // if (message.delivery_id === data?.delivery?.id) {
-              //   const coords: [number, number] = [
-              //     message.coordinates.latitude,
-              //     message.coordinates.longitude,
-              //   ];
-              //   useLocationStore
-              //     .getState()
-              //     .setRiderLocation(data?.delivery?.id as string, coords);
-              // }
 
-              const coords = message.coordinates; 
+              const coords = message.coordinates;
               if (!Array.isArray(coords) || coords.length !== 2) {
                 console.log("Invalid coordinates:", coords);
+                Sentry.captureException('error', {
+                  extra: {
+                    deliveryId: data?.delivery?.id,
+                    action: `Invalid coordinates: ${coords}`
+                  },
+                  tags: {
+                    feature: 'WebSocket-management'
+                  }
+                });
                 return;
               }
 
               const [lat, lng] = coords;
               if (isNaN(lat) || isNaN(lng)) return;
 
-              console.log("Updating rider location:", { deliveryId, lat, lng });
-
-              useLocationStore.getState().setRiderLocation(deliveryId, [lat, lng] as Coordinates);
+              useLocationStore.getState().setRiderLocation(deliveryId, [lat, lng]);
             }
           } catch (e) {
             console.error("WebSocket message error:", e);
+            Sentry.captureException(e, {
+              extra: {
+                deliveryId: data?.delivery?.id,
+                action: `Error connecting to WebSocket: ${e}`
+              },
+              tags: {
+                feature: 'WebSocket-management'
+              }
+            });
           }
         };
 
@@ -519,105 +820,95 @@ const ItemDetails = () => {
 
 
   useEffect(() => {
-  if (!data?.delivery?.id || !data?.delivery?.last_known_rider_coordinates) return;
+    if (!data?.delivery?.id || !data?.delivery?.last_known_rider_coordinates) return;
 
-  const [lat, lng] = data.delivery.last_known_rider_coordinates;
-  if (isNaN(lat) || isNaN(lng)) return;
+    const [lat, lng] = data.delivery.last_known_rider_coordinates;
+    if (isNaN(lat!) || isNaN(lng!)) return;
 
-  console.log("Initializing rider location from DB:", { lat, lng });
-
-  useLocationStore.getState().setRiderLocation(
-    data.delivery.id,
-    [lat, lng]
-  );
-}, [data?.delivery?.id, data?.delivery?.last_known_rider_coordinates]);
+    useLocationStore.getState().setRiderLocation(
+      data.delivery.id,
+      [lat!, lng!]
+    );
+  }, [data?.delivery?.id, data?.delivery?.last_known_rider_coordinates]);
 
 
-console.log('last_known_rider_coordinates: ', data?.delivery)
+  const getActionButton = () => {
+    if (!data || !data.delivery || !user || !data.order) return null;
 
-const getActionButton = () => {
-  if (!data || !data.delivery || !user) return null;
+    const { delivery, order } = data;
+    const isSender = user.sub === delivery.sender_id;
+    const isRider = user.sub === delivery.rider_id;
+    const isDispatch = delivery.dispatch_id && user.sub === delivery.dispatch_id;
 
-  const { delivery } = data;
-  const isSender = user.sub === delivery.sender_id;
-  const isRider = user.sub === delivery.rider_id;
-  const isDispatch = delivery.dispatch_id && user.sub === delivery.dispatch_id;
-  
+    // 1. Rider: Accept or Decline (pending + assigned)
+    if (
+      delivery?.delivery_status === "pending" &&
+      isRider &&
+      !isSender
+    ) {
+      return [
+        {
+          label: "Accept",
+          onPress: () => acceptDeliveryMutation.mutate(order.id!),
+          loading: acceptDeliveryMutation.isPending,
+        },
+        {
+          label: "Decline",
+          onPress: () => declineBookingMutation.mutate(delivery.id!),
+          loading: declineBookingMutation.isPending,
+          variant: "outline" as const,
+        },
+      ];
+    }
 
-  // const { delivery } = data;
-  // const isSender = user.sub === delivery?.sender_id;
-  // const isRider = user.sub === delivery?.rider_id;
-  // const isDispatch = user.sub === delivery?.dispatch_id;
+    // 2. Rider: Pickup item (after accepting)
+    if (
+      delivery?.delivery_status === "accepted" &&
+      isRider &&
+      !isSender
+    ) {
+      return {
+        label: "Confirm Pickup",
+        onPress: () => pickupDeliveryMutation.mutate(delivery.id!),
+        loading: pickupDeliveryMutation.isPending,
+      };
+    }
 
-  // 1. Rider: Accept or Decline (pending + assigned)
-  if (
-    delivery?.delivery_status === "pending" &&
-    isRider &&
-    !isSender
-  ) {
-    return [
-      {
-        label: "Accept",
-        onPress: () => acceptDeliveryMutation.mutate(delivery.id!),
-        loading: acceptDeliveryMutation.isPending,
-      },
-      {
-        label: "Decline",
-        onPress: () => declineBookingMutation.mutate(delivery.id!),
-        loading: declineBookingMutation.isPending,
-        variant: "outline" as const,
-      },
-    ];
-  }
+    // 3. Rider: Mark as Delivered (after pickup)
+    if (
+      delivery?.delivery_status === "pickup" &&
+      (isRider || isDispatch)
+    ) {
+      return {
+        label: "Mark as Delivered",
+        onPress: () => markDeliveredMutation.mutate(delivery.id!),
+        loading: markDeliveredMutation.isPending,
+      };
+    }
 
-  // 2. Rider: Pickup item (after accepting)
-  if (
-    delivery?.delivery_status === "accepted" &&
-    isRider &&
-    !isSender
-  ) {
-    return {
-      label: "Confirm Pickup",
-      onPress: () => pickupDeliveryMutation.mutate(delivery.id!),
-      loading: pickupDeliveryMutation.isPending,
-    };
-  }
+    // 4. Sender: Confirm Received (when rider marks delivered)
+    if (
+      delivery?.delivery_status === "delivered" &&
+      isSender
+    ) {
+      return {
+        label: "Confirm Received",
+        onPress: () => confirmReceivedMutation.mutate(),
+        loading: confirmReceivedMutation.isPending,
+      };
+    }
 
-  // 3. Rider: Mark as Delivered (after pickup)
-  if (
-    delivery?.delivery_status === "pickup" &&
-    (isRider || isDispatch)
-  ) {
-    return {
-      label: "Mark as Delivered",
-      onPress: () => markDeliveredMutation.mutate(delivery.id!),
-      loading: markDeliveredMutation.isPending,
-    };
-  }
+    // 5. Final state: Order completed
+    if (delivery?.delivery_status === "received") {
+      return {
+        label: "Order Completed",
+        disabled: true,
+      };
+    }
 
-  // 4. Sender: Confirm Received (when rider marks delivered)
-  if (
-    delivery?.delivery_status === "delivered" &&
-    isSender
-  ) {
-    return {
-      label: "Confirm Received",
-      onPress: () => confirmReceivedMutation.mutate(),
-      loading: confirmReceivedMutation.isPending,
-    };
-  }
+    return null;
+  };
 
-  // 5. Final state: Order completed
-  if (delivery?.delivery_status === "received") {
-    return {
-      label: "Order Completed",
-      disabled: true,
-    };
-  }
-
-  return null;
-};
-  
   const actionButton = getActionButton();
   const showCancel =
     (user?.sub === data?.delivery?.sender_id ||
@@ -658,251 +949,252 @@ const getActionButton = () => {
   return (
     <>
       {data?.delivery?.id ? (<DeliveryWrapper id={data?.delivery?.id!}>
-              {user?.sub === data.delivery.sender_id &&
-                data?.delivery?.rider_id &&
-                data?.delivery?.delivery_status !== "pending" &&
-                data?.delivery?.delivery_status !== "received" && (
-                  <View className="self-center w-full justify-center items-center">
-                    <AppVariantButton
-                      icon={<UserRound color="orange" />}
-                      width={"85%"}
-                      borderRadius={50}
-                      filled={false}
-                      outline={true}
-                      label="Contact Rider"
-                      onPress={viewRiderProfile}
-      
-                    />
-                  </View>
-                )}
-              {user?.sub === data?.delivery?.sender_id
-                && data?.order?.order_payment_status === 'paid' &&
-                data?.delivery?.id &&
-                !data?.delivery?.rider_id && !data?.delivery?.dispatch_id && (
-                  <View className="self-center w-full justify-center items-center">
-                    <AppVariantButton
-                      icon={<UserRound color="orange" />}
-                      width={"85%"}
-                      borderRadius={50}
-                      filled={false}
-                      outline={true}
-                      label={!data?.delivery?.rider_id ? "Select Rider" : "Assign Rider"}
-                      onPress={handleRiderReassign}
-      
-                    />
-                  </View>
-                )}
-              {user?.sub === data?.delivery?.sender_id &&
-                data?.order.order_payment_status !== "paid" && (
-                  <AppButton
-                    title="MAKE PAYMENT"
-                    width={"85%"}
-                    icon={<DollarSignIcon color="white" />}
-                    onPress={() =>
-                      router.push({
-                        pathname: "/payment/[orderId]",
-                        params: {
-                          orderId: data?.order.id ?? "",
-                          deliveryFee: data?.delivery?.delivery_fee,
-                          orderNumber: data?.order?.order_number,
-                          deliveryType: `${data?.order?.require_delivery === "delivery"
-                            ? data?.delivery?.delivery_type
-                            : data?.order?.order_type
-                            }`,
-                          orderItems: JSON.stringify(data?.order.order_items ?? []),
-                          paymentLink: data?.order.payment_link,
-                          orderType:
-                            data?.order?.order_type || data?.delivery?.delivery_type,
-                        },
-                      })
-                    }
-                  />
-                )}
-      
-              <View className="my-5 w-[95%] self-center bg-background h-[100%] flex-1 px-5">
-                <View className="gap-5">
-                  <View className="gap-5 items-baseline justify-between flex-row">
-                    <Text className="text-primary font-semibold text-[12px] mb-5">
-                      ORDER DETAILS
-                    </Text>
-      
-                    {showCancel && (
-                      <TouchableOpacity
-      
-                        onPress={openSheet}
-                        className="self-start"
-                      >
-                        <Text className="text-red-500 self-start bg-red-500/30 rounded-full px-5 py-2 font-poppins-semibold text-sm mb-5">
-                          Cancel
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-      
-                    <Status status={data?.delivery?.delivery_status} />
-                  </View>
-                  <View className="flex-row justify-between">
-                    <View className="flex-row gap-3">
-                      <Info color="orange" size={15} />
-      
-                      <Text className="font-normal text-primary text-sm font-poppins-light">
-                        Order ID
-                      </Text>
-                    </View>
-                    <Text className="font-poppins-semibold text-primary text-sm">
-                      # {data?.order?.order_number}
-                    </Text>
-                  </View>
-                  <View className="gap-3 flex-row  justify-between">
-                    <View className="flex-row gap-3">
-                      <Wallet color="orange" size={15} />
-      
-                      <Text className="font-poppins-light text-primary text-sm">
-                        Delivery fee(After commission)
-                      </Text>
-                    </View>
-                    <Text className="font-[500] text-primary text-[12px] font-poppins-semibold">
-                      ₦ {Number(data?.delivery?.amount_due_dispatch).toFixed(2)}
-                    </Text>
-                  </View>
-                  {(user?.sub === data?.delivery?.sender_id ||
-                    user?.sub === data?.delivery?.rider_id ||
-                    user?.sub === data?.delivery?.dispatch_id) && (
-                      <View className="flex-row justify-between">
-                        <View className="flex-row gap-3">
-                          <Phone color="orange" size={15} />
-      
-                          <Text className="font-poppins-light text-primary text-sm">
-                            Sender Phone
-                          </Text>
-                        </View>
-                        <Text className="font-[500] text-primary text-[12px] font-poppins-semibold">
-                          {data?.delivery?.sender_phone_number}
-                        </Text>
-                      </View>
-                    )}
-      
-                  <View>
-                    <View className="flex-row gap-3">
-                      <MapPin color="orange" size={15} />
-      
-                      <Text className="font-poppins-light text-primary text-sm">
-                        Delivery Address
-                      </Text>
-                    </View>
-                    <Text className=" mx-7 text-primary text-sm font-poppins-light">
-                      {data?.delivery?.destination}
-                    </Text>
-                  </View>
-                   <Text className=" mx-7 text-primary text-sm font-poppins-light">
-                      View Image
-                    </Text>
-                </View>
-               <View className="justify-center w-full items-center gap-3 self-center mt-4">
-        {actionButton && (
-        <>
-          {Array.isArray(actionButton) ? (
-            // Accept + Decline buttons
-            <View className="flex-row gap-3 w-full px-5">
-              {actionButton.map((btn, index) => (
-                <AppVariantButton
-                  key={index}
-                  borderRadius={50}
-                  label={btn.label}
-                  backgroundColor={index === 0 ? "orange" : "transparent"}
-                  textColor={index === 0 ? "white" : "orange"}
-                  outline={index === 1}
-                  icon={btn.loading && <ActivityIndicator color={index === 0 ? "#fff" : "orange"} />}
-                  width={"48%"}
-                  onPress={btn.onPress}
-                  disabled={btn.loading}
-                />
-              ))}
+        {user?.sub === data.delivery.sender_id &&
+          data?.delivery?.rider_id &&
+          data?.delivery?.delivery_status !== "pending" &&
+          data?.delivery?.delivery_status !== "received" && (
+            <View className="self-center w-full justify-center items-center">
+              <AppVariantButton
+                icon={<UserRound color="orange" />}
+                width={"85%"}
+                borderRadius={50}
+                filled={false}
+                outline={true}
+                label="Contact Rider"
+                onPress={viewRiderProfile}
+
+              />
             </View>
-          ) : (
-            // Single action button
-            <AppVariantButton
-              borderRadius={50}
-              label={actionButton.label}
-              backgroundColor={
-                actionButton.disabled || data?.delivery?.delivery_status === "received"
-                  ? "rgba(0,0,0,0.3)"
-                  : "orange"
+          )}
+        {user?.sub === data?.delivery?.sender_id
+          && data?.order?.order_payment_status === 'paid' &&
+          data?.delivery?.id &&
+          !data?.delivery?.rider_id && !data?.delivery?.dispatch_id && (
+            <View className="self-center w-full justify-center items-center">
+              <AppVariantButton
+                icon={<UserRound color="orange" />}
+                width={"85%"}
+                borderRadius={50}
+                filled={false}
+                outline={true}
+                label={!data?.delivery?.rider_id ? "Select Rider" : "Assign Rider"}
+                onPress={handleRiderReassign}
+
+              />
+            </View>
+          )}
+        {user?.sub === data?.delivery?.sender_id &&
+          data?.order.order_payment_status !== "paid" && (
+            <AppButton
+              title="MAKE PAYMENT"
+              width={"85%"}
+              icon={<DollarSignIcon color="white" />}
+              onPress={() =>
+                router.push({
+                  pathname: "/payment/[orderId]",
+                  params: {
+                    orderId: data?.order.id ?? "",
+                    deliveryFee: data?.delivery?.delivery_fee,
+                    orderNumber: data?.order?.order_number,
+                    deliveryType: `${data?.order?.require_delivery === "delivery"
+                      ? data?.delivery?.delivery_type
+                      : data?.order?.order_type
+                      }`,
+                    orderItems: JSON.stringify(data?.order.order_items ?? []),
+                    paymentLink: data?.order.payment_link,
+                    orderType:
+                      data?.order?.order_type || data?.delivery?.delivery_type,
+                  },
+                })
               }
-              textColor="white"
-              icon={actionButton.loading && <ActivityIndicator color="#fff" />}
-              width={"90%"}
-              onPress={actionButton.onPress}
-              disabled={actionButton.disabled || actionButton.loading}
             />
           )}
-        </>
-      )}
-      </View>
-               
-      
-                {/* Additional Action Buttons */}
-                <View className="flex-row w-[90%] self-center justify-between mt-4 mb-8 gap-2">
-                  {/* Review Button - Hide for package deliveries */}
-                  {(data?.order?.order_status === "received" ||
-                    data?.delivery?.delivery_status === "delivered" ||
-                    data?.delivery?.delivery_status === "received") && (
-                      <AppVariantButton
-                        label="Review"
-                        filled={false}
-                        outline={true}
-                        borderRadius={50}
-                        width="32%"
-                        onPress={showReview}
-                      />
-                    )}
-      
-                  {/* Report Button - Show for all delivery types */}
-                  {(data?.order?.order_status === "received" ||
-                    data?.delivery?.delivery_status === "delivered" ||
-                    data?.delivery?.delivery_status === "received") && (
-                      <AppVariantButton
-                        label="Report"
-                        filled={false}
-                        outline={true}
-                        borderRadius={50}
-                        width="32%"
-                        onPress={() => {
-                          router.push({
-                            pathname: "/report/[deliveryId]",
-                            params: { deliveryId: id as string },
-                          });
-                        }}
-                      />
-                    )}
-      
-                  {
-                    <AppVariantButton
-                      label="Receipt"
-                      borderRadius={50}
-                      disabled={
-                        data?.delivery?.rider_id === user?.sub ||
-                          data?.delivery?.dispatch_id === user?.sub
-                          ? true
-                          : false
-                      }
-                      filled={false}
-                      outline={true}
-                      width={"32%"}
-                      onPress={() => {
-                        router.push({
-                          pathname: "/receipt/[deliveryId]",
-                          params: { deliveryId: id as string },
-                        });
-                      }}
-                    />
-                  }
-                </View>
+
+        <View className="my-5 w-[95%] self-center bg-background h-[100%] flex-1 px-5">
+          <View className="gap-5">
+            <View className="gap-5 items-baseline justify-between flex-row">
+              <Text className="text-primary font-semibold text-[12px] mb-5">
+                ORDER DETAILS
+              </Text>
+
+              {showCancel && (
+                <TouchableOpacity
+
+                  onPress={openSheet}
+                  className="self-start"
+                >
+                  <Text className="text-red-500 self-start bg-red-500/30 rounded-full px-5 py-2 font-poppins-semibold text-sm mb-5">
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+              )}
+
+              <Status status={data?.delivery?.delivery_status} />
+            </View>
+            <View className="flex-row justify-between">
+              <View className="flex-row gap-3">
+                <Info color="orange" size={15} />
+
+                <Text className="font-normal text-primary text-sm font-poppins-light">
+                  Order ID
+                </Text>
               </View>
-            </DeliveryWrapper>) :(
-  <View className="flex-1 justify-center items-center p-5">
-    <Text className="text-red-500">Order not found</Text>
-  </View>
-)}
+              <Text className="font-poppins-semibold text-primary text-sm">
+                # {data?.order?.order_number}
+              </Text>
+            </View>
+            <View className="gap-3 flex-row  justify-between">
+              <View className="flex-row gap-3">
+                <Wallet color="orange" size={15} />
+
+                <Text className="font-poppins-light text-primary text-sm">
+                  Delivery fee(After commission)
+                </Text>
+              </View>
+              <Text className="font-[500] text-primary text-[12px] font-poppins-semibold">
+                ₦ {Number(data?.delivery?.amount_due_dispatch).toFixed(2)}
+              </Text>
+            </View>
+            {(user?.sub === data?.delivery?.sender_id ||
+              user?.sub === data?.delivery?.rider_id ||
+              user?.sub === data?.delivery?.dispatch_id) && (
+                <View className="flex-row justify-between">
+                  <View className="flex-row gap-3">
+                    <Phone color="orange" size={15} />
+
+                    <Text className="font-poppins-light text-primary text-sm">
+                      Sender Phone
+                    </Text>
+                  </View>
+                  <Text className="font-[500] text-primary text-[12px] font-poppins-semibold">
+                    {data?.delivery?.sender_phone_number}
+                  </Text>
+                </View>
+              )}
+
+            <View>
+              <View className="flex-row gap-3">
+                <MapPin color="orange" size={15} />
+
+                <Text className="font-poppins-light text-primary text-sm">
+                  Delivery Address
+                </Text>
+              </View>
+              <Text className=" mx-7 text-primary text-sm font-poppins-light">
+                {data?.delivery?.destination}
+              </Text>
+            </View>
+            <Text onPress={() => setModalVisible(true)} className=" underline mx-7 text-blue-400 text-sm font-poppins-light">
+              View Image
+            </Text>
+          </View>
+          <View className="justify-center w-full items-center gap-3 self-center mt-4">
+            {actionButton && (
+              <>
+                {Array.isArray(actionButton) ? (
+                  // Accept + Decline buttons
+                  <View className="flex-row gap-3 w-full px-5">
+                    {actionButton.map((btn, index) => (
+                      <AppVariantButton
+                        key={index}
+                        borderRadius={50}
+                        label={btn.label}
+                        backgroundColor={index === 0 ? "orange" : "transparent"}
+
+
+                        outline={index === 1}
+                        icon={btn.loading && <ActivityIndicator color={index === 0 ? "#fff" : "orange"} />}
+                        width={"48%"}
+                        onPress={btn.onPress}
+                        disabled={btn.loading}
+                      />
+                    ))}
+                  </View>
+                ) : (
+                  // Single action button
+                  <AppVariantButton
+                    borderRadius={50}
+                    label={actionButton.label}
+                    backgroundColor={
+                      actionButton.disabled || data?.delivery?.delivery_status === "received"
+                        ? "rgba(0,0,0,0.3)"
+                        : "orange"
+                    }
+
+                    icon={actionButton.loading && <ActivityIndicator color="#fff" />}
+                    width={"90%"}
+                    onPress={actionButton.onPress}
+                    disabled={actionButton.disabled || actionButton.loading}
+                  />
+                )}
+              </>
+            )}
+          </View>
+
+
+          {/* Additional Action Buttons */}
+          <View className="flex-row w-[90%] self-center justify-between mt-4 mb-8 gap-2">
+            {/* Review Button - Hide for package deliveries */}
+            {(data?.order?.order_status === "received" ||
+              data?.delivery?.delivery_status === "delivered" ||
+              data?.delivery?.delivery_status === "received" && (data?.delivery?.rider_id !== user?.sub || data?.delivery?.dispatch_id !== user?.sub)) && (
+                <AppVariantButton
+                  label="Review"
+                  filled={false}
+                  outline={true}
+                  borderRadius={50}
+                  width="32%"
+                  onPress={showReview}
+                />
+              )}
+
+            {/* Report Button - Show for all delivery types */}
+            {(data?.order?.order_status === "received" ||
+              data?.delivery?.delivery_status === "delivered" ||
+              data?.delivery?.delivery_status === "received") && (
+                <AppVariantButton
+                  label="Report"
+                  filled={false}
+                  outline={true}
+                  borderRadius={50}
+                  width="32%"
+                  onPress={() => {
+                    router.push({
+                      pathname: "/report/[deliveryId]",
+                      params: { deliveryId: id as string },
+                    });
+                  }}
+                />
+              )}
+
+            {
+              <AppVariantButton
+                label="Receipt"
+                borderRadius={50}
+                disabled={
+                  data?.delivery?.rider_id === user?.sub ||
+                    data?.delivery?.dispatch_id === user?.sub
+                    ? true
+                    : false
+                }
+                filled={false}
+                outline={true}
+                width={"32%"}
+                onPress={() => {
+                  router.push({
+                    pathname: "/receipt/[deliveryId]",
+                    params: { deliveryId: id as string },
+                  });
+                }}
+              />
+            }
+          </View>
+        </View>
+      </DeliveryWrapper>) : (
+        <View className="flex-1 justify-center items-center p-5">
+          <Text className="text-red-500">Order not found</Text>
+        </View>
+      )}
       <BottomSheet
         ref={bottomSheetRef}
         snapPoints={["50%"]}
@@ -951,10 +1243,35 @@ const getActionButton = () => {
         </BottomSheetView>
       </BottomSheet>
       <RiderProfile ref={riderProfileRef} riderId={data?.delivery?.rider_id} showButton={false} />
+     <Modal 
+  visible={modalVisible} 
+  animationType="slide" 
+  transparent={true} 
+  onRequestClose={() => setModalVisible(false)}
+>
+  <TouchableOpacity 
+    activeOpacity={1}
+    onPress={() => setModalVisible(false)}
+    style={StyleSheet.absoluteFillObject}
+    className="bg-black/90 items-center justify-center"
+  >
+    <View 
+      onStartShouldSetResponder={() => true}
+      onTouchEnd={(e) => e.stopPropagation()}
+      style={{ height: IMAGE_HEIGHT, width: '100%' }} 
+      className="self-center"
+    >
+      <Image
+        src={data?.order?.order_items[0]?.images[0].url}
+        style={{ width: '100%', height: IMAGE_HEIGHT, resizeMode: 'cover' }}
+      />
+    </View>
+  </TouchableOpacity>
+</Modal>
     </>
   );
 };
-
+const IMAGE_HEIGHT = Dimensions.get('window').height * 0.4;
 export default ItemDetails;
 
 

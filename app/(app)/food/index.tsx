@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, Image, StyleSheet, Text, useColorScheme, View } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { FlatList, Image, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
 
 import { fetchRestaurants } from "@/api/user";
+import {router} from 'expo-router'
 import AppHeader from "@/components/AppHeader";
 import AppTextInput from "@/components/AppInput";
 import Category from "@/components/Category";
@@ -19,9 +20,9 @@ import HDivider from "@/components/HDivider";
 import { StoreListSkeleton } from "@/components/LoadingSkeleton";
 import RefreshButton from "@/components/RefreshButton";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
-// import { useUserStore } from "@/store/userStore";
 import { useSwiperCleanup } from "@/hooks/useSwiperCleanup";
 import { useUserStore } from "@/store/userStore";
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
 export interface RestaurantWithDistance extends CompanyProfile {
     distance: number;
@@ -112,8 +113,14 @@ export const featuredRestaurants = [
 
 const Page = () => {
     const theme = useColorScheme();
-    const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
+    const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT;
+    const HANDLE_INDICATOR_STYLE = theme === "dark" ? HEADER_BG_LIGHT : HEADER_BG_DARK;
+    const HANDLE_STYLE = theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
+    const BORDER_COLOR = '#2f4550';
+    
     const { user } = useUserStore();
+    const bottomSheetRef = useRef<BottomSheet>(null);
+    
     const [userLocation, setUserLocation] = useState<{
         latitude: number;
         longitude: number;
@@ -143,8 +150,6 @@ const Page = () => {
         }
     });
 
-
-
     const { data: categories } = useQuery({
         queryKey: ["categories"],
         queryFn: fetchCategories,
@@ -156,6 +161,19 @@ const Page = () => {
         refetch();
     }, [refetch]);
 
+    const handleCategorySelect = useCallback((categoryId: string | null) => {
+        setSelectedCategory(categoryId);
+    }, []);
+
+    const openBottomSheet = useCallback(() => {
+        bottomSheetRef.current?.expand();
+    }, []);
+
+    const handleModalCategorySelect = useCallback((categoryId: string) => {
+        setSelectedCategory(categoryId);
+        bottomSheetRef.current?.close();
+    }, []);
+
     // Get user's location
     useEffect(() => {
         const getUserLocation = async () => {
@@ -165,102 +183,22 @@ const Page = () => {
             const location = await Location.getCurrentPositionAsync({});
 
             if (location) {
-
                 setUserLocation({
                     latitude: location.coords.latitude,
                     longitude: location.coords.longitude,
                 });
             }
-
         };
 
         getUserLocation();
     }, []);
 
-    // Filter restaurants by location after API returns category-filtered data
-    // useEffect(() => {
-    //     const filterRestaurants = async () => {
-    //         if (!data || !userLocation) {
-    //             setFilteredRestaurants([]);
-    //             return;
-    //         }
-
-    //         try {
-    //             const restaurantsWithDistance = await Promise.all(
-    //                 data.map(async (restaurant) => {
-    //                     const coordinates = await getCoordinatesFromAddress(
-    //                         restaurant.location
-    //                     );
-    //                     if (!coordinates) return null;
-
-    //                     const distance = await getTravelDistance(
-    //                         userLocation.latitude,
-    //                         userLocation.longitude,
-    //                         coordinates.lat,
-    //                         coordinates.lng
-    //                     );
-
-
-    //                     if (distance === null || distance > 35) return null;
-
-
-    //                     return {
-    //                         ...restaurant,
-    //                         distance,
-    //                     } as RestaurantWithDistance;
-    //                 })
-    //             );
-
-    //             // Filter out null values first
-    //             const validRestaurants = restaurantsWithDistance.filter(
-    //                 (item): item is RestaurantWithDistance => item !== null
-    //             );
-
-    //             let currentVendorRestaurant = null;
-    //             let otherRestaurants = validRestaurants;
-
-    //             if (user?.user_type === "restaurant_vendor") {
-    //                 // Find the current vendor's restaurant
-    //                 currentVendorRestaurant = validRestaurants.find(
-    //                     (restaurant) => restaurant.id === user.sub
-    //                 );
-
-    //                 if (currentVendorRestaurant) {
-    //                     setHasItem(true);
-    //                 } else {
-    //                     setHasItem(false);
-    //                 }
-
-    //                 // Remove current vendor's restaurant from others list
-    //                 otherRestaurants = validRestaurants.filter(
-    //                     (restaurant) => restaurant.id !== user.sub
-    //                 );
-    //             }
-
-    //             // Sort other restaurants by distance
-    //             otherRestaurants.sort((a, b) => a.distance - b.distance);
-
-    //             // Combine results - current vendor first, then others
-    //             const finalResults = currentVendorRestaurant
-    //                 ? [currentVendorRestaurant, ...otherRestaurants]
-    //                 : otherRestaurants;
-
-    //             setFilteredRestaurants(finalResults);
-    //         } catch (error) {
-    //             console.error("Error filtering restaurants by distance:", error);
-    //         }
-    //     };
-
-    //     filterRestaurants();
-    // }, [data, userLocation, user?.sub, user?.user_type, selectedCategory]);
-
-    if (isFetching) {
+    if (isFetching && !data) {
         return (
             <SafeAreaView style={{ flex: 1, backgroundColor: BG_COLOR }}>
                 <AppHeader
                     component={
                         <AppTextInput
-
                             borderRadius={50}
                             placeholder="Search Restaurants.."
                         />
@@ -278,21 +216,18 @@ const Page = () => {
         );
     }
 
-
-    const showEmptyState = isFetched && filteredRestaurants.length === 0;
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: BG_COLOR }}>
             <AppHeader
                 component={
                     <AppTextInput
-
                         borderRadius={50}
                         placeholder="Search.."
                     />
                 }
             />
             <HDivider />
-
+            <Text className="my-5 text-2xl text-primary" onPress={()=>router.push('/onboardin')}>Onboarding</Text>
 
             <FlatList
                 data={data || []}
@@ -300,8 +235,9 @@ const Page = () => {
                     <>
                         <Category
                             categories={categories || []}
-                            onCategorySelect={setSelectedCategory}
+                            onCategorySelect={handleCategorySelect}
                             selectedCategory={selectedCategory}
+                            onOpenSheet={openBottomSheet}
                         />
                         {/* {data.length === 0 &&  <GradientCard label="Delicious Meals at Your Doorstep" description="Order from your favourite restaurants and enjoy fast, fresh food delivery." />} */}
                         {/*<FeaturedRestaurants />*/}
@@ -329,14 +265,58 @@ const Page = () => {
                 }}
             />
 
-
-
+       
+            <BottomSheet
+                index={-1}
+                snapPoints={['35%', '65%']}
+                ref={bottomSheetRef}
+                enablePanDownToClose={true}
+                enableDynamicSizing={true}
+                handleIndicatorStyle={{ backgroundColor: HANDLE_INDICATOR_STYLE }}
+                handleStyle={{ backgroundColor: HANDLE_STYLE }}
+                backgroundStyle={{
+                    borderTopLeftRadius: 40,
+                    borderTopRightRadius: 40,
+                    backgroundColor: BG_COLOR,
+                    shadowColor: 'orange',
+                    shadowOffset: {
+                        width: 0,
+                        height: -4
+                    },
+                    shadowOpacity: 0.5,
+                    shadowRadius: 20,
+                    elevation: 20
+                }}
+            >
+                <BottomSheetScrollView style={{ backgroundColor: BG_COLOR, padding: 16, flex: 1 }}>
+                    <View style={styles.modalCategoriesContainer}>
+                        {categories?.map((item) => (
+                            <TouchableOpacity
+                                key={item.id}
+                                onPress={() => handleModalCategorySelect(item.id)}
+                                style={[
+                                    styles.modalCategoryItem,
+                                    {
+                                        backgroundColor: selectedCategory === item.id ? 'orange' : BG_COLOR,
+                                        borderColor: selectedCategory === item.id ? 'orange' : BORDER_COLOR,
+                                    },
+                                ]}
+                            >
+                                <Text
+                                    className={`${selectedCategory === item.id ? 'text-white' : 'text-primary'} ${selectedCategory === item.id ? 'font-poppins-medium' : 'font-poppins-light'} text-sm`}
+                                >
+                                    {item.name}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </BottomSheetScrollView>
+            </BottomSheet>
         </SafeAreaView>
     );
 };
 
 export default Page;
-
 
 const EmptySearch = ({ selectedCategory }: { selectedCategory: string }) => {
     return (
@@ -351,18 +331,15 @@ const EmptySearch = ({ selectedCategory }: { selectedCategory: string }) => {
                 }
             </Text>
         </View>
-
-    )
-}
+    );
+};
 
 export const FeaturedRestaurants = () => {
     const swiperRef = useSwiperCleanup();
 
     return (
         <View className='h-[220px]'>
-            <View className='flex-row px-4 py-2 justify-between items-center'
-
-            >
+            <View className='flex-row px-4 py-2 justify-between items-center'>
                 <Text className="text-primary text-[16px]" >
                     Featured Restaurants
                 </Text>
@@ -382,16 +359,11 @@ export const FeaturedRestaurants = () => {
             >
                 {featuredRestaurants?.map((restaurant) => (
                     <View className='w-[90%] overflow-hidden' key={restaurant.id} >
-                        <Card
-                            style={{
-                                width: '100%'
-                            }}
-                        >
+                        <Card style={{ width: '100%' }}>
                             <Image
                                 source={{ uri: restaurant.company_logo }}
                                 style={styles.image}
                             />
-                            {/* Gradient overlay for better text visibility */}
                             <LinearGradient
                                 colors={["transparent", "rgba(0,0,0,0.7)"]}
                                 style={{
@@ -406,14 +378,12 @@ export const FeaturedRestaurants = () => {
                                 <Text
                                     className='text-sm text-primary'
                                     numberOfLines={1}
-
                                 >
                                     {restaurant.company_name}
                                 </Text>
-                                <Text className="text-xs text-primary mt-1 opacity-90"
-
+                                <Text 
+                                    className="text-xs text-primary mt-1 opacity-90"
                                     numberOfLines={1}
-
                                 >
                                     {restaurant.location}
                                 </Text>
@@ -431,5 +401,17 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "100%",
         resizeMode: "cover",
+    },
+    modalCategoriesContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+        justifyContent: 'flex-start',
+    },
+    modalCategoryItem: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        borderWidth: 1,
     },
 });

@@ -7,6 +7,7 @@ import { Package2, Shirt, Utensils } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import HDivider from './HDivider';
+import {Status, PaymentStatusColor} from '@/components/ItemCard.tsx'
 
 interface DeliveryCardProps {
   orderId: string;
@@ -153,11 +154,19 @@ export default function DeliveryCard({ data }: CardProp) {
 
       <HDivider />
 
-      <View className='mt-2'>
+      <View className='mt-2 flex-row justify-between'>
         <View className="flex-row items-center">
           <Feather name="clock" color='gray' size={12} />
-          <Text className="font-poppins-light text-sm text-muted ml-1">Estimated Delivery Time: {data?.delivery?.duration}</Text>
+          <Text className="font-poppins-light text-sm text-muted ml-1">Est Time: {data?.delivery?.duration}</Text>
         </View>
+            <View className='flex-row gap-[5px]'>
+                        <Status
+                            label={data?.delivery?.delivery_status === 'accepted' ? 'Assigned' : undefined}
+                            status={data?.order?.require_delivery === 'delivery' ? data?.delivery?.delivery_status : data?.order?.order_status}
+                        />
+                        <PaymentStatusColor status={data?.order?.order_payment_status} />
+                    </View>
+
       </View>
 
 

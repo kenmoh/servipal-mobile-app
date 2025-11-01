@@ -130,6 +130,7 @@ export default Sentry.wrap(function RootLayout() {
 
                           <Stack.Protected guard={!user?.sub && isFirstLaunch === false}>
                             {/* Routes for NON-authenticated users */}
+
                             <Stack.Screen name="sign-in" options={{ headerShown: false }} />
                             <Stack.Screen name="sign-up" options={{ headerShown: true, title: "" }} />
                             <Stack.Screen name="confirm-account" options={{ headerShown: true, title: "" }} />
@@ -148,7 +149,7 @@ export default Sentry.wrap(function RootLayout() {
                               name="index"
                               options={{ headerShown: false }}
                             />
-
+                          <Stack.Screen name="onboardin" options={{ headerShown: false }} />
                             <Stack.Screen
                               name="channel"
                               options={{ headerShown: false }}

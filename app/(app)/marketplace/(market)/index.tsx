@@ -10,13 +10,22 @@ import { useQuery } from '@tanstack/react-query'
 import { LinearGradient } from "expo-linear-gradient"
 import { router } from 'expo-router'
 import { Plus } from 'lucide-react-native'
-import React, { useCallback, useState } from 'react'
-import { FlatList, Text, View } from 'react-native'
+import React, { useCallback, useState, useRef } from 'react'
+import { FlatList, Text, View, useColorScheme, StyleSheet, TouchableOpacity } from 'react-native'
+import RefreshButton from "@/components/RefreshButton";
+import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
 
 const MarketPlace = () => {
     const { user } = useUserStore()
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const theme = useColorScheme();
+    const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT;
+    const HANDLE_INDICATOR_STYLE = theme === "dark" ? HEADER_BG_LIGHT : HEADER_BG_DARK;
+    const HANDLE_STYLE = theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
+    const BORDER_COLOR = '#2f4550';
+    const bottomSheetRef = useRef<BottomSheet>(null);
     const { data, isLoading, isPending, isFetching, refetch } = useQuery({
         queryKey: ['products', selectedCategory],
         queryFn: () => {
@@ -24,6 +33,15 @@ const MarketPlace = () => {
             return fetchProducts(categoryParam);
         }
     })
+
+      const handleModalCategorySelect = useCallback((categoryId: string) => {
+        setSelectedCategory(categoryId);
+        bottomSheetRef.current?.close();
+    }, []);
+
+        const openBottomSheet = useCallback(() => {
+        bottomSheetRef.current?.expand();
+    }, []);
 
     const { data: categories } = useQuery({
         queryKey: ["categories"],
@@ -59,6 +77,7 @@ const MarketPlace = () => {
                                 categories={categories || []}
                                 onCategorySelect={setSelectedCategory}
                                 selectedCategory={selectedCategory}
+                                onOpenSheet={openBottomSheet}
                             />
                            
 
@@ -87,8 +106,76 @@ const MarketPlace = () => {
             {user?.user_type === 'laundry_vendor' || user?.user_type === 'restaurant_vendor' ? '' :
                 <FAB icon={<Plus color={'white'} />} onPress={() => router.push('/product-detail/add-product')} />
             }
+
+            <BottomSheet
+                index={-1}
+                snapPoints={['35%', '65%']}
+                ref={bottomSheetRef}
+                enablePanDownToClose={true}
+                enableDynamicSizing={true}
+                handleIndicatorStyle={{ backgroundColor: HANDLE_INDICATOR_STYLE }}
+                handleStyle={{ backgroundColor: HANDLE_STYLE }}
+                backgroundStyle={{
+                    borderTopLeftRadius: 40,
+                    borderTopRightRadius: 40,
+                    backgroundColor: BG_COLOR,
+                    shadowColor: 'orange',
+                    shadowOffset: {
+                        width: 0,
+                        height: -4
+                    },
+                    shadowOpacity: 0.5,
+                    shadowRadius: 20,
+                    elevation: 20
+                }}
+            >
+                <BottomSheetScrollView style={{ backgroundColor: BG_COLOR, paddingHorizontal: 16, flex: 1, paddingBottom: 20}}>
+                    <View style={styles.modalCategoriesContainer}>
+                        {categories?.map((item) => (
+                            <TouchableOpacity
+                                key={item.id}
+                                onPress={() => handleModalCategorySelect(item.id)}
+                                style={[
+                                    styles.modalCategoryItem,
+                                    {
+                                        backgroundColor: selectedCategory === item.id ? 'orange' : BG_COLOR,
+                                        borderColor: selectedCategory === item.id ? 'orange' : BORDER_COLOR,
+                                    },
+                                ]}
+                            >
+                                <Text
+                                    className={`${selectedCategory === item.id ? 'text-white' : 'text-primary'} ${selectedCategory === item.id ? 'font-poppins-medium' : 'font-poppins-light'} text-sm`}
+                                >
+                                    {item.name}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </BottomSheetScrollView>
+            </BottomSheet>
         </View>
     )
 }
 
 export default MarketPlace
+
+
+const styles = StyleSheet.create({
+    image: {
+        width: "100%",
+        height: "100%",
+        resizeMode: "cover",
+    },
+    modalCategoriesContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+        justifyContent: 'flex-start',
+    },
+    modalCategoryItem: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        borderWidth: 1,
+    },
+});

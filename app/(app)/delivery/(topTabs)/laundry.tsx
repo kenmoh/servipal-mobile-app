@@ -123,35 +123,12 @@ const UserOrders = () => {
                         />
                         <StatCard
                             icon={Handshake}
-                            label="Assigned"
-                            value={stats.acepted}
+                            label="Delivered"
+                            value={stats.delivered}
                             color={"blue"}
                         />
 
-                        <StatCard
-                            icon={Package2}
-                            label="Delivered"
-                            value={stats.delivered}
-                            color={"lightblue"}
-                        />
-                        <StatCard
-                            icon={Utensils}
-                            label="Food"
-                            value={stats.foodOrders}
-                            color={"red"}
-                        />
-                        <StatCard
-                            icon={Package}
-                            label="Package"
-                            value={stats.packageOrders}
-                            color={"brown"}
-                        />
-                        <StatCard
-                            icon={Shirt}
-                            label="Laundry"
-                            value={stats.laundryOrders}
-                            color={"purple"}
-                        />
+
                     </ScrollView>
                 </View>
 

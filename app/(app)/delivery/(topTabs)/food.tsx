@@ -1,8 +1,7 @@
 import { fetchUserRelatedOrders } from "@/api/order";
 import HDivider from "@/components/HDivider";
-import DeliveryCard from "@/components/DeliveryCard";
+import ItemCard from "@/components/ItemCard";
 import { DeliveryListSkeleton, StatsSkeleton } from "@/components/LoadingSkeleton";
-import LoadingIndicator from '@/components/LoadingIndicator'
 import RefreshButton from "@/components/RefreshButton";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useUserStore } from "@/store/userStore";
@@ -23,24 +22,20 @@ import React, { useCallback, useMemo } from "react";
 import { ScrollView, Text, useColorScheme, View } from "react-native";
 
 const UserOrders = () => {
+
     const { user } = useUserStore();
 
-    const { data: allData, isLoading, error, refetch, isFetching, isPending } = useQuery({
-        queryKey: ["user-orders", user?.sub],
+    const { data, isLoading, error, refetch, isFetching, isPending, isFetched } = useQuery({
+        queryKey: ["orders", user?.sub],
         queryFn: () => fetchUserRelatedOrders(user?.sub as string),
         refetchOnWindowFocus: true,
         refetchOnMount: true,
         enabled: !!user?.sub,
-        staleTime: 0, // Changed from 30000 to 0 for immediate updates
-        gcTime: 5 * 60 * 1000, // Keep data in cache for 5 minutes
+        staleTime: 30000,
         retry: 3,
         retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     });
 
-    // Filter in component instead of select
-    const data = useMemo(() => {
-        return allData?.filter(item => item.order.order_type === 'package') || [];
-    }, [allData]);
 
     const stats = useMemo(
         () => ({
@@ -56,18 +51,39 @@ const UserOrders = () => {
             delivered:
                 data?.filter((order) => order.delivery?.delivery_status === "delivered")
                     .length || 0,
+            foodOrders:
+                data?.filter((order) => order.order.order_type === "food").length || 0,
             packageOrders:
                 data?.filter((order) => order.order.order_type === "package").length ||
+                0,
+            laundryOrders:
+                data?.filter((order) => order.order.order_type === "laundry").length ||
                 0,
         }),
         [data]
     );
 
     // Memoized FlatList helpers
-    const renderItem = useCallback(({ item }: { item: DeliveryDetail }) => <DeliveryCard data={item} />, []);
+    const renderItem = useCallback(({ item }: { item: DeliveryDetail }) => <ItemCard data={item} />, []);
+    const renderSeparator = useCallback(() => <HDivider />, []);
     const keyExtractor = useCallback((item: DeliveryDetail) => item?.order?.id!, []);
 
-    if (isLoading || isPending) return <LoadingIndicator/>
+    if (isLoading || isFetching || isPending || !isFetched || !data) {
+        return (
+            <View className="bg-background flex-1 px-2" >
+                <View
+                    className="my-2 bg-background items-center justify-center h-[110px]"
+
+                >
+                    <StatsSkeleton />
+                </View>
+                <HDivider width="100%" />
+                <View className="bg-background flex-1">
+                    <DeliveryListSkeleton />
+                </View>
+            </View>
+        );
+    }
 
     if (error) return <RefreshButton onPress={refetch} label="Error loading orders" />
 
@@ -99,20 +115,20 @@ const UserOrders = () => {
                             value={stats.received}
                             color={"green"}
                         />
-                      
                         <StatCard
-                            icon={Handshake}
-                            label="Assigned"
-                            value={stats.acepted}
-                            color={"blue"}
+                            icon={ClockIcon}
+                            label="Pending"
+                            value={stats.pending}
+                            color={"orange"}
                         />
-
+                       
                         <StatCard
                             icon={Package2}
                             label="Delivered"
                             value={stats.delivered}
                             color={"lightblue"}
                         />
+                                             
                     </ScrollView>
                 </View>
 
@@ -123,6 +139,7 @@ const UserOrders = () => {
                         data={data}
                         keyExtractor={keyExtractor}
                         renderItem={renderItem}
+                        ItemSeparatorComponent={renderSeparator}
                         refreshing={isFetching}
                         onRefresh={refetch}
                     />

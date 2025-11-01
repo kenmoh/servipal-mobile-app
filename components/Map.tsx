@@ -21,20 +21,8 @@ const Map = ({ id }: { id: string }) => {
     useLocationStore();
 
 
-// const riderLocation = {
-//   deliveryId: id, // Use the current delivery ID
-//   coordinates: [6.6749798, 3.4221895] as [number, number],
-// };
-
-// console.log('HARDCODED RIDER:', riderLocation);
 const showRider = riderLocation && riderLocation.deliveryId === id;
-  
-console.log('MAP DEBUG:', {
-  id,
-  riderLocation,
-  showRider,
-  hasCoords: riderLocation?.coordinates,
-});
+
 
   const [route, setRoute] = useState<number[][]>([]);
   const [region, setRegion] = useState({

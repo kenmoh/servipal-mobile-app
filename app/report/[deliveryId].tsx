@@ -167,6 +167,7 @@ const ReportPage = () => {
                         <View className="my-6">
 
                             <AppVariantButton
+                                width={"90%"}
                                 label="Submit Report"
                                 icon={submitReportMutation.isPending && <ActivityIndicator color="#ccc" />}
                                 onPress={handleSubmit((data) => submitReportMutation.mutate(data))}

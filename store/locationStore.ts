@@ -43,7 +43,6 @@ export const useLocationStore = create<LocationStore>((set) => ({
   setRiderLocation: (deliveryId, coordinates) => {
     set((state) => {
       const newRiderLocation = { deliveryId, coordinates };
-      console.log("Zustand: setRiderLocation →", newRiderLocation);
       return {
         ...state,
         riderLocation: newRiderLocation,
@@ -52,7 +51,6 @@ export const useLocationStore = create<LocationStore>((set) => ({
   },
 
   clearRiderLocation: () => {
-    console.log("Zustand: clearRiderLocation");
     set({ riderLocation: null });
   },
 
