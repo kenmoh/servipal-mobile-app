@@ -18,7 +18,6 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 // RHF & Zod imports
 import AppButton from "@/components/AppButton";
 import { useToast } from "@/components/ToastProvider";
-import { useUserStore } from "@/store/userStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Linking from 'expo-linking';
 import { Controller, useForm } from "react-hook-form";
@@ -43,7 +42,7 @@ const signUpSchema = z
     // password: z.string().min(8, "Password must be at least 8 characters"),
     password: z
       .string()
-      .min(8, 'Password must be at least 8 characters')
+      .min(8, 'Password must be at least 8 characters long, contains at least 1 special character, 1 uppercase, 1 number')
       .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
       .regex(/[0-9]/, 'Password must contain at least one number')
       .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character'),
@@ -57,10 +56,7 @@ const signUpSchema = z
 type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 const SignUp = () => {
-  const { showSuccess, showError, showInfo } = useToast();
-  const { isFirstLaunch } = useUserStore()
-
- 
+  const { showError, showInfo } = useToast();
   const {
     control,
     handleSubmit,
@@ -172,12 +168,7 @@ const SignUp = () => {
               />
             )}
           />
-          <View className="w-[90%] self-center">
 
-            <Text className="text-primary text-[10px] font-poppins-thin">
-              Password must be at least 8 characters long, contains at least 1 special character, 1 uppercase, 1 number
-            </Text>
-          </View>
           <Controller
             control={control}
             name="confirmPassword"
@@ -198,7 +189,7 @@ const SignUp = () => {
             <AppButton
               disabled={isPending}
               title={isPending ? "Registering..." : "Register"}
-              icon={isPending && <ActivityIndicator size={"large"} color="white"/>}
+              icon={isPending && <ActivityIndicator size={"large"} color="white" />}
               width={"90%"}
               onPress={handleSubmit(onSubmit)}
             />

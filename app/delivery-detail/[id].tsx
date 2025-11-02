@@ -79,6 +79,7 @@ const ItemDetails = () => {
   const HANDLE_INDICATOR_STYLE =
     theme === "dark" ? HEADER_BG_LIGHT : HEADER_BG_DARK;
   const HANDLE_STYLE = theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
+  const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT;
 
   const openSheet = () => bottomSheetRef.current?.snapToIndex(0);
   const closeSheet = () => bottomSheetRef.current?.close();
@@ -118,294 +119,6 @@ const ItemDetails = () => {
 
 
   const queryClient = useQueryClient();
-
-  // const confirmReceivedMutation = useMutation({
-  //   mutationFn: () => senderConfirmDeliveryReceived(id as string),
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["order", id],
-  //       exact: false,
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["orders"],
-  //       exact: false,
-  //     });
-
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["orders", user?.sub],
-  //       exact: false,
-  //     });
-
-  //     queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-  //     queryClient.refetchQueries({
-  //       queryKey: ["orders", user?.sub],
-  //       exact: false,
-  //     });
-
-  //     refetch();
-  //     router.push('/(app)/delivery/(topTabs)/orders');
-  //     showSuccess("Success", "Delivery confirmed and received.");
-  //   },
-
-
-  //   onError: (error: Error) => {
-  //     showError("Error", error.message);
-  //   },
-  // });
-
-  // const acceptDeliveryMutation = useMutation({
-  //   mutationFn: (deliveryId: string) => riderAcceptBooking(deliveryId),
-  //   onSuccess: async (_, deliveryId) => {
-  //     Sentry.addBreadcrumb({
-  //       message: 'Delivery accepted successfully',
-  //       category: 'delivery',
-  //       level: 'info',
-  //       data: { orderId: data?.order?.id }
-  //     });
-  //     router.back();
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["order", id],
-  //       exact: false,
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["orders"],
-  //       exact: false,
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["orders", user?.sub],
-  //       exact: false,
-  //     });
-
-  //     queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-  //     queryClient.refetchQueries({
-  //       queryKey: ["orders", user?.sub],
-  //       exact: false,
-  //     });
-
-  //     refetch();
-  //     await startDeliveryTracking(data?.delivery?.id!, user?.sub!);
-
-  //     showSuccess(
-  //       "Success",
-  //       "This order has been assigned to you. Drive carefully!"
-  //     );
-  //   },
-  //   onError: (error: Error) => {
-  //     showError("Error", error.message);
-  //     Sentry.captureException(error, {
-  //       extra: {
-  //         orderId: data?.order?.id,
-  //         action: 'accept_delivery'
-  //       },
-  //       tags: {
-  //         feature: 'delivery-management'
-  //       }
-  //     });
-  //   },
-  // });
-  // const pickupDeliveryMutation = useMutation({
-  //   mutationFn: (deliveryId: string) => riderPickupDelivery(deliveryId),
-  //   onSuccess: async (_, deliveryId) => {
-  //     Sentry.addBreadcrumb({
-  //       message: 'Delivery accepted successfully',
-  //       category: 'delivery',
-  //       level: 'info',
-  //       data: { orderId: data?.order?.id }
-  //     });
-  //     router.back();
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["order", id],
-  //       exact: false,
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["orders"],
-  //       exact: false,
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["orders", user?.sub],
-  //       exact: false,
-  //     });
-
-  //     queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-  //     queryClient.refetchQueries({
-  //       queryKey: ["orders", user?.sub],
-  //       exact: false,
-  //     });
-
-  //     refetch();
-  //     await startDeliveryTracking(data?.delivery?.id!, user?.sub!);
-
-  //     showWarning(
-  //       "Item Pickup",
-  //       "Please confirm the item is correct, complete and ok before living.",
-  //       5
-  //     );
-  //   },
-  //   onError: (error: Error) => {
-  //     showError("Error", error.message);
-  //     Sentry.captureException(error, {
-  //       extra: {
-  //         orderId: data?.order?.id,
-  //         action: 'accept_delivery'
-  //       },
-  //       tags: {
-  //         feature: 'delivery-management'
-  //       }
-  //     });
-  //   },
-  // });
-
-  // const declineBookingMutation = useMutation({
-  //   mutationFn: (deliveryId: string) => riderDeclineBooking(deliveryId),
-  //   onSuccess: async (_, deliveryId) => {
-  //     Sentry.addBreadcrumb({
-  //       message: 'Delivery accepted successfully',
-  //       category: 'delivery',
-  //       level: 'info',
-  //       data: { orderId: data?.order?.id }
-  //     });
-  //     router.back();
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["order", id],
-  //       exact: false,
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["orders"],
-  //       exact: false,
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["orders", user?.sub],
-  //       exact: false,
-  //     });
-
-  //     queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-  //     queryClient.refetchQueries({
-  //       queryKey: ["orders", user?.sub],
-  //       exact: false,
-  //     });
-
-  //     refetch();
-  //     await startDeliveryTracking(data?.delivery?.id!, user?.sub!);
-
-  //     showWarning("Decline", "Booking declined!");
-  //   },
-  //   onError: (error: Error) => {
-  //     showError("Error", error.message);
-  //     Sentry.captureException(error, {
-  //       extra: {
-  //         orderId: data?.order?.id,
-  //         action: 'accept_delivery'
-  //       },
-  //       tags: {
-  //         feature: 'delivery-management'
-  //       }
-  //     });
-  //   },
-  // });
-
-  // const markDeliveredMutation = useMutation({
-  //   mutationFn: (deliveryId: string) => riderMarkDelivered(deliveryId),
-  //   onSuccess: (_, deliveryId) => {
-  //     Sentry.addBreadcrumb({
-  //       message: 'Delivery accepted successfully',
-  //       category: 'delivery',
-  //       level: 'info',
-  //       data: { orderId: data?.order?.id }
-  //     });
-  //     router.back();
-  //     // Invalidate all related queries
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["order", id],
-  //       exact: false,
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["orders"],
-  //       exact: false,
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["orders", user?.sub],
-  //       exact: false,
-  //     });
-
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["orders", data?.delivery?.sender_id],
-  //       exact: false,
-  //     });
-
-  //     // Force refetch of all order-related queries
-  //     queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-  //     queryClient.refetchQueries({
-  //       queryKey: ["orders", user?.sub],
-  //       exact: false,
-  //     });
-
-  //     refetch();
-  //     stopDeliveryTracking();
-  //     useLocationStore.getState().clearRiderLocation();
-  //     showSuccess("Success", "Item delivered.");
-  //   },
-  //   onError: (error: Error) => {
-  //     showError("Error", error.message);
-  //     Sentry.captureException(error, {
-  //       extra: {
-  //         orderId: data?.order?.id,
-  //         action: 'accept_delivery'
-  //       },
-  //       tags: {
-  //         feature: 'delivery-management'
-  //       }
-  //     });
-  //   },
-  // });
-
-  // const cancelDeliveryMutation = useMutation({
-  //   mutationFn: cancelDelivery,
-  //   onSuccess: () => {
-  //     Sentry.addBreadcrumb({
-  //       message: 'Delivery accepted successfully',
-  //       category: 'delivery',
-  //       level: 'info',
-  //       data: { orderId: data?.order.id }
-  //     });
-  //     router.back();
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["order", id],
-  //       exact: false,
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["orders"],
-  //       exact: false,
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["orders", user?.sub],
-  //       exact: false,
-  //     });
-
-  //     queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
-  //     queryClient.refetchQueries({
-  //       queryKey: ["orders", user?.sub],
-  //       exact: false,
-  //     });
-
-  //     refetch();
-  //     router.push("/(app)/delivery/(topTabs)/orders");
-
-  //     showInfo("Delivery cancelled!");
-  //   },
-  //   onError: (error: Error) => {
-  //     showError("Error", error.message);
-  //     Sentry.captureException(error, {
-  //       extra: {
-  //         orderId: data?.order?.id,
-  //         action: 'accept_delivery'
-  //       },
-  //       tags: {
-  //         feature: 'delivery-management'
-  //       }
-  //     });
-  //   },
-  // });
-
 
   const confirmReceivedMutation = useMutation({
     mutationFn: () => senderConfirmDeliveryReceived(id as string),
@@ -473,7 +186,7 @@ const ItemDetails = () => {
         "Success",
         "This order has been assigned to you. Drive carefully!"
       );
-      router.back();
+      // router.back();
     },
     onError: (error: Error) => {
       showError("Error", error.message);
@@ -525,10 +238,10 @@ const ItemDetails = () => {
       // Then navigate and show warning
       showWarning(
         "Item Pickup",
-        "Please confirm the item is correct, complete and ok before leaving.",
+        "Please ensure the item(s) is/are correct, complete and okay.",
         5
       );
-      router.back();
+      // router.back();
     },
     onError: (error: Error) => {
       showError("Error", error.message);
@@ -968,7 +681,7 @@ const ItemDetails = () => {
             <View className="self-center w-full justify-center items-center">
               <AppVariantButton
                 icon={<UserRound color="orange" />}
-                width={"85%"}
+                width={"50%"}
                 borderRadius={50}
                 filled={false}
                 outline={true}
@@ -1215,16 +928,30 @@ const ItemDetails = () => {
           <Text className="text-red-500">Order not found</Text>
         </View>
       )}
-      <BottomSheet
-        ref={bottomSheetRef}
-        snapPoints={["50%"]}
-        index={-1}
-        enablePanDownToClose={true}
-        handleIndicatorStyle={{ backgroundColor: HANDLE_INDICATOR_STYLE }}
-        style={{ flex: 1 }}
-        handleStyle={{ backgroundColor: HANDLE_STYLE }}
-      >
-        <BottomSheetView style={{ flex: 1 }}>
+   
+            <BottomSheet
+                index={-1}
+                snapPoints={['50%']}
+                ref={bottomSheetRef}
+                enablePanDownToClose={true}
+                enableDynamicSizing={true}
+                handleIndicatorStyle={{ backgroundColor: HANDLE_INDICATOR_STYLE }}
+                handleStyle={{ backgroundColor: HANDLE_STYLE }}
+                backgroundStyle={{
+                    borderTopLeftRadius: 40,
+                    borderTopRightRadius: 40,
+                    backgroundColor: BG_COLOR,
+                    shadowColor: 'orange',
+                    shadowOffset: {
+                        width: 0,
+                        height: -4
+                    },
+                    shadowOpacity: 0.5,
+                    shadowRadius: 20,
+                    elevation: 20
+                }}
+            >
+        <BottomSheetView style={{ backgroundColor: BG_COLOR, padding: 16, flex: 1 }}>
 
           <View className="hidden">
             <Controller
@@ -1239,6 +966,7 @@ const ItemDetails = () => {
               )}
             />
           </View>
+          <View className="mb-5">
           <Controller
             control={control}
             name="cancelReason"
@@ -1253,11 +981,13 @@ const ItemDetails = () => {
 
             )}
           />
+          </View>
 
 
           <AppVariantButton
             label="Cancel Booking"
-            borderRadius={50}
+            width={"90%"}
+            // borderRadius={50}
             onPress={handleSubmit(onSubmit)}
           />
         </BottomSheetView>

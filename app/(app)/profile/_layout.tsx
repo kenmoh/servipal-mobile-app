@@ -53,10 +53,11 @@ const ProfileLayout = () => {
                 />
                 <Stack.Screen name='wallet' options={{
                     title: 'Wallet',
-                    animation: 'slide_from_bottom',
+                    animation: 'ios_from_right',
                     headerShadowVisible: false,
                     headerShown: true,
-                    headerTintColor: theme === 'dark' ? '#fff' : '#000',
+
+                    // headerTintColor: theme === 'dark' ? '#fff' : '#000',
                     contentStyle: {
                         backgroundColor: theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT,
                     },

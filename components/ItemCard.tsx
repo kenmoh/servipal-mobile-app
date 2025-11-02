@@ -44,13 +44,13 @@ export const Status = React.memo(({ status, label }: { label?: string, status?: 
             case 'accepted':
                 return { bg: 'rgba(33, 150, 243, 0.10)', color: '#0D47A1' };
             case 'delivered':
-                return { bg: 'rgba(18, 2, 75, 0.49)', color: 'blue' };
+                 return { bg: 'rgba(33, 150, 243, 0.10)', color: '#0D47A1' };
             case 'received':
-                return { bg: 'rgba(5, 20, 105, 0.28)', color: 'rgb(44, 64, 179)' };
+                 return { bg: 'rgba(33, 150, 243, 0.10)', color: '#0D47A1' };
             case 'picked-up':
-                return { bg: 'rgba(5, 20, 105, 0.28)', color: 'rgb(44, 64, 179)' };
+                 return { bg: 'rgba(33, 150, 243, 0.10)', color: '#0D47A1' };
             case 'laundry_received':
-                return { bg: 'rgba(255, 152, 0, 0.10)', color: '#E65100' };
+                 return { bg: 'rgba(33, 150, 243, 0.10)', color: '#0D47A1' };
             case 'canceled':
                 return { bg: 'rgba(244, 67, 54, 0.10)', color: '#B71C1C' };
             default:

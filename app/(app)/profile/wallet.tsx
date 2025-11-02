@@ -4,11 +4,11 @@ import BalanceShimmer from "@/components/BalanceShimmer";
 import { useToast } from "@/components/ToastProvider";
 import Transactioncard from "@/components/Transactioncard";
 import { useUserStore } from "@/store/userStore";
-import { Transaction } from "@/types/user-types";
+import { Transaction, UserDetails, Wallet } from "@/types/user-types";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
-import { router, useFocusEffect } from "expo-router";
+import { router, Stack, useFocusEffect } from "expo-router";
 import {
     ArrowDownCircle,
     ArrowUpCircle,
@@ -24,7 +24,6 @@ import {
     View,
 } from "react-native";
 
-import Animated, { FadeInUp } from "react-native-reanimated";
 
 const index = () => {
     const { user, profile } = useUserStore();
@@ -57,114 +56,37 @@ const index = () => {
         }, [refetch])
     );
     return (
-        <View className="flex-1 bg-background ">
-        <Animated.View
-    className="mt-5"
-    entering={FadeInUp.duration(300).delay(300)}
->
-    <View className="w-[90%] self-center rounded-[15px] overflow-hidden">
-        <LinearGradient
-            colors={["#ff9966", "#ff5e62", "#ff7955", "#ffb347"]}
-            style={[styles.background, { height: 'auto', paddingBottom: 16 }]}
-            start={[0, 0]}
-            end={[1, 1]}
-        >
-            <View className="flex-row justify-between items-center">
-                <View className="p-3">
-                    <View className=" gap-2 flex-row">
-                        <Text style={styles.label}>Main Balance</Text>
-                        <TouchableOpacity
-                            hitSlop={35}
-                            onPress={() => setIsBalanceHidden(!isBalanceHidden)}
-                        >
-                            {isBalanceHidden ? (
-                                <Eye color="white" size={16} />
-                            ) : (
-                                <EyeOff color="white" size={16} />
-                            )}
-                        </TouchableOpacity>
-                    </View>
-                    <View className="flex-row items-baseline gap-2 mt-2">
-                        <Text style={styles.currency}>₦</Text>
-                        {isFetching ? (
-                            <BalanceShimmer width={80} height={24} borderRadius={8} />
-                        ) : (
-                            <Text style={styles.amount}>
-                                {isBalanceHidden
-                                    ? "****"
-                                    : formatCurrency(data?.balance || 0)}
-                            </Text>
-                        )}
-                    </View>
-                </View>
-                <View className="p-3">
-                    <Text style={[styles.label]}>Escrow Balance</Text>
-                    <View className="flex-row items-baseline gap-2 mt-1">
-                        <Text
-                            style={[styles.currency, { fontFamily: "Poppins-Thin" }]}
-                        >
-                            ₦
-                        </Text>
-                        {isFetching ? (
-                            <BalanceShimmer width={80} height={24} borderRadius={8} />
-                        ) : (
-                            <Text
-                                style={[styles.amount, { fontFamily: "Poppins-Thin" }]}
-                            >
-                                {isBalanceHidden
-                                    ? "****"
-                                    : formatCurrency(data?.escrow_balance || 0)}
-                            </Text>
-                        )}
-                    </View>
-                </View>
-            </View>
+        <>
+            <Stack.Screen
+                options={{
+                    header: () => (
+                        <Header
+                            data={data!}
+                            isBalanceHidden={isBalanceHidden}
+                            isFetching={isFetching}
+                            hideOrShowBalance={() => setIsBalanceHidden(!isBalanceHidden)}
+                            profile={profile!}
+                            withdraw={() => withdrawMutation()}
 
-            <View className="justify-between self-center gap-3 mt-1">
-                {profile?.profile?.bank_account_number && (
-                    <Text className="text-white font-poppins-medium">
-                        Account: {profile?.profile?.bank_account_number}
-                    </Text>
-                )}
-                {(profile?.profile?.bank_name ||
-                    profile?.profile?.business_name) && (
-                        <Text className="text-white font-poppins">
-                            Name:{" "}
-                            {profile?.profile?.full_name ||
-                                profile?.profile.business_name}
-                        </Text>
-                    )}
-            </View>
-            <View className="flex-row items-center gap-6 self-center mt-2 pb-2">
-                <ActionBtn
-                    label="Withdraw"
-                    icon={<ArrowUpCircle color={"gray"} size={20} />}
-                    onPress={() => withdrawMutation()}
-                />
-                <ActionBtn
-                    label="Deposit"
-                    icon={<ArrowDownCircle color={"gray"} size={20} />}
-                    onPress={() =>
-                        router.push({ pathname: "/profile/fund-wallet" })
-                    }
-                />
-            </View>
-        </LinearGradient>
-    </View>
-</Animated.View>
-
-            <View className="w-[90%] self-center gap-[4%] my-2">
-                <Text className="text-primary text-lg">Transactions</Text>
-            </View>
-
-            <FlatList
-                data={data?.transactions || []}
-                keyExtractor={(item: Transaction) => item?.id!}
-                renderItem={({ item }) => <Transactioncard data={item} />}
-                refreshing={isFetching}
-                onRefresh={refetch}
+                        />
+                    ),
+                }}
             />
-        </View>
+            <View className="flex-1 bg-background ">
+
+                <View className="w-[90%] self-center gap-[4%] my-2">
+                    <Text className="text-primary text-lg">Transactions</Text>
+                </View>
+
+                <FlatList
+                    data={data?.transactions || []}
+                    keyExtractor={(item: Transaction) => item?.id!}
+                    renderItem={({ item }) => <Transactioncard data={item} />}
+                    refreshing={isFetching}
+                    onRefresh={refetch}
+                />
+            </View>
+        </>
     );
 };
 
@@ -178,21 +100,124 @@ function ActionBtn({
     icon: React.ReactNode;
 }) {
     return (
-
-        <TouchableOpacity className="rounded-full flex-row gap-2 p-3 bg-white mt-3" onPress={onPress}>
+        <TouchableOpacity
+            className="rounded-full flex-row gap-2 p-3 bg-white mt-3"
+            onPress={onPress}
+        >
             {icon}
             <Text className="text-sm font-poppins-light text-gray-800">{label}</Text>
         </TouchableOpacity>
-
     );
 }
+
+type HeaderProps = {
+    hideOrShowBalance: () => void;
+    isBalanceHidden: boolean;
+    isFetching: boolean;
+    data: Wallet;
+    profile: UserDetails;
+    withdraw: () => void;
+};
+const Header = ({
+    hideOrShowBalance,
+    isBalanceHidden,
+    data,
+    isFetching,
+    profile,
+    withdraw,
+}: HeaderProps) => {
+    return (
+
+        <View className="self-center rounded-b-lg overflow-hidden w-full">
+            <LinearGradient
+                colors={["#ff9966", "#ff5e62", "#ff7955", "#ffb347"]}
+                style={[styles.background, { height: "auto", paddingBottom: 16 }]}
+                start={[0, 0]}
+                end={[1, 1]}
+            >
+                <View className="flex-row justify-between items-center">
+                    <View className="">
+                        <View className=" gap-2 flex-row">
+                            <Text style={styles.label}>Main Balance</Text>
+                            <TouchableOpacity hitSlop={35} onPress={hideOrShowBalance}>
+                                {isBalanceHidden ? (
+                                    <Eye color="white" size={16} />
+                                ) : (
+                                    <EyeOff color="white" size={16} />
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                        <View className="flex-row items-baseline gap-2 mt-2">
+                            <Text style={styles.currency}>₦</Text>
+                            {isFetching ? (
+                                <BalanceShimmer width={80} height={24} borderRadius={8} />
+                            ) : (
+                                <Text style={styles.amount}>
+                                    {isBalanceHidden
+                                        ? "****"
+                                        : formatCurrency(data?.balance || 0)}
+                                </Text>
+                            )}
+                        </View>
+                    </View>
+                    <View className="">
+                        <Text style={[styles.label]}>Escrow Balance</Text>
+                        <View className="flex-row items-baseline gap-2 mt-1">
+                            <Text style={[styles.currency, { fontFamily: "Poppins-Thin" }]}>
+                                ₦
+                            </Text>
+                            {isFetching ? (
+                                <BalanceShimmer width={80} height={24} borderRadius={8} />
+                            ) : (
+                                <Text style={[styles.amount, { fontFamily: "Poppins-Thin" }]}>
+                                    {isBalanceHidden
+                                        ? "****"
+                                        : formatCurrency(data?.escrow_balance || 0)}
+                                </Text>
+                            )}
+                        </View>
+                    </View>
+                </View>
+
+                <View className="gap-3 mt-1">
+                    {profile?.profile?.bank_account_number && (
+                        <Text className="text-white font-poppins-medium">
+                            Account: {profile?.profile?.bank_account_number}
+                        </Text>
+                    )}
+                    {(profile?.profile?.bank_name ||
+                        profile?.profile?.business_name) && (
+                            <Text className="text-white font-poppins">
+                                Name:{" "}
+                                {profile?.profile?.full_name || profile?.profile.business_name}
+                            </Text>
+                        )}
+                </View>
+                <View className="flex-row gap-6 mt-2 pb-2">
+                    <ActionBtn
+                        label="Withdraw"
+                        icon={<ArrowUpCircle color={"gray"} size={20} />}
+                        onPress={withdraw}
+                    />
+                    <ActionBtn
+                        label="Deposit"
+                        icon={<ArrowDownCircle color={"gray"} size={20} />}
+                        onPress={() => router.push({ pathname: "/profile/fund-wallet" })}
+                    />
+                </View>
+            </LinearGradient>
+        </View>
+    );
+};
 
 export default index;
 
 const styles = StyleSheet.create({
     background: {
-        height: 'auto',
-        position: "relative",
+        height: "auto",
+        // position: "relative",
+        paddingHorizontal: 20,
+        paddingVertical: 40
     },
     label: {
         color: "white",

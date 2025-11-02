@@ -179,11 +179,10 @@ const removeEmail = async () => {
   }
 };
 
-const storeTheme = async (theme: "light" | "dark") => {
+const storeTheme = async (theme: "light" | "dark" | "system") => {
   try {
     await SecureStore.setItemAsync(themeKey, theme);
   } catch (error) {
-    console.error("Error storing theme:", error);
     throw new Error("Error storing theme");
   }
 };
@@ -193,7 +192,6 @@ const getTheme = async (): Promise<"light" | "dark" | null> => {
     const theme = await SecureStore.getItemAsync(themeKey);
     return theme as "light" | "dark" | null;
   } catch (error) {
-    console.error("Error getting theme:", error);
     return null;
   }
 };

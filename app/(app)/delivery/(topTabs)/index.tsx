@@ -29,6 +29,8 @@ import { useOrderStore } from "@/store/orderStore";
 import { router } from "expo-router";
 import { Alert, View } from "react-native";
 import * as Sentry from '@sentry/react-native';
+import getPushToken from '@/storage/authStorage'
+import storePushToken from '@/storage/authStorage'
 
 
 const DeliveryScreen = () => {
@@ -139,7 +141,7 @@ const DeliveryScreen = () => {
         id: user.sub,
         email: user.email,
       });
-      
+
       Sentry.setTag('user_type', user.user_type);
     }
   }, [user]);
@@ -224,9 +226,11 @@ const DeliveryScreen = () => {
   });
 
   useEffect(() => {
+
     if (expoPushToken && userLocation) {
       registerMutation.mutate({
         notification_token: expoPushToken!,
+
       });
 
       registerCoordinatesMutation.mutate({

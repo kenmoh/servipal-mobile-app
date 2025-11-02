@@ -12,7 +12,7 @@ import {
   Wallet
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { Alert, Dimensions, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import { Alert, Dimensions, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 import { logOutUser } from "@/api/auth";
@@ -36,18 +36,21 @@ import { useColorScheme } from "nativewind";
 const BACKDROP_IMAGE_HEIGHT = Dimensions.get("window").height * 0.2;
 const BACKDROP_IMAGE_WIDTH = Dimensions.get("window").width;
 
+type themeType = 'dark' | 'light' | 'system'
+
 const profile = () => {
   const [backdropUri, setBackdropUri] = useState<
     ImageType | ImageUpload | null | string
   >(null);
   const [profileUri, setProfileUri] = useState<ImageUrl | null | string>(null);
   const { user, profile, setImages, setStoreId } = useUserStore();
-  const { colorScheme, setColorScheme } = useColorScheme();
+  const { colorScheme, setColorScheme, toggleColorScheme } = useColorScheme();
   const queryClient = useQueryClient();
-  const [theme, setTheme] = useState(colorScheme);
+  const [theme, setTheme] = useState<themeType>('dark');
   const { showError, showSuccess } = useToast();
   const { signOut } = useUserStore();
   const [isOnline, setIsOnline] = useState(true)
+  const ICON_COLOR = theme === 'dark' ? '#eee' : "gray"
 
   useEffect(() => {
     const loadTheme = async () => {
@@ -63,7 +66,7 @@ const profile = () => {
     loadTheme();
   }, []);
 
-  const handleThemeChange = (newTheme: string) => {
+  const handleThemeChange = (newTheme: themeType) => {
     setTheme(newTheme);
     setColorScheme(newTheme);
     authStorage.storeTheme(newTheme);
@@ -263,8 +266,8 @@ const profile = () => {
 
   return (
     <>
-      <ScrollView className="flex-1 bg-background">
-        <View>
+      <ScrollView className="flex-1 bg-background" contentContainerStyle={{ flex: 1 }}>
+        <View className="flex-1 bg-background">
           <View className="'w-full">
             <ProfileImagePicker
               onImageSelect={handleBackdropImageSelect}
@@ -304,8 +307,8 @@ const profile = () => {
                 <ProfileCard
                   name={"Profile"}
                   onPress={handleProfileScreen}
-                  bgColor={"rgba(0,128, 128, 0.3)"}
-                  icon={<UserRound color={"white"} />}
+                  // bgColor={"rgba(0,128, 128, 0.3)"}
+                  icon={<UserRound color={ICON_COLOR} size={18} />}
                 />
               </Animated.View>
             )}
@@ -315,8 +318,8 @@ const profile = () => {
                   <ProfileCard
                     name={"Store"}
                     onPress={handleAddItem}
-                    bgColor={"rgba(9, 3, 94, 0.3)"}
-                    icon={<Store color={"white"} />}
+                    // bgColor={"rgba(9, 3, 94, 0.3)"}
+                    icon={<Store color={ICON_COLOR} size={18} />}
                   />
                 </Animated.View>
               )}
@@ -325,8 +328,8 @@ const profile = () => {
                 <ProfileCard
                   name={"Wallet"}
                   onPress={() => router.push({ pathname: "/profile/wallet" })}
-                  bgColor={"rgba(241, 121, 8, 0.5)"}
-                  icon={<Wallet color={"white"} />}
+                  // bgColor={"rgba(241, 121, 8, 0.5)"}
+                  icon={<Wallet color={ICON_COLOR} size={18} />}
                 />
               </Animated.View>
             )}
@@ -335,8 +338,8 @@ const profile = () => {
                 <ProfileCard
                   name={"Riders"}
                   onPress={() => router.push({ pathname: "/profile/riders" })}
-                  bgColor={"rgba(5, 90, 247, 0.3)"}
-                  icon={<UsersRound color={"white"} />}
+                  // bgColor={"rgba(5, 90, 247, 0.3)"}
+                  icon={<UsersRound color={ICON_COLOR} size={18} />}
                 />
               </Animated.View>
             )}
@@ -347,19 +350,19 @@ const profile = () => {
                 onPress={() =>
                   router.push({ pathname: "/profile/changePassword" })
                 }
-                bgColor={"rgba(221, 218, 11, 0.7)"}
-                icon={<KeyRound color={"white"} />}
+                // bgColor={"rgba(221, 218, 11, 0.7)"}
+                icon={<KeyRound color={ICON_COLOR} size={18} />}
               />
             </Animated.View>
             <Animated.View entering={FadeInDown.duration(300).delay(100)}>
               <ProfileCard
                 name="Theme"
-                bgColor={"gold"}
+                // bgColor={"gold"}
                 icon={
                   colorScheme === "dark" ? (
-                    <SunIcon color={"white"} />
+                    <SunIcon color={ICON_COLOR} size={18} />
                   ) : (
-                    <MoonIcon color={"white"} />
+                    <MoonIcon color={ICON_COLOR} size={18} />
                   )
                 }
               >
@@ -388,43 +391,21 @@ const profile = () => {
                 </View>
                 {user?.user_type === 'rider' && <View className="flex-row justify-between items-center">
                   <Text className="font-poppins text-sm text-secondary">{isOnline ? "Online" : "Offline"}</Text>
-                  <Switch value={isOnline} onValueChange={handleToggleOnlineStatus} thumbColor={theme === 'dark' ? '#fff' : 'orange'} trackColor={isOnline ? 'orange' : '#aaa'} />
+                  <Switch value={isOnline} onValueChange={handleToggleOnlineStatus} thumbColor={theme === 'dark' ? '#fff' : 'orange'} trackColor={{ true: `${isOnline ? 'orange' : '#aaa'}` }} />
                 </View>}
               </ProfileCard>
             </Animated.View>
-            <Animated.View
-              className=""
-              entering={FadeInDown.duration(300).delay(100)}
-            >
 
-              <ProfileCard
-                name={"Logout"}
-                onPress={handleLogout}
-                bgColor={"rgba(255, 0, 0, 0.3)"}
-                icon={<LogOutIcon color={"white"} />}
-              />
-
-            </Animated.View>
-
-            {
-              user?.user_type !== 'rider' &&
-
-              <Animated.View
-                className=""
-                entering={FadeInDown.duration(300).delay(100)}
-              >
-
-
-                <ProfileCard
-                  name={"Delete Account"}
-                  onPress={openDialog}
-                  bgColor={"rgba(255, 0, 0, 0.3)"}
-                  icon={<Trash2 color={"white"} />}
-                />
-
-              </Animated.View>
-            }
-
+          </View>
+          <View className="flex-row justify-between bg-background absolute bottom-0 w-full px-5 py-3">
+            <TouchableOpacity onPress={handleLogout} className="flex-row gap-2">
+              <LogOutIcon color={ICON_COLOR} size={18} />
+              <Text className="font-poppins text-muted text-sm">Logout</Text>
+            </TouchableOpacity>
+            {user?.user_type !== 'rider' && <TouchableOpacity className="flex-row gap-2" onPress={openDialog}>
+              <Trash2 color={'red'} size={18} />
+              <Text className="font-poppins text-red-400 text-sm">Delete Account</Text>
+            </TouchableOpacity>}
           </View>
         </View>
       </ScrollView>
