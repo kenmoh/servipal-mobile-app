@@ -11,7 +11,9 @@ const DeliveryLayout = () => {
     const { user, setisReassign } = useUserStore();
     
     // Determine if user should see all tabs
-    const showAllTabs = user?.user_type !== 'dispatch' || user?.user_type !== 'rider';
+    // const showAllTabs = user?.user_type !== 'dispatch' || user?.user_type !== 'rider';
+    // const showAllTabs = user?.user_type !== 'dispatch' && user?.user_type !== 'rider';
+    const showAllTabs = !['laundry_vendor', 'customer', 'restaurant_vendor'].includes(user?.user_type);
 
     return (
         <DeliveryTabs

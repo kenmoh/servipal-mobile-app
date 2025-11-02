@@ -111,7 +111,7 @@ export default function DeliveryCard({ data }: CardProp) {
             ₦ {Number(data?.order?.total_price).toFixed(2)}
           </Text>)}
         </View>
-        <Text className="font-poppins-medium text-primary">#ORDN{data?.order?.order_number}</Text>
+        <Text className="font-poppins-medium text-muted">#ORDN{data?.order?.order_number}</Text>
 
       </View>
 
@@ -161,7 +161,7 @@ export default function DeliveryCard({ data }: CardProp) {
         </View>
             <View className='flex-row gap-[5px]'>
                         <Status
-                            label={data?.delivery?.delivery_status === 'accepted' ? 'Assigned' : undefined}
+                            label={data?.delivery?.delivery_status === 'accepted' ? 'Assigned' : data?.delivery?.delivery_status==='picked-up'? 'In Transit': undefined}
                             status={data?.order?.require_delivery === 'delivery' ? data?.delivery?.delivery_status : data?.order?.order_status}
                         />
                         <PaymentStatusColor status={data?.order?.order_payment_status} />

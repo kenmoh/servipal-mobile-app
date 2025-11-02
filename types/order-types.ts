@@ -18,7 +18,7 @@ export type DeliveryStatus =
   | "laundry_received"
   | "canceled"
   | "in-transit"
-  | "pickup";
+  | "picked-up";
 
 export interface ImageType {
   url: string;
@@ -39,8 +39,8 @@ export interface SendItem {
 }
 
 export interface UpdateDeliveryLocation {
-  rider_id: string
-  message?: string
+  rider_id: string;
+  message?: string;
   last_known_rider_coordinates: Coordinates;
 }
 
@@ -63,7 +63,7 @@ interface Delivery {
   created_at: string;
   pickup_coordinates?: Coordinates;
   dropoff_coordinates?: Coordinates;
-  last_known_rider_coordinates?: Coordinates
+  last_known_rider_coordinates?: Coordinates;
 }
 
 export interface OrderItemResponse {

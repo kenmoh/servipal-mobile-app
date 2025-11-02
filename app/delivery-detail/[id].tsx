@@ -6,10 +6,10 @@ import {
   Dimensions,
   Image,
   Modal,
+  StyleSheet,
   Text,
   TouchableOpacity,
   useColorScheme,
-  StyleSheet,
   View
 } from "react-native";
 
@@ -50,8 +50,9 @@ import {
   Info,
   MapPin,
   Phone,
+  TriangleAlert,
   UserRound,
-  Wallet,
+  Wallet
 } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
@@ -84,13 +85,14 @@ const ItemDetails = () => {
   const viewRiderProfile = () => riderProfileRef.current?.snapToIndex(0)
 
 
+
+
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["order", id],
     queryFn: () => fetchOrder(id as string),
     refetchOnWindowFocus: true,
     refetchOnMount: true,
   });
-
 
   const handleRiderReassign = () => {
     setisReassign(true)
@@ -410,7 +412,7 @@ const ItemDetails = () => {
     onSuccess: async () => {
       // Invalidate queries first
       await queryClient.invalidateQueries({
-        queryKey: ["order", id],
+        queryKey: ["order", data?.order?.id],
       });
       await queryClient.invalidateQueries({
         queryKey: ["user-orders", user?.sub],
@@ -424,6 +426,7 @@ const ItemDetails = () => {
         queryClient.refetchQueries({ queryKey: ["order", id] }),
         queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
       ]);
+      refetch()
 
       // Then navigate and show success
       showSuccess("Success", "Delivery confirmed and received.");
@@ -446,7 +449,7 @@ const ItemDetails = () => {
 
       // Invalidate queries first
       await queryClient.invalidateQueries({
-        queryKey: ["order", id],
+        queryKey: ["order", data?.order?.id],
       });
       await queryClient.invalidateQueries({
         queryKey: ["user-orders", user?.sub],
@@ -460,6 +463,7 @@ const ItemDetails = () => {
         queryClient.refetchQueries({ queryKey: ["order", id] }),
         queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
       ]);
+      refetch()
 
       // Start tracking
       await startDeliveryTracking(data?.delivery?.id!, user?.sub!);
@@ -497,7 +501,7 @@ const ItemDetails = () => {
 
       // Invalidate queries first
       await queryClient.invalidateQueries({
-        queryKey: ["order", id],
+        queryKey: ["order", data?.order?.id],
       });
       await queryClient.invalidateQueries({
         queryKey: ["user-orders", user?.sub],
@@ -512,8 +516,11 @@ const ItemDetails = () => {
         queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
       ]);
 
+      refetch()
       // Start tracking
       await startDeliveryTracking(data?.delivery?.id!, user?.sub!);
+
+
 
       // Then navigate and show warning
       showWarning(
@@ -564,6 +571,8 @@ const ItemDetails = () => {
         queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
       ]);
 
+      refetch()
+
       // Then navigate and show warning
       showWarning("Decline", "Booking declined!");
       router.back();
@@ -608,6 +617,7 @@ const ItemDetails = () => {
         queryClient.refetchQueries({ queryKey: ["order", id] }),
         queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
       ]);
+      refetch()
 
       // Stop tracking and clear location
       stopDeliveryTracking();
@@ -657,6 +667,8 @@ const ItemDetails = () => {
         queryClient.refetchQueries({ queryKey: ["order", id] }),
         queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
       ]);
+
+      refetch()
 
       // Then navigate and show info
       showInfo("Delivery cancelled!");
@@ -869,14 +881,14 @@ const ItemDetails = () => {
     ) {
       return {
         label: "Confirm Pickup",
-        onPress: () => pickupDeliveryMutation.mutate(delivery.id!),
+        onPress: () => pickupDeliveryMutation.mutate(order.id!),
         loading: pickupDeliveryMutation.isPending,
       };
     }
 
     // 3. Rider: Mark as Delivered (after pickup)
     if (
-      delivery?.delivery_status === "pickup" &&
+      delivery?.delivery_status === "picked-up" &&
       (isRider || isDispatch)
     ) {
       return {
@@ -1168,28 +1180,36 @@ const ItemDetails = () => {
               )}
 
             {
-              <AppVariantButton
-                label="Receipt"
-                borderRadius={50}
-                disabled={
-                  data?.delivery?.rider_id === user?.sub ||
-                    data?.delivery?.dispatch_id === user?.sub
-                    ? true
-                    : false
-                }
-                filled={false}
-                outline={true}
-                width={"32%"}
-                onPress={() => {
-                  router.push({
-                    pathname: "/receipt/[deliveryId]",
-                    params: { deliveryId: id as string },
-                  });
-                }}
-              />
+              user?.user_type === 'rider' || user?.user_type === 'dispatch' ?
+                ''
+                :
+                (<AppVariantButton
+                  label="Receipt"
+                  borderRadius={50}
+                  disabled={
+                    data?.delivery?.rider_id === user?.sub ||
+                      data?.delivery?.dispatch_id === user?.sub
+                      ? true
+                      : false
+                  }
+                  filled={false}
+                  outline={true}
+                  width={"32%"}
+                  onPress={() => {
+                    router.push({
+                      pathname: "/receipt/[deliveryId]",
+                      params: { deliveryId: id as string },
+                    });
+                  }}
+                />)
             }
           </View>
+          {user?.user_type === 'rider' || user?.user_type === 'dispatch' && <View className="flex-row gap-1">
+            <TriangleAlert color="orange" size={15} />
+            <Text className="font-poppins-light text-wrap text-xs text-yellow-700">Please confirm the content and condition of the item with the sender before leaving!</Text>
+          </View>}
         </View>
+
       </DeliveryWrapper>) : (
         <View className="flex-1 justify-center items-center p-5">
           <Text className="text-red-500">Order not found</Text>
@@ -1243,31 +1263,31 @@ const ItemDetails = () => {
         </BottomSheetView>
       </BottomSheet>
       <RiderProfile ref={riderProfileRef} riderId={data?.delivery?.rider_id} showButton={false} />
-     <Modal 
-  visible={modalVisible} 
-  animationType="slide" 
-  transparent={true} 
-  onRequestClose={() => setModalVisible(false)}
->
-  <TouchableOpacity 
-    activeOpacity={1}
-    onPress={() => setModalVisible(false)}
-    style={StyleSheet.absoluteFillObject}
-    className="bg-black/90 items-center justify-center"
-  >
-    <View 
-      onStartShouldSetResponder={() => true}
-      onTouchEnd={(e) => e.stopPropagation()}
-      style={{ height: IMAGE_HEIGHT, width: '100%' }} 
-      className="self-center"
-    >
-      <Image
-        src={data?.order?.order_items[0]?.images[0].url}
-        style={{ width: '100%', height: IMAGE_HEIGHT, resizeMode: 'cover' }}
-      />
-    </View>
-  </TouchableOpacity>
-</Modal>
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => setModalVisible(false)}
+          style={StyleSheet.absoluteFillObject}
+          className="bg-black/90 items-center justify-center"
+        >
+          <View
+            onStartShouldSetResponder={() => true}
+            onTouchEnd={(e) => e.stopPropagation()}
+            style={{ height: IMAGE_HEIGHT, width: '100%' }}
+            className="self-center"
+          >
+            <Image
+              src={data?.order?.order_items[0]?.images[0].url}
+              style={{ width: '100%', height: IMAGE_HEIGHT, resizeMode: 'cover' }}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </>
   );
 };

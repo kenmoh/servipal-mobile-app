@@ -58,7 +58,7 @@ const Category = ({ categories, onCategorySelect, selectedCategory, onOpenSheet 
 
     const CategoryItem = ({ item, isSelected }: { item: CategoryType; isSelected: boolean }) => (
         <View
-            ref={ref => categoryRefs.current[item.id] = ref}
+            ref={ref => { categoryRefs.current[item.id] = ref; }}
             collapsable={false}
         >
             <TouchableOpacity
@@ -89,7 +89,7 @@ const Category = ({ categories, onCategorySelect, selectedCategory, onOpenSheet 
         >
             {categories.length > 4 && (
                 <View
-                    ref={ref => categoryRefs.current['all'] = ref}
+                    ref={ref => { categoryRefs.current['all'] = ref; }}
                     collapsable={false}
                 >
                     <TouchableOpacity
@@ -121,7 +121,7 @@ const Category = ({ categories, onCategorySelect, selectedCategory, onOpenSheet 
 
             {categories.length > 5 && (
                 <View
-                    ref={ref => categoryRefs.current['more'] = ref}
+                    ref={ref => { categoryRefs.current['more'] = ref; }}
                     collapsable={false}
                 >
                     <TouchableOpacity
