@@ -12,11 +12,12 @@ import Map from './Map'
 
 
 interface DeliveryWrapperProps {
+  isPickedUp: boolean
   id: string
   children: React.ReactNode
 }
 
-const DeliveryWrapper = ({ children, id }: DeliveryWrapperProps) => {
+const DeliveryWrapper = ({ children, id, isPickedUp }: DeliveryWrapperProps) => {
 
   const bottomSheetRef = React.useRef(null)
 
@@ -27,7 +28,7 @@ const DeliveryWrapper = ({ children, id }: DeliveryWrapperProps) => {
 
 
     <View className='flex-1 bg-background'>
-      <Map id={id} />
+      <Map id={id} isPickedUp={isPickedUp} />
       <TouchableOpacity onPress={() => router.back()} className='absolute top-10 left-6 rounded-full p-3 bg-input'>
         {Platform.OS === 'ios' ? <ChevronLeft color={theme === 'dark' ? 'white' : 'black'} /> : <ArrowLeft color={theme === 'dark' ? 'white' : 'black'} />}
       </TouchableOpacity>

@@ -30,6 +30,7 @@ export interface RiderProps {
   bike_number: string;
   review_count: number;
   delivery_count: number;
+  total_distance_travelled: number
 }
 
 export interface UserCoords {

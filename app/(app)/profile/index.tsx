@@ -127,8 +127,6 @@ const profile = () => {
     }
   };
 
-
-  console.log(profile)
   const handleAddItem = () => {
     if (user?.user_type === "restaurant_vendor") {
       setStoreId(user?.sub);
@@ -391,13 +389,13 @@ const profile = () => {
                 </View>
                 {user?.user_type === 'rider' && <View className="flex-row justify-between items-center">
                   <Text className="font-poppins text-sm text-secondary">{isOnline ? "Online" : "Offline"}</Text>
-                  <Switch value={isOnline} onValueChange={handleToggleOnlineStatus} thumbColor={theme === 'dark' ? '#fff' : 'orange'} trackColor={{ true: `${isOnline ? 'orange' : '#aaa'}` }} />
+                  <Switch value={isOnline} onValueChange={handleToggleOnlineStatus} thumbColor={isOnline ? 'orange': '#ccc'} trackColor={{ true:  '#aaa' }} />
                 </View>}
               </ProfileCard>
             </Animated.View>
 
           </View>
-          <View className="flex-row justify-between bg-background absolute bottom-0 w-full px-5 py-3">
+          <View className="flex-row justify-between bg-background absolute bottom-0 w-full px-8 py-3">
             <TouchableOpacity onPress={handleLogout} className="flex-row gap-2">
               <LogOutIcon color={ICON_COLOR} size={18} />
               <Text className="font-poppins text-muted text-sm">Logout</Text>

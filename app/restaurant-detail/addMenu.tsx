@@ -128,7 +128,9 @@ const addMenu = () => {
         onSuccess: (data) => {
             showSuccess("Success", `${data?.name} created successfully`)
             queryClient.invalidateQueries({ queryKey: ["restaurantItems", data?.user_id, data?.food_group] });
+            queryClient.refetchQueries({ queryKey: ["restaurantItems", data?.user_id, data?.food_group] }),
             router.back();
+
         },
 
         onError: (error) => {

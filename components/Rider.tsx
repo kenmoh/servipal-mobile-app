@@ -3,17 +3,21 @@ import { StarIcon } from "lucide-react-native";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import HDivider from "./HDivider";
+import { useUserStore } from "@/store/userStore";
 
 const Rider = ({ rider, onPress }: { onPress: () => void, rider: RiderProps }) => {
 
+const {user} = useUserStore()
 
+  const isDisabled = user?.user_type === 'rider' || user?.user_type === 'dispatch'
 
   return (
     <>
       <TouchableOpacity
+        disabled={isDisabled}
         activeOpacity={0.6}
         onPress={onPress}
-        className="overflow-hidden  bg-input rounded-2xl border border-collapse-transparent border-border-subtle p-4 mb-4 shadow-sm w-[95%] self-center my-2"
+        className="overflow-hidden  bg-input rounded-2xl h-[138px] border border-collapse-transparent border-border-subtle p-4 mb-2 shadow-sm w-[95%] self-center my-1"
       >
         <View className="flex-row gap-2">
           <View className="w-16 h-16 rounded-full overflow-hidden">
@@ -65,7 +69,7 @@ const Rider = ({ rider, onPress }: { onPress: () => void, rider: RiderProps }) =
               </View>
               <View>
                 <Text className="text-center font-poppins text-xs text-muted">
-                  {rider.distance_km} km
+                  {rider.total_distance_travelled} km
                 </Text>
                 <Text className="text-center font-poppins text-xs text-muted">
                   Total Distance

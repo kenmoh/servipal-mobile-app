@@ -3,6 +3,7 @@ import { getDirections } from "@/utils/map";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
+import scooter from '@/assets/images/scooter.jpg'
 
 // helper to format duration into hr/min
 const formatDuration = (seconds: number): string => {
@@ -16,12 +17,14 @@ const formatDuration = (seconds: number): string => {
     : `${hours} hr`;
 };
 
-const Map = ({ id }: { id: string }) => {
+const Map = ({ id, isPickedUp }: { id: string, isPickedUp: boolean }) => {
   const { originCoords, destinationCoords, origin, destination, riderLocation } =
     useLocationStore();
 
+const [riderToOriginRoute, setRiderToOriginRoute] = useState<number[][]>([]);
 
 const showRider = riderLocation && riderLocation.deliveryId === id;
+
 
 
   const [route, setRoute] = useState<number[][]>([]);
@@ -63,6 +66,21 @@ const showRider = riderLocation && riderLocation.deliveryId === id;
     fetchRoute();
   }, [originCoords, destinationCoords]);
 
+
+useEffect(() => {
+  const fetchRiderRoute = async () => {
+    if (showRider && riderLocation) {
+      const target = isPickedUp ? destinationCoords : originCoords;
+      if (target) {
+        const result = await getDirections(riderLocation.coordinates, target);
+        setRiderToOriginRoute(result.coordinates);
+      }
+    } else {
+      setRiderToOriginRoute([]);
+    }
+  };
+  fetchRiderRoute();
+}, [riderLocation, originCoords, destinationCoords, showRider, isPickedUp]);
   
   return (
     <View style={{ flex: 1 }}>
@@ -107,7 +125,8 @@ const showRider = riderLocation && riderLocation.deliveryId === id;
             }}
             title="Rider"
             pinColor="purple"
-          // image={scooter} 
+            // image={scooter} 
+            style={{ width: 4, height: 4 }}
           />)}
         {route.length > 0 && (
           <Polyline
@@ -117,6 +136,30 @@ const showRider = riderLocation && riderLocation.deliveryId === id;
             }))}
             strokeColor="blue"
             strokeWidth={4}
+          />
+        )}
+
+        {route.length > 0 && (
+          <Polyline
+            coordinates={route.map((coord) => ({
+              latitude: coord[0],
+              longitude: coord[1],
+            }))}
+            strokeColor="blue"
+            strokeWidth={4}
+          />
+        )}
+
+       
+        {riderToOriginRoute.length > 0 && (
+          <Polyline
+            coordinates={riderToOriginRoute.map((coord) => ({
+              latitude: coord[0],
+              longitude: coord[1],
+            }))}
+            strokeColor="yellow"
+            strokeWidth={4}
+            lineDashPattern={[10, 5]} 
           />
         )}
       </MapView>

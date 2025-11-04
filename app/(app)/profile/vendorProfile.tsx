@@ -125,7 +125,7 @@ const Profile = () => {
     setIsChecked(!!profile?.profile?.can_pickup_and_dropoff);
   }, [profile?.profile?.can_pickup_and_dropoff]);
 
-  console.log(isChecked, profile?.profile?.can_pickup_and_dropoff)
+
   const handleLocationSet = async (
     address: string,
     coords: [number, number]
@@ -135,6 +135,7 @@ const Profile = () => {
   };
 
   const onSubmit = (values: ProfileFormData) => {
+    console.log(values)
     mutate(values);
   };
 
@@ -232,7 +233,7 @@ const Profile = () => {
               </View>
 
 
-              {user?.user_type === "restaurant_vendor" || user?.user_type === "laundry_vendor" && <Checkbox
+              {(user?.user_type === "restaurant_vendor" || user?.user_type === "laundry_vendor") && <Checkbox
                 style={{
                   borderWidth: 1,
                   height: 20,

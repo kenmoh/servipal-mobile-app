@@ -10,7 +10,8 @@ import {
   Text,
   TouchableOpacity,
   useColorScheme,
-  View
+  View,
+  TextInput
 } from "react-native";
 
 import {
@@ -80,12 +81,12 @@ const ItemDetails = () => {
     theme === "dark" ? HEADER_BG_LIGHT : HEADER_BG_DARK;
   const HANDLE_STYLE = theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
   const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT;
+   const COLOR = theme === 'dark' ? "rgba(30, 33, 39, 0.5)" : '#ddd'
+  const TEXT = theme === 'dark' ? '#fff' : '#aaa'
 
   const openSheet = () => bottomSheetRef.current?.snapToIndex(0);
   const closeSheet = () => bottomSheetRef.current?.close();
   const viewRiderProfile = () => riderProfileRef.current?.snapToIndex(0)
-
-
 
 
   const { data, isLoading, refetch } = useQuery({
@@ -106,6 +107,10 @@ const ItemDetails = () => {
   const {
     control,
     handleSubmit,
+    trigger, 
+  setValue, 
+  getValues,
+    formState: { errors },
 
 
   } = useForm<CancelFormData>({
@@ -117,6 +122,10 @@ const ItemDetails = () => {
     },
   });
 
+const isPickedUp = data?.delivery?.delivery_status === "picked-up" ||
+                   data?.delivery?.delivery_status === "assigned" || 
+                   data?.delivery?.delivery_status === "delivered" ||
+                   data?.delivery?.delivery_status === "received";
 
   const queryClient = useQueryClient();
 
@@ -133,6 +142,7 @@ const ItemDetails = () => {
       await queryClient.invalidateQueries({
         queryKey: ["user-orders", data?.delivery?.sender_id],
       });
+      await queryClient.invalidateQueries({ queryKey: ["riders", user?.sub] })
 
       // Wait for refetch to complete
       await Promise.all([
@@ -175,6 +185,7 @@ const ItemDetails = () => {
       await Promise.all([
         queryClient.refetchQueries({ queryKey: ["order", id] }),
         queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
+        queryClient.refetchQueries({ queryKey: ["riders", user?.sub] })
       ]);
       refetch()
 
@@ -238,8 +249,7 @@ const ItemDetails = () => {
       // Then navigate and show warning
       showWarning(
         "Item Pickup",
-        "Please ensure the item(s) is/are correct, complete and okay.",
-        5
+        "Please ensure the item(s) is/are correct, complete and okay."
       );
       // router.back();
     },
@@ -258,8 +268,8 @@ const ItemDetails = () => {
   });
 
   const declineBookingMutation = useMutation({
-    mutationFn: (deliveryId: string) => riderDeclineBooking(deliveryId),
-    onSuccess: async (_, deliveryId) => {
+    mutationFn: (orderId: string) => riderDeclineBooking(orderId),
+    onSuccess: async (_, orderId) => {
       Sentry.addBreadcrumb({
         message: 'Booking declined',
         category: 'delivery',
@@ -277,11 +287,15 @@ const ItemDetails = () => {
       await queryClient.invalidateQueries({
         queryKey: ["user-orders", data?.delivery?.sender_id],
       });
+      await queryClient.invalidateQueries({ queryKey: ["riders", user?.sub] })
+
 
       // Wait for refetch to complete
       await Promise.all([
         queryClient.refetchQueries({ queryKey: ["order", id] }),
         queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
+        queryClient.refetchQueries({ queryKey: ["riders", user?.sub] })
+
       ]);
 
       refetch()
@@ -404,25 +418,38 @@ const ItemDetails = () => {
 
 
 
-  const onSubmit = (data: CancelFormData) => {
+const openAlert = async () => {
+  const isValid = await trigger(); // Validate all fields
+  if (!isValid) {
+    showError("Validation Error", "Please fill in a valid reason (10+ characters).");
+    return;
+  }
 
-    Alert.alert("Confirm", `If this order is in transit, you'll not be refunded. Are you sure you want to cancel?`, [
+  const formData = getValues(); 
+  console.log("Form data before confirmation:", formData);
+
+  Alert.alert(
+    "Confirm",
+    "If this order is in transit, you'll not be refunded. Are you sure you want to cancel?",
+    [
+      { text: "No", style: "cancel" },
       {
-        text: "Cancel",
-        style: "default",
-      },
-      {
-        text: "Delete",
+        text: "Yes",
         onPress: () => {
-          cancelDeliveryMutation.mutate(data);
-          closeSheet()
-        }
+          console.log("Confirmed with data:", formData);
+          cancelDeliveryMutation.mutate(formData);
+          closeSheet();
+        },
       },
-    ]);
+    ]
+  );
+};
 
-
-
-  };
+const onSubmit = (data: CancelFormData) => {
+  console.log("Submitting form data:", data);
+  cancelDeliveryMutation.mutate(data);
+  closeSheet();
+};
 
   // Cleanup on unmount
   useEffect(() => {
@@ -544,6 +571,13 @@ const ItemDetails = () => {
   }, [data?.delivery?.id, user?.sub]);
 
 
+useEffect(() => {
+  if (data?.order?.id) {
+    setValue("orderId", data.order.id);
+  }
+}, [data?.order?.id, setValue]);
+
+
   useEffect(() => {
     if (!data?.delivery?.id || !data?.delivery?.last_known_rider_coordinates) return;
 
@@ -579,7 +613,7 @@ const ItemDetails = () => {
         },
         {
           label: "Decline",
-          onPress: () => declineBookingMutation.mutate(delivery.id!),
+          onPress: () => declineBookingMutation.mutate(order.id!),
           loading: declineBookingMutation.isPending,
           variant: "outline" as const,
         },
@@ -673,7 +707,7 @@ const ItemDetails = () => {
 
   return (
     <>
-      {data?.delivery?.id ? (<DeliveryWrapper id={data?.delivery?.id!}>
+      {data?.delivery?.id ? (<DeliveryWrapper id={data?.delivery?.id!}  isPickedUp={isPickedUp}>
         {user?.sub === data.delivery.sender_id &&
           data?.delivery?.rider_id &&
           data?.delivery?.delivery_status !== "pending" &&
@@ -691,28 +725,31 @@ const ItemDetails = () => {
               />
             </View>
           )}
+
+          <View className="flex-row self-center gap-3">
         {user?.sub === data?.delivery?.sender_id
-          && data?.order?.order_payment_status === 'paid' &&
+          && (data?.order?.order_payment_status === 'paid' ||data?.order?.order_payment_status==='failed' || data?.order?.order_payment_status==='cancelled') &&
           data?.delivery?.id &&
           !data?.delivery?.rider_id && !data?.delivery?.dispatch_id && (
-            <View className="self-center w-full justify-center items-center">
+           
               <AppVariantButton
                 icon={<UserRound color="orange" />}
-                width={"85%"}
+                width={"50%"}
                 borderRadius={50}
                 filled={false}
                 outline={true}
-                label={!data?.delivery?.rider_id ? "Select Rider" : "Assign Rider"}
+                label={"Assign Rider"}
                 onPress={handleRiderReassign}
 
               />
-            </View>
+          
           )}
         {user?.sub === data?.delivery?.sender_id &&
           data?.order.order_payment_status !== "paid" && (
             <AppButton
-              title="MAKE PAYMENT"
-              width={"85%"}
+              title="Pay"
+              width={"35%"}
+              borderRadius={50}
               icon={<DollarSignIcon color="white" />}
               onPress={() =>
                 router.push({
@@ -734,7 +771,7 @@ const ItemDetails = () => {
               }
             />
           )}
-
+ </View>
         <View className="my-5 w-[95%] self-center bg-background h-[100%] flex-1 px-5">
           <View className="gap-5">
             <View className="gap-5 items-baseline justify-between flex-row">
@@ -809,6 +846,11 @@ const ItemDetails = () => {
                 {data?.delivery?.destination}
               </Text>
             </View>
+          
+              <View className="flex-row gap-3">
+            <TriangleAlert color="orange" size={15} />
+            <Text className="font-poppins-light text-wrap text-xs text-yellow-500">Before leaving, both the sender and rider should confirm the item’s content and condition together.</Text>
+          </View>
             <Text onPress={() => setModalVisible(true)} className=" underline mx-7 text-blue-400 text-sm font-poppins-light">
               View Image
             </Text>
@@ -825,13 +867,13 @@ const ItemDetails = () => {
                         borderRadius={50}
                         label={btn.label}
                         backgroundColor={index === 0 ? "orange" : "transparent"}
-
-
+                        filled={index===0?true:false}
                         outline={index === 1}
                         icon={btn.loading && <ActivityIndicator color={index === 0 ? "#fff" : "orange"} />}
                         width={"48%"}
                         onPress={btn.onPress}
                         disabled={btn.loading}
+                        color={'red'}
                       />
                     ))}
                   </View>
@@ -917,10 +959,6 @@ const ItemDetails = () => {
                 />)
             }
           </View>
-          {user?.user_type === 'rider' || user?.user_type === 'dispatch' && <View className="flex-row gap-1">
-            <TriangleAlert color="orange" size={15} />
-            <Text className="font-poppins-light text-wrap text-xs text-yellow-700">Please confirm the content and condition of the item with the sender before leaving!</Text>
-          </View>}
         </View>
 
       </DeliveryWrapper>) : (
@@ -967,28 +1005,42 @@ const ItemDetails = () => {
             />
           </View>
           <View className="mb-5">
-          <Controller
-            control={control}
-            name="cancelReason"
-            render={({ field: { onChange, value } }) => (
-              <AppTextInput
-                value={value}
-                onChange={onChange}
-                numberOfLines={4}
-                multiline={true}
-                placeholder="Reason for cancellation"
-              />
+             <Controller
+              control={control}
+              name="cancelReason"
+              render={({ field: { onChange, value, onBlur } }) => (
 
-            )}
-          />
+                <View className="w-[90%] self-center">
+
+                 <TextInput
+                                        placeholder="Please describe the issue in detail..."
+                                        value={value}
+                                        onChangeText={onChange}
+                                        numberOfLines={4}
+                                        multiline={true}
+                                        style={{
+                                            backgroundColor: COLOR,
+                                            borderRadius: 8,
+                                            color: TEXT,
+                                            alignSelf: 'center',
+                                            width: '100%',
+
+                                        }}
+                                    />
+                                     <Text className="font-poppins-light text-red-400 text-xs">{errors.cancelReason?.message}</Text>
           </View>
+             
+              )}
+            />
 
+          
+          </View>
+        
 
           <AppVariantButton
             label="Cancel Booking"
             width={"90%"}
-            // borderRadius={50}
-            onPress={handleSubmit(onSubmit)}
+            onPress={openAlert}
           />
         </BottomSheetView>
       </BottomSheet>

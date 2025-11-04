@@ -42,19 +42,19 @@ export const Status = React.memo(({ status, label }: { label?: string, status?: 
             case 'pending':
                 return { bg: 'rgba(255, 193, 7, 0.12)', color: 'gold' };
             case 'accepted':
-                return { bg: 'rgba(33, 150, 243, 0.10)', color: '#0D47A1' };
+                return { bg: 'rgba(33, 0, 243, 0.10)', color: '#0D47A1' };
             case 'delivered':
-                 return { bg: 'rgba(33, 150, 243, 0.10)', color: '#0D47A1' };
+                 return { bg: 'rgba(33, 0, 243, 0.10)', color: '#0D47A1' };
             case 'received':
-                 return { bg: 'rgba(33, 150, 243, 0.10)', color: '#0D47A1' };
+                 return { bg: 'rgba(33, 0, 243, 0.10)', color: '#0D47A1' };
             case 'picked-up':
-                 return { bg: 'rgba(33, 150, 243, 0.10)', color: '#0D47A1' };
+                 return { bg: 'rgba(33, 0, 243, 0.10)', color: '#0D47A1' };
             case 'laundry_received':
-                 return { bg: 'rgba(33, 150, 243, 0.10)', color: '#0D47A1' };
+                 return { bg: 'rgba(33, 0, 243, 0.10)', color: '#0D47A1' };
             case 'canceled':
                 return { bg: 'rgba(244, 67, 54, 0.10)', color: '#B71C1C' };
             default:
-                return { bg: 'rgba(120, 144, 156, 0.10)', color: '#263238' };
+                return { bg: 'rgba(33, 150, 243, 0.10)', color: '#0D47A1' };
         }
     };
 
@@ -67,7 +67,7 @@ export const Status = React.memo(({ status, label }: { label?: string, status?: 
         >
             <Text
                 style={{ color: colors.color }}
-                className="font-poppins-medium text-xs capitalize"
+                className="font-poppins-medium text-sm capitalize"
             >
                 {label || status}
             </Text>
@@ -102,7 +102,7 @@ export const PaymentStatusColor = React.memo(({ status }: { status?: PaymentStat
         >
             <Text
                 style={{ color: colors.color }}
-                className="font-poppins-medium text-xs capitalize"
+                className="font-poppins-medium text-sm capitalize"
             >
                 {status}
             </Text>
@@ -306,7 +306,7 @@ const ItemCard = React.memo(({ data, isHomeScreen = false }: CardProp) => {
 
                     {!isHomeScreen && <View className='flex-row gap-[5px]'>
                         <Status
-                            label={data?.delivery?.delivery_status === 'accepted' ? 'Assigned' : undefined}
+                            label={data?.delivery?.delivery_status === 'accepted' ? 'Assigned' : data?.delivery?.delivery_status==='canceled'? 'Cancelled' : undefined}
                             status={data?.order?.require_delivery === 'delivery' ? data?.delivery?.delivery_status : data?.order?.order_status}
                         />
                         <PaymentStatusColor status={data?.order?.order_payment_status} />

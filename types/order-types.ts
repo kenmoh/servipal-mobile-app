@@ -6,7 +6,7 @@ export type RequireDelivery =
   | "delivery"
   | "vendor-pickup-and-dropoff";
 export type PaymentStatus = "pending" | "paid" | "failed" | "cancelled";
-export type RiderDeliveryStatus = "in transit" | "delivered" | "canceled";
+export type RiderDeliveryStatus = "in transit" | "delivered" | "cancelled";
 export type SenderDeliveryStatus = "received";
 export type LaundryDeliveryStatus = "laundry received";
 
@@ -16,7 +16,7 @@ export type DeliveryStatus =
   | "delivered"
   | "received"
   | "laundry_received"
-  | "canceled"
+  | "cancelled"
   | "in-transit"
   | "picked-up";
 

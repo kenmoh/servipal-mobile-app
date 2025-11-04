@@ -5,9 +5,10 @@ import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Package2, Shirt, Utensils } from 'lucide-react-native';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Pressable } from 'react-native';
 import HDivider from './HDivider';
 import {Status, PaymentStatusColor} from '@/components/ItemCard.tsx'
+import * as Haptics from 'expo-haptics';
 
 interface DeliveryCardProps {
   orderId: string;
@@ -30,7 +31,7 @@ type CardProp = {
 }
 
 
-export default function DeliveryCard({ data }: CardProp) {
+const DeliveryCard = ({ data }: CardProp) => {
 
 
 
@@ -39,41 +40,57 @@ export default function DeliveryCard({ data }: CardProp) {
 
 
 
-  const handlePress = React.useCallback(() => {
-    // Set origin and destination if available
-    if (data?.delivery?.origin && data?.delivery?.pickup_coordinates) {
-      setOrigin(
-        data.delivery.origin,
-        data.delivery.pickup_coordinates as [number, number]
-      );
+  // const handlePress = React.useCallback(() => {
+  //   // Set origin and destination if available
+  //   if (data?.delivery?.origin && data?.delivery?.pickup_coordinates) {
+  //     setOrigin(
+  //       data.delivery.origin,
+  //       data.delivery.pickup_coordinates as [number, number]
+  //     );
+  //   }
+
+  //   if (data?.delivery?.destination && data?.delivery?.dropoff_coordinates) {
+  //     setDestination(
+  //       data.delivery.destination,
+  //       data.delivery.dropoff_coordinates as [number, number]
+  //     );
+  //   }
+
+  //   // Navigate to detail screen
+  //   router.push({
+  //     pathname: '/delivery-detail/[id]',
+  //     params: {
+  //       id: data?.order?.id!,
+  //       orderNumber: data?.order.id
+  //     }
+  //   });
+  // }, [
+  //   data?.delivery?.id,
+  //   data?.order.id,
+  //   data?.delivery?.origin,
+  //   data?.delivery?.destination,
+  //   data?.delivery?.pickup_coordinates,
+  //   data?.delivery?.dropoff_coordinates,
+  //   setOrigin,
+  //   setDestination
+  // ]);
+
+
+ const handlePress = React.useCallback(() => {
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  router.prefetch('/delivery-detail/[id]')
+  router.push({
+    pathname: '/delivery-detail/[id]',
+    params: {
+      id: data.order.id,
+      orderNumber: data.order.id,
+      origin: data.delivery?.origin,
+      pickup_coordinates: data.delivery?.pickup_coordinates,
+      destination: data.delivery?.destination,
+      dropoff_coordinates: data.delivery?.dropoff_coordinates,
     }
-
-    if (data?.delivery?.destination && data?.delivery?.dropoff_coordinates) {
-      setDestination(
-        data.delivery.destination,
-        data.delivery.dropoff_coordinates as [number, number]
-      );
-    }
-
-    // Navigate to detail screen
-    router.push({
-      pathname: '/delivery-detail/[id]',
-      params: {
-        id: data?.order?.id!,
-        orderNumber: data?.order.id
-      }
-    });
-  }, [
-    data?.delivery?.id,
-    data?.order.id,
-    data?.delivery?.origin,
-    data?.delivery?.destination,
-    data?.delivery?.pickup_coordinates,
-    data?.delivery?.dropoff_coordinates,
-    setOrigin,
-    setDestination
-  ]);
-
+  });
+}, [data.order.id, data.delivery]);
 
 
   const DeliveryTypeIcon = React.memo(({ type, size = 25 }: DeliveryIconProps) => {
@@ -92,9 +109,14 @@ export default function DeliveryCard({ data }: CardProp) {
 
 
   return (
-    <TouchableOpacity
-      disabled={!canViewOrderDetail} activeOpacity={0.6} onPress={handlePress}
-      className="bg-input rounded-2xl border border-collapse-transparent border-border-subtle p-4 mb-4 shadow-sm w-[95%] self-center my-2">
+    <Pressable
+      onPress={handlePress}
+        style={({ pressed }) => [
+          { height: 200, opacity: pressed ? 0.6 : 1 },
+        ]}
+        android_ripple={{ color: '#00000020' }}
+      disabled={!canViewOrderDetail}
+      className="bg-input rounded-2xl h-[200px] border border-collapse-transparent border-border-subtle p-4 mb-2 shadow-sm w-[95%] self-center my-1">
       {/* Header */}
       <View className="flex-row items-center justify-between mb-4">
         <View className="flex-row items-center gap-2">
@@ -171,10 +193,11 @@ export default function DeliveryCard({ data }: CardProp) {
 
 
 
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
+export default React.memo(DeliveryCard);
 
 const styles = StyleSheet.create({
   iconStyle: {

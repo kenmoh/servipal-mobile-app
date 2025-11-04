@@ -605,13 +605,15 @@ export const assignRiderToExistingDelivery = async (
   deliveryId: string,
   riderId: string
 ): Promise<DeliveryDetail> => {
+
   const params = new URLSearchParams({ rider_id: riderId });
 
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${deliveryId}/assign-rider-to-existing-delivery-order${params.toString()}`,
+        `${BASE_URL}/${deliveryId}/assign-rider-to-existing-delivery-order?${params.toString()}`,
         {
+          // params: params,
           headers: {
             "Content-Type": "application/json",
           },

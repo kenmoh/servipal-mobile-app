@@ -7,7 +7,7 @@ import { RelativePathString, router, type Href } from "expo-router";
 import { useUserStore } from "@/store/userStore";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
 
-const IMAGET_HEIGHT = Dimensions.get("window").height * 0.25;
+const IMAGET_HEIGHT = Dimensions.get("window").height * 0.20;
 
 const StoreCard = ({
     item,
@@ -59,7 +59,7 @@ const StoreCard = ({
             activeOpacity={0.8}
             onPress={handleStoreSelect}
         >
-            <View className="self-center w-[90%]  rounded-lg overflow-hidden my-5"
+            <View className="self-center w-[90%]  rounded-2xl h-['20%'] overflow-hidden my-5"
 
                 style={{
 
@@ -121,12 +121,12 @@ const StoreCard = ({
                         >
                             {item?.location}
                         </Text>
-                        {distance && (
-                            <Text className="text-primary text-sm">
-                                • {distance.toFixed(1)}km away
-                            </Text>
-                        )}
-                    </View>
+                       {distance !== undefined && (
+                        <Text className="text-primary text-sm">
+                            {`• ${distance.toFixed(1)}km away`}
+                        </Text>
+                    )}
+                                        </View>
                 </View>
             </View>
         </TouchableOpacity>

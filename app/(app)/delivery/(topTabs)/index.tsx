@@ -1,10 +1,10 @@
 
 
 import HDivider from "@/components/HDivider";
-import { LegendList } from '@legendapp/list';
+// import { LegendList } from '@legendapp/list';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
 import * as Location from "expo-location";
 
@@ -23,18 +23,21 @@ import BottomSheet from '@gorhom/bottom-sheet';
 
 import { assignRiderToExistingDelivery } from "@/api/order";
 import AppTextInput from "@/components/AppInput";
+import LoadingIndicator from '@/components/LoadingIndicator'
 import RiderProfile from "@/components/RiderProfile";
+import NewRidersBanner from '@/components/NewRidersBanner'
 import { useToast } from "@/components/ToastProvider";
 import { useOrderStore } from "@/store/orderStore";
+import { useRiderStore } from '@/store/rider-store';
 import { router } from "expo-router";
-import { Alert, View } from "react-native";
+import { Alert, View, FlatList } from "react-native";
 import * as Sentry from '@sentry/react-native';
 import getPushToken from '@/storage/authStorage'
 import storePushToken from '@/storage/authStorage'
 
 
 const DeliveryScreen = () => {
-  const { user, setProfile, setRiderId, riderId, isReassign } = useUserStore();
+  const { user, setProfile, setRiderId, riderId, isReassign, setisReassign } = useUserStore();
   const { deliveryId } = useOrderStore()
   const { expoPushToken } = useNotification();
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,6 +46,11 @@ const DeliveryScreen = () => {
   const [locationPermission, setLocationPermission] = useState<boolean | null>(null);
   const [isLayoutComplete, setIsLayoutComplete] = useState(false);
   const { showError, showSuccess } = useToast()
+
+
+
+
+  const queryClient = useQueryClient();
   const [userLocation, setUserLocation] = useState<{
     latitude: number;
     longitude: number;
@@ -50,14 +58,25 @@ const DeliveryScreen = () => {
 
 
 
-  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const bottomSheetRef = useRef<BottomSheet>(null);
+const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+const bottomSheetRef = useRef<BottomSheet>(null);
+
+ const listRef = useRef<FlatList>(null); 
+ const ITEM_HEIGHT = 138;
+
+ const getItemLayout = useCallback(
+  (data: any, index: number) => ({
+    length: ITEM_HEIGHT,
+    offset: ITEM_HEIGHT * index,
+    index,
+  }),
+  []
+);
 
 
   const handleRiderPress = useCallback((rider: RiderProps) => {
     setSelectedRider(rider);
     setRiderId(rider.rider_id);
-    // Open sheet immediately without waiting for state update
     requestAnimationFrame(() => {
       bottomSheetRef.current?.snapToIndex(0);
     });
@@ -66,14 +85,36 @@ const DeliveryScreen = () => {
 
   const reasignRiderMutation = useMutation({
     mutationFn: () => assignRiderToExistingDelivery(deliveryId as string, selectedRider?.rider_id!),
-    onError: (error) => showError('Error', error.message || "An unexpcted error occured!"),
-    onSuccess: () => showSuccess('Success', "New rider assigned")
+    onError: (error) => {
+      showError('Error', error.message || "An unexpcted error occured!")
+      setisReassign(false)
+      refetch()
+      setRiderId('')
+  },
+    onSuccess: async() => {
+      showSuccess('Success', "New rider assigned")
+      setisReassign(false)
+      setRiderId('')
+        refetch()
+        await queryClient.invalidateQueries({
+        queryKey: ["user-orders",user?.sub],
+      });
+        await queryClient.invalidateQueries({
+        queryKey: ["orders",user?.sub],
+      });
+  }
   })
 
+const handleScrollToHide = useCallback(() => {
+  const { newRiderCount, clearNewRiders } = useRiderStore.getState();
+  if (newRiderCount > 0) {
+    clearNewRiders();
+  }
+}, []);
 
   const handleBookRider = useCallback(() => {
 
-    if (isReassign && selectedRider) {
+    if (isReassign && selectedRider && riderId) {
 
       Alert.alert('Assign Rider', 'Are you sure you want to re-assign to this rider?',
         [
@@ -86,14 +127,18 @@ const DeliveryScreen = () => {
             onPress: () => {
               reasignRiderMutation.mutate()
               bottomSheetRef.current?.close()
+              
+
             }
           },
         ]
       )
+    }else{
+      router.push({ pathname: '/(app)/delivery/sendItem', params: { riderId } })
+      bottomSheetRef.current?.close()
     }
-    router.push({ pathname: '/(app)/delivery/sendItem', params: { riderId } })
-    bottomSheetRef.current?.close()
-  }, [isReassign, selectedRider, riderId, reasignRiderMutation]);
+    
+  }, [isReassign, selectedRider, riderId]);
 
 
 
@@ -129,11 +174,33 @@ const DeliveryScreen = () => {
 
 
   const checkLocationPermission = useCallback(async () => {
-    const { status } = await Location.requestForegroundPermissionsAsync();
+  try {
+    // 1. Check if already granted (FAST + NO POPUP)
+    const { status } = await Location.getForegroundPermissionsAsync();
     const isLocationEnabled = await Location.hasServicesEnabledAsync();
-    setLocationPermission(status === "granted" && isLocationEnabled);
+
+    if (status === "granted" && isLocationEnabled) {
+      setLocationPermission(true);
+      return { status, isLocationEnabled };
+    }
+
+    // 2. Only request if not granted
+    if (status !== "granted") {
+      const { status: newStatus } = await Location.requestForegroundPermissionsAsync();
+      const finalEnabled = await Location.hasServicesEnabledAsync();
+      setLocationPermission(newStatus === "granted" && finalEnabled);
+      return { status: newStatus, isLocationEnabled: finalEnabled };
+    }
+
+    // 3. Denied or disabled
+    setLocationPermission(false);
     return { status, isLocationEnabled };
-  }, []);
+  } catch (error) {
+    console.error("Permission check failed:", error);
+    setLocationPermission(false);
+    return { status: "undetermined", isLocationEnabled: false };
+  }
+}, []);
 
   useEffect(() => {
     if (user) {
@@ -167,8 +234,6 @@ const DeliveryScreen = () => {
   useEffect(() => {
     checkLocationPermission();
   }, [checkLocationPermission]);
-
-
 
 
   const registerMutation = useMutation({
@@ -205,20 +270,42 @@ const DeliveryScreen = () => {
   };
 
 
-  const { data: riders, isLoading, error, refetch, isFetching, isPending, isFetched } = useQuery({
-    queryKey: ["riders", user?.sub, coords.lat, coords.lng],
-    queryFn: () => {
-      // Validate coords before fetching
-      if (!coords.lat || !coords.lng) {
-        throw new Error("Location coordinates are not available");
+const { data: riders, isLoading, error, refetch, isFetching, isPending } = useQuery({
+  queryKey: ["riders", user?.sub, coords.lat, coords.lng],
+  queryFn: () => fetchRiders(coords.lat!, coords.lng!),
+  enabled: Boolean(user?.sub && coords.lat && coords.lng),
+  staleTime: 1000 * 60 * 2,
+  gcTime: 1000 * 60 * 10,
+  refetchOnWindowFocus: true,
+  refetchOnReconnect: true,
+  keepPreviousData: true, 
+  onSuccess: (newRiders) => {
+    const { previousRiders, setPreviousRiders, setNewRiderCount } = useRiderStore.getState();
+    
+    if (newRiders && previousRiders.length > 0) {
+      // Compare: new riders not in old list (use rider_id)
+      const oldIds = new Set(previousRiders.map(r => r.rider_id));
+      const newOnes = newRiders.filter(r => !oldIds.has(r.rider_id));
+      const count = newOnes.length;
+      
+      if (count > 0) {
+        setNewRiderCount(count);
+        console.log(`${count} new riders nearby!`);
       }
-      return fetchRiders(coords.lat, coords.lng);
-    },
-    enabled: Boolean(user?.sub && coords.lat && coords.lng),
-    refetchOnWindowFocus: true,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-  });
+    }
+    
+    setPreviousRiders(newRiders || []);
+  },
+});
+
+const handleLoadNewRiders = useCallback(() => {
+  const { clearNewRiders } = useRiderStore.getState();
+  clearNewRiders();
+  refetch();
+  
+  //Scroll to top
+  listRef.current?.scrollToOffset({ offset: 0, animated: true });
+}, [refetch]);
 
 
   const updateLocationMutation = useMutation({
@@ -334,13 +421,14 @@ const DeliveryScreen = () => {
     return <LocationPermission onRetry={checkLocationPermission} />;
   }
 
-  if (isLoading || isFetching || isPending || !isFetched || !riders) {
+  if (isLoading ||  !riders) {
     return (
-      <View className="bg-background flex-1 p-2" >
-        <SearchBarSkeleton />
-        <HDivider />
-        <DeliveryListSkeleton />
-      </View>
+      // <View className="bg-background flex-1 p-2" >
+      //   <SearchBarSkeleton />
+      //   <HDivider />
+      //   <DeliveryListSkeleton />
+      // </View>
+       <LoadingIndicator />
     );
   }
 
@@ -358,7 +446,9 @@ const DeliveryScreen = () => {
       />
       <HDivider />
 
-      <LegendList
+      <NewRidersBanner onPress={handleLoadNewRiders} />
+
+     {/* <LegendList
         data={riders || []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
@@ -366,9 +456,33 @@ const DeliveryScreen = () => {
         onRefresh={handleRefresh}
         onLayout={handleLayoutComplete}
 
+      />*/}
+
+      <FlatList
+        ref={listRef}
+        data={riders}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
+        refreshing={isFetching}
+        onRefresh={handleRefresh}
+        onLayout={handleLayoutComplete}
+        onScroll={handleScrollToHide}
+        scrollEventThrottle={16} 
+        showsVerticalScrollIndicator={false}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        windowSize={21}
+        initialNumToRender={10}
+        getItemLayout={getItemLayout}
       />
 
+  
+
       <RiderProfile ref={bottomSheetRef} riderData={selectedRider} showButton onPress={handleBookRider} />
+
+
+   
+
 
     </View>
   );

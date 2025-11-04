@@ -138,11 +138,19 @@ const Payment = () => {
 
       },
       {
-        text: 'OK', onPress: () => {
+        text: 'OK', onPress: async() => {
           payWithWalletMutation()
           queryClient.invalidateQueries({
-            queryKey: ["orders"],
+            queryKey: ["orders", orderId, deliveryId],
           });
+           await Promise.all([
+          queryClient.refetchQueries({ queryKey: ["order", orderId] }),
+          queryClient.refetchQueries({ queryKey: ["order", deliveryId] }),
+          queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
+          queryClient.refetchQueries({ queryKey: ["riders", user?.sub] })
+
+      ]);
+
 
         }
       }

@@ -5,6 +5,7 @@ import { fetchRestaurants } from "@/api/user";
 import {router} from 'expo-router'
 import AppHeader from "@/components/AppHeader";
 import AppTextInput from "@/components/AppInput";
+import LoadingIndicator from '@/components/LoadingIndicator'
 import Category from "@/components/Category";
 import StoreCard from "@/components/StoreCard";
 import { CompanyProfile } from "@/types/user-types";
@@ -130,9 +131,10 @@ const Page = () => {
     >([]);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+
     const { data, isFetching, error, refetch, isFetched } = useQuery({
         queryKey: ["restaurants", selectedCategory],
-        queryFn: () => fetchRestaurants(selectedCategory ?? undefined),
+        queryFn: () => fetchRestaurants(userLocation.latitude, userLocation.longitude, selectedCategory ?? undefined),
         select: (data) => {
             if (!data || !user?.sub) return data;
 
@@ -206,6 +208,7 @@ const Page = () => {
                 />
                 <HDivider />
                 <StoreListSkeleton />
+                 {/*<LoadingIndicator />*/}
             </SafeAreaView>
         );
     }

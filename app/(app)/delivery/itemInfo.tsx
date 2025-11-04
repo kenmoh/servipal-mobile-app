@@ -148,7 +148,6 @@ const ItemInfo = () => {
   });
 
   const onSubmit = (data: FormData) => {
-    console.log(data)
     mutate(data);
 
   };

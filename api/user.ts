@@ -168,11 +168,17 @@ export const getCurrentDispatchRiders = async (): Promise<RiderResponse[]> => {
 
 // Fetch restaurants
 export const fetchRestaurants = async (
+  lat: number,
+  lng: number,
   categoryId?: string
 ): Promise<CompanyProfile[]> => {
+  const params = new URLSearchParams({
+    lat: lat.toString(),
+    lng: lng.toString(),
+  });
   try {
     const response: ApiResponse<CompanyProfile[] | ErrorResponse> =
-      await apiClient.get(`${BASE_URL}/restaurants`, {
+      await apiClient.get(`${BASE_URL}/restaurants?${params.toString()}`, {
         params: categoryId ? { category_id: categoryId } : {},
       });
 

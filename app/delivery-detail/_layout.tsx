@@ -14,6 +14,7 @@ const DeliveryDetailLayout = () => {
                     backgroundColor: 'trasparent',
 
                 },
+                animation: 'fade_from_bottom',
                 // headerTintColor: theme.icon.val,
 
 

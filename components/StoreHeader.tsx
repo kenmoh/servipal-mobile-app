@@ -1,20 +1,3 @@
-import BackButton from "@/components/BackButton";
-import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
-import { AntDesign } from "@expo/vector-icons";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { useLocalSearchParams, withLayoutContext } from "expo-router";
-import { Bike, Landmark, MapPin, Star } from "lucide-react-native";
-import {
-    Dimensions,
-    Image,
-    StyleSheet,
-    Text,
-    useColorScheme,
-    View
-} from "react-native";
-
-const StoreTabs = withLayoutContext(createMaterialTopTabNavigator().Navigator);
-
 const StoreHeader = () => {
 
     const {
@@ -105,59 +88,4 @@ const StoreHeader = () => {
     );
 };
 
-
-const StoreTabLayout = () => {
-    const theme = useColorScheme();
-    const BG_COLOR = theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
-    return (
-        <>
-            <StoreHeader />
-            <StoreTabs
-                className="bg-background border-b-border-subtle text-primary"
-                initialRouteName="index"
-                initialLayout={{ width: Dimensions.get("window").width }}
-                screenOptions={{
-                    tabBarLabelStyle: {
-                        fontSize: 12,
-                        textAlign: "center",
-                        textTransform: "capitalize",
-                        fontFamily: "Poppins-Bold",
-                    },
-                    swipeEnabled: false,
-                    tabBarActiveTintColor: theme === 'dark' ? 'white' : 'black',
-                    tabBarAndroidRipple: { borderless: false, },
-                    tabBarPressOpacity: 0,
-
-                    tabBarIndicatorStyle: {
-                        backgroundColor: "orange",
-                        height: 3,
-                    },
-                    tabBarStyle: {
-                        backgroundColor: BG_COLOR,
-                        borderTopColor: 'orange',
-                        borderTopWidth: StyleSheet.hairlineWidth,
-                        borderBottomColor: 'gray',
-                        borderBottomWidth: StyleSheet.hairlineWidth,
-                        elevation: 0,
-                        shadowOpacity: 0,
-                    },
-                }}
-            >
-                <StoreTabs.Screen
-                    name="index"
-                    options={{
-                        tabBarLabel: "Menu",
-                    }}
-                />
-                <StoreTabs.Screen
-                    name="reviews"
-                    options={{
-                        tabBarLabel: "Reviews",
-                    }}
-                />
-            </StoreTabs>
-        </>
-    );
-};
-
-export default StoreTabLayout;
+export default StoreHeader
