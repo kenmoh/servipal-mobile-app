@@ -1,7 +1,8 @@
 import React from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
+import {useLocalSearchParams} from 'expo-router'
 
-import { createMenuItem } from "@/api/item";
+import { createLaundryItem, updateLaundryItem } from "@/api/item";
 import ImagePickerInput from "@/components/AppImagePicker";
 import AppTextInput from "@/components/AppInput";
 import AppPicker from "@/components/AppPicker";
@@ -27,7 +28,7 @@ const itemTypeOptions = [
 const schema = z.object({
     name: z.string().min(1, "Name is a required field"),
     price: z.number().int().gt(0, "Price MUST be greater than 0").lte(999999),
-    itemType: itemTypeEnum,
+    description: z.string().optional()
     images: z.array(z.any()).nonempty({
         message: "Image is required",
     }),
@@ -39,7 +40,10 @@ type FormData = z.infer<typeof schema>;
 
 const adLaundryItem = () => {
     const { user } = useUserStore()
+    const {id, name, price, description, images} = useLocalSearchParams()
     const { showError, showSuccess } = useToast()
+
+    const editing = Boolean(id)
 
     const {
         control,
@@ -51,15 +55,28 @@ const adLaundryItem = () => {
         mode: "onBlur",
         defaultValues: {
             name: "",
-            // price: 0,
+            description: '',
             images: [],
-            itemType: "laundry",
         },
     });
 
     const queryClient = useQueryClient()
+
+
+        useEffect(() => {
+        if (editing, name, description, images, price) {
+            reset({
+                name: name || "",
+                description: description || "",
+                price: price || 0,
+                images: images?.map((img) => img.url) || [],
+
+            });
+        }
+    }, [editing, reset, id]);
+
     const { mutate: itemMutate, isPending: isCreating } = useMutation({
-        mutationFn: createMenuItem,
+        mutationFn: createLaundryItem,
         onSuccess: () => {
             showSuccess("Success", "Item created successfully")
 
@@ -73,12 +90,36 @@ const adLaundryItem = () => {
         },
     });
 
-    const onSubmit = (data: FormData) => {
-        itemMutate({
-            ...data,
-            images: data.images ?? [],
-        });
+      const updateMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: FormData }) => updateLaundryItem(id, data),
+
+        onSuccess: () => {
+            showSuccess("Success", "Item updated successfully");
+            queryClient.invalidateQueries({ queryKey: ["laundryItems"] });
+            router.back();
+        },
+        onError: (error) => {
+            showError("Error", error.message);
+        },
+    });
+
+
+    const onSubmit = (data: MenuFormData) => {
+        if (editing && id) {
+
+            updateMutation.mutate({ id, data });
+        } else {
+
+            itemMutate.mutate(data);
+        }
     };
+
+    // const onSubmit = (data: FormData) => {
+    //     itemMutate({
+    //         ...data,
+    //         images: data.images ?? [],
+    //     });
+    // };
 
     return (
         <>
@@ -117,26 +158,22 @@ const adLaundryItem = () => {
                                 )}
                             />
                         </View>
-                        <View className="w-[47.5%] hidden" >
-                            <Controller
-                                control={control}
-                                name="itemType"
-                                render={({ field: { onChange, value } }) => (
-                                    <AppPicker
-                                        isBank={true}
-                                        enabled={false}
-                                        label="Item Type"
-                                        onValueChange={onChange}
-                                        items={itemTypeOptions}
-                                        value={value}
-                                    />
-                                )}
-                            />
-
-                        </View>
-
-
                     </View>
+
+                      <Controller
+                        control={control}
+                        name="description"
+                        render={({ field: { onChange, onBlur, value } }) => (
+                            <AppTextInput
+                                placeholder="Description"
+                                label="Description"
+                                onBlur={onBlur}
+                                onChangeText={onChange}
+                                value={value}
+                                errorMessage={errors.description?.message}
+                            />
+                        )}
+                    />
 
                     <Controller
                         control={control}

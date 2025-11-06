@@ -4,12 +4,11 @@ import HDivider from "@/components/HDivider";
 // import { LegendList } from '@legendapp/list';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import * as Location from "expo-location";
 
 import { fetchRiders, getCurrentUserProfile, registerCoordinates, registerForNotifications, updateUserLocation } from "@/api/user";
-import { DeliveryListSkeleton, SearchBarSkeleton } from "@/components/LoadingSkeleton";
 import LocationPermission from "@/components/Locationpermission";
 import { useNotification } from "@/components/NotificationProvider";
 import RefreshButton from "@/components/RefreshButton";
@@ -23,17 +22,19 @@ import BottomSheet from '@gorhom/bottom-sheet';
 
 import { assignRiderToExistingDelivery } from "@/api/order";
 import AppTextInput from "@/components/AppInput";
-import LoadingIndicator from '@/components/LoadingIndicator'
-import RiderProfile from "@/components/RiderProfile";
-import NewRidersBanner from '@/components/NewRidersBanner'
+import AppVariantButton from "@/components/core/AppVariantButton";
+import LoadingIndicator from '@/components/LoadingIndicator';
+import NewRidersBanner from '@/components/NewRidersBanner';
 import { useToast } from "@/components/ToastProvider";
+import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 import { useOrderStore } from "@/store/orderStore";
 import { useRiderStore } from '@/store/rider-store';
-import { router } from "expo-router";
-import { Alert, View, FlatList } from "react-native";
+import { BottomSheetView } from '@gorhom/bottom-sheet';
 import * as Sentry from '@sentry/react-native';
-import getPushToken from '@/storage/authStorage'
-import storePushToken from '@/storage/authStorage'
+import { router } from "expo-router";
+import { Building, MapPin } from "lucide-react-native";
+import { Alert, FlatList, Image, Text, useColorScheme, View } from "react-native";
+import { Easing } from "react-native-reanimated";
 
 
 const DeliveryScreen = () => {
@@ -47,6 +48,12 @@ const DeliveryScreen = () => {
   const [isLayoutComplete, setIsLayoutComplete] = useState(false);
   const { showError, showSuccess } = useToast()
 
+  const theme = useColorScheme()
+
+  const HANDLE_INDICATOR_STYLE = theme === 'dark' ? HEADER_BG_LIGHT : HEADER_BG_DARK
+  const HANDLE_STYLE = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
+  const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
+
 
 
 
@@ -58,20 +65,20 @@ const DeliveryScreen = () => {
 
 
 
-const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-const bottomSheetRef = useRef<BottomSheet>(null);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
- const listRef = useRef<FlatList>(null); 
- const ITEM_HEIGHT = 138;
+  const listRef = useRef<FlatList>(null);
+  const ITEM_HEIGHT = 138;
 
- const getItemLayout = useCallback(
-  (data: any, index: number) => ({
-    length: ITEM_HEIGHT,
-    offset: ITEM_HEIGHT * index,
-    index,
-  }),
-  []
-);
+  const getItemLayout = useCallback(
+    (data: any, index: number) => ({
+      length: ITEM_HEIGHT,
+      offset: ITEM_HEIGHT * index,
+      index,
+    }),
+    []
+  );
 
 
   const handleRiderPress = useCallback((rider: RiderProps) => {
@@ -90,27 +97,27 @@ const bottomSheetRef = useRef<BottomSheet>(null);
       setisReassign(false)
       refetch()
       setRiderId('')
-  },
-    onSuccess: async() => {
+    },
+    onSuccess: async () => {
       showSuccess('Success', "New rider assigned")
       setisReassign(false)
       setRiderId('')
-        refetch()
-        await queryClient.invalidateQueries({
-        queryKey: ["user-orders",user?.sub],
+      refetch()
+      await queryClient.invalidateQueries({
+        queryKey: ["user-orders", user?.sub],
       });
-        await queryClient.invalidateQueries({
-        queryKey: ["orders",user?.sub],
+      await queryClient.invalidateQueries({
+        queryKey: ["orders", user?.sub],
       });
-  }
+    }
   })
 
-const handleScrollToHide = useCallback(() => {
-  const { newRiderCount, clearNewRiders } = useRiderStore.getState();
-  if (newRiderCount > 0) {
-    clearNewRiders();
-  }
-}, []);
+  const handleScrollToHide = useCallback(() => {
+    const { newRiderCount, clearNewRiders } = useRiderStore.getState();
+    if (newRiderCount > 0) {
+      clearNewRiders();
+    }
+  }, []);
 
   const handleBookRider = useCallback(() => {
 
@@ -127,17 +134,17 @@ const handleScrollToHide = useCallback(() => {
             onPress: () => {
               reasignRiderMutation.mutate()
               bottomSheetRef.current?.close()
-              
+
 
             }
           },
         ]
       )
-    }else{
+    } else {
       router.push({ pathname: '/(app)/delivery/sendItem', params: { riderId } })
       bottomSheetRef.current?.close()
     }
-    
+
   }, [isReassign, selectedRider, riderId]);
 
 
@@ -174,33 +181,33 @@ const handleScrollToHide = useCallback(() => {
 
 
   const checkLocationPermission = useCallback(async () => {
-  try {
-    // 1. Check if already granted (FAST + NO POPUP)
-    const { status } = await Location.getForegroundPermissionsAsync();
-    const isLocationEnabled = await Location.hasServicesEnabledAsync();
+    try {
+      // 1. Check if already granted (FAST + NO POPUP)
+      const { status } = await Location.getForegroundPermissionsAsync();
+      const isLocationEnabled = await Location.hasServicesEnabledAsync();
 
-    if (status === "granted" && isLocationEnabled) {
-      setLocationPermission(true);
+      if (status === "granted" && isLocationEnabled) {
+        setLocationPermission(true);
+        return { status, isLocationEnabled };
+      }
+
+      // 2. Only request if not granted
+      if (status !== "granted") {
+        const { status: newStatus } = await Location.requestForegroundPermissionsAsync();
+        const finalEnabled = await Location.hasServicesEnabledAsync();
+        setLocationPermission(newStatus === "granted" && finalEnabled);
+        return { status: newStatus, isLocationEnabled: finalEnabled };
+      }
+
+      // 3. Denied or disabled
+      setLocationPermission(false);
       return { status, isLocationEnabled };
+    } catch (error) {
+      console.error("Permission check failed:", error);
+      setLocationPermission(false);
+      return { status: "undetermined", isLocationEnabled: false };
     }
-
-    // 2. Only request if not granted
-    if (status !== "granted") {
-      const { status: newStatus } = await Location.requestForegroundPermissionsAsync();
-      const finalEnabled = await Location.hasServicesEnabledAsync();
-      setLocationPermission(newStatus === "granted" && finalEnabled);
-      return { status: newStatus, isLocationEnabled: finalEnabled };
-    }
-
-    // 3. Denied or disabled
-    setLocationPermission(false);
-    return { status, isLocationEnabled };
-  } catch (error) {
-    console.error("Permission check failed:", error);
-    setLocationPermission(false);
-    return { status: "undetermined", isLocationEnabled: false };
-  }
-}, []);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -270,42 +277,42 @@ const handleScrollToHide = useCallback(() => {
   };
 
 
-const { data: riders, isLoading, error, refetch, isFetching, isPending } = useQuery({
-  queryKey: ["riders", user?.sub, coords.lat, coords.lng],
-  queryFn: () => fetchRiders(coords.lat!, coords.lng!),
-  enabled: Boolean(user?.sub && coords.lat && coords.lng),
-  staleTime: 1000 * 60 * 2,
-  gcTime: 1000 * 60 * 10,
-  refetchOnWindowFocus: true,
-  refetchOnReconnect: true,
-  keepPreviousData: true, 
-  onSuccess: (newRiders) => {
-    const { previousRiders, setPreviousRiders, setNewRiderCount } = useRiderStore.getState();
-    
-    if (newRiders && previousRiders.length > 0) {
-      // Compare: new riders not in old list (use rider_id)
-      const oldIds = new Set(previousRiders.map(r => r.rider_id));
-      const newOnes = newRiders.filter(r => !oldIds.has(r.rider_id));
-      const count = newOnes.length;
-      
-      if (count > 0) {
-        setNewRiderCount(count);
-        console.log(`${count} new riders nearby!`);
-      }
-    }
-    
-    setPreviousRiders(newRiders || []);
-  },
-});
+  const { data: riders, isLoading, error, refetch, isFetching, isPending } = useQuery({
+    queryKey: ["riders", user?.sub, coords.lat, coords.lng],
+    queryFn: () => fetchRiders(coords.lat!, coords.lng!),
+    enabled: Boolean(user?.sub && coords.lat && coords.lng),
+    staleTime: 1000 * 60 * 2,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    keepPreviousData: true,
+    onSuccess: (newRiders) => {
+      const { previousRiders, setPreviousRiders, setNewRiderCount } = useRiderStore.getState();
 
-const handleLoadNewRiders = useCallback(() => {
-  const { clearNewRiders } = useRiderStore.getState();
-  clearNewRiders();
-  refetch();
-  
-  //Scroll to top
-  listRef.current?.scrollToOffset({ offset: 0, animated: true });
-}, [refetch]);
+      if (newRiders && previousRiders.length > 0) {
+        // Compare: new riders not in old list (use rider_id)
+        const oldIds = new Set(previousRiders.map(r => r.rider_id));
+        const newOnes = newRiders.filter((r: RiderProps) => !oldIds.has(r.rider_id));
+        const count = newOnes.length;
+
+        if (count > 0) {
+          setNewRiderCount(count);
+          console.log(`${count} new riders nearby!`);
+        }
+      }
+
+      setPreviousRiders(newRiders || []);
+    },
+  });
+
+  const handleLoadNewRiders = useCallback(() => {
+    const { clearNewRiders } = useRiderStore.getState();
+    clearNewRiders();
+    refetch();
+
+    //Scroll to top
+    listRef.current?.scrollToOffset({ offset: 0, animated: true });
+  }, [refetch]);
 
 
   const updateLocationMutation = useMutation({
@@ -421,14 +428,14 @@ const handleLoadNewRiders = useCallback(() => {
     return <LocationPermission onRetry={checkLocationPermission} />;
   }
 
-  if (isLoading ||  !riders) {
+  if (isLoading || !riders) {
     return (
       // <View className="bg-background flex-1 p-2" >
       //   <SearchBarSkeleton />
       //   <HDivider />
       //   <DeliveryListSkeleton />
       // </View>
-       <LoadingIndicator />
+      <LoadingIndicator />
     );
   }
 
@@ -448,7 +455,7 @@ const handleLoadNewRiders = useCallback(() => {
 
       <NewRidersBanner onPress={handleLoadNewRiders} />
 
-     {/* <LegendList
+      {/* <LegendList
         data={riders || []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
@@ -460,14 +467,14 @@ const handleLoadNewRiders = useCallback(() => {
 
       <FlatList
         ref={listRef}
-        data={riders}
+        data={riders || []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
         refreshing={isFetching}
         onRefresh={handleRefresh}
         onLayout={handleLayoutComplete}
         onScroll={handleScrollToHide}
-        scrollEventThrottle={16} 
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         removeClippedSubviews={true}
         maxToRenderPerBatch={10}
@@ -476,14 +483,86 @@ const handleLoadNewRiders = useCallback(() => {
         getItemLayout={getItemLayout}
       />
 
-  
-
-      <RiderProfile ref={bottomSheetRef} riderData={selectedRider} showButton onPress={handleBookRider} />
 
 
-   
+      {/* <RiderProfile ref={bottomSheetRef} riderData={selectedRider} showButton onPress={handleBookRider} /> */}
 
 
+
+      {selectedRider && <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={["35%", '50%']}
+        index={-1}
+        animateOnMount={true}
+        animationConfigs={{
+          duration: 500,
+          easing: Easing.exp
+        }}
+        backgroundStyle={{
+          borderTopLeftRadius: 40,
+          borderTopRightRadius: 40,
+          backgroundColor: BG_COLOR,
+          shadowColor: 'orange',
+          shadowOffset: {
+            width: 0,
+            height: -4
+          },
+          shadowOpacity: 0.5,
+          shadowRadius: 20,
+          elevation: 20
+        }}
+
+        enablePanDownToClose={true}
+        handleIndicatorStyle={{ backgroundColor: HANDLE_INDICATOR_STYLE }} style={{ flex: 1 }} handleStyle={{ backgroundColor: HANDLE_STYLE }}
+
+      >
+
+        <BottomSheetView style={{ flex: 1 }} className={'bg-background'}>
+          <View className="p-4 items-center flex-1 bg-background">
+            <View className="w-28 h-28 rounded-full overflow-hidden">
+              <Image src={selectedRider?.profile_image_url} className="w-28 h-28 rounded-full" />
+            </View>
+            <Text className="text-primary font-poppins-semibold text-lg mt-1">{selectedRider?.full_name}</Text>
+
+
+            <View className="flex-row gap-1 items-center mt-1">
+              <Building color={"gray"} size={14} />
+              <Text className="text-muted font-poppins text-sm text-center">{selectedRider?.business_name}</Text>
+            </View>
+            <View className="flex-row gap-1">
+              <MapPin color={"gray"} size={14} />
+              <Text className="text-muted font-poppins text-sm text-center">{selectedRider?.business_address}</Text>
+            </View>
+          </View>
+
+          <HDivider />
+
+          <View className="flex-row my-4 justify-between w-[80%] self-center">
+            <View className="items-center">
+              <Text className="text-xl font-poppins-bold text-primary">{selectedRider?.delivery_count}</Text>
+              <Text className="font-poppins-light text-muted text-sm">Trips</Text>
+            </View>
+            <View className="items-center">
+              <Text className="text-xl font-poppins-bold text-primary">{selectedRider?.average_rating}</Text>
+              <Text className="font-poppins-light text-muted text-sm">Rating</Text>
+            </View>
+            <View className="items-center">
+              <Text className="text-xl font-poppins-bold text-primary">{selectedRider?.bike_number.toUpperCase()}</Text>
+              <Text className="font-poppins-light text-muted text-sm">Bike Number</Text>
+            </View>
+          </View>
+
+
+          <View className="bg-background mb-3">
+            <AppVariantButton width={'70%'} borderRadius={50} label="Book Rider" onPress={handleBookRider} />
+          </View>
+
+        </BottomSheetView>
+
+      </BottomSheet>
+
+
+      }
     </View>
   );
 

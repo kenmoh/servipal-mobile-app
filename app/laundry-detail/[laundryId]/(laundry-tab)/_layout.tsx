@@ -27,12 +27,14 @@ const StoreHeader = () => {
         profileImage,
         delivery
     } = useLocalSearchParams();
-    const canDeliver = JSON.parse(delivery as string)
+    const canDeliver = !!delivery
+
+
     return (
         <View className="bg-background">
             <View className="bg-background">
                 <Image
-                    src={{ uri: backDrop || "https://picsum.photos/600/300.jpg" }}
+                    src={ backDrop  || "https://picsum.photos/600/300.jpg" }
                     style={{
                         height: 150,
                         width: "100%",
@@ -62,7 +64,7 @@ const StoreHeader = () => {
                                 {address}
                             </Text>
                         </View>
-                        <View className="flex-row justify-between items-baseline">
+                        <View className="flex-row justify-between items-center my-2">
                             <View className="flex-row items-center gap-2 mt-2">
                                 <AntDesign name="staro" color="orange" />
                                 <Text className="text-gray-500  font-poppins text-sm">

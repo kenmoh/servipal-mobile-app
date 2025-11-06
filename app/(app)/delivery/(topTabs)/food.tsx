@@ -25,7 +25,7 @@ const UserOrders = () => {
 
     const { user } = useUserStore();
 
-    const { data, isLoading, error, refetch, isFetching, isPending, isFetched } = useQuery({
+    const { data: allFood, isLoading, error, refetch, isFetching, isPending, isFetched } = useQuery({
         queryKey: ["orders", user?.sub],
         queryFn: () => fetchUserRelatedOrders(user?.sub as string),
         refetchOnWindowFocus: true,
@@ -35,6 +35,11 @@ const UserOrders = () => {
         retry: 3,
         retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     });
+
+      const data = useMemo(() => {
+        return allFood?.filter(item => item.order.order_type === 'food') || [];
+    }, [allFood]);
+
 
 
     const stats = useMemo(

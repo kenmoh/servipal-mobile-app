@@ -45,8 +45,8 @@ const OrderReceiptPage = () => {
                 deliveryFee: data?.delivery?.delivery_fee,
                 orderNumber: data?.order?.order_number,
                 deliveryType: `${data?.order?.require_delivery === "delivery"
-                        ? data?.delivery?.delivery_type
-                        : data?.order?.order_type
+                    ? data?.delivery?.delivery_type
+                    : data?.order?.order_type
                     }`,
                 orderItems: JSON.stringify(data?.order.order_items ?? []),
                 paymentLink: data?.order.payment_link,
@@ -441,7 +441,7 @@ const OrderReceiptPage = () => {
             return null;
         }
 
-        // Vendor can mark order as delivered
+        // Vendor mark order as delivered
         if (
             data?.order?.order_status === "pending" &&
             user.sub === data.order.vendor_id
@@ -454,7 +454,7 @@ const OrderReceiptPage = () => {
             };
         }
 
-        // Customer can confirm order delivered
+        // Customer  confirm order delivered
         if (
             data?.order?.order_status === "delivered" &&
             user.sub === data.order.owner_id
@@ -585,6 +585,20 @@ const OrderReceiptPage = () => {
                     </View>
                 </View>
 
+              {/*  <AppVariantButton
+                    filled={true}
+                    borderRadius={50}
+                    width="100%"
+                    disabled={actionButton?.disabled}
+                    label={actionButton?.label}
+                    onPress={actionButton?.onPress}
+                    icon={
+                        actionButton?.loading && (
+                            <ActivityIndicator size={"small"} className="text-primary" />
+                        )
+                    }
+                />
+*/}
                 {data?.order?.order_status === "delivered" &&
                     user?.sub === data?.order?.user_id && (
                         <AppVariantButton

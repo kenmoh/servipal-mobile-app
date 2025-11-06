@@ -16,11 +16,12 @@ interface GoogleTextInputProps {
   value: string | null;
   onChangeText?: (text: string) => void;
   error?: string
+  label?: string
 
 }
 
 
-const GoogleTextInput = ({ placeholder, onPlaceSelect, value, error, onChangeText }: GoogleTextInputProps) => {
+const GoogleTextInput = ({ placeholder, onPlaceSelect, label, value, error, onChangeText }: GoogleTextInputProps) => {
 
 
   const theme = useColorScheme();
@@ -86,7 +87,9 @@ const GoogleTextInput = ({ placeholder, onPlaceSelect, value, error, onChangeTex
 
   return (
     <View className='gpa-2'>
-
+ {label && (
+                <Text className="text-muted mb-1 self-start font-poppins text-sm">{label}</Text>
+            )}
       <GooglePlacesTextInput
         apiKey={`${process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY}`}
         // onPlaceSelect={handlePlaceSelect}

@@ -68,7 +68,7 @@ export const createCategory = async (
   }
 };
 
-// Create Item
+// Create Food Item
 export const createMenuItem = async (
   itemData: CreateMenuItmItem
 ): Promise<ItemMenuResponse> => {
@@ -128,8 +128,57 @@ export const createMenuItem = async (
   }
 };
 
-// Update Item
+// Create Laundry Item
+export const createLaundryItem = async (
+  itemData: CreateMenuItmItem
+): Promise<ItemMenuResponse> => {
+  const data = new FormData();
 
+  data.append("name", itemData.name);
+  data.append("price", itemData.price.toString());
+
+  if (itemData.description) {
+    data.append("description", itemData.description);
+  }
+
+  // Handle images
+  const imagesArray = Array.isArray(itemData.images) ? itemData.images : [];
+
+  if (imagesArray.length > 0) {
+    imagesArray.forEach((imagePath, index) => {
+      const imageData = {
+        uri: imagePath,
+        type: "image/jpeg",
+        name: `image_${index}.jpg`,
+      };
+      data.append("images", imageData as any);
+    });
+  }
+  try {
+    const response: ApiResponse<ItemMenuResponse | ErrorResponse> =
+      await apiClient.post(`${BASE_URL}/laundry-item-create`, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error creating item. Please try again later.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
+// Update Food Item
 export const updateMenuItem = async (
   itemId: string,
   itemData: UpdateMenuItmItem
@@ -168,6 +217,56 @@ export const updateMenuItem = async (
   try {
     const response: ApiResponse<ItemMenuResponse | ErrorResponse> =
       await apiClient.put(`/items/${itemId}/update`, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Error updating item. Please try again later.";
+      throw new Error(errorMessage);
+    }
+
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
+
+// Update Food Item
+export const updateLaundryItem = async (
+  itemId: string,
+  itemData: UpdateMenuItmItem
+): Promise<ItemMenuResponse> => {
+  const data = new FormData();
+  data.append("name", itemData.name);
+  data.append("price", itemData.price.toString());
+
+  if (itemData.description) {
+    data.append("description", itemData.description);
+  }
+
+  // Handle multiple images
+  if (itemData.images && itemData.images.length > 0) {
+    itemData.images.forEach((image: any, index: number) => {
+      data.append("images", {
+        uri: image,
+        type: "image/jpeg",
+        name: `image_${index}.jpg`,
+      } as any);
+    });
+  }
+
+  try {
+    const response: ApiResponse<ItemMenuResponse | ErrorResponse> =
+      await apiClient.put(`/items/${itemId}/laundry-item-update`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

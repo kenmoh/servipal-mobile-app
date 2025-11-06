@@ -33,8 +33,8 @@ const UserOrders = () => {
         refetchOnWindowFocus: true,
         refetchOnMount: true,
         enabled: !!user?.sub,
-        staleTime: 0, // Changed from 30000 to 0 for immediate updates
-        gcTime: 5 * 60 * 1000, // Keep data in cache for 5 minutes
+        staleTime: 0, 
+        gcTime: 5 * 60 * 1000, 
         retry: 3,
         retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     });

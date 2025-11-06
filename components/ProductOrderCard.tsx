@@ -20,7 +20,7 @@ const ProductOrderCard = ({ data }: ProductOrderCardProps) => {
     return (
         <View
             ref={cardRef}
-            style={{ borderWidth: StyleSheet.hairlineWidth }}
+            style={{ borderWidth: StyleSheet.hairlineWidth }} 
             className='bg-input rounded-2xl w-[45%] my-[2.5%] h-[200px] overflow-hidden border-gray-800/25'
         >
 
@@ -36,7 +36,7 @@ const ProductOrderCard = ({ data }: ProductOrderCardProps) => {
                 />
 
                 <Image
-                    source={{ uri: data?.order_items[0].images[0].url }}
+                    src={data?.order_items?.[0]?.item?.images?.[0]?.url}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
 

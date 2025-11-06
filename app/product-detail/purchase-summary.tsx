@@ -3,6 +3,7 @@ import AppVariantButton from '@/components/core/AppVariantButton'
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from '@/constants/theme'
 import { usePurchaseActions, usePurchaseSelectors } from '@/store/productStore'
 import { Ionicons } from '@expo/vector-icons'
+import { useUserStore } from "@/store/userStore";
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import React, { useEffect } from 'react'

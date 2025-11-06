@@ -142,7 +142,7 @@ const profile = () => {
           address: profile?.profile?.business_address,
           numberOfReviews: profile?.profile?.review_count,
           rating: profile?.profile?.avg_rating,
-          delivery: JSON.stringify(profile?.profile?.can_pickup_and_dropoff),
+          delivery: profile?.profile?.can_pickup_and_dropoff,
 
         },
       });
@@ -160,7 +160,7 @@ const profile = () => {
           address: profile?.profile?.business_address,
           numberOfReviews: profile?.profile?.review_count,
           rating: profile?.profile?.avg_rating,
-          delivery: JSON.stringify(profile?.profile?.can_pickup_and_dropoff),
+          delivery: profile?.profile?.can_pickup_and_dropoff,
         },
       });
     }

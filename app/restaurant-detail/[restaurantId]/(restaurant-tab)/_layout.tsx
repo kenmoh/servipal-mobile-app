@@ -29,7 +29,7 @@ const StoreHeader = () => {
         delivery
     } = useLocalSearchParams();
 
-    // const canDeliver: boolean = JSON.parse(delivery as string)
+    const canDeliver = !!delivery
 
     return (
         <View className="bg-background">
@@ -89,7 +89,7 @@ const StoreHeader = () => {
                                 </Text>
                             </View>
 
-                            {/*{canDeliver && <Bike color={'orange'} size={20} />}*/}
+                            {canDeliver && <Bike color={'orange'} size={20} />}
 
                             <View className="flex-row gap-2 items-baseline">
                                 <AntDesign name="clockcircleo" color="gray" />

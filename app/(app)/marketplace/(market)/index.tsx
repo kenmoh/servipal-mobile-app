@@ -81,7 +81,7 @@ const MarketPlace = () => {
                             />
                            
 
-                                <GradientCard label="Explore Peer-to-Peer Marketplace" description="Browse, buy, and sell items securely with confidence using our built-in escrow service. What you ordered is what you get! 😊"/>
+                               { data?.length === 0 && <GradientCard label="Explore Peer-to-Peer Marketplace" description="Browse, buy, and sell items securely with confidence using our built-in escrow service. What you ordered is what you get! 😊"/>}
                     
                         </>
                     )}

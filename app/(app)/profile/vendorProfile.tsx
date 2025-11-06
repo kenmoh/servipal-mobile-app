@@ -17,6 +17,7 @@ import Checkbox from "expo-checkbox";
 import { router } from "expo-router";
 import { Clock, Info } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
+import GoogleTextInput from "@/components/GoogleTextInput";
 import { Controller, useForm, useWatch, type Resolver } from "react-hook-form";
 import {
   ActivityIndicator,
@@ -50,8 +51,8 @@ const profileSchema = z.object({
   closingHour: z.string().min(1, "Closing Hour is required"),
   pickupCharge: z
     .coerce.number()
-    .positive("Price must be greater than 0")
     .optional(),
+    
   canPickup: z.boolean().optional(),
 });
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -135,7 +136,6 @@ const Profile = () => {
   };
 
   const onSubmit = (values: ProfileFormData) => {
-    console.log(values)
     mutate(values);
   };
 
@@ -186,14 +186,26 @@ const Profile = () => {
           control={control}
           name="location"
           render={({ field }) => (
-            <AppTextInput
-              placeholder="Business Location"
-              editable={false}
-              label="Business Address"
-              onChangeText={field.onChange}
-              value={field.value}
-              errorMessage={errors.location?.message}
-            />
+            // <AppTextInput
+            //   placeholder="Business Location"
+            //   editable={false}
+            //   label="Business Address"
+            //   onChangeText={field.onChange}
+            //   value={field.value}
+            //   errorMessage={errors.location?.message}
+            // />
+
+             <GoogleTextInput
+                placeholder="Destination"
+                label="Business Address"
+                value={field.value}
+                error={error.destination}
+                onChangeText={field.onChange}
+                onPlaceSelect={(lat, lng, address) => {
+                  setDestination(address, [lat, lng]);
+                  setError((prev) => ({ ...prev, destination: "" }));
+                }}
+              />
           )}
         />
         <CurrentLocationButton onLocationSet={handleLocationSet} />

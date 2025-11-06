@@ -31,7 +31,7 @@ const ProductCard = ({ product }: { product: ProductResponse }) => {
         <TouchableOpacity
             activeOpacity={0.7}
             onPress={handlePress}
-            className="my-2 border border-collapse-transparent border-border-subtle overflow-hidden rounded-lg"
+            className="my-2 border border-collapse-transparent border-border-subtle overflow-hidden rounded-xl"
             style={{ width: CARD_WIDTH }}
         >
             <View

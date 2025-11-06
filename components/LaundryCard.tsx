@@ -45,8 +45,9 @@ const LaundryCard = ({ item, onPress, onDelete }: {
                                         id: item.id,
                                         name: item.name,
                                         price: item.price,
+                                        description: item.description,
                                         images: JSON.stringify(item.images),
-                                        item_type: item.item_type,
+                                        
                                     }
                                 })}
                                 hitSlop={10}

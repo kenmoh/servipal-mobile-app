@@ -4,6 +4,7 @@ import ProductDetailWrapper from '@/components/ProductDetailWrapper'
 import { useToast } from '@/components/ToastProvider'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams } from 'expo-router'
+import { useUserStore } from '@/store/userStore'
 import React from 'react'
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native'
 
@@ -140,7 +141,7 @@ const ProductDetail = () => {
     }
 
     return (
-        <ProductDetailWrapper images={data?.order_items[0]?.images}>
+        <ProductDetailWrapper images={data?.order_items[0]?.item?.images}>
             <View className="flex-1 px-6 space-y-6">
                 {/* Title and Price */}
                 <View className="space-y-2">
@@ -194,7 +195,7 @@ const ProductDetail = () => {
 
 
                         <View className="flex-row flex-wrap gap-3">
-                            {data?.order_items[0].colors.map((color, index) => (
+                            {data?.order_items[0]?.colors?.map((color, index) => (
                                 <View
                                     key={index}
 
@@ -209,29 +210,27 @@ const ProductDetail = () => {
                 )}
 
 
-                {/* Sizes */}
-                {data?.order_items[0].sizes && (
-                    <View className="space-y-3 my-2">
-
-
-                        <View className="flex-row flex-wrap gap-3">
-                            {data?.order_items[0].sizes.split(',').map((size, index) => {
-                                return (
-                                    <View
-                                        key={index}
-
-                                        className={`h-10 min-w-[40px] px-3 justify-center items-center rounded-lg border-[1px] bg-orange-800/25`}
-                                    >
-                                        <Text className={`font-poppins-semibold text-base text-primary`}>
-                                            {size.toUpperCase()}
-                                        </Text>
-
-                                    </View>
-                                )
-                            })}
-                        </View>
-                    </View>
-                )}
+        {/* Sizes */}
+        {data?.order_items[0]?.item?.sizes && (
+            <View className="space-y-3 my-2">
+                <View className="flex-row flex-wrap gap-3">
+                    {data.order_items[0].item.sizes
+                        .split(',')
+                        .filter(size => size?.trim())
+                        .map((size, index) => (
+                            <View
+                                key={index}
+                                className={`h-10 min-w-[40px] px-3 justify-center items-center rounded-lg border-[1px] bg-orange-800/25`}
+                            >
+                                <Text className={`font-poppins-semibold text-base text-primary`}>
+                                    {size.trim().toUpperCase()}
+                                </Text>
+                            </View>
+                        ))
+                    }
+                </View>
+            </View>
+        )}
 
                 {/* Quantity */}
                 <View className="gap-3 flex-row justify-between">
