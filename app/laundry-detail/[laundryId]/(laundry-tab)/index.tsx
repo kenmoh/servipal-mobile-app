@@ -25,10 +25,11 @@ const StoreDetails = () => {
     const { data, refetch, isFetching } = useQuery({
         queryKey: ["laundryItems", laundryVendorId],
         queryFn: () => fetchLaundryMenu(laundryVendorId as string),
-        select: (items) =>
-            items?.filter((item) => item.item_type === "laundry") || [],
+        // select: (items) =>
+        //     items?.filter((item) => item.item_type === "laundry") || [],
     });
 
+console.log(data)
 
     const handleAddToCart = useCallback(
         (item: LaundryMenuItem) => {

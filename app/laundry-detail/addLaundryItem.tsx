@@ -1,6 +1,6 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
-import {useLocalSearchParams} from 'expo-router'
+import {useLocalSearchParams, router} from 'expo-router'
 
 import { createLaundryItem, updateLaundryItem } from "@/api/item";
 import ImagePickerInput from "@/components/AppImagePicker";
@@ -28,7 +28,7 @@ const itemTypeOptions = [
 const schema = z.object({
     name: z.string().min(1, "Name is a required field"),
     price: z.number().int().gt(0, "Price MUST be greater than 0").lte(999999),
-    description: z.string().optional()
+    description: z.string().optional(),
     images: z.array(z.any()).nonempty({
         message: "Image is required",
     }),
@@ -104,22 +104,14 @@ const adLaundryItem = () => {
     });
 
 
-    const onSubmit = (data: MenuFormData) => {
+    const onSubmit = (data: FormData) => {
         if (editing && id) {
-
-            updateMutation.mutate({ id, data });
+            updateMutation.mutate({ id: id as string, data });
         } else {
-
-            itemMutate.mutate(data);
+            itemMutate(data);
         }
     };
 
-    // const onSubmit = (data: FormData) => {
-    //     itemMutate({
-    //         ...data,
-    //         images: data.images ?? [],
-    //     });
-    // };
 
     return (
         <>
@@ -187,9 +179,9 @@ const adLaundryItem = () => {
                         )}
                     />
                     <AppButton
-                        title={isCreating ? 'Submitting...' : "Submit"}
-                        disabled={isCreating}
-                        icon={isCreating && <ActivityIndicator size="small" color="white" />}
+                        title={editing ? 'Update' : "Submit"}
+                        disabled={isCreating || updateMutation.isPending}
+                        icon={(isCreating || updateMutation.isPending)  && <ActivityIndicator size="small" color="white" />}
                         width={"90%"}
                         onPress={handleSubmit(onSubmit)}
                     />

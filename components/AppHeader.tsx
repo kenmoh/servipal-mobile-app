@@ -15,7 +15,7 @@ const AppHeader = ({ icon, component, onPress }: AppHeaderProps) => {
 
     return (
         <SafeAreaView className="bg-background" style={{
-            height: 100,
+            height: 70,
             alignItems: 'center',
             justifyContent: 'center',
 

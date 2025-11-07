@@ -163,6 +163,8 @@ const ItemCard = React.memo(({ data, isHomeScreen = false }: CardProp) => {
         })
     }
 
+
+
     // Memoize computed values
     const firstOrderItem = React.useMemo(() => data?.order.order_items[0], [data?.order.order_items]);
     const imageUrl = React.useMemo(() => firstOrderItem?.images[0]?.url, [firstOrderItem?.images]);
@@ -210,7 +212,7 @@ const ItemCard = React.memo(({ data, isHomeScreen = false }: CardProp) => {
 
                             </View>
 
-                            {data?.order?.require_delivery === 'pickup' &&
+                           
                                 <View className='flex-row gap-[5px]'>
                                     <Landmark size={15} color='gray' />
 
@@ -223,7 +225,7 @@ const ItemCard = React.memo(({ data, isHomeScreen = false }: CardProp) => {
                                     </Text>
                                 </View>
 
-                            }
+                            
 
                             {data?.order?.require_delivery === 'delivery' &&
 

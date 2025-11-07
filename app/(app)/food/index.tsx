@@ -2,11 +2,10 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
 
 import { fetchRestaurants } from "@/api/user";
-import {router} from 'expo-router'
 import AppHeader from "@/components/AppHeader";
 import AppTextInput from "@/components/AppInput";
-import LoadingIndicator from '@/components/LoadingIndicator'
 import Category from "@/components/Category";
+import LoadingIndicator from '@/components/LoadingIndicator';
 import StoreCard from "@/components/StoreCard";
 import { CompanyProfile } from "@/types/user-types";
 import { useQuery } from "@tanstack/react-query";
@@ -18,7 +17,6 @@ import Swiper from "react-native-swiper";
 import { fetchCategories } from "@/api/item";
 import Card from "@/components/Card";
 import HDivider from "@/components/HDivider";
-import { StoreListSkeleton } from "@/components/LoadingSkeleton";
 import RefreshButton from "@/components/RefreshButton";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 import { useSwiperCleanup } from "@/hooks/useSwiperCleanup";
@@ -118,10 +116,10 @@ const Page = () => {
     const HANDLE_INDICATOR_STYLE = theme === "dark" ? HEADER_BG_LIGHT : HEADER_BG_DARK;
     const HANDLE_STYLE = theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
     const BORDER_COLOR = '#2f4550';
-    
+
     const { user } = useUserStore();
     const bottomSheetRef = useRef<BottomSheet>(null);
-    
+
     const [userLocation, setUserLocation] = useState<{
         latitude: number;
         longitude: number;
@@ -195,25 +193,18 @@ const Page = () => {
         getUserLocation();
     }, []);
 
-    if (isFetching && !data) {
+
+    if (isFetching) {
         return (
-            <SafeAreaView style={{ flex: 1, backgroundColor: BG_COLOR }}>
-                <AppHeader
-                    component={
-                        <AppTextInput
-                            borderRadius={50}
-                            placeholder="Search Restaurants.."
-                        />
-                    }
-                />
-                <HDivider />
-                <StoreListSkeleton />
-                 {/*<LoadingIndicator />*/}
-            </SafeAreaView>
+
+
+            <LoadingIndicator />
+
         );
     }
 
     if (error) {
+        console.log("Error fetching restaurants:", error);
         return (
             <RefreshButton label="Error loading restaurants" onPress={refetch} />
         );
@@ -230,7 +221,7 @@ const Page = () => {
                 }
             />
             <HDivider />
-            <Text className="my-5 text-2xl text-primary" onPress={()=>router.push('/onboardin')}>Onboarding</Text>
+            {/* <Text className="my-5 text-2xl text-primary" onPress={() => router.push('/onboardin')}>Onboarding</Text> */}
 
             <FlatList
                 data={data || []}
@@ -242,6 +233,7 @@ const Page = () => {
                             selectedCategory={selectedCategory}
                             onOpenSheet={openBottomSheet}
                         />
+                        <HDivider />
                         {/* {data.length === 0 &&  <GradientCard label="Delicious Meals at Your Doorstep" description="Order from your favourite restaurants and enjoy fast, fresh food delivery." />} */}
                         {/*<FeaturedRestaurants />*/}
                     </>
@@ -268,7 +260,7 @@ const Page = () => {
                 }}
             />
 
-       
+
             <BottomSheet
                 index={-1}
                 snapPoints={['35%', '65%']}
@@ -384,7 +376,7 @@ export const FeaturedRestaurants = () => {
                                 >
                                     {restaurant.company_name}
                                 </Text>
-                                <Text 
+                                <Text
                                     className="text-xs text-primary mt-1 opacity-90"
                                     numberOfLines={1}
                                 >

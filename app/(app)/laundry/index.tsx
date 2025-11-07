@@ -9,19 +9,16 @@ import { fetchLaundryVendors } from "@/api/user";
 import AppHeader from "@/components/AppHeader";
 import AppTextInput from "@/components/AppInput";
 import Card from "@/components/Card";
-import GradientCard from '@/components/GradientCard';
 import HDivider from "@/components/HDivider";
-import { StoreListSkeleton } from "@/components/LoadingSkeleton";
 import RefreshButton from "@/components/RefreshButton";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 // import { useUserStore } from "@/store/userStore";
-import ComingSoon from "@/components/ComingSoon";
+import LoadingIndicator from "@/components/LoadingIndicator";
 import { useUserStore } from "@/store/userStore";
 import { CompanyProfile } from "@/types/user-types";
 import { getCoordinatesFromAddress } from "@/utils/geocoding";
 import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Swiper from "react-native-swiper";
 
@@ -134,8 +131,10 @@ const Page = () => {
 
     const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
 
+
+
     const [showComingSoon, setShowComingSoon] = useState(false);
-    
+
     // Get user's location
     useEffect(() => {
         const getUserLocation = async () => {
@@ -222,22 +221,26 @@ const Page = () => {
     }, [data, userLocation, user?.sub, user?.user_type]);
 
     if (isFetching) {
-        return (
-            <SafeAreaView style={{ flex: 1, backgroundColor: BG_COLOR }}>
-                <AppHeader
-                    component={
-                        <AppTextInput
-
-                            borderRadius={50}
-                            placeholder="Search laundry vendors.."
-                        />
-                    }
-                />
-                <HDivider />
-                <StoreListSkeleton />
-            </SafeAreaView>
-        );
+        return <LoadingIndicator />
     }
+
+    // if (isFetching) {
+    //     return (
+    //         <SafeAreaView style={{ flex: 1, backgroundColor: BG_COLOR }}>
+    //             <AppHeader
+    //                 component={
+    //                     <AppTextInput
+
+    //                         borderRadius={50}
+    //                         placeholder="Search laundry vendors.."
+    //                     />
+    //                 }
+    //             />
+    //             <HDivider />
+    //             <StoreListSkeleton />
+    //         </SafeAreaView>
+    //     );
+    // }
 
     if (error)
         return (
@@ -257,58 +260,42 @@ const Page = () => {
             />
             <HDivider />
 
-            {filteredlaundryVendors.length > 0 ? (
-                <FlatList
-                    // data={data}
-                    data={filteredlaundryVendors}
-                    // ListHeaderComponent={() => (
-                    //     <>
 
-                    //         <FeaturedLaundryVendors />
-                    //         {/* <FeaturedRestaurants restaurants={data || []} /> */}
-                    //     </>
-                    // )}
-                    stickyHeaderIndices={[1]}
-                    ListHeaderComponent={() => (
-                        <>
+            <FlatList
+                // data={data}
+                data={data}
+                // ListHeaderComponent={() => (
+                //     <>
 
-                            <GradientCard label="Laundry Services Made Simple" description="Choose from a wide range of laundry services providers and have your clothes cleaned and delivered." />
-                            {/*<FeaturedRestaurants />*/}
-                        </>
-                    )}
-                    showsVerticalScrollIndicator={false}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({
-                        item,
-                    }: {
-                        item: CompanyProfile & { distance: number };
-                    }) => (
-                        <StoreCard
-                            item={item}
-                            distance={item.distance}
-                            pathName='/laundry-detail/[laundryId]'
-                        />
-                    )}
-                    contentContainerStyle={{
-                        paddingBottom: 10,
-                    }}
-                />
-            ) :
+                //         <FeaturedLaundryVendors />
+                //         {/* <FeaturedRestaurants restaurants={data || []} /> */}
+                //     </>
+                // )}
+                stickyHeaderIndices={[1]}
+                ListHeaderComponent={() => (
+                    <>
 
-
-
-                <ComingSoon
-                    visible={showComingSoon}
-                    title="Laundry Coming Soon"
-                    description="We're expanding our network of laundry partners near you. Check back later or explore other services."
-                    ctaLabel="Browse Marketplace"
-                    onClose={() => setShowComingSoon(true)}
-                    onCTAPress={() => router.push("/marketplace")}
-                />
-
-            }
-
-
+                        {/* {<GradientCard label="Laundry Services Made Simple" description="Choose from a wide range of laundry services providers and have your clothes cleaned and delivered." />} */}
+                        {/*<FeaturedRestaurants />*/}
+                    </>
+                )}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(item) => item.id}
+                renderItem={({
+                    item,
+                }: {
+                    item: CompanyProfile & { distance: number };
+                }) => (
+                    <StoreCard
+                        item={item}
+                        distance={item.distance}
+                        pathName='/laundry-detail/[laundryId]'
+                    />
+                )}
+                contentContainerStyle={{
+                    paddingBottom: 10,
+                }}
+            />
         </SafeAreaView>
     );
 };

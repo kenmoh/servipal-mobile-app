@@ -17,19 +17,25 @@ interface GoogleTextInputProps {
   onChangeText?: (text: string) => void;
   error?: string
   label?: string
+  scrollEnabled?: boolean
 
 }
 
 
-const GoogleTextInput = ({ placeholder, onPlaceSelect, label, value, error, onChangeText }: GoogleTextInputProps) => {
+const GoogleTextInput = ({ placeholder, onPlaceSelect, label, value, error, onChangeText, scrollEnabled=true }: GoogleTextInputProps) => {
 
 
   const theme = useColorScheme();
   const [isFocused, setIsFocused] = useState(false);
+  const [inputValue, setInputValue] = useState(value || '');
   const ref = useRef<any>(null);
 
   const TEXT = theme === "dark" ? "white" : "gray";
   const BG_COLOR = theme === "dark" ? "rgba(30, 33, 39, 0.5)" : "#eee";
+
+  useEffect(() => {
+    setInputValue(value || '');
+  }, [value]);
 
   const styles = StyleSheet.create({
     container: {
@@ -88,29 +94,32 @@ const GoogleTextInput = ({ placeholder, onPlaceSelect, label, value, error, onCh
   return (
     <View className='gpa-2'>
  {label && (
-                <Text className="text-muted mb-1 self-start font-poppins text-sm">{label}</Text>
+                <Text className="text-muted ml-5 mb-1 self-start font-poppins text-sm">{label}</Text>
             )}
       <GooglePlacesTextInput
+        scrollEnabled={scrollEnabled}
         apiKey={`${process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY}`}
-        // onPlaceSelect={handlePlaceSelect}
         ref={ref}
         languageCode="en"
         placeHolderText={placeholder}
         includedRegionCodes={['ng']}
         minCharsToFetch={3}
-        onTextChange={onChangeText}
-        value={value || undefined}
+        onTextChange={(text) => {
+          setInputValue(text);
+          onChangeText?.(text);
+        }}
+        value={inputValue}
         style={styles as any}
         fetchDetails={true}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         onPlaceSelect={(data) => {
           if (data?.details) {
-            // Remove trailing ", Nigeria" (with or without comma/space)
             const text = data.details.displayName.text;
             const secondaryText = data.details.formattedAddress.replace(/,? ?Nigeria$/i, "");
             const address = text + ' ' + secondaryText;
-
+            
+            setInputValue(address);
             if (data.details.location) {
               const { latitude: lat, longitude: lng } = data.details.location;
               onPlaceSelect(lat, lng, address);

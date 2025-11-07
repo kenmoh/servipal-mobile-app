@@ -145,8 +145,12 @@ const Profile = () => {
     <ScrollView
       className="flex-1 bg-background"
       showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      // nestedScrollEnabled={false}
     >
       <View className="flex-1 bg-background mb-5">
+        <View className="flex-row">
+           <View className="w-[50%]">
         <Controller
           control={control}
           name="phoneNumber"
@@ -163,6 +167,9 @@ const Profile = () => {
             />
           )}
         />
+
+         </View>
+           <View className="w-[50%]">
 
         <Controller
           control={control}
@@ -181,6 +188,8 @@ const Profile = () => {
             />
           )}
         />
+         </View>
+      </View>
 
         <Controller
           control={control}
@@ -199,15 +208,16 @@ const Profile = () => {
                 placeholder="Destination"
                 label="Business Address"
                 value={field.value}
-                error={error.destination}
+                error={errors.location?.message}
+                scrollEnabled={true}
                 onChangeText={field.onChange}
                 onPlaceSelect={(lat, lng, address) => {
-                  setDestination(address, [lat, lng]);
-                  setError((prev) => ({ ...prev, destination: "" }));
+                  handleLocationSet(address, [lat, lng])
                 }}
               />
           )}
         />
+        <View className="my-1"/>
         <CurrentLocationButton onLocationSet={handleLocationSet} />
 
         <Controller
@@ -278,7 +288,7 @@ const Profile = () => {
             control={control}
             name="pickupCharge"
             render={({ field: { value, onChange } }) => (
-              <Animated.View entering={FadeInDown.duration(300).delay(100)}>
+              <Animated.View style={{width: '100%',  alignSelf: 'center' }} entering={FadeInDown.duration(300).delay(100)}>
                 <AppTextInput
                   placeholder="0.00"
                   onChangeText={(text) => {

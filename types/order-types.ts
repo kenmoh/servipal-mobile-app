@@ -1,6 +1,12 @@
 export type Coordinates = [number | null, number | null];
 export type OrderType = "package" | "food" | "laundry" | "product";
-export type OrderStatus = "pending" | "in-transit" | "delivered" | "received";
+export type OrderStatus =
+  | "pending"
+  | "in-transit"
+  | "delivered"
+  | "received"
+  | "laundry_pickup"
+  | "laundry_returned";
 export type RequireDelivery =
   | "pickup"
   | "delivery"
@@ -83,7 +89,7 @@ export interface OrderResponse {
   vendor_id: string;
   order_type: OrderType;
   order_number: string;
-  require_delivery: "pickup" | "delivery";
+  require_delivery: "pickup" | "delivery" | "vendor-pickup-and-dropoff";
   is_one_way_delivery: boolean;
   total_price: string;
   vendor_pickup_dropoff_charge: string;

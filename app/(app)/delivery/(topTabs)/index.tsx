@@ -4,7 +4,7 @@ import HDivider from "@/components/HDivider";
 // import { LegendList } from '@legendapp/list';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import * as Location from "expo-location";
 
@@ -34,7 +34,6 @@ import * as Sentry from '@sentry/react-native';
 import { router } from "expo-router";
 import { Building, MapPin } from "lucide-react-native";
 import { Alert, FlatList, Image, Text, useColorScheme, View } from "react-native";
-import { Easing } from "react-native-reanimated";
 
 
 const DeliveryScreen = () => {
@@ -277,7 +276,7 @@ const DeliveryScreen = () => {
   };
 
 
-  const { data: riders, isLoading, error, refetch, isFetching, isPending } = useQuery({
+  const { data: riders, isLoading, error, refetch, isFetching, isPlaceholderData } = useQuery({
     queryKey: ["riders", user?.sub, coords.lat, coords.lng],
     queryFn: () => fetchRiders(coords.lat!, coords.lng!),
     enabled: Boolean(user?.sub && coords.lat && coords.lng),
@@ -285,8 +284,9 @@ const DeliveryScreen = () => {
     gcTime: 1000 * 60 * 10,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-    keepPreviousData: true,
-    onSuccess: (newRiders) => {
+    placeholderData: keepPreviousData,
+
+    onSuccess: (newRiders: RiderProps[]) => {
       const { previousRiders, setPreviousRiders, setNewRiderCount } = useRiderStore.getState();
 
       if (newRiders && previousRiders.length > 0) {
@@ -489,80 +489,67 @@ const DeliveryScreen = () => {
 
 
 
-      {selectedRider && <BottomSheet
+      <BottomSheet
         ref={bottomSheetRef}
         snapPoints={["35%", '50%']}
         index={-1}
-        animateOnMount={true}
-        animationConfigs={{
-          duration: 500,
-          easing: Easing.exp
-        }}
-        backgroundStyle={{
-          borderTopLeftRadius: 40,
-          borderTopRightRadius: 40,
-          backgroundColor: BG_COLOR,
-          shadowColor: 'orange',
-          shadowOffset: {
-            width: 0,
-            height: -4
-          },
-          shadowOpacity: 0.5,
-          shadowRadius: 20,
-          elevation: 20
-        }}
-
         enablePanDownToClose={true}
-        handleIndicatorStyle={{ backgroundColor: HANDLE_INDICATOR_STYLE }} style={{ flex: 1 }} handleStyle={{ backgroundColor: HANDLE_STYLE }}
-
+        handleIndicatorStyle={{ backgroundColor: HANDLE_INDICATOR_STYLE }}
+        handleStyle={{ backgroundColor: HANDLE_STYLE }}
+        backgroundStyle={{
+          borderTopLeftRadius: 60,
+          borderTopRightRadius: 60,
+          backgroundColor: BG_COLOR,
+          shadowColor: theme === 'dark' ? '#fff' : '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: theme === 'dark' ? 0.3 : 0.25,
+          shadowRadius: 8,
+          elevation: 8
+        }}
       >
-
         <BottomSheetView style={{ flex: 1 }} className={'bg-background'}>
-          <View className="p-4 items-center flex-1 bg-background">
-            <View className="w-28 h-28 rounded-full overflow-hidden">
-              <Image src={selectedRider?.profile_image_url} className="w-28 h-28 rounded-full" />
-            </View>
-            <Text className="text-primary font-poppins-semibold text-lg mt-1">{selectedRider?.full_name}</Text>
+          {selectedRider && (
+            <>
+              <View className="p-4 items-center flex-1 bg-background">
+                <View className="w-28 h-28 rounded-full overflow-hidden">
+                  <Image src={selectedRider?.profile_image_url} className="w-28 h-28 rounded-full" />
+                </View>
+                <Text className="text-primary font-poppins-semibold text-lg mt-1">{selectedRider?.full_name}</Text>
 
+                <View className="flex-row gap-1 items-center mt-1">
+                  <Building color={"gray"} size={14} />
+                  <Text className="text-muted font-poppins text-sm text-center">{selectedRider?.business_name}</Text>
+                </View>
+                <View className="flex-row gap-1">
+                  <MapPin color={"gray"} size={14} />
+                  <Text className="text-muted font-poppins text-sm text-center">{selectedRider?.business_address}</Text>
+                </View>
+              </View>
 
-            <View className="flex-row gap-1 items-center mt-1">
-              <Building color={"gray"} size={14} />
-              <Text className="text-muted font-poppins text-sm text-center">{selectedRider?.business_name}</Text>
-            </View>
-            <View className="flex-row gap-1">
-              <MapPin color={"gray"} size={14} />
-              <Text className="text-muted font-poppins text-sm text-center">{selectedRider?.business_address}</Text>
-            </View>
-          </View>
+              <HDivider />
 
-          <HDivider />
+              <View className="flex-row my-4 justify-between w-[80%] self-center">
+                <View className="items-center">
+                  <Text className="text-xl font-poppins-bold text-primary">{selectedRider?.delivery_count}</Text>
+                  <Text className="font-poppins-light text-muted text-sm">Trips</Text>
+                </View>
+                <View className="items-center">
+                  <Text className="text-xl font-poppins-bold text-primary">{selectedRider?.average_rating}</Text>
+                  <Text className="font-poppins-light text-muted text-sm">Rating</Text>
+                </View>
+                <View className="items-center">
+                  <Text className="text-xl font-poppins-bold text-primary">{selectedRider?.bike_number.toUpperCase()}</Text>
+                  <Text className="font-poppins-light text-muted text-sm">Bike Number</Text>
+                </View>
+              </View>
 
-          <View className="flex-row my-4 justify-between w-[80%] self-center">
-            <View className="items-center">
-              <Text className="text-xl font-poppins-bold text-primary">{selectedRider?.delivery_count}</Text>
-              <Text className="font-poppins-light text-muted text-sm">Trips</Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-xl font-poppins-bold text-primary">{selectedRider?.average_rating}</Text>
-              <Text className="font-poppins-light text-muted text-sm">Rating</Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-xl font-poppins-bold text-primary">{selectedRider?.bike_number.toUpperCase()}</Text>
-              <Text className="font-poppins-light text-muted text-sm">Bike Number</Text>
-            </View>
-          </View>
-
-
-          <View className="bg-background mb-3">
-            <AppVariantButton width={'70%'} borderRadius={50} label="Book Rider" onPress={handleBookRider} />
-          </View>
-
+              <View className="bg-background mb-3">
+                <AppVariantButton width={'70%'} borderRadius={50} label="Book Rider" onPress={handleBookRider} />
+              </View>
+            </>
+          )}
         </BottomSheetView>
-
       </BottomSheet>
-
-
-      }
     </View>
   );
 

@@ -2,6 +2,8 @@ import {
     customerConfirmDeliveryReceived,
     fetchOrder,
     updateOrderStatus,
+    vendorPickupLaundry,
+    vendorReturnLaundry,
 } from "@/api/order";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import LoadingIndicator from "@/components/LoadingIndicator";
@@ -343,6 +345,51 @@ const OrderReceiptPage = () => {
             showError("Error", error.message);
         },
     });
+    const vendorPickupMutation = useMutation({
+        mutationFn: () => vendorPickupLaundry(data?.order?.id as string),
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["order", orderId],
+            });
+            queryClient.invalidateQueries({ queryKey: ["orders"] });
+            queryClient.invalidateQueries({
+                queryKey: ["orders", data?.order?.vendor_id],
+            });
+            queryClient.invalidateQueries({
+                queryKey: ["orders", data?.order?.owner_id],
+            });
+
+            showSuccess("Success", "Order picked up.");
+
+            router.back();
+        },
+        onError: (error: Error) => {
+            showError("Error", error.message);
+        },
+    });
+    const vendorReturnLaundryMutation = useMutation({
+        mutationFn: () => vendorReturnLaundry(data?.order?.id as string),
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["order", orderId],
+            });
+            queryClient.invalidateQueries({ queryKey: ["orders"] });
+            queryClient.invalidateQueries({
+                queryKey: ["orders", data?.order?.vendor_id],
+            });
+            queryClient.invalidateQueries({
+                queryKey: ["orders", data?.order?.owner_id],
+            });
+
+            showSuccess("Success", "Order picked up.");
+
+            router.back();
+        },
+        onError: (error: Error) => {
+            showError("Error", error.message);
+        },
+    });
+
     const customerreceivedMutation = useMutation({
         mutationFn: () =>
             customerConfirmDeliveryReceived(data?.order?.id as string),
@@ -432,7 +479,7 @@ const OrderReceiptPage = () => {
         loading: boolean;
         disabled: boolean;
     } | null => {
-        if (!data || !user) return null;
+        if (!data?.order || !user) return null;
 
         const status = data.order?.order_status?.toLowerCase();
         const paymentStatus = data.order?.order_payment_status?.toLowerCase();
@@ -443,7 +490,7 @@ const OrderReceiptPage = () => {
 
         // Vendor mark order as delivered
         if (
-            data?.order?.order_status === "pending" &&
+            data?.order?.order_status === "pending" && data.order.require_delivery !== 'vendor-pickup-and-dropoff' &&
             user.sub === data.order.vendor_id
         ) {
             return {
@@ -464,6 +511,30 @@ const OrderReceiptPage = () => {
                 onPress: () => customerreceivedMutation.mutate(),
                 loading: customerreceivedMutation.isPending,
                 disabled: customerreceivedMutation.isPending,
+            };
+        }
+        // Vendor pickup laundry
+        if (
+            data?.order?.order_status === "pending" && data.order.require_delivery === 'vendor-pickup-and-dropoff' &&
+            user.sub === data.order.vendor_id && data.order.order_type === 'laundry'
+        ) {
+            return {
+                label: "Confirm Delivery",
+                onPress: () => vendorPickupMutation.mutate(),
+                loading: vendorPickupMutation.isPending,
+                disabled: vendorPickupMutation.isPending,
+            };
+        }
+        // Vendor return laundry
+        if (
+            data?.order?.order_status === "laundry_pickup" && data.order.require_delivery === 'vendor-pickup-and-dropoff' &&
+            user.sub === data.order.vendor_id && data.order.order_type === 'laundry'
+        ) {
+            return {
+                label: "Confirm Delivery",
+                onPress: () => vendorReturnLaundryMutation.mutate(),
+                loading: vendorReturnLaundryMutation.isPending,
+                disabled: vendorReturnLaundryMutation.isPending,
             };
         }
 
@@ -585,12 +656,12 @@ const OrderReceiptPage = () => {
                     </View>
                 </View>
 
-              {/*  <AppVariantButton
+                <AppVariantButton
                     filled={true}
                     borderRadius={50}
                     width="100%"
                     disabled={actionButton?.disabled}
-                    label={actionButton?.label}
+                    label={actionButton?.label!}
                     onPress={actionButton?.onPress}
                     icon={
                         actionButton?.loading && (
@@ -598,8 +669,8 @@ const OrderReceiptPage = () => {
                         )
                     }
                 />
-*/}
-                {data?.order?.order_status === "delivered" &&
+
+                {/* {data?.order?.order_status === "delivered" &&
                     user?.sub === data?.order?.user_id && (
                         <AppVariantButton
                             filled={true}
@@ -614,8 +685,8 @@ const OrderReceiptPage = () => {
                                 )
                             }
                         />
-                    )}
-                {data?.order?.order_status === "pending" &&
+                    )} */}
+                {/* {data?.order?.order_status === "pending" &&
                     user?.sub === data?.order?.vendor_id && (
                         <AppVariantButton
                             filled={true}
@@ -630,7 +701,7 @@ const OrderReceiptPage = () => {
                                 )
                             }
                         />
-                    )}
+                    )} */}
 
                 {data?.order?.order_payment_status !== "paid" &&
                     user?.sub === data?.order?.user_id && (
