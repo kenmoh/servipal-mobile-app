@@ -184,8 +184,8 @@ const Page = () => {
 
             if (location) {
                 setUserLocation({
-                    latitude: location.coords.latitude,
-                    longitude: location.coords.longitude,
+                    latitude: location?.coords.latitude,
+                    longitude: location?.coords.longitude,
                 });
             }
         };
@@ -204,7 +204,7 @@ const Page = () => {
     }
 
     if (error) {
-        console.log("Error fetching restaurants:", error);
+
         return (
             <RefreshButton label="Error loading restaurants" onPress={refetch} />
         );

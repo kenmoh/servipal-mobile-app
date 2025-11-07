@@ -39,6 +39,8 @@ const OrderReceiptPage = () => {
         queryFn: () => fetchOrder(orderId as string),
     });
 
+    console.log("Order Receipt Data:", data?.order?.order_items[0].price);
+
     const handleGotoPayment = () => {
         router.push({
             pathname: "/payment/[orderId]",
@@ -280,7 +282,7 @@ const OrderReceiptPage = () => {
                 ? `
                             <div class="section">
                                 <h2>Order Items</h2>
-                                ${data.order.order_items
+                                ${data.order?.order_items
                     .map(
                         (item: any) => `
                                     <div class="row">
@@ -490,7 +492,8 @@ const OrderReceiptPage = () => {
 
         // Vendor mark order as delivered
         if (
-            data?.order?.order_status === "pending" && data.order.require_delivery !== 'vendor-pickup-and-dropoff' &&
+            data?.order?.order_status === "pending" && 
+            (data.order.require_delivery !== 'vendor-pickup-and-dropoff' || data.order.order_type !== 'laundry') &&
             user.sub === data.order.vendor_id
         ) {
             return {
@@ -501,13 +504,13 @@ const OrderReceiptPage = () => {
             };
         }
 
-        // Customer  confirm order delivered
+        // Customer confirm order delivered
         if (
             data?.order?.order_status === "delivered" &&
-            user.sub === data.order.owner_id
+            user.sub === data.order.user_id
         ) {
             return {
-                label: "Confirm Delivery",
+                label: "Mark as Received",
                 onPress: () => customerreceivedMutation.mutate(),
                 loading: customerreceivedMutation.isPending,
                 disabled: customerreceivedMutation.isPending,
@@ -581,7 +584,7 @@ const OrderReceiptPage = () => {
                         <View className="flex-row justify-between">
                             <Text className="font-poppins text-primary">Total Amount</Text>
                             <Text className="font-poppins text-primary">
-                                ₦{Number(data?.order?.total_price).toFixed(2)}
+                                ₦{(Number(data?.order?.total_price) + Number(data?.order?.vendor_pickup_dropoff_charge || 0)).toFixed(2)}
                             </Text>
                         </View>
 
@@ -621,9 +624,7 @@ const OrderReceiptPage = () => {
                                         {item.quantity}X {item.name}
                                     </Text>
                                     <Text className="font-poppins text-primary">
-                                        ₦
-                                        {Number(Number(item.price * item.quantity).toFixed(2) +
-                                            Number(data?.order?.vendor_pickup_dropoff_charge).toFixed(2)).toFixed(2)}
+                                        ₦{(Number(item.price) * item.quantity).toFixed(2)}
                                     </Text>
                                 </View>
                             ))}
@@ -644,7 +645,9 @@ const OrderReceiptPage = () => {
                                 numberOfLines={2}
                                 ellipsizeMode="tail"
                             >
-                                {data?.order?.require_delivery?.toUpperCase()}
+                                {data?.order?.require_delivery === 'vendor-pickup-and-dropoff' 
+                                    ? 'VENDOR DELIVERY' 
+                                    : data?.order?.require_delivery?.toUpperCase()}
                             </Text>
                         </View>
                         <View className="flex-row justify-between">
@@ -656,19 +659,21 @@ const OrderReceiptPage = () => {
                     </View>
                 </View>
 
-                <AppVariantButton
-                    filled={true}
-                    borderRadius={50}
-                    width="100%"
-                    disabled={actionButton?.disabled}
-                    label={actionButton?.label!}
-                    onPress={actionButton?.onPress}
-                    icon={
-                        actionButton?.loading && (
-                            <ActivityIndicator size={"small"} className="text-primary" />
-                        )
-                    }
-                />
+                {actionButton && (
+                    <AppVariantButton
+                        filled={true}
+                        borderRadius={50}
+                        width="100%"
+                        disabled={actionButton?.disabled}
+                        label={actionButton?.label!}
+                        onPress={actionButton?.onPress}
+                        icon={
+                            actionButton?.loading && (
+                                <ActivityIndicator size={"small"} className="text-primary" />
+                            )
+                        }
+                    />
+                )}
 
                 {/* {data?.order?.order_status === "delivered" &&
                     user?.sub === data?.order?.user_id && (

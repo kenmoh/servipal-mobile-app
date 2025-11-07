@@ -24,7 +24,7 @@ const LaundryCard = ({ item, onPress, onDelete }: {
 
     const isOwner = user?.user_type === 'laundry_vendor' && user?.sub === item.user_id;
 
-
+console.log(item)
     return (
         <>
 
@@ -37,7 +37,7 @@ const LaundryCard = ({ item, onPress, onDelete }: {
                 >
                     {/* Edit/Delete buttons for owner */}
                     {isOwner && (
-                        <View className='absolute top-[10px] right-[10px] z-10 gap-2 flex-row' >
+                        <View className='absolute top-[10px] right-[10px] z-10 gap-8 flex-row' >
                             <Pressable
                                 onPress={() => router.push({
                                     pathname: '/laundry-detail/addLaundryItem',
@@ -53,14 +53,14 @@ const LaundryCard = ({ item, onPress, onDelete }: {
                                 hitSlop={10}
                                 style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1, transform: [{ scale: pressed ? 0.95 : 1 }] }]}
                             >
-                                <Edit className='text-icon-default' />
+                                <Edit color='#ccc' size={20}/>
                             </Pressable>
                             <Pressable
                                 onPress={() => onDelete ? onDelete(item.id) : showSuccess("Delete", "Item deleted successfully")}
                                 hitSlop={10}
                                 style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1, transform: [{ scale: pressed ? 0.95 : 1 }] }]}
                             >
-                                <Trash className='text-status-error' size={15} />
+                                <Trash color='#ccc' size={20} />
                             </Pressable>
                         </View>
                     )}

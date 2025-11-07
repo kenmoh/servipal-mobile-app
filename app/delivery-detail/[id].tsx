@@ -69,6 +69,7 @@ const ItemDetails = () => {
   const { id } = useLocalSearchParams();
   const theme = useColorScheme();
   const { user, setisReassign } = useUserStore();
+  const { setOrigin, setDestination } = useLocationStore();
   const { setDeliveryId } = useOrderStore()
   const { showError, showSuccess, showInfo, showWarning } = useToast();
   const [modalVisible, setModalVisible] = React.useState(false);
@@ -95,6 +96,21 @@ const ItemDetails = () => {
     refetchOnWindowFocus: true,
     refetchOnMount: true,
   });
+
+
+  useEffect(() => {
+    if (data?.delivery) {
+      const { origin, destination, pickup_coordinates, dropoff_coordinates } = data.delivery;
+      
+      if (origin && pickup_coordinates) {
+        setOrigin(origin, pickup_coordinates as [number, number]);
+      }
+      
+      if (destination && dropoff_coordinates) {
+        setDestination(destination, dropoff_coordinates as [number, number]);
+      }
+    }
+  }, [data?.delivery, setOrigin, setDestination]);
 
   const handleRiderReassign = () => {
     setisReassign(true)

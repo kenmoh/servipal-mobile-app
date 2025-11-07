@@ -1,9 +1,9 @@
 import { fetchUserRelatedOrders } from "@/api/order";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import HDivider from "@/components/HDivider";
 import ItemCard from "@/components/ItemCard";
 import { DeliveryListSkeleton, StatsSkeleton } from "@/components/LoadingSkeleton";
 import RefreshButton from "@/components/RefreshButton";
-import ErrorBoundary from "@/components/ErrorBoundary";
 import { useUserStore } from "@/store/userStore";
 import { DeliveryDetail } from "@/types/order-types";
 import { LegendList } from "@legendapp/list";
@@ -12,11 +12,7 @@ import {
     Check,
     ClockIcon,
     CoinsIcon,
-    Handshake,
-    Package,
-    Package2,
-    Shirt,
-    Utensils,
+    Package2
 } from "lucide-react-native";
 import React, { useCallback, useMemo } from "react";
 import { ScrollView, Text, useColorScheme, View } from "react-native";
@@ -36,7 +32,7 @@ const UserOrders = () => {
         retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     });
 
-      const data = useMemo(() => {
+    const data = useMemo(() => {
         return allFood?.filter(item => item.order.order_type === 'food') || [];
     }, [allFood]);
 
@@ -45,16 +41,16 @@ const UserOrders = () => {
     const stats = useMemo(
         () => ({
             pending:
-                data?.filter((order) => order.delivery?.delivery_status === "pending")
+                data?.filter((order) => order.order.order_status === "pending")
                     .length || 0,
             acepted:
                 data?.filter((order) => order.delivery?.delivery_status === "accepted")
                     .length || 0,
             received:
-                data?.filter((order) => order.delivery?.delivery_status === "received")
+                data?.filter((order) => order.order.order_status === "received")
                     .length || 0,
             delivered:
-                data?.filter((order) => order.delivery?.delivery_status === "delivered")
+                data?.filter((order) => order.order?.order_status === "delivered")
                     .length || 0,
             foodOrders:
                 data?.filter((order) => order.order.order_type === "food").length || 0,
@@ -126,14 +122,14 @@ const UserOrders = () => {
                             value={stats.pending}
                             color={"orange"}
                         />
-                       
+
                         <StatCard
                             icon={Package2}
                             label="Delivered"
                             value={stats.delivered}
                             color={"lightblue"}
                         />
-                                             
+
                     </ScrollView>
                 </View>
 

@@ -26,7 +26,6 @@ const [riderToOriginRoute, setRiderToOriginRoute] = useState<number[][]>([]);
 const showRider = riderLocation && riderLocation.deliveryId === id;
 
 
-
   const [route, setRoute] = useState<number[][]>([]);
   const [region, setRegion] = useState({
     latitude: 9.082,

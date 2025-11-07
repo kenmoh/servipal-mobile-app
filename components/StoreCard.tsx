@@ -25,6 +25,9 @@ const StoreCard = ({
     const { setStoreId, setStoreAddress } = useUserStore();
 
 
+    console.log(item.id)
+
+
 
     const handleStoreSelect = async () => {
         const address = item?.location;
@@ -34,7 +37,7 @@ const StoreCard = ({
                 setOrigin(address, [coords.lat, coords.lng]);
             }
         }
-        setStoreId(item?.id)
+        setStoreId(item?.user_id)
         setStoreAddress(item?.location)
 
         router.push({

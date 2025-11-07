@@ -132,7 +132,6 @@ const Page = () => {
     const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT
 
 
-
     const [showComingSoon, setShowComingSoon] = useState(false);
 
     // Get user's location
@@ -223,24 +222,6 @@ const Page = () => {
     if (isFetching) {
         return <LoadingIndicator />
     }
-
-    // if (isFetching) {
-    //     return (
-    //         <SafeAreaView style={{ flex: 1, backgroundColor: BG_COLOR }}>
-    //             <AppHeader
-    //                 component={
-    //                     <AppTextInput
-
-    //                         borderRadius={50}
-    //                         placeholder="Search laundry vendors.."
-    //                     />
-    //                 }
-    //             />
-    //             <HDivider />
-    //             <StoreListSkeleton />
-    //         </SafeAreaView>
-    //     );
-    // }
 
     if (error)
         return (

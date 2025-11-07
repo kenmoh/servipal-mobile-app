@@ -64,12 +64,13 @@ const adLaundryItem = () => {
 
 
         useEffect(() => {
-        if (editing, name, description, images, price) {
+        if (editing && name && description && images && price) {
+            const parsedImages = typeof images === 'string' ? JSON.parse(images) : images;
             reset({
                 name: name || "",
                 description: description || "",
-                price: price || 0,
-                images: images?.map((img) => img.url) || [],
+                price: Number(price) || 0,
+                images: (parsedImages && Array.isArray(parsedImages)) ? parsedImages.map((img) => img.url) : [],
 
             });
         }

@@ -19,6 +19,8 @@ import AppVariantButton from "@/components/core/AppVariantButton";
 import HDivider from "@/components/HDivider";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { useToast } from "@/components/ToastProvider";
+import { useCartStore } from "@/store/cartStore";
+import { useLocationStore } from "@/store/locationStore";
 import { useUserStore } from "@/store/userStore";
 import { OrderItemResponse } from "@/types/order-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -43,6 +45,8 @@ const Payment = () => {
   const theme = useColorScheme();
   const { showError, showSuccess, showInfo } = useToast()
   const { user } = useUserStore();
+  const { clearCart } = useCartStore()
+  const { reset } = useLocationStore();
   const [showWebView, setShowWebView] = useState(false);
   const [redirectedUrl, setRedirectedUrl] = useState<{ url?: string } | null>(
     null
@@ -60,6 +64,7 @@ const Payment = () => {
 
   const handleOpenWebView = () => {
     if (!paymentLink) {
+      reset()
       return;
     }
     setShowWebView(true);
@@ -114,6 +119,9 @@ const Payment = () => {
         exact: false,
       });
 
+      clearCart()
+      reset()
+
       // showSuccess('Payment Successful', 'Please make a transfer to the account details provided.')
       // queryClient.invalidateQueries({
       //   queryKey: ["order", orderId],
@@ -138,18 +146,20 @@ const Payment = () => {
 
       },
       {
-        text: 'OK', onPress: async() => {
+        text: 'OK', onPress: async () => {
           payWithWalletMutation()
           queryClient.invalidateQueries({
             queryKey: ["orders", orderId, deliveryId],
           });
-           await Promise.all([
-          queryClient.refetchQueries({ queryKey: ["order", orderId] }),
-          queryClient.refetchQueries({ queryKey: ["order", deliveryId] }),
-          queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
-          queryClient.refetchQueries({ queryKey: ["riders", user?.sub] })
+          reset()
+          clearCart()
+          await Promise.all([
+            queryClient.refetchQueries({ queryKey: ["order", orderId] }),
+            queryClient.refetchQueries({ queryKey: ["order", deliveryId] }),
+            queryClient.refetchQueries({ queryKey: ["user-orders", user?.sub] }),
+            queryClient.refetchQueries({ queryKey: ["riders", user?.sub] })
 
-      ]);
+          ]);
 
 
         }
@@ -201,8 +211,6 @@ const Payment = () => {
     return deliveryFee ? Number(deliveryFee) + itemsTotal : itemsTotal;
   };
 
-
-  console.log(deliveryFee)
   useEffect(() => {
     if (!status) return;
 
@@ -235,16 +243,19 @@ const Payment = () => {
         queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
         queryClient.invalidateQueries({ queryKey: ['product-order', orderId] });
         queryClient.invalidateQueries({ queryKey: ['products'] });
+        clearCart()
+        reset()
+
 
 
       }
       if (status[0] === "status=failed" || status[0] === "status=cancelled") {
         router.replace({
-          pathname: "/(app)/delivery/(topTabs)/orders",
+          pathname: "/(app)/delivery/(topTabs)/delivery",
           params: { paymentStatus: 'failed' }
         });
       }
-    }, 3000); // 3-second delay
+    }, 1500);
 
     // Cleanup the timer if the component unmounts or the status changes
     return () => clearTimeout(timer);

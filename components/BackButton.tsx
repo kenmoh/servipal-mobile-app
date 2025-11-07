@@ -1,7 +1,7 @@
 import { router } from 'expo-router'
 import { ArrowLeft, ChevronLeft } from 'lucide-react-native'
 import React from 'react'
-import { Platform, StyleSheet, TouchableOpacity, useColorScheme } from 'react-native'
+import { Platform, TouchableOpacity, useColorScheme } from 'react-native'
 
 
 const BackButton = () => {
@@ -16,4 +16,3 @@ const BackButton = () => {
 
 export default BackButton
 
-const styles = StyleSheet.create({})

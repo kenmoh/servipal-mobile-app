@@ -605,7 +605,6 @@ export const assignRiderToExistingDelivery = async (
   deliveryId: string,
   riderId: string
 ): Promise<DeliveryDetail> => {
-
   const params = new URLSearchParams({ rider_id: riderId });
 
   try {
@@ -800,8 +799,6 @@ export const updateDeliveryLocation = async (
     rider_id: locationData.rider_id,
     last_known_rider_coordinates: locationData.last_known_rider_coordinates,
   };
-
-  console.log("📡 Request body:", body);
 
   try {
     const response: ApiResponse<UpdateDeliveryLocation | ErrorResponse> =

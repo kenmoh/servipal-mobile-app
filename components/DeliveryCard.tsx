@@ -9,6 +9,7 @@ import { StyleSheet, Text, TouchableOpacity, View, Pressable } from 'react-nativ
 import HDivider from './HDivider';
 import {Status, PaymentStatusColor} from '@/components/ItemCard.tsx'
 import * as Haptics from 'expo-haptics';
+import { InteractionManager } from 'react-native';
 
 interface DeliveryCardProps {
   orderId: string;
@@ -56,6 +57,10 @@ const DeliveryCard = ({ data }: CardProp) => {
   //     );
   //   }
 
+
+  //   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  //   router.prefetch('/delivery-detail/[id]')
+
   //   // Navigate to detail screen
   //   router.push({
   //     pathname: '/delivery-detail/[id]',
@@ -76,6 +81,9 @@ const DeliveryCard = ({ data }: CardProp) => {
   // ]);
 
 
+
+
+
  const handlePress = React.useCallback(() => {
   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   router.prefetch('/delivery-detail/[id]')
@@ -83,11 +91,11 @@ const DeliveryCard = ({ data }: CardProp) => {
     pathname: '/delivery-detail/[id]',
     params: {
       id: data.order.id,
-      orderNumber: data.order.id,
-      origin: data.delivery?.origin,
-      pickup_coordinates: data.delivery?.pickup_coordinates,
-      destination: data.delivery?.destination,
-      dropoff_coordinates: data.delivery?.dropoff_coordinates,
+      // orderNumber: data.order.id,
+      // origin: data.delivery?.origin,
+      // pickup_coordinates: data.delivery?.pickup_coordinates,
+      // destination: data.delivery?.destination,
+      // dropoff_coordinates: data.delivery?.dropoff_coordinates,
     }
   });
 }, [data.order.id, data.delivery]);

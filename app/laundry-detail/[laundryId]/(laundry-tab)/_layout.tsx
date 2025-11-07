@@ -4,6 +4,7 @@ import { AntDesign, Feather } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useLocalSearchParams, withLayoutContext } from "expo-router";
 import { Bike } from "lucide-react-native";
+import {Stack} from 'expo-router'
 import {
     Dimensions,
     Image,
@@ -18,6 +19,7 @@ const StoreTabs = withLayoutContext(createMaterialTopTabNavigator().Navigator);
 const StoreHeader = () => {
 
     const {
+        storeId,
         backDrop,
         companyName,
         openingHour,
@@ -29,7 +31,6 @@ const StoreHeader = () => {
         delivery
     } = useLocalSearchParams();
     const canDeliver = !!delivery
-
 
     return (
         <>
@@ -98,51 +99,65 @@ const StoreTabLayout = () => {
     const theme = useColorScheme();
     return (
         <>
-            <StoreHeader />
-            <StoreTabs
+            {/*<StoreHeader />*/}
+            <Stack
                 initialRouteName="index"
                 initialLayout={{ width: Dimensions.get("window").width }}
                 screenOptions={{
-                    tabBarLabelStyle: {
-                        fontSize: 12,
-                        textAlign: "center",
-                        textTransform: "capitalize",
-                        fontFamily: "Poppins-Bold",
-                    },
-                    swipeEnabled: false,
-                    tabBarActiveTintColor: theme === "dark" ? "white" : "black",
-                    tabBarInactiveTintColor:
-                        theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT,
-                    tabBarAndroidRipple: { borderless: false },
-                    tabBarPressOpacity: 0,
-                    tabBarIndicatorStyle: {
-                        backgroundColor: "orange",
-                        height: 3,
-                    },
-                    tabBarStyle: {
-                        backgroundColor:
-                            theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT,
-                        borderBottomColor:
-                            theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT,
-                        borderBottomWidth: StyleSheet.hairlineWidth,
-                        elevation: 0,
-                        shadowOpacity: 0,
-                    },
-                }}
+                headerShadowVisible: false,
+                headerTintColor: theme === "dark" ? "white" : "black",
+                headerStyle: {
+                  backgroundColor: theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT,
+                },
+                contentStyle: {
+                  backgroundColor: theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT,
+                  // flex: 1
+                },
+              }}
+                        // screenOptions={{
+                //     tabBarLabelStyle: {
+                //         fontSize: 12,
+                //         textAlign: "center",
+                //         textTransform: "capitalize",
+                //         fontFamily: "Poppins-Bold",
+                //     },
+                //     swipeEnabled: false,
+                //     tabBarActiveTintColor: theme === "dark" ? "white" : "black",
+                //     tabBarInactiveTintColor:
+                //         theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT,
+                //     tabBarAndroidRipple: { borderless: false },
+                //     tabBarPressOpacity: 0,
+                //     tabBarIndicatorStyle: {
+                //         backgroundColor: "orange",
+                //         height: 3,
+                //     },
+                //     tabBarStyle: {
+                //         backgroundColor:
+                //             theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT,
+                //         borderBottomColor:
+                //             theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT,
+                //         borderBottomWidth: StyleSheet.hairlineWidth,
+                //         elevation: 0,
+                //         shadowOpacity: 0,
+                //     },
+                // }}
             >
-                <StoreTabs.Screen
+                <Stack.Screen
                     name="index"
                     options={{
-                        tabBarLabel: "Menu",
+                        // tabBarLabel: "Menu",
+                        title: '',
+                        // header: ()=><StoreHeader/>
+                        headerShown: false
                     }}
                 />
-                <StoreTabs.Screen
+                <Stack.Screen
                     name="reviews"
                     options={{
-                        tabBarLabel: "Reviews",
+                        // tabBarLabel: "Reviews",
                     }}
                 />
-            </StoreTabs>
+            </Stack>
         </>
     );
 };
