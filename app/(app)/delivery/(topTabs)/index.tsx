@@ -80,13 +80,11 @@ const DeliveryScreen = () => {
   );
 
 
-  const handleRiderPress = useCallback((rider: RiderProps) => {
-    setSelectedRider(rider);
-    setRiderId(rider.rider_id);
-    requestAnimationFrame(() => {
-      bottomSheetRef.current?.snapToIndex(0);
-    });
-  }, [setRiderId]);
+const handleRiderPress = useCallback((rider: RiderProps) => {
+  setSelectedRider(rider);
+  setRiderId(rider.rider_id);
+  bottomSheetRef.current?.snapToIndex(0);
+}, [setRiderId]);
 
 
   const reasignRiderMutation = useMutation({
@@ -491,18 +489,16 @@ const DeliveryScreen = () => {
 
       <BottomSheet
         ref={bottomSheetRef}
-        snapPoints={["35%", '50%']}
+        snapPoints={["60%"]}
         index={-1}
         enablePanDownToClose={true}
         handleIndicatorStyle={{ backgroundColor: HANDLE_INDICATOR_STYLE }}
         handleStyle={{ backgroundColor: HANDLE_STYLE }}
         backgroundStyle={{
-          borderTopLeftRadius: 60,
-          borderTopRightRadius: 60,
           backgroundColor: BG_COLOR,
-          shadowColor: theme === 'dark' ? '#fff' : '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: theme === 'dark' ? 0.3 : 0.25,
+          shadowColor: "orange",
+          shadowOffset: { height: -10 },
+          shadowOpacity: 0.6,
           shadowRadius: 8,
           elevation: 8
         }}
@@ -538,13 +534,13 @@ const DeliveryScreen = () => {
                   <Text className="font-poppins-light text-muted text-sm">Rating</Text>
                 </View>
                 <View className="items-center">
-                  <Text className="text-xl font-poppins-bold text-primary">{selectedRider?.bike_number.toUpperCase()}</Text>
+                  <Text className="text-xl font-poppins-bold text-primary">{selectedRider?.bike_number?.toUpperCase()}</Text>
                   <Text className="font-poppins-light text-muted text-sm">Bike Number</Text>
                 </View>
               </View>
 
               <View className="bg-background mb-3">
-                <AppVariantButton width={'70%'} borderRadius={50} label="Book Rider" onPress={handleBookRider} />
+                <AppVariantButton width={'70%'} borderRadius={50} color='primary' label="Book Rider" onPress={handleBookRider} />
               </View>
             </>
           )}
@@ -555,5 +551,7 @@ const DeliveryScreen = () => {
 
 
 };
+
+
 
 export default DeliveryScreen;

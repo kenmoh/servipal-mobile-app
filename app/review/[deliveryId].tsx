@@ -1,4 +1,4 @@
-import { createItemReview, createReview } from "@/api/review";
+import { createItemReview, createReview, createRiderReview } from "@/api/review";
 import AppTextInput from "@/components/AppInput";
 import AppPicker from "@/components/AppPicker";
 import AppVariantButton from "@/components/core/AppVariantButton";
@@ -6,7 +6,8 @@ import { useToast } from "@/components/ToastProvider";
 import { ReviewerType } from "@/types/review-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, router } from "expo-router";
+import { useUserStore } from "@/store/userStore";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ActivityIndicator, ScrollView, Text, TextInput, useColorScheme, View } from "react-native";
@@ -38,6 +39,7 @@ const RATINGS = [
 const ReviewPage = () => {
     const { revieweeId, deliveryId, orderId, dispatchId, itemId, orderType, reviewType } = useLocalSearchParams();
     const queryClient = useQueryClient();
+    const { user } = useUserStore();
     const theme = useColorScheme()
     const { showError, showSuccess } = useToast()
 
@@ -66,8 +68,16 @@ const ReviewPage = () => {
         mutationFn: createReview,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["delivery", deliveryId] });
+            queryClient.invalidateQueries({ queryKey: ["riders", user?.sub] });
+            if (orderType === 'food') {
+                queryClient.invalidateQueries({ queryKey: ["restaurants"] });
+            }
+            if (orderType === 'laundry') {
+                queryClient.invalidateQueries({ queryKey: ["laundryVendors"] });
+            }
 
             showSuccess("Success", "Review submitted successfully")
+            router.back()
 
         },
         onError: (error: Error) => {
@@ -80,8 +90,38 @@ const ReviewPage = () => {
         mutationFn: createItemReview,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["delivery", deliveryId] });
+            queryClient.invalidateQueries({ queryKey: ["riders", user?.sub] });
+            if (orderType === 'food') {
+                queryClient.invalidateQueries({ queryKey: ["restaurants"] });
+            }
+            if (orderType === 'laundry') {
+                queryClient.invalidateQueries({ queryKey: ["laundryVendors"] });
+            }
 
             showSuccess("Success", "Review submitted successfully")
+            router.back()
+
+        },
+        onError: (error: Error) => {
+            showError("Error", error.message)
+
+        },
+    });
+
+     const { mutate: createRiderReviewMutate, isPending: isCreatingRider } = useMutation({
+        mutationFn: createRiderReview,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["delivery", deliveryId] });
+            queryClient.invalidateQueries({ queryKey: ["riders", user?.sub] });
+            if (orderType === 'food') {
+                queryClient.invalidateQueries({ queryKey: ["restaurants"] });
+            }
+            if (orderType === 'laundry') {
+                queryClient.invalidateQueries({ queryKey: ["laundryVendors"] });
+            }
+
+            showSuccess("Success", "Review submitted successfully")
+            router.back()
 
         },
         onError: (error: Error) => {
@@ -91,6 +131,8 @@ const ReviewPage = () => {
     });
 
     const onSubmit = (data: ReviewFormData) => {
+
+        console.log(data)
 
         if (reviewType === 'product') {
             productReviewMutation({
@@ -102,17 +144,14 @@ const ReviewPage = () => {
                 review_type: data.reviewType as ReviewerType,
             });
         } else if (reviewType === 'rider') {
-            mutate({
+            createRiderReviewMutate({
                 order_id: data.orderId,
                 reviewee_id: data.revieweeId,
                 dispatch_id: data.dispatchId,
                 rating: data.rating,
                 comment: data.description,
-
             });
-
         } else {
-
             mutate({
                 order_id: data.orderId,
                 item_id: data.itemId,
@@ -121,9 +160,7 @@ const ReviewPage = () => {
                 comment: data.description,
                 review_type: data.reviewType as ReviewerType,
             });
-
         }
-
     };
 
     return (
@@ -275,7 +312,7 @@ const ReviewPage = () => {
                 </View>
 
                 <AppVariantButton
-                    label={isPending || isProductReviewPending ? "Submitting..." : "Submit Review"}
+                    label={isPending || isProductReviewPending || isCreatingRider ? "Submitting..." : "Submit Review"}
                     onPress={handleSubmit(onSubmit)}
                     disabled={isPending}
                     icon={(isPending || isProductReviewPending) ? <ActivityIndicator color="white" size="large" /> : null}

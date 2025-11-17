@@ -6,6 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextStyle,
   TouchableOpacity,
   useColorScheme,
   View,
@@ -118,6 +119,12 @@ const Payment = () => {
         queryKey: ["orders", user?.sub],
         exact: false,
       });
+        if (orderType === 'food') {
+            queryClient.invalidateQueries({ queryKey: ["restaurants"] });
+        }
+        if (orderType === 'laundry') {
+            queryClient.invalidateQueries({ queryKey: ["laundryVendors"] });
+        }
 
       clearCart()
       reset()
@@ -243,6 +250,12 @@ const Payment = () => {
         queryClient.invalidateQueries({ queryKey: ['products', user?.sub] });
         queryClient.invalidateQueries({ queryKey: ['product-order', orderId] });
         queryClient.invalidateQueries({ queryKey: ['products'] });
+        if (orderType === 'food') {
+            queryClient.invalidateQueries({ queryKey: ["restaurants"] });
+        }
+        if (orderType === 'laundry') {
+            queryClient.invalidateQueries({ queryKey: ["laundryVendors"] });
+        }
         clearCart()
         reset()
 
@@ -255,7 +268,7 @@ const Payment = () => {
           params: { paymentStatus: 'failed' }
         });
       }
-    }, 1500);
+    }, 500);
 
     // Cleanup the timer if the component unmounts or the status changes
     return () => clearTimeout(timer);
@@ -396,15 +409,16 @@ const Payment = () => {
           <Text className="text-primary text-lg mb-4 font-poppins-medium">
             Pay with:
           </Text>
-
+<View className="flex-row w-full justify-between my-5 self-center">
           <AppButton
             onPress={handleOpenWebView}
-            width={"100%"}
+            width={"32%"}
+            borderRadius={50}
             title="Card"
             icon={<CreditCard size={20} color={"white"} />}
           />
 
-          <View className="flex-row w-full justify-between my-5 self-center">
+          
 
 
             <AppVariantButton
@@ -412,24 +426,27 @@ const Payment = () => {
               disabled={isPending}
               outline={true}
               onPress={openDialog}
-              width={"47.5%"}
+              color={'yellow-500'}
+              borderRadius={50}
+              width={"32%"}
               label="Wallet"
               icon={
                 isPending ? (
                   <ActivityIndicator size="small" color={"white"} />
                 ) : (
-                  <Wallet size={20} color={"white"} />
+                  <Wallet size={20} color={"orange"} />
                 )
               }
             />
             <AppVariantButton
               filled={false}
-
+              color={'yellow-500'}
+              borderRadius={50}
               outline={true}
               onPress={comingSoon}
-              width={"47.5%"}
+              width={"32%"}
               label="Transfer"
-              icon={<ArrowLeftRight size={20} color={theme === 'dark' ? 'white' : 'black'} />}
+              icon={<ArrowLeftRight size={20} color={'orange'} />}
             />
           </View>
         </View>

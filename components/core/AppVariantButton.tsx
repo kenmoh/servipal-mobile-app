@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, DimensionValue, StyleSheet, Text, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, DimensionValue, StyleProp, StyleSheet, Text, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 interface AppButtonProps {
     label: string;
@@ -13,7 +13,8 @@ interface AppButtonProps {
     icon?: React.ReactNode;
     isLoading?: boolean;
     disabled?: boolean;
-    borderRadius?: number
+    borderRadius?: number;
+    color?: StyleProp<TextStyle>
 }
 
 const AppVariantButton: React.FC<AppButtonProps> = ({
@@ -28,7 +29,8 @@ const AppVariantButton: React.FC<AppButtonProps> = ({
     icon,
     isLoading = false,
     disabled = false,
-    borderRadius = 8
+    borderRadius = 8,
+    color = "primary"
 }) => {
     const buttonStyle: ViewStyle = {
         backgroundColor: filled ? backgroundColor : 'transparent',
@@ -39,9 +41,7 @@ const AppVariantButton: React.FC<AppButtonProps> = ({
         borderColor: outline ? outlineColor : 'transparent',
     };
 
-    const textStyle: TextStyle = {
-        color: filled ? '#ffffff' : backgroundColor,
-    };
+
 
     return (
         <TouchableOpacity
@@ -55,7 +55,7 @@ const AppVariantButton: React.FC<AppButtonProps> = ({
             ) : (
                 <View style={styles.content}>
                     {icon && <View style={styles.iconContainer}>{icon}</View>}
-                    <Text style={[styles.text, textStyle]}>{label}</Text>
+                    <Text className={`text-${color} font-poppins-medium`}>{label}</Text>
                 </View>
             )}
         </TouchableOpacity>
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     },
     iconContainer: {
         marginRight: 8,
-        
+
     },
     text: {
         fontSize: 16,

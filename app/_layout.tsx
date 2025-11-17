@@ -159,7 +159,19 @@ export default Sentry.wrap(function RootLayout() {
                             }}
                           />
                           <Stack.Screen
+                            name="rider-review/[riderId]"
+                            options={{
+                              title: 'Reviews'
+                            }}
+                          />
+                          <Stack.Screen
                             name="restaurant-detail"
+                            options={{
+                              headerShown: false,
+                            }}
+                          />
+                          <Stack.Screen
+                            name="profile-detail"
                             options={{
                               headerShown: false,
                             }}

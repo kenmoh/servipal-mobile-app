@@ -85,7 +85,7 @@ const ItemDetails = () => {
    const COLOR = theme === 'dark' ? "rgba(30, 33, 39, 0.5)" : '#ddd'
   const TEXT = theme === 'dark' ? '#fff' : '#aaa'
 
-  const openSheet = () => bottomSheetRef.current?.snapToIndex(0);
+  const openSheet = () => bottomSheetRef.current?.snapToIndex(1);
   const closeSheet = () => bottomSheetRef.current?.close();
   const viewRiderProfile = () => riderProfileRef.current?.snapToIndex(0)
 
@@ -139,6 +139,7 @@ const ItemDetails = () => {
   });
 
 const isPickedUp = data?.delivery?.delivery_status === "picked-up" ||
+                   data?.delivery?.delivery_status === 'accepted' || 
                    data?.delivery?.delivery_status === "assigned" || 
                    data?.delivery?.delivery_status === "delivered" ||
                    data?.delivery?.delivery_status === "received";
@@ -260,14 +261,7 @@ const isPickedUp = data?.delivery?.delivery_status === "picked-up" ||
       // Start tracking
       await startDeliveryTracking(data?.delivery?.id!, user?.sub!);
 
-
-
-      // Then navigate and show warning
-      showWarning(
-        "Item Pickup",
-        "Please ensure the item(s) is/are correct, complete and okay."
-      );
-      // router.back();
+      router.back();
     },
     onError: (error: Error) => {
       showError("Error", error.message);
@@ -889,7 +883,7 @@ useEffect(() => {
                         width={"48%"}
                         onPress={btn.onPress}
                         disabled={btn.loading}
-                        color={'red'}
+                        color={index === 0 ? 'primary' : 'red-500'}
                       />
                     ))}
                   </View>
@@ -926,6 +920,7 @@ useEffect(() => {
                   filled={false}
                   outline={true}
                   borderRadius={50}
+                  color={'orange-500'}
                   width="32%"
                   onPress={showReview}
                 />
@@ -938,6 +933,7 @@ useEffect(() => {
                 <AppVariantButton
                   label="Report"
                   filled={false}
+                  color={'orange-500'}
                   outline={true}
                   borderRadius={50}
                   width="32%"
@@ -956,6 +952,7 @@ useEffect(() => {
                 :
                 (<AppVariantButton
                   label="Receipt"
+                  color={'orange-500'}
                   borderRadius={50}
                   disabled={
                     data?.delivery?.rider_id === user?.sub ||
@@ -985,7 +982,7 @@ useEffect(() => {
    
             <BottomSheet
                 index={-1}
-                snapPoints={['50%']}
+                snapPoints={['60%']}
                 ref={bottomSheetRef}
                 enablePanDownToClose={true}
                 enableDynamicSizing={true}
@@ -1032,10 +1029,11 @@ useEffect(() => {
                                         placeholder="Please describe the issue in detail..."
                                         value={value}
                                         onChangeText={onChange}
+                                        className='bg-input'
                                         numberOfLines={4}
                                         multiline={true}
                                         style={{
-                                            backgroundColor: COLOR,
+                                            // backgroundColor: COLOR,
                                             borderRadius: 8,
                                             color: TEXT,
                                             alignSelf: 'center',
@@ -1057,6 +1055,7 @@ useEffect(() => {
             label="Cancel Booking"
             width={"90%"}
             onPress={openAlert}
+            color="primary"
           />
         </BottomSheetView>
       </BottomSheet>

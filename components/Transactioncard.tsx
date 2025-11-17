@@ -3,9 +3,11 @@ import { router } from 'expo-router'
 import { ArrowDown, ArrowUp, ArrowRight } from 'lucide-react-native'
 import React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import {useUserStore} from '@/store/userStore'
 
 const Transactioncard = ({ data }: { data: Transaction }) => {
 
+    const {user} = useUserStore()
     // Determine circle and icon color
     let circleBg = data?.transaction_direction === 'credit' ? 'rgba(4, 255, 130, 0.1)' : data?.transaction_direction === 'debit' ? 'rgba(255, 0, 0, 0.2)' : 'rgba(0, 0, 255, 0.2)';
     let iconColor = data?.transaction_direction === 'credit' ? 'green' :  data?.transaction_direction === 'debit' ? 'red' :'blue';
@@ -14,10 +16,9 @@ const Transactioncard = ({ data }: { data: Transaction }) => {
         iconColor = '#FFC107';
     }
 
-    return (
-        <TouchableOpacity
-            hitSlop={25}
-            onPress={() => router.push({
+
+    const handleTransactionDetail = () => {
+       router.push({
                 pathname: '/profile/[transactionId]',
                 params: {
                     transactionId: data?.id,
@@ -29,9 +30,20 @@ const Transactioncard = ({ data }: { data: Transaction }) => {
                     transactionType: data?.transaction_type,
                     transactionDirection: data?.transaction_direction,
                     paymentStatus: data?.payment_status,
-                    paymentLink: data?.payment_link
+                    paymentLink: data?.payment_link,
+                    walletId: data?.wallet_id
                 }
-            })}
+            })
+    }
+
+    const displayName = data.transaction_direction === 'credit' 
+        ? data.from_user || 'System' 
+        : data.to_user || 'System';
+
+    return (
+        <TouchableOpacity
+            hitSlop={25}
+            onPress={handleTransactionDetail}
         >
             <View className="w-[90%] self-center border-b border-border-subtle rounded-none py-3 flex-row items-center justify-between">
                 <View className="flex-row items-center gap-2">
@@ -41,7 +53,7 @@ const Transactioncard = ({ data }: { data: Transaction }) => {
                             : data?.transaction_direction === 'debit' ? <ArrowUp color={iconColor} size={12} />:<ArrowRight color={iconColor} size={12} />}
                     </View>
                     <View>
-                        <Text className="capitalize text-xs font-normal text-primary">{data?.from_user}</Text>
+                        <Text className="capitalize text-xs font-normal text-primary">{displayName}</Text>
                         <Text className="text-muted text-[10px]">{data?.created_at}</Text>
                     </View>
                 </View>

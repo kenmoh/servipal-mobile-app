@@ -1,52 +1,52 @@
 import HDivider from "@/components/HDivider";
-import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
 import { AntDesign, Feather } from "@expo/vector-icons";
-import BackButton from '@/components/BackButton'
-import {router} from 'expo-router'
+import { router } from "expo-router";
 import { Bike } from "lucide-react-native";
 import {
-    Dimensions,
     Image,
-    StyleSheet,
     Text,
-    useColorScheme,
+    TouchableOpacity,
     View
 } from "react-native";
 
 interface HeaderData {
-     backDrop: string
-     storeId,
-        companyName: string
-        openingHour: string
-        closingHour: string
-        address: rating
-        rating: number
-        numberOfReviews: number
-        profileImage: string
-        delivery: boolean
+    backDrop: string
+    storeId: string,
+    companyName: string
+    openingHour: string
+    closingHour: string
+    address: string
+    rating: number
+    numberOfReviews: number
+    profileImage: string
+    delivery: boolean
 }
 
 const StoreHeader = ({ backDrop,
-        storeId,
-        companyName,
-        openingHour,
-        closingHour,
-        address,
-        rating,
-        numberOfReviews,
-        profileImage,
-        delivery}: HeaderData) => {
+    storeId,
+    companyName,
+    openingHour,
+    closingHour,
+    address,
+    rating,
+    numberOfReviews,
+    profileImage,
+    delivery }: HeaderData) => {
 
+    const handlePress = () => {
+        router.push({ pathname: '/laundry-detail/[laundryId]', params: { laundryId: storeId } })
+
+    }
 
     return (
         <>
-     
-        <View className="bg-background mb-[-15px]">
-             
 
-            
+            <View className="bg-background mb-[-15px]">
+
+
+
                 <View className="bg-background">
-                    
+
 
                     <Image
                         src={backDrop || "https://picsum.photos/600/300.jpg"}
@@ -86,9 +86,11 @@ const StoreHeader = ({ backDrop,
                                         {rating}
                                     </Text>
                                 </View>
-                                <Text  className="text-gray-500 underline font-poppins text-sm">
-                                    ({numberOfReviews} reviews)
-                                </Text>
+                                <TouchableOpacity onPress={handlePress}>
+                                    <Text className="text-gray-500 underline font-poppins text-sm">
+                                        ({numberOfReviews} reviews)
+                                    </Text>
+                                </TouchableOpacity>
                                 {delivery && <Bike color={'orange'} size={20} />}
 
                                 <View className="flex-row gap-2 items-baseline">
@@ -103,7 +105,7 @@ const StoreHeader = ({ backDrop,
                 </View>
             </View >
             <HDivider />
-            </>
+        </>
     );
 };
 

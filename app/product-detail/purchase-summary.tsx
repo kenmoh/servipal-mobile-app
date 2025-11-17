@@ -36,8 +36,6 @@ const PurchaseSummary = () => {
         selectedColors,
         additionalInfo,
 
-
-
     } = usePurchaseSelectors()
 
     const {
@@ -118,12 +116,10 @@ const PurchaseSummary = () => {
         // Prepare buy data in the exact format expected by the server
         const buyData = {
             quantity,
-            sizes: selectedSizes.join(', '), // Convert array to comma-separated string
+            sizes: selectedSizes,
             colors: selectedColors,
             additional_info: additionalInfo
         }
-
-
 
 
         Alert.alert(

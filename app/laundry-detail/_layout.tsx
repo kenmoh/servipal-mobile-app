@@ -28,7 +28,6 @@ const LaundryDetailLayout = () => {
 
             <Stack.Screen
                 name="addLaundryItem"
-
                 options={{
                     title: 'Add Item',
                     animation: 'slide_from_bottom'
@@ -36,7 +35,19 @@ const LaundryDetailLayout = () => {
                 }}
             />
 
-
+            <Stack.Screen
+                name="index"
+                options={{
+                    title: '',
+                    headerShown: false
+                }}
+            />
+            <Stack.Screen
+                name="reviews"
+                options={{
+                    title: 'Reviews'
+                }}
+            />
         </Stack>
     );
 };

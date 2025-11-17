@@ -12,6 +12,7 @@
   --color-input-default: "#eee";
 
   --color-background-default: "#fff";
+  --color-bottom-sheet: "#1f1f1f";
 
   --color-brand-primary: #0000cd;
   --color-brand-secondary: orange;
@@ -55,6 +56,7 @@
     --color-text-primary: #fff;
     --color-text-secondary: #eee;
     --color-text-muted: #9ba1a6;
+    --color-bottom-sheet: "#1f1f1f";
 
     --color-icon-default: #ddd;
     --color-tab-inactive: #ddd;

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useMemo, useCallback, useRef, useEffect } from 'react';
 import { View } from 'react-native';
 import Toast, { ToastProps, ToastType } from './Toast';
 
@@ -28,14 +28,25 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
     maxToasts = 3 
 }) => {
     const [toasts, setToasts] = useState<ToastItem[]>([]);
+    const mountedRef = useRef(true);
+
+    useEffect(() => {
+        return () => {
+            mountedRef.current = false;
+        };
+    }, []);
 
     const generateId = useCallback(() => Math.random().toString(36).substr(2, 9), []);
 
     const showToast = useCallback((toast: Omit<ToastProps, 'onDismiss'>) => {
+        if (!mountedRef.current) return;
+        
         const id = toast.id || generateId();
         const newToast: ToastItem = { ...toast, id };
 
         setToasts((prevToasts) => {
+            if (!mountedRef.current) return prevToasts;
+            
             let updatedToasts = [...prevToasts, newToast];
             
             // Limit the number of toasts
@@ -84,6 +95,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
     }, [showToast]);
 
     const dismissToast = useCallback((id: string) => {
+        if (!mountedRef.current) return;
         setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
     }, []);
 

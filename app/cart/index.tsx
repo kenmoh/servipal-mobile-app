@@ -68,7 +68,7 @@ const Cart = () => {
 
   const handleDeliveryOptionChange = (option: RequireDelivery) => {
     setDeliveryOption(option);
-    if (option === "vendor-pickup-and-dropoff") {
+    if (option === "vendor-pickup-and-dropoff" || option === "delivery") {
       setModalVisible(true);
     }
   };
@@ -253,7 +253,7 @@ const Cart = () => {
 
 
 
-            {isLaundry === 'true' && <View className="w-[90%] self-center my-2 flex-row items-center">
+          {/*  {isLaundry === 'true' && <View className="w-[90%] self-center my-2 flex-row items-center">
               <Checkbox
                 style={{
                   borderWidth: 1,
@@ -266,22 +266,27 @@ const Cart = () => {
                 onValueChange={() => toggleOneWayDelivery()}
               />
               <Text className="ml-3 text-muted font-poppins text-sm">Vendor pickup and delivery</Text>
-            </View>}
+            </View>}*/}
 
-            <View className="gap-3 font-poppins-bold rounded-lg self-center flex-row justify-between  items-center w-[85%] mt-5">
+            <View className="w-[90%] self-center items-start">
+             { isLaundry === 'true' &&  <RadioButton
+                             label={"Vendor Pickup/Delivery"}
+                             selected={require_delivery === "vendor-pickup-and-dropoff"}
+                             onPress={() => handleDeliveryOptionChange("vendor-pickup-and-dropoff")}
+                           />}
               <RadioButton
-                label={"Vendor Delivery"}
-                selected={require_delivery === "vendor-pickup-and-dropoff"}
-                onPress={() => handleDeliveryOptionChange("vendor-pickup-and-dropoff")}
-              />
-              <RadioButton
-                label={isLaundry === 'true' ? "Self Drop-off" : "Self Pickup"}
+                label={isLaundry === 'true' ? "Self delivery/pickup" : "Pickup"}
                 selected={require_delivery === "pickup"}
                 onPress={() => handleDeliveryOptionChange("pickup")}
               />
+               <RadioButton
+                label={"Vendor Delivery"}
+                selected={require_delivery === "delivery"}
+                onPress={() => handleDeliveryOptionChange("delivery")}
+              />
             </View>
 
-            <View className="w-full self-center ">
+            <View className="w-full self-center my-5">
               <Text className="font-poppins-light self-start text-muted ml-5">Additional Information(Optiona)</Text>
               <AppTextInput
                 // label="Additional Information (Optional)"
@@ -308,7 +313,7 @@ const Cart = () => {
               /> */}
             </View>
 
-            {require_delivery === "vendor-pickup-and-dropoff" && destination && !modalVisible && (
+            {(require_delivery === "vendor-pickup-and-dropoff" || require_delivery === "delivery") && destination && !modalVisible && (
               <View className="w-[90%] rounded-lg bg-input self-center my-3 gap-3 p-4">
                 {/* DELIVERY INFO */}
                 <View className="flex-row">

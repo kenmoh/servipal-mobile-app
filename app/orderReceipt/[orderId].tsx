@@ -338,6 +338,8 @@ const OrderReceiptPage = () => {
             queryClient.invalidateQueries({
                 queryKey: ["orders", data?.order?.owner_id],
             });
+            queryClient.invalidateQueries({ queryKey: ["restaurants"] });
+            queryClient.invalidateQueries({ queryKey: ["laundryVendors"] });
 
             showSuccess("Success", "Order marked as delivered.");
 
@@ -360,6 +362,7 @@ const OrderReceiptPage = () => {
             queryClient.invalidateQueries({
                 queryKey: ["orders", data?.order?.owner_id],
             });
+            queryClient.invalidateQueries({ queryKey: ["laundryVendors"] });
 
             showSuccess("Success", "Order picked up.");
 
@@ -382,6 +385,7 @@ const OrderReceiptPage = () => {
             queryClient.invalidateQueries({
                 queryKey: ["orders", data?.order?.owner_id],
             });
+            queryClient.invalidateQueries({ queryKey: ["laundryVendors"] });
 
             showSuccess("Success", "Order picked up.");
 
@@ -405,6 +409,8 @@ const OrderReceiptPage = () => {
             queryClient.invalidateQueries({
                 queryKey: ["orders", data?.order?.owner_id],
             });
+            queryClient.invalidateQueries({ queryKey: ["restaurants"] });
+            queryClient.invalidateQueries({ queryKey: ["laundryVendors"] });
 
             showSuccess("Success", "Order received!");
         },

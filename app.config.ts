@@ -88,14 +88,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-font",
     [
       "expo-splash-screen",
-
       {
         image: "./assets/images/android-icon.png",
         imageWidth: 150,
         resizeMode: "contain",
         backgroundColor: "#18191c",
       },
-    ],
+    ],,
     [
       "react-native-edge-to-edge",
       {

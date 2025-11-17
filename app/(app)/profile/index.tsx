@@ -398,11 +398,11 @@ const profile = () => {
           <View className="flex-row justify-between bg-background absolute bottom-0 w-full px-8 py-3">
             <TouchableOpacity onPress={handleLogout} className="flex-row gap-2">
               <LogOutIcon color={ICON_COLOR} size={18} />
-              <Text className="font-poppins text-muted text-sm">Logout</Text>
+              <Text className="font-poppins-medium text-muted text-sm">Logout</Text>
             </TouchableOpacity>
             {user?.user_type !== 'rider' && <TouchableOpacity className="flex-row gap-2" onPress={openDialog}>
-              <Trash2 color={'red'} size={18} />
-              <Text className="font-poppins text-red-400 text-sm">Delete Account</Text>
+              <Trash2 color={'gray'} size={18} />
+              <Text className="font-poppins-medium text-red-400 text-sm">Delete Account</Text>
             </TouchableOpacity>}
           </View>
         </View>

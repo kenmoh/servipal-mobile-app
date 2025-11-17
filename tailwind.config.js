@@ -35,6 +35,9 @@ module.exports = {
         // Borders
         "border-subtle": "var(--color-border-subtle)",
 
+        // Bottom Sheet
+        "bottom-sheet": "var(--color-bottom-sheet)",
+
         // Button Colors
         "button-primary": "var(--color-button-primary)",
         "button-primary-transparent": "var(--color-button-primary-transparent)",

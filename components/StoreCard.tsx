@@ -1,10 +1,10 @@
 import { useLocationStore } from "@/store/locationStore";
+import { useUserStore } from "@/store/userStore";
 import { CompanyProfile } from "@/types/user-types";
 import { getCoordinatesFromAddress } from '@/utils/geocoding';
 import { AntDesign } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { RelativePathString, router, type Href } from "expo-router";
-import { useUserStore } from "@/store/userStore";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
 
 const IMAGET_HEIGHT = Dimensions.get("window").height * 0.20;
@@ -24,11 +24,6 @@ const StoreCard = ({
 
     const { setStoreId, setStoreAddress } = useUserStore();
 
-
-    console.log(item.id)
-
-
-
     const handleStoreSelect = async () => {
         const address = item?.location;
         if (address) {
@@ -37,7 +32,7 @@ const StoreCard = ({
                 setOrigin(address, [coords.lat, coords.lng]);
             }
         }
-        setStoreId(item?.user_id)
+        setStoreId(item?.id)
         setStoreAddress(item?.location)
 
         router.push({
@@ -124,12 +119,12 @@ const StoreCard = ({
                         >
                             {item?.location}
                         </Text>
-                       {distance !== undefined && (
-                        <Text className="text-primary text-sm">
-                            {`• ${distance.toFixed(1)}km away`}
-                        </Text>
-                    )}
-                                        </View>
+                        {distance !== undefined && (
+                            <Text className="text-primary text-sm">
+                                {`• ${distance.toFixed(1)}km away`}
+                            </Text>
+                        )}
+                    </View>
                 </View>
             </View>
         </TouchableOpacity>

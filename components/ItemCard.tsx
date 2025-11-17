@@ -173,7 +173,7 @@ const ItemCard = React.memo(({ data, isHomeScreen = false }: CardProp) => {
     const canViewOrderDetail = data?.order?.user_id === user?.sub || data?.order?.owner_id === user?.sub || data?.order?.vendor_id === user?.sub || user?.user_type === 'rider' || user?.user_type === 'dispatch'
 
     return (
-        <TouchableOpacity disabled={!canViewOrderDetail} activeOpacity={0.6} onPress={data?.order?.require_delivery === 'delivery' ? handlePress : () => handleGoToReceipt(data?.order?.id)}>
+        <TouchableOpacity disabled={!canViewOrderDetail} activeOpacity={0.6} onPress={() => handleGoToReceipt(data?.order?.id)}>
             <View className='p-[10px]' >
                 <View className='flex-row flex-1'>
                     {/* Left side container */}
@@ -227,61 +227,7 @@ const ItemCard = React.memo(({ data, isHomeScreen = false }: CardProp) => {
 
                             
 
-                            {data?.order?.require_delivery === 'delivery' &&
 
-                                <>
-                                    <View className='flex-row gap-[5px] items-start'>
-                                        <MaterialCommunityIcons
-                                            name="circle"
-                                            color='gray'
-                                            size={10}
-                                            style={styles.iconStyle}
-                                        />
-                                        <Text
-                                            className='flex-1 text-muted font-poppins-medium text-xs'
-
-                                            numberOfLines={2}
-                                        >
-                                            {data?.delivery ? data?.delivery?.origin : ''}
-                                        </Text>
-                                    </View>
-
-                                    <View className='flex-row gap-[5px] items-start'>
-                                        <Feather
-                                            name="map-pin"
-                                            color={'gray'}
-                                            size={10}
-                                            style={styles.iconStyle}
-                                        />
-                                        <Text
-                                            className='flex-1 text-muted font-poppins-medium text-xs'
-
-                                            numberOfLines={2}
-                                        >
-                                            {data?.delivery ? data?.delivery?.destination : ''}
-                                        </Text>
-                                    </View>
-                                </>
-
-                            }
-
-                            {data?.order?.require_delivery === 'delivery' && <View className='gap-[5px] flex-row items-center flex-wrap'>
-                                <View className='flex-row gap-[5px] items-center flex-shrink-0'>
-                                    <Feather name="clock" color='gray' size={10} />
-                                    <View className='flex-row justify-between flex-1'>
-
-                                        <Text className='text-muted font-poppins text-xs'>
-                                            {data?.delivery ? data?.delivery?.duration : ''}
-                                        </Text>
-                                        {user?.user_type === 'rider' && <Text className='text-muted font-poppins text-xs'>{data?.distance?.toFixed(2)} km away</Text>}
-
-
-
-                                    </View>
-
-                                </View>
-                                {/* {'DISTANCE HERE IF NEEDED'} */}
-                            </View>}
                         </View>
                     </View>
 
@@ -297,22 +243,19 @@ const ItemCard = React.memo(({ data, isHomeScreen = false }: CardProp) => {
                 >
                     <View className='flex-row gap-[5px] items-center ml-3'>
                         <AntDesign name="wallet" color='gray' size={10} />
-                        {data?.order?.require_delivery === 'delivery' ? (
-                            <Text className='text-primary font-poppins-medium text-sm'>
-                                ₦ {Number(data?.delivery?.delivery_fee).toFixed(2)}
-                            </Text>
-                        ) : (<Text className='text-primary font-poppins-medium text-sm'>
+                       
+                        <Text className='text-primary font-poppins-medium text-sm'>
                             ₦ {Number(data?.order?.total_price).toFixed(2)}
-                        </Text>)}
+                        </Text>
                     </View>
 
-                    {!isHomeScreen && <View className='flex-row gap-[5px]'>
+                  <View className='flex-row gap-[5px]'>
                         <Status
-                            label={data?.delivery?.delivery_status === 'accepted' ? 'Assigned' : data?.delivery?.delivery_status==='canceled'? 'Cancelled' : undefined}
-                            status={data?.order?.require_delivery === 'delivery' ? data?.delivery?.delivery_status : data?.order?.order_status}
+                            label={data?.order?.order_status}
+                            status={data?.order?.order_status}
                         />
                         <PaymentStatusColor status={data?.order?.order_payment_status} />
-                    </View>}
+                    </View>
 
 
                 </View>

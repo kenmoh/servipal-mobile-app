@@ -98,7 +98,7 @@ const DeliveryCard = ({ data }: CardProp) => {
       // dropoff_coordinates: data.delivery?.dropoff_coordinates,
     }
   });
-}, [data.order.id, data.delivery]);
+}, [data]);
 
 
   const DeliveryTypeIcon = React.memo(({ type, size = 25 }: DeliveryIconProps) => {

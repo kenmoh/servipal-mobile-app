@@ -70,6 +70,8 @@ const ReviewPage = () => {
                 queryKey: ["orders", user?.sub],
                 exact: false,
             });
+            queryClient.invalidateQueries({ queryKey: ['restaurants'] });
+            queryClient.invalidateQueries({ queryKey: ['laundryVendors'] });
 
             queryClient.refetchQueries({ queryKey: ["orders"], exact: false });
             queryClient.refetchQueries({

@@ -66,6 +66,7 @@ const showRider = riderLocation && riderLocation.deliveryId === id;
   }, [originCoords, destinationCoords]);
 
 
+
 useEffect(() => {
   const fetchRiderRoute = async () => {
     if (showRider && riderLocation) {
@@ -73,13 +74,31 @@ useEffect(() => {
       if (target) {
         const result = await getDirections(riderLocation.coordinates, target);
         setRiderToOriginRoute(result.coordinates);
+      } else {
+        setRiderToOriginRoute([]);
       }
     } else {
       setRiderToOriginRoute([]);
     }
   };
+
   fetchRiderRoute();
 }, [riderLocation, originCoords, destinationCoords, showRider, isPickedUp]);
+
+// useEffect(() => {
+//   const fetchRiderRoute = async () => {
+//     if (showRider && riderLocation) {
+//       const target = isPickedUp ? destinationCoords : originCoords;
+//       if (target) {
+//         const result = await getDirections(riderLocation.coordinates, target);
+//         setRiderToOriginRoute(result.coordinates);
+//       }
+//     } else {
+//       setRiderToOriginRoute([]);
+//     }
+//   };
+//   fetchRiderRoute();
+// }, [riderLocation, originCoords, destinationCoords, showRider, isPickedUp]);
   
   return (
     <View style={{ flex: 1 }}>
@@ -148,6 +167,7 @@ useEffect(() => {
             strokeWidth={4}
           />
         )}
+
 
        
         {riderToOriginRoute.length > 0 && (
