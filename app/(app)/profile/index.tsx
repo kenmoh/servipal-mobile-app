@@ -44,10 +44,10 @@ const profile = () => {
   >(null);
   const [profileUri, setProfileUri] = useState<ImageUrl | null | string>(null);
   const { user, profile, setImages, setStoreId } = useUserStore();
-  const { colorScheme, setColorScheme, toggleColorScheme } = useColorScheme();
+  const { colorScheme, setColorScheme } = useColorScheme();
   const queryClient = useQueryClient();
   const [theme, setTheme] = useState<themeType>('dark');
-  const { showError, showSuccess } = useToast();
+  const { showError, showSuccess, dismissAllToasts } = useToast();
   const { signOut } = useUserStore();
   const [isOnline, setIsOnline] = useState(true)
   const ICON_COLOR = theme === 'dark' ? '#eee' : "gray"
@@ -92,7 +92,7 @@ const profile = () => {
     },
   });
 
-  // Logout user (server side)
+  // Delete account
   const { mutate: handleDeleteAccount } = useMutation({
     mutationFn: deleteAccount,
     onSuccess: () => {
@@ -121,9 +121,9 @@ const profile = () => {
       user?.user_type === "dispatch" ||
       user?.user_type === "restaurant_vendor"
     ) {
-      router.push({ pathname: "/profile/vendorProfile" });
+      router.push({ pathname: "/profile-detail/vendorProfile" });
     } else {
-      router.push({ pathname: "/profile/customerProfile" });
+      router.push({ pathname: "/profile-detail/customerProfile" });
     }
   };
 
@@ -142,7 +142,7 @@ const profile = () => {
           address: profile?.profile?.business_address,
           numberOfReviews: profile?.profile?.review_count,
           rating: profile?.profile?.avg_rating,
-          delivery: profile?.profile?.can_pickup_and_dropoff,
+          delivery: JSON.stringify(profile?.profile?.can_pickup_and_dropoff),
 
         },
       });
@@ -160,7 +160,7 @@ const profile = () => {
           address: profile?.profile?.business_address,
           numberOfReviews: profile?.profile?.review_count,
           rating: profile?.profile?.avg_rating,
-          delivery: profile?.profile?.can_pickup_and_dropoff,
+          delivery: JSON.stringify(profile?.profile?.can_pickup_and_dropoff),
         },
       });
     }
@@ -235,6 +235,7 @@ const profile = () => {
   }
 
   const handleLogout = async () => {
+    dismissAllToasts();
     try {
       // First, call the logout API and wait for completion
       // This ensures the server-side logout happens before UI changes
@@ -305,7 +306,6 @@ const profile = () => {
                 <ProfileCard
                   name={"Profile"}
                   onPress={handleProfileScreen}
-                  // bgColor={"rgba(0,128, 128, 0.3)"}
                   icon={<UserRound color={ICON_COLOR} size={18} />}
                 />
               </Animated.View>
@@ -316,7 +316,6 @@ const profile = () => {
                   <ProfileCard
                     name={"Store"}
                     onPress={handleAddItem}
-                    // bgColor={"rgba(9, 3, 94, 0.3)"}
                     icon={<Store color={ICON_COLOR} size={18} />}
                   />
                 </Animated.View>
@@ -325,8 +324,7 @@ const profile = () => {
               <Animated.View entering={FadeInDown.duration(300).delay(100)}>
                 <ProfileCard
                   name={"Wallet"}
-                  onPress={() => router.push({ pathname: "/profile/wallet" })}
-                  // bgColor={"rgba(241, 121, 8, 0.5)"}
+                  onPress={() => router.push({ pathname: "/profile-detail/wallet" })}
                   icon={<Wallet color={ICON_COLOR} size={18} />}
                 />
               </Animated.View>
@@ -335,9 +333,8 @@ const profile = () => {
               <Animated.View entering={FadeInDown.duration(300).delay(100)}>
                 <ProfileCard
                   name={"Riders"}
-                  onPress={() => router.push({ pathname: "/profile/riders" })}
-                  // bgColor={"rgba(5, 90, 247, 0.3)"}
                   icon={<UsersRound color={ICON_COLOR} size={18} />}
+                  onPress={() => router.push({ pathname: '/profile-detail/riders' })}
                 />
               </Animated.View>
             )}
@@ -346,16 +343,14 @@ const profile = () => {
               <ProfileCard
                 name={"Change Password"}
                 onPress={() =>
-                  router.push({ pathname: "/profile/changePassword" })
+                  router.push({ pathname: "/profile-detail/changePassword" })
                 }
-                // bgColor={"rgba(221, 218, 11, 0.7)"}
                 icon={<KeyRound color={ICON_COLOR} size={18} />}
               />
             </Animated.View>
             <Animated.View entering={FadeInDown.duration(300).delay(100)}>
               <ProfileCard
                 name="Theme"
-                // bgColor={"gold"}
                 icon={
                   colorScheme === "dark" ? (
                     <SunIcon color={ICON_COLOR} size={18} />
@@ -387,9 +382,9 @@ const profile = () => {
                     onPress={() => handleThemeChange("system")}
                   />
                 </View>
-                {user?.user_type === 'rider' && <View className="flex-row justify-between items-center">
+                {user?.user_type === 'rider' && <View className="flex-row px-2 justify-between self-center  w-[90%] items-center">
                   <Text className="font-poppins text-sm text-secondary">{isOnline ? "Online" : "Offline"}</Text>
-                  <Switch value={isOnline} onValueChange={handleToggleOnlineStatus} thumbColor={isOnline ? 'orange': '#ccc'} trackColor={{ true:  '#aaa' }} />
+                  <Switch value={isOnline} onValueChange={handleToggleOnlineStatus} thumbColor={isOnline ? 'orange' : '#ccc'} trackColor={{ true: '#aaa' }} />
                 </View>}
               </ProfileCard>
             </Animated.View>

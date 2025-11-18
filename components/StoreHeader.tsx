@@ -2,27 +2,23 @@ import HDivider from "@/components/HDivider";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Bike } from "lucide-react-native";
-import {
-    Image,
-    Text,
-    TouchableOpacity,
-    View
-} from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
 interface HeaderData {
-    backDrop: string
-    storeId: string,
-    companyName: string
-    openingHour: string
-    closingHour: string
-    address: string
-    rating: number
-    numberOfReviews: number
-    profileImage: string
-    delivery: boolean
+    backDrop: string;
+    storeId: string;
+    companyName: string;
+    openingHour: string;
+    closingHour: string;
+    address: string;
+    rating: number;
+    numberOfReviews: number;
+    profileImage: string;
+    delivery: boolean;
 }
 
-const StoreHeader = ({ backDrop,
+const StoreHeader = ({
+    backDrop,
     storeId,
     companyName,
     openingHour,
@@ -31,23 +27,19 @@ const StoreHeader = ({ backDrop,
     rating,
     numberOfReviews,
     profileImage,
-    delivery }: HeaderData) => {
-
+    delivery,
+}: HeaderData) => {
     const handlePress = () => {
-        router.push({ pathname: '/laundry-detail/[laundryId]', params: { laundryId: storeId } })
-
-    }
+        router.push({
+            pathname: "/laundry-detail/reviews",
+            params: { laundryId: storeId },
+        });
+    };
 
     return (
         <>
-
             <View className="bg-background mb-[-15px]">
-
-
-
                 <View className="bg-background">
-
-
                     <Image
                         src={backDrop || "https://picsum.photos/600/300.jpg"}
                         style={{
@@ -91,7 +83,7 @@ const StoreHeader = ({ backDrop,
                                         ({numberOfReviews} reviews)
                                     </Text>
                                 </TouchableOpacity>
-                                {delivery && <Bike color={'orange'} size={20} />}
+                                {delivery && <Bike color={"orange"} size={20} />}
 
                                 <View className="flex-row gap-2 items-baseline">
                                     <AntDesign name="clockcircleo" color="gray" />
@@ -103,10 +95,10 @@ const StoreHeader = ({ backDrop,
                         </View>
                     </View>
                 </View>
-            </View >
+            </View>
             <HDivider />
         </>
     );
 };
 
-export default StoreHeader
+export default StoreHeader;

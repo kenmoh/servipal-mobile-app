@@ -13,7 +13,7 @@ const RadioButton = ({ label, selected, onPress }: RadioButtonProps) => {
             <View style={[styles.radio, selected && styles.selectedRadio]}>
                 {selected && <View style={styles.radioInner} />}
             </View>
-            <Text className='text-muted font-poppins-light text-[10px]' style={styles.label}>{label}</Text>
+            <Text className='text-muted font-poppins-light text-xs'>{label}</Text>
         </TouchableOpacity>
     );
 };
@@ -45,9 +45,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         backgroundColor: 'orange'
     },
-    label: {
-        fontSize: 16,
-    },
+
 });
 
 export default RadioButton;

@@ -132,8 +132,6 @@ const ReviewPage = () => {
 
     const onSubmit = (data: ReviewFormData) => {
 
-        console.log(data)
-
         if (reviewType === 'product') {
             productReviewMutation({
                 order_id: data.orderId,

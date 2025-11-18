@@ -1,7 +1,7 @@
 import {
-    customerConfirmDeliveryReceived,
+    customerConfirmOrderReceived,
     fetchOrder,
-    updateOrderStatus,
+    vendorMarkorderelivered,
     vendorPickupLaundry,
     vendorReturnLaundry,
 } from "@/api/order";
@@ -326,7 +326,7 @@ const OrderReceiptPage = () => {
     };
 
     const vendorDeliveryMutation = useMutation({
-        mutationFn: () => updateOrderStatus(data?.order?.id as string),
+        mutationFn: () => vendorMarkorderelivered(data?.order?.id as string, user?.sub as string),
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: ["order", orderId],
@@ -398,7 +398,7 @@ const OrderReceiptPage = () => {
 
     const customerreceivedMutation = useMutation({
         mutationFn: () =>
-            customerConfirmDeliveryReceived(data?.order?.id as string),
+            customerConfirmOrderReceived(data?.order?.id as string, user?.sub as string),
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: ["order", orderId],
@@ -498,7 +498,7 @@ const OrderReceiptPage = () => {
 
         // Vendor mark order as delivered
         if (
-            data?.order?.order_status === "pending" && 
+            data?.order?.order_status === "pending" &&
             (data.order.require_delivery !== 'vendor-pickup-and-dropoff' || data.order.order_type !== 'laundry') &&
             user.sub === data.order.vendor_id
         ) {
@@ -651,8 +651,8 @@ const OrderReceiptPage = () => {
                                 numberOfLines={2}
                                 ellipsizeMode="tail"
                             >
-                                {data?.order?.require_delivery === 'vendor-pickup-and-dropoff' 
-                                    ? 'VENDOR DELIVERY' 
+                                {data?.order?.require_delivery === 'vendor-pickup-and-dropoff'
+                                    ? 'VENDOR DELIVERY'
                                     : data?.order?.require_delivery?.toUpperCase()}
                             </Text>
                         </View>

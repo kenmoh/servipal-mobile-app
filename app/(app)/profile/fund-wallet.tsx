@@ -46,7 +46,7 @@ const FundWallet = () => {
         onSuccess: (data) => {
             reset();
             router.push({
-                pathname: '/profile/wallet-payment',
+                pathname: '/profile-detail/wallet-payment',
                 params: {
                     transactionId: data?.id,
                     fundWalletData: JSON.stringify(data),

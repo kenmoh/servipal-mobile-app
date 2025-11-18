@@ -6,6 +6,7 @@ import AppTextInput from "@/components/AppInput";
 import AppPicker from "@/components/AppPicker";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import CurrentLocationButton from "@/components/CurrentLocationButton";
+import GoogleTextInput from "@/components/GoogleTextInput";
 import { useToast } from "@/components/ToastProvider";
 import { states } from "@/constants/states";
 import authStorage from "@/storage/authStorage";
@@ -155,6 +156,23 @@ const Profile = () => {
                     control={control}
                     name="location"
                     render={({ field }) => (
+                        <GoogleTextInput
+                            placeholder="Destination"
+                            label="Business Address"
+                            value={field.value}
+                            error={errors.location?.message}
+                            scrollEnabled={true}
+                            onChangeText={field.onChange}
+                            onPlaceSelect={(lat, lng, address) => {
+                                handleLocationSet(address, [lat, lng])
+                            }}
+                        />
+                    )}
+                />
+                {/* <Controller
+                    control={control}
+                    name="location"
+                    render={({ field }) => (
                         <AppTextInput
                             placeholder="Address"
                             label="Address"
@@ -164,7 +182,7 @@ const Profile = () => {
                             errorMessage={errors.location?.message}
                         />
                     )}
-                />
+                /> */}
 
                 <Controller
                     control={control}

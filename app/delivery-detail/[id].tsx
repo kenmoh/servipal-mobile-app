@@ -8,10 +8,10 @@ import {
   Modal,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   useColorScheme,
-  View,
-  TextInput
+  View
 } from "react-native";
 
 import {
@@ -82,7 +82,7 @@ const ItemDetails = () => {
     theme === "dark" ? HEADER_BG_LIGHT : HEADER_BG_DARK;
   const HANDLE_STYLE = theme === "dark" ? HEADER_BG_DARK : HEADER_BG_LIGHT;
   const BG_COLOR = theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT;
-   const COLOR = theme === 'dark' ? "rgba(30, 33, 39, 0.5)" : '#ddd'
+  const COLOR = theme === 'dark' ? "rgba(30, 33, 39, 0.5)" : '#ddd'
   const TEXT = theme === 'dark' ? '#fff' : '#aaa'
 
   const openSheet = () => bottomSheetRef.current?.snapToIndex(1);
@@ -101,11 +101,11 @@ const ItemDetails = () => {
   useEffect(() => {
     if (data?.delivery) {
       const { origin, destination, pickup_coordinates, dropoff_coordinates } = data.delivery;
-      
+
       if (origin && pickup_coordinates) {
         setOrigin(origin, pickup_coordinates as [number, number]);
       }
-      
+
       if (destination && dropoff_coordinates) {
         setDestination(destination, dropoff_coordinates as [number, number]);
       }
@@ -123,9 +123,9 @@ const ItemDetails = () => {
   const {
     control,
     handleSubmit,
-    trigger, 
-  setValue, 
-  getValues,
+    trigger,
+    setValue,
+    getValues,
     formState: { errors },
 
 
@@ -138,16 +138,16 @@ const ItemDetails = () => {
     },
   });
 
-const isPickedUp = data?.delivery?.delivery_status === "picked-up" ||
-                   data?.delivery?.delivery_status === 'accepted' || 
-                   data?.delivery?.delivery_status === "assigned" || 
-                   data?.delivery?.delivery_status === "delivered" ||
-                   data?.delivery?.delivery_status === "received";
+  const isPickedUp = data?.delivery?.delivery_status === "picked-up" ||
+    data?.delivery?.delivery_status === 'accepted' ||
+    data?.delivery?.delivery_status === "in-transit" ||
+    data?.delivery?.delivery_status === "delivered" ||
+    data?.delivery?.delivery_status === "received";
 
   const queryClient = useQueryClient();
 
   const confirmReceivedMutation = useMutation({
-    mutationFn: () => senderConfirmDeliveryReceived(id as string),
+    mutationFn: () => senderConfirmDeliveryReceived(id as string, user?.sub as string),
     onSuccess: async () => {
       // Invalidate queries first
       await queryClient.invalidateQueries({
@@ -170,7 +170,7 @@ const isPickedUp = data?.delivery?.delivery_status === "picked-up" ||
 
       // Then navigate and show success
       showSuccess("Success", "Delivery confirmed and received.");
-      router.back();
+      refetch();
     },
     onError: (error: Error) => {
       showError("Error", error.message);
@@ -329,7 +329,7 @@ const isPickedUp = data?.delivery?.delivery_status === "picked-up" ||
   });
 
   const markDeliveredMutation = useMutation({
-    mutationFn: (deliveryId: string) => riderMarkDelivered(deliveryId),
+    mutationFn: (deliveryId: string) => riderMarkDelivered(deliveryId, user?.sub as string),
     onSuccess: async (_, deliveryId) => {
       Sentry.addBreadcrumb({
         message: 'Delivery marked as delivered',
@@ -428,38 +428,38 @@ const isPickedUp = data?.delivery?.delivery_status === "picked-up" ||
 
 
 
-const openAlert = async () => {
-  const isValid = await trigger(); // Validate all fields
-  if (!isValid) {
-    showError("Validation Error", "Please fill in a valid reason (10+ characters).");
-    return;
-  }
+  const openAlert = async () => {
+    const isValid = await trigger(); // Validate all fields
+    if (!isValid) {
+      showError("Validation Error", "Please fill in a valid reason (10+ characters).");
+      return;
+    }
 
-  const formData = getValues(); 
-  console.log("Form data before confirmation:", formData);
+    const formData = getValues();
+    console.log("Form data before confirmation:", formData);
 
-  Alert.alert(
-    "Confirm",
-    "If this order is in transit, you'll not be refunded. Are you sure you want to cancel?",
-    [
-      { text: "No", style: "cancel" },
-      {
-        text: "Yes",
-        onPress: () => {
-          console.log("Confirmed with data:", formData);
-          cancelDeliveryMutation.mutate(formData);
-          closeSheet();
+    Alert.alert(
+      "Confirm",
+      "If this order is in transit, you'll not be refunded. Are you sure you want to cancel?",
+      [
+        { text: "No", style: "cancel" },
+        {
+          text: "Yes",
+          onPress: () => {
+            console.log("Confirmed with data:", formData);
+            cancelDeliveryMutation.mutate(formData);
+            closeSheet();
+          },
         },
-      },
-    ]
-  );
-};
+      ]
+    );
+  };
 
-const onSubmit = (data: CancelFormData) => {
-  console.log("Submitting form data:", data);
-  cancelDeliveryMutation.mutate(data);
-  closeSheet();
-};
+  const onSubmit = (data: CancelFormData) => {
+    console.log("Submitting form data:", data);
+    cancelDeliveryMutation.mutate(data);
+    closeSheet();
+  };
 
   // Cleanup on unmount
   useEffect(() => {
@@ -581,11 +581,11 @@ const onSubmit = (data: CancelFormData) => {
   }, [data?.delivery?.id, user?.sub]);
 
 
-useEffect(() => {
-  if (data?.order?.id) {
-    setValue("orderId", data.order.id);
-  }
-}, [data?.order?.id, setValue]);
+  useEffect(() => {
+    if (data?.order?.id) {
+      setValue("orderId", data.order.id);
+    }
+  }, [data?.order?.id, setValue]);
 
 
   useEffect(() => {
@@ -717,7 +717,7 @@ useEffect(() => {
 
   return (
     <>
-      {data?.delivery?.id ? (<DeliveryWrapper id={data?.delivery?.id!}  isPickedUp={isPickedUp}>
+      {data?.delivery?.id ? (<DeliveryWrapper id={data?.delivery?.id!} isPickedUp={isPickedUp}>
         {user?.sub === data.delivery.sender_id &&
           data?.delivery?.rider_id &&
           data?.delivery?.delivery_status !== "pending" &&
@@ -736,12 +736,12 @@ useEffect(() => {
             </View>
           )}
 
-          <View className="flex-row self-center gap-3">
-        {user?.sub === data?.delivery?.sender_id
-          && (data?.order?.order_payment_status === 'paid' ||data?.order?.order_payment_status==='failed' || data?.order?.order_payment_status==='cancelled') &&
-          data?.delivery?.id &&
-          !data?.delivery?.rider_id && !data?.delivery?.dispatch_id && (
-           
+        <View className="flex-row self-center gap-3">
+          {user?.sub === data?.delivery?.sender_id
+            && (data?.order?.order_payment_status === 'paid' || data?.order?.order_payment_status === 'failed' || data?.order?.order_payment_status === 'cancelled') &&
+            data?.delivery?.id &&
+            !data?.delivery?.rider_id && !data?.delivery?.dispatch_id && (
+
               <AppVariantButton
                 icon={<UserRound color="orange" />}
                 width={"50%"}
@@ -752,36 +752,36 @@ useEffect(() => {
                 onPress={handleRiderReassign}
 
               />
-          
-          )}
-        {user?.sub === data?.delivery?.sender_id &&
-          data?.order.order_payment_status !== "paid" && (
-            <AppButton
-              title="Pay"
-              width={"35%"}
-              borderRadius={50}
-              icon={<DollarSignIcon color="white" />}
-              onPress={() =>
-                router.push({
-                  pathname: "/payment/[orderId]",
-                  params: {
-                    orderId: data?.order.id ?? "",
-                    deliveryFee: data?.delivery?.delivery_fee,
-                    orderNumber: data?.order?.order_number,
-                    deliveryType: `${data?.order?.require_delivery === "delivery"
-                      ? data?.delivery?.delivery_type
-                      : data?.order?.order_type
-                      }`,
-                    orderItems: JSON.stringify(data?.order.order_items ?? []),
-                    paymentLink: data?.order.payment_link,
-                    orderType:
-                      data?.order?.order_type || data?.delivery?.delivery_type,
-                  },
-                })
-              }
-            />
-          )}
- </View>
+
+            )}
+          {user?.sub === data?.delivery?.sender_id &&
+            data?.order.order_payment_status !== "paid" && (
+              <AppButton
+                title="Pay"
+                width={"35%"}
+                borderRadius={50}
+                icon={<DollarSignIcon color="white" />}
+                onPress={() =>
+                  router.push({
+                    pathname: "/payment/[orderId]",
+                    params: {
+                      orderId: data?.order.id ?? "",
+                      deliveryFee: data?.delivery?.delivery_fee,
+                      orderNumber: data?.order?.order_number,
+                      deliveryType: `${data?.order?.require_delivery === "delivery"
+                        ? data?.delivery?.delivery_type
+                        : data?.order?.order_type
+                        }`,
+                      orderItems: JSON.stringify(data?.order.order_items ?? []),
+                      paymentLink: data?.order.payment_link,
+                      orderType:
+                        data?.order?.order_type || data?.delivery?.delivery_type,
+                    },
+                  })
+                }
+              />
+            )}
+        </View>
         <View className="my-5 w-[95%] self-center bg-background h-[100%] flex-1 px-5">
           <View className="gap-5">
             <View className="gap-5 items-baseline justify-between flex-row">
@@ -856,11 +856,11 @@ useEffect(() => {
                 {data?.delivery?.destination}
               </Text>
             </View>
-          
-              <View className="flex-row gap-3">
-            <TriangleAlert color="orange" size={15} />
-            <Text className="font-poppins-light text-wrap text-xs text-yellow-500">Before leaving, both the sender and rider should confirm the item’s content and condition together.</Text>
-          </View>
+
+            <View className="flex-row gap-3">
+              <TriangleAlert color="orange" size={15} />
+              <Text className="font-poppins-light text-wrap text-xs text-yellow-500">Before leaving, both the sender and rider should confirm the item’s content and condition together.</Text>
+            </View>
             <Text onPress={() => setModalVisible(true)} className=" underline mx-7 text-blue-400 text-sm font-poppins-light">
               View Image
             </Text>
@@ -877,7 +877,7 @@ useEffect(() => {
                         borderRadius={50}
                         label={btn.label}
                         backgroundColor={index === 0 ? "orange" : "transparent"}
-                        filled={index===0?true:false}
+                        filled={index === 0 ? true : false}
                         outline={index === 1}
                         icon={btn.loading && <ActivityIndicator color={index === 0 ? "#fff" : "orange"} />}
                         width={"48%"}
@@ -979,29 +979,29 @@ useEffect(() => {
           <Text className="text-red-500">Order not found</Text>
         </View>
       )}
-   
-            <BottomSheet
-                index={-1}
-                snapPoints={['60%']}
-                ref={bottomSheetRef}
-                enablePanDownToClose={true}
-                enableDynamicSizing={true}
-                handleIndicatorStyle={{ backgroundColor: HANDLE_INDICATOR_STYLE }}
-                handleStyle={{ backgroundColor: HANDLE_STYLE }}
-                backgroundStyle={{
-                    borderTopLeftRadius: 40,
-                    borderTopRightRadius: 40,
-                    backgroundColor: BG_COLOR,
-                    shadowColor: 'orange',
-                    shadowOffset: {
-                        width: 0,
-                        height: -4
-                    },
-                    shadowOpacity: 0.5,
-                    shadowRadius: 20,
-                    elevation: 20
-                }}
-            >
+
+      <BottomSheet
+        index={-1}
+        snapPoints={['60%']}
+        ref={bottomSheetRef}
+        enablePanDownToClose={true}
+        enableDynamicSizing={true}
+        handleIndicatorStyle={{ backgroundColor: HANDLE_INDICATOR_STYLE }}
+        handleStyle={{ backgroundColor: HANDLE_STYLE }}
+        backgroundStyle={{
+          borderTopLeftRadius: 40,
+          borderTopRightRadius: 40,
+          backgroundColor: BG_COLOR,
+          shadowColor: 'orange',
+          shadowOffset: {
+            width: 0,
+            height: -4
+          },
+          shadowOpacity: 0.5,
+          shadowRadius: 20,
+          elevation: 20
+        }}
+      >
         <BottomSheetView style={{ backgroundColor: BG_COLOR, padding: 16, flex: 1 }}>
 
           <View className="hidden">
@@ -1018,38 +1018,38 @@ useEffect(() => {
             />
           </View>
           <View className="mb-5">
-             <Controller
+            <Controller
               control={control}
               name="cancelReason"
               render={({ field: { onChange, value, onBlur } }) => (
 
                 <View className="w-[90%] self-center">
 
-                 <TextInput
-                                        placeholder="Please describe the issue in detail..."
-                                        value={value}
-                                        onChangeText={onChange}
-                                        className='bg-input'
-                                        numberOfLines={4}
-                                        multiline={true}
-                                        style={{
-                                            // backgroundColor: COLOR,
-                                            borderRadius: 8,
-                                            color: TEXT,
-                                            alignSelf: 'center',
-                                            width: '100%',
+                  <TextInput
+                    placeholder="Please describe the issue in detail..."
+                    value={value}
+                    onChangeText={onChange}
+                    className='bg-input'
+                    numberOfLines={4}
+                    multiline={true}
+                    style={{
+                      // backgroundColor: COLOR,
+                      borderRadius: 8,
+                      color: TEXT,
+                      alignSelf: 'center',
+                      width: '100%',
 
-                                        }}
-                                    />
-                                     <Text className="font-poppins-light text-red-400 text-xs">{errors.cancelReason?.message}</Text>
-          </View>
-             
+                    }}
+                  />
+                  <Text className="font-poppins-light text-red-400 text-xs">{errors.cancelReason?.message}</Text>
+                </View>
+
               )}
             />
 
-          
+
           </View>
-        
+
 
           <AppVariantButton
             label="Cancel Booking"

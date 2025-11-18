@@ -35,13 +35,13 @@ const LaundryDetailLayout = () => {
                 }}
             />
 
-            <Stack.Screen
+            {/* <Stack.Screen
                 name="index"
                 options={{
                     title: '',
                     headerShown: false
                 }}
-            />
+            /> */}
             <Stack.Screen
                 name="reviews"
                 options={{

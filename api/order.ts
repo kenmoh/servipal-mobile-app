@@ -1,10 +1,9 @@
 import {
-  Coordinates,
   CreateReview,
   DeliveryDetail,
   OrderFoodOLaundry,
-  UpdateDeliveryLocation,
   SendItem,
+  UpdateDeliveryLocation,
 } from "@/types/order-types";
 import { PaymentLink } from "@/types/payment";
 import { apiClient } from "@/utils/client";
@@ -247,44 +246,46 @@ export const createOrder = async (
 };
 
 // Vendor mark order delivered
-export const updateOrderStatus = async (
-  orderId: string
-): Promise<DeliveryDetail> => {
-  try {
-    const response: ApiResponse<DeliveryDetail | ErrorResponse> =
-      await apiClient.put(
-        `${BASE_URL}/${orderId}/vendor-mark-order-delivered`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+// export const updateOrderStatus = async (
+//   orderId: string
+// ): Promise<DeliveryDetail> => {
+//   try {
+//     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
+//       await apiClient.put(
+//         `${BASE_URL}/${orderId}/vendor-mark-order-delivered`,
+//         {
+//           headers: {
+//             "Content-Type": "application/json",
+//           },
+//         }
+//       );
 
-    if (!response.ok || !response.data || "detail" in response.data) {
-      const errorMessage =
-        response.data && "detail" in response.data
-          ? response.data.detail
-          : "Error updating order status.";
-      throw new Error(errorMessage);
-    }
-    return response.data;
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(error.message);
-    }
-    throw new Error("An unexpected error occurred");
-  }
-};
+//     if (!response.ok || !response.data || "detail" in response.data) {
+//       const errorMessage =
+//         response.data && "detail" in response.data
+//           ? response.data.detail
+//           : "Error updating order status.";
+//       throw new Error(errorMessage);
+//     }
+//     return response.data;
+//   } catch (error) {
+//     if (error instanceof Error) {
+//       throw new Error(error.message);
+//     }
+//     throw new Error("An unexpected error occurred");
+//   }
+// };
 
 // Confirm Item Received by sender
 export const senderConfirmDeliveryReceived = async (
-  orderId: string
+  orderId: string,
+  senderId: string
 ): Promise<DeliveryDetail> => {
+  const params = new URLSearchParams({ sender_id: senderId });
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${orderId}/sender-confirm-package-received`,
+        `${BASE_URL}/${orderId}/sender-confirm-package-received?${params.toString()}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -309,13 +310,15 @@ export const senderConfirmDeliveryReceived = async (
 };
 
 // Confirm Item Received by customer(food/laundry order)
-export const customerConfirmDeliveryReceived = async (
-  orderId: string
+export const customerConfirmOrderReceived = async (
+  orderId: string,
+  customerId: string
 ): Promise<DeliveryDetail> => {
+  const params = new URLSearchParams({ customer_id: customerId });
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${orderId}/customer-confirm-order-received`,
+        `${BASE_URL}/${orderId}/customer-confirm-order-received?${params.toString()}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -500,12 +503,14 @@ export const vendorReturnLaundry = async (
 
 // Vendor mark order delivered
 export const vendorMarkorderelivered = async (
-  orderId: string
+  orderId: string,
+  vendorId: string
 ): Promise<DeliveryDetail> => {
+  const params = new URLSearchParams({ vendor_id: vendorId });
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${orderId}/vendor-mark-order-delivered`,
+        `${BASE_URL}/${orderId}/vendor-mark-order-delivered?${params.toString()}`,
         {},
         {
           headers: {
@@ -532,12 +537,14 @@ export const vendorMarkorderelivered = async (
 
 // Rider Mark Package Delivered
 export const riderMarkDelivered = async (
-  deliveryId: string
+  deliveryId: string,
+  riderId: string
 ): Promise<DeliveryDetail> => {
+  const params = new URLSearchParams({ rider_id: riderId });
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${deliveryId}/package-delivered`,
+        `${BASE_URL}/${deliveryId}/package-delivered?${params.toString}`,
         {},
         {
           headers: {

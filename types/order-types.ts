@@ -10,7 +10,8 @@ export type OrderStatus =
 export type RequireDelivery =
   | "pickup"
   | "delivery"
-  | "vendor-pickup-and-dropoff";
+  | "vendor-pickup-and-dropoff"
+  | null;
 export type PaymentStatus = "pending" | "paid" | "failed" | "cancelled";
 export type RiderDeliveryStatus = "in transit" | "delivered" | "cancelled";
 export type SenderDeliveryStatus = "received";

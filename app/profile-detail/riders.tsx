@@ -3,7 +3,6 @@ import EmptyList from '@/components/EmptyList'
 import FAB from '@/components/FAB'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import RiderCard from '@/components/RiderCard'
-import { useAuth } from '@/context/authContext'
 import { useUserStore } from '@/store/userStore'
 import { RiderResponse } from '@/types/user-types'
 import { useQuery } from '@tanstack/react-query'
@@ -46,7 +45,7 @@ const riders = () => {
                 onRefresh={refetch}
 
             />
-            <FAB icon={<UserPlus2 color={'white'} />} onPress={() => router.push({ pathname: "/profile/addRider" })} />
+            <FAB icon={<UserPlus2 color={'white'} />} onPress={() => router.push({ pathname: "/profile-detail/addRider" })} />
 
         </View>
     )

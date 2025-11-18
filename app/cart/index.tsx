@@ -147,6 +147,10 @@ const Cart = () => {
 
 
   const handleOrderCreate = () => {
+    if (!require_delivery) {
+      showError("Error", "Please select a delivery option");
+      return;
+    }
     mutate()
   }
 
@@ -253,7 +257,7 @@ const Cart = () => {
 
 
 
-          {/*  {isLaundry === 'true' && <View className="w-[90%] self-center my-2 flex-row items-center">
+            {/*  {isLaundry === 'true' && <View className="w-[90%] self-center my-2 flex-row items-center">
               <Checkbox
                 style={{
                   borderWidth: 1,
@@ -269,17 +273,18 @@ const Cart = () => {
             </View>}*/}
 
             <View className="w-[90%] self-center items-start">
-             { isLaundry === 'true' &&  <RadioButton
-                             label={"Vendor Pickup/Delivery"}
-                             selected={require_delivery === "vendor-pickup-and-dropoff"}
-                             onPress={() => handleDeliveryOptionChange("vendor-pickup-and-dropoff")}
-                           />}
               <RadioButton
                 label={isLaundry === 'true' ? "Self delivery/pickup" : "Pickup"}
                 selected={require_delivery === "pickup"}
                 onPress={() => handleDeliveryOptionChange("pickup")}
               />
-               <RadioButton
+              {isLaundry === 'true' && <RadioButton
+                label={"Vendor Pickup/Delivery"}
+                selected={require_delivery === "vendor-pickup-and-dropoff"}
+                onPress={() => handleDeliveryOptionChange("vendor-pickup-and-dropoff")}
+              />}
+
+              <RadioButton
                 label={"Vendor Delivery"}
                 selected={require_delivery === "delivery"}
                 onPress={() => handleDeliveryOptionChange("delivery")}
@@ -370,7 +375,7 @@ const Cart = () => {
                   </Text>
                 </View>
                 <Text className="text-muted font-poppins-light text-sm">
-                  Delivery Option: {require_delivery.toUpperCase()}
+                  Delivery Option: {require_delivery?.toUpperCase()}
                 </Text>
               </View>
             )}

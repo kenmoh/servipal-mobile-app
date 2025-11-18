@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, DimensionValue, StyleProp, StyleSheet, Text, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, DimensionValue, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 interface AppButtonProps {
     label: string;
@@ -14,7 +14,7 @@ interface AppButtonProps {
     isLoading?: boolean;
     disabled?: boolean;
     borderRadius?: number;
-    color?: StyleProp<TextStyle>
+    color?: string
 }
 
 const AppVariantButton: React.FC<AppButtonProps> = ({

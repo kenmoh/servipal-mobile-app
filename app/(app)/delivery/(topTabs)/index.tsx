@@ -27,6 +27,7 @@ import LoadingIndicator from '@/components/LoadingIndicator';
 import NewRidersBanner from '@/components/NewRidersBanner';
 import { useToast } from "@/components/ToastProvider";
 import { HEADER_BG_DARK, HEADER_BG_LIGHT } from "@/constants/theme";
+import { useLocationStore } from "@/store/locationStore";
 import { useOrderStore } from "@/store/orderStore";
 import { useRiderStore } from '@/store/rider-store';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
@@ -39,6 +40,7 @@ import { Alert, FlatList, Image, Text, useColorScheme, View } from "react-native
 const DeliveryScreen = () => {
   const { user, setProfile, setRiderId, riderId, isReassign, setisReassign } = useUserStore();
   const { deliveryId } = useOrderStore()
+  const { setUserLocation } = useLocationStore()
   const { expoPushToken } = useNotification();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRider, setSelectedRider] = useState<RiderProps | undefined>()
@@ -57,7 +59,7 @@ const DeliveryScreen = () => {
 
 
   const queryClient = useQueryClient();
-  const [userLocation, setUserLocation] = useState<{
+  const [userLocation, setCurrentUserLocation] = useState<{
     latitude: number;
     longitude: number;
   } | null>(null);
@@ -80,11 +82,11 @@ const DeliveryScreen = () => {
   );
 
 
-const handleRiderPress = useCallback((rider: RiderProps) => {
-  setSelectedRider(rider);
-  setRiderId(rider.rider_id);
-  bottomSheetRef.current?.snapToIndex(0);
-}, [setRiderId]);
+  const handleRiderPress = useCallback((rider: RiderProps) => {
+    setSelectedRider(rider);
+    setRiderId(rider.rider_id);
+    bottomSheetRef.current?.snapToIndex(0);
+  }, [setRiderId]);
 
 
   const reasignRiderMutation = useMutation({
@@ -223,12 +225,14 @@ const handleRiderPress = useCallback((rider: RiderProps) => {
 
       try {
         const location = await Location.getCurrentPositionAsync({});
-        setUserLocation({
+        setCurrentUserLocation({
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
         });
+        setUserLocation([location?.coords?.latitude, location?.coords?.longitude])
       } catch (error) {
         console.error("Error getting user location:", error);
+
       }
     };
 
@@ -389,7 +393,7 @@ const handleRiderPress = useCallback((rider: RiderProps) => {
   // Handle location change
   const handleLocationChange = useCallback(
     (newLocation: { latitude: number; longitude: number }) => {
-      setUserLocation(newLocation);
+      setCurrentUserLocation(newLocation);
       distanceCache.clear();
     },
     []
@@ -453,16 +457,6 @@ const handleRiderPress = useCallback((rider: RiderProps) => {
 
       <NewRidersBanner onPress={handleLoadNewRiders} />
 
-      {/* <LegendList
-        data={riders || []}
-        keyExtractor={keyExtractor}
-        renderItem={renderItem}
-        refreshing={isFetching}
-        onRefresh={handleRefresh}
-        onLayout={handleLayoutComplete}
-
-      />*/}
-
       <FlatList
         ref={listRef}
         data={riders || []}
@@ -497,10 +491,6 @@ const handleRiderPress = useCallback((rider: RiderProps) => {
         backgroundStyle={{
           backgroundColor: BG_COLOR,
           shadowColor: "orange",
-          shadowOffset: { height: -10 },
-          shadowOpacity: 0.6,
-          shadowRadius: 8,
-          elevation: 8
         }}
       >
         <BottomSheetView style={{ flex: 1 }} className={'bg-background'}>

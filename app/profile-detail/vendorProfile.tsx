@@ -4,6 +4,7 @@ import AppTextInput from "@/components/AppInput";
 import AppPicker from "@/components/AppPicker";
 import AppVariantButton from "@/components/core/AppVariantButton";
 import CurrentLocationButton from "@/components/CurrentLocationButton";
+import GoogleTextInput from "@/components/GoogleTextInput";
 import { useToast } from "@/components/ToastProvider";
 import { states } from "@/constants/states";
 import authStorage from "@/storage/authStorage";
@@ -17,7 +18,6 @@ import Checkbox from "expo-checkbox";
 import { router } from "expo-router";
 import { Clock, Info } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import GoogleTextInput from "@/components/GoogleTextInput";
 import { Controller, useForm, useWatch, type Resolver } from "react-hook-form";
 import {
   ActivityIndicator,
@@ -52,7 +52,7 @@ const profileSchema = z.object({
   pickupCharge: z
     .coerce.number()
     .optional(),
-    
+
   canPickup: z.boolean().optional(),
 });
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -92,7 +92,7 @@ const Profile = () => {
   });
 
   const showInfo = () =>
-    Alert.alert('Set Charge', 'Set your delivery charge. For laundry service providers, the system automatically multiply it by 2 for pickup and drop-off', [
+    Alert.alert('Set Delivery Charge/km', `Set your delivery charge per km. For laundry service providers, the system automatically multiply it by 2 if the delivery type is "VENDOR-PICKUP-DROPOFF". Also note that a base charge of NGN 1200 has already been set by our system(1200 + your charge/km).`, [
 
       { text: 'OK' },
     ]);
@@ -117,7 +117,7 @@ const Profile = () => {
       phoneNumber: profile?.profile?.phone_number || "",
       state: profile?.profile?.state || "",
       canPickup: profile?.profile?.can_pickup_and_dropoff,
-      pickupCharge: profile?.profile?.pickup_and_delivery_charge,
+      pickupCharge: profile?.profile?.pickup_and_delivery_charge || 0,
     },
   });
 
@@ -146,50 +146,50 @@ const Profile = () => {
       className="flex-1 bg-background"
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
-      // nestedScrollEnabled={false}
+    // nestedScrollEnabled={false}
     >
       <View className="flex-1 bg-background mb-5">
         <View className="flex-row">
-           <View className="w-[50%]">
-        <Controller
-          control={control}
-          name="phoneNumber"
-          render={({ field }) => (
-            <AppTextInput
-              placeholder="Phone Number"
-              editable={false}
-              onChangeText={field.onChange}
-              value={field.value}
-              keyboardType="phone-pad"
-              autoCapitalize="none"
-              errorMessage={errors.phoneNumber?.message}
-              label="Phone Number"
+          <View className="w-[50%]">
+            <Controller
+              control={control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <AppTextInput
+                  placeholder="Phone Number"
+                  editable={false}
+                  onChangeText={field.onChange}
+                  value={field.value}
+                  keyboardType="phone-pad"
+                  autoCapitalize="none"
+                  errorMessage={errors.phoneNumber?.message}
+                  label="Phone Number"
+                />
+              )}
             />
-          )}
-        />
 
-         </View>
-           <View className="w-[50%]">
+          </View>
+          <View className="w-[50%]">
 
-        <Controller
-          control={control}
-          name="companyRegNo"
-          render={({ field }) => (
-            <AppTextInput
-              placeholder="Company Reg No."
-              editable={profile?.profile?.business_registration_number === null}
-              onChangeText={field.onChange}
-              value={field.value}
-              errorMessage={errors.companyRegNo?.message}
-              autoCapitalize="characters"
-              autoCorrect={false}
-              autoComplete="off"
-              label="Company Reg No."
+            <Controller
+              control={control}
+              name="companyRegNo"
+              render={({ field }) => (
+                <AppTextInput
+                  placeholder="Company Reg No."
+                  editable={profile?.profile?.business_registration_number === null}
+                  onChangeText={field.onChange}
+                  value={field.value}
+                  errorMessage={errors.companyRegNo?.message}
+                  autoCapitalize="characters"
+                  autoCorrect={false}
+                  autoComplete="off"
+                  label="Company Reg No."
+                />
+              )}
             />
-          )}
-        />
-         </View>
-      </View>
+          </View>
+        </View>
 
         <Controller
           control={control}
@@ -204,20 +204,20 @@ const Profile = () => {
             //   errorMessage={errors.location?.message}
             // />
 
-             <GoogleTextInput
-                placeholder="Destination"
-                label="Business Address"
-                value={field.value}
-                error={errors.location?.message}
-                scrollEnabled={true}
-                onChangeText={field.onChange}
-                onPlaceSelect={(lat, lng, address) => {
-                  handleLocationSet(address, [lat, lng])
-                }}
-              />
+            <GoogleTextInput
+              placeholder="Destination"
+              label="Business Address"
+              value={field.value}
+              error={errors.location?.message}
+              scrollEnabled={true}
+              onChangeText={field.onChange}
+              onPlaceSelect={(lat, lng, address) => {
+                handleLocationSet(address, [lat, lng])
+              }}
+            />
           )}
         />
-        <View className="my-1"/>
+        <View className="my-1" />
         <CurrentLocationButton onLocationSet={handleLocationSet} />
 
         <Controller
@@ -288,21 +288,17 @@ const Profile = () => {
             control={control}
             name="pickupCharge"
             render={({ field: { value, onChange } }) => (
-              <Animated.View style={{width: '100%',  alignSelf: 'center' }} entering={FadeInDown.duration(300).delay(100)}>
+              <Animated.View style={{ width: '100%', alignSelf: 'center' }} entering={FadeInDown.duration(300).delay(100)}>
                 <AppTextInput
                   placeholder="0.00"
                   onChangeText={(text) => {
                     const num = text === "" ? undefined : parseFloat(text);
-                    onChange(isNaN(num) ? undefined : num);
+                    onChange(isNaN(num!) ? undefined : num);
                   }}
                   value={value?.toString() || ""}
                   keyboardType="numeric"
                   width={"40%"}
-                  label={
-                    user?.user_type === "laundry_vendor"
-                      ? "Pickup/Drop-off Charge"
-                      : "Delivery Charge"
-                  }
+                  label="Delivery Charge/km"
                   errorMessage={errors.pickupCharge?.message}
                 />
               </Animated.View>

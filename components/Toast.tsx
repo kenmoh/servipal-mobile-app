@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Text, TouchableOpacity, View } from 'react-native';
 import { X, CheckCircle, AlertCircle, Info } from 'lucide-react-native';
+import { styled } from 'nativewind';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -19,7 +20,7 @@ const Toast: React.FC<ToastProps> = ({
     title,
     message,
     type = 'info',
-    duration = 4000,
+    duration = 3000,
     onDismiss,
     customColor,
     position = 'top',
@@ -106,7 +107,6 @@ const Toast: React.FC<ToastProps> = ({
         <Animated.View
             style={{
                 transform: [{ translateY: slideAnim }],
-                opacity: opacityAnim,
                 position: 'absolute',
                 top: position === 'top' ? 60 : undefined,
                 bottom: position === 'bottom' ? 60 : undefined,
@@ -116,66 +116,28 @@ const Toast: React.FC<ToastProps> = ({
             }}
         >
             <View
-                style={{
-                    backgroundColor: getToastColors(),
-                    borderRadius: 12,
-                    padding: 16,
-                    flexDirection: 'row',
-                    alignItems: 'flex-start',
-                    shadowColor: '#000',
-                    shadowOffset: {
-                        width: 0,
-                        height: 2,
-                    },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 3.84,
-                    elevation: 5,
-                }}
+                className="bg-background rounded-xl p-4 flex-row items-start"
             >
                 {/* Icon */}
-                <View style={{ marginRight: 12, marginTop: 2 }}>
+                <View className="mr-3 mt-1">
                     {getToastIcon()}
                 </View>
 
                 {/* Content */}
-                <View style={{ flex: 1 }}>
+                <View className="flex-1">
                     <Text
-                        style={{
-                            color: '#FFFFFF',
-                            fontSize: 16,
-                            fontWeight: '600',
-                            marginBottom: message ? 4 : 0,
-                        }}
-                        className="font-poppins-semibold"
+                        className="text-primary font-poppins-semibold text-base mb-1"
                     >
                         {title}
                     </Text>
                     {message && (
                         <Text
-                            style={{
-                                color: '#FFFFFF',
-                                fontSize: 14,
-                                opacity: 0.9,
-                                lineHeight: 20,
-                            }}
-                            className="font-poppins"
+                            className="text-muted font-poppins text-xs leading-5"
                         >
                             {message}
                         </Text>
                     )}
                 </View>
-
-                {/* Close button */}
-                <TouchableOpacity
-                    onPress={handleDismiss}
-                    style={{
-                        padding: 4,
-                        marginLeft: 8,
-                    }}
-                    activeOpacity={0.7}
-                >
-                    <X color="#FFFFFF" size={16} />
-                </TouchableOpacity>
             </View>
         </Animated.View>
     );

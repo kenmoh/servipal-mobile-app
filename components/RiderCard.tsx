@@ -1,11 +1,11 @@
-import React from "react";
-import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useUserStore } from "@/store/userStore";
 import { deleteRider } from "@/api/user";
+import { useUserStore } from "@/store/userStore";
 import { RiderResponse } from "@/types/user-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { Edit, Trash2 } from "lucide-react-native";
+import React from "react";
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import HDivider from "./HDivider";
 import { useToast } from "./ToastProvider";
@@ -60,7 +60,7 @@ const RiderCard = ({ rider }: { rider: RiderResponse }) => {
                     <TouchableOpacity
                         onPress={() =>
                             router.push({
-                                pathname: "/profile/addRider",
+                                pathname: "/profile-detail/addRider",
                                 params: {
                                     riderParams: JSON.stringify(rider),
                                     isEditing: "true",

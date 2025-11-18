@@ -120,7 +120,7 @@ const Page = () => {
     const { user } = useUserStore();
     const bottomSheetRef = useRef<BottomSheet>(null);
 
-    const [userLocation, setUserLocation] = useState<{
+    const [userLocation, setCurrentUserLocation] = useState<{
         latitude: number;
         longitude: number;
     } | null>(null);
@@ -130,9 +130,10 @@ const Page = () => {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
 
-    const { data, isFetching, error, refetch, isFetched } = useQuery({
-        queryKey: ["restaurants", selectedCategory],
-        queryFn: () => fetchRestaurants(userLocation.latitude, userLocation.longitude, selectedCategory ?? undefined),
+    const { data, isFetching, error, refetch } = useQuery({
+        queryKey: ["restaurants", selectedCategory, userLocation],
+        queryFn: () => fetchRestaurants(userLocation?.latitude!, userLocation?.longitude!, selectedCategory ?? undefined),
+        enabled: !!userLocation,
         select: (data) => {
             if (!data || !user?.sub) return data;
 
@@ -183,7 +184,7 @@ const Page = () => {
             const location = await Location.getCurrentPositionAsync({});
 
             if (location) {
-                setUserLocation({
+                setCurrentUserLocation({
                     latitude: location?.coords.latitude,
                     longitude: location?.coords.longitude,
                 });
@@ -194,12 +195,9 @@ const Page = () => {
     }, []);
 
 
-    if (isFetching) {
+    if (!userLocation || isFetching) {
         return (
-
-
             <LoadingIndicator />
-
         );
     }
 

@@ -202,7 +202,7 @@ const Header = ({
                     <ActionBtn
                         label="Deposit"
                         icon={<ArrowDownCircle color={"gray"} size={20} />}
-                        onPress={() => router.push({ pathname: "/profile/fund-wallet" })}
+                        onPress={() => router.push({ pathname: "/profile-detail/fund-wallet" })}
                     />
                 </View>
             </LinearGradient>

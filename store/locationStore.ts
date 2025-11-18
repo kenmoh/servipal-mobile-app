@@ -1,5 +1,5 @@
-import { create } from "zustand";
 import * as Location from "expo-location";
+import { create } from "zustand";
 
 export type Coordinates = [number, number];
 
@@ -7,6 +7,7 @@ interface LocationStore {
   origin: string | null;
   destination: string | null;
   originCoords: Coordinates | null;
+  userLocation: Coordinates | null;
   destinationCoords: Coordinates | null;
   riderLocation: {
     deliveryId: string;
@@ -16,6 +17,7 @@ interface LocationStore {
   reset: () => void;
   setOrigin: (address: string | null, coords: Coordinates | null) => void;
   setDestination: (address: string | null, coords: Coordinates | null) => void;
+  setUserLocation: (coords: Coordinates | null) => void;
   getCurrentLocation: () => Promise<{
     coords: Coordinates;
     address: string;
@@ -27,6 +29,7 @@ interface LocationStore {
 
 export const useLocationStore = create<LocationStore>((set) => ({
   origin: null,
+  userLocation: null,
   destination: null,
   originCoords: null,
   destinationCoords: null,
@@ -34,6 +37,9 @@ export const useLocationStore = create<LocationStore>((set) => ({
 
   setOrigin: (address, coords) => {
     set({ origin: address, originCoords: coords });
+  },
+  setUserLocation: (coords) => {
+    set({ userLocation: coords });
   },
 
   setDestination: (address, coords) => {
@@ -85,7 +91,10 @@ export const useLocationStore = create<LocationStore>((set) => ({
           result.country,
         ]
           .filter(Boolean)
-          .filter((part) => typeof part === "string" && part.toLowerCase() !== "nigeria")
+          .filter(
+            (part) =>
+              typeof part === "string" && part.toLowerCase() !== "nigeria"
+          )
           .join(", ");
 
         return {
@@ -101,8 +110,6 @@ export const useLocationStore = create<LocationStore>((set) => ({
   },
 }));
 
-
-
 // import { create } from "zustand";
 // import * as Location from "expo-location";
 
@@ -113,9 +120,8 @@ export const useLocationStore = create<LocationStore>((set) => ({
 //   destinationCoords: [number, number] | null;
 //   riderLocation: {
 //     deliveryId: string;
-//     coordinates: [number, number]; 
+//     coordinates: [number, number];
 //   } | null;
-
 
 //   reset: () => void;
 //   setOrigin: (address: string | null, coords: [number, number] | null) => void;
@@ -153,7 +159,7 @@ export const useLocationStore = create<LocationStore>((set) => ({
 
 // setRiderLocation: (deliveryId, coordinates) => {
 //   set((state) => ({
-//     riderLocation: { deliveryId, coordinates } 
+//     riderLocation: { deliveryId, coordinates }
 //   }));
 // },
 //   clearRiderLocation: () => {
