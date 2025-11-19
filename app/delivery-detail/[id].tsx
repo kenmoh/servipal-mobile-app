@@ -231,7 +231,7 @@ const ItemDetails = () => {
   });
 
   const pickupDeliveryMutation = useMutation({
-    mutationFn: (deliveryId: string) => riderPickupDelivery(deliveryId),
+    mutationFn: (deliveryId: string) => riderPickupDelivery(deliveryId, user?.sub as string),
     onSuccess: async (_, deliveryId) => {
       Sentry.addBreadcrumb({
         message: 'Delivery pickup confirmed',
@@ -650,7 +650,7 @@ const ItemDetails = () => {
     ) {
       return {
         label: "Mark as Delivered",
-        onPress: () => markDeliveredMutation.mutate(delivery.id!),
+        onPress: () => markDeliveredMutation.mutate(delivery.id!, user?.sub!),
         loading: markDeliveredMutation.isPending,
       };
     }

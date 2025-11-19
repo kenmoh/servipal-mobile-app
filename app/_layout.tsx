@@ -105,10 +105,6 @@ export default Sentry.wrap(function RootLayout() {
 
                     <ToastProvider>
                       <NetworkNotifier />
-
-                      {/* <AuthProvider> */}
-
-                      {/* <ProductModalProvider> */}
                       <Stack
                         screenOptions={{
 
@@ -300,10 +296,7 @@ export default Sentry.wrap(function RootLayout() {
                           />
                         </Stack.Protected>
                       </Stack>
-                      {/* <ProductDetailModal />
-                      </ProductModalProvider> */}
-
-                      {/* </AuthProvider> */}
+                  
 
                     </ToastProvider>
                   </NetworkProvider>

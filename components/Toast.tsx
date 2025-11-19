@@ -1,7 +1,6 @@
+import { AlertCircle, CheckCircle, Info } from 'lucide-react-native';
 import React, { useEffect, useRef } from 'react';
-import { Animated, Text, TouchableOpacity, View } from 'react-native';
-import { X, CheckCircle, AlertCircle, Info } from 'lucide-react-native';
-import { styled } from 'nativewind';
+import { Animated, Text, View } from 'react-native';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -27,10 +26,11 @@ const Toast: React.FC<ToastProps> = ({
 }) => {
     const slideAnim = useRef(new Animated.Value(-100)).current;
     const opacityAnim = useRef(new Animated.Value(0)).current;
+    const mountedRef = useRef(true);
 
     const getToastColors = () => {
         if (customColor) return customColor;
-        
+
         switch (type) {
             case 'success':
                 return '#10B981'; // green-500
@@ -62,6 +62,8 @@ const Toast: React.FC<ToastProps> = ({
     };
 
     useEffect(() => {
+        mountedRef.current = true;
+
         // Animate in
         Animated.parallel([
             Animated.timing(slideAnim, {
@@ -82,11 +84,23 @@ const Toast: React.FC<ToastProps> = ({
                 handleDismiss();
             }, duration);
 
-            return () => clearTimeout(timer);
+            return () => {
+                mountedRef.current = false;
+                clearTimeout(timer);
+            };
         }
+
+        return () => {
+            mountedRef.current = false;
+        };
     }, [duration]);
 
     const handleDismiss = () => {
+        // Don't animate or call onDismiss if component is unmounting
+        if (!mountedRef.current) {
+            return;
+        }
+
         Animated.parallel([
             Animated.timing(slideAnim, {
                 toValue: position === 'top' ? -100 : 100,
@@ -99,7 +113,14 @@ const Toast: React.FC<ToastProps> = ({
                 useNativeDriver: true,
             }),
         ]).start(() => {
-            onDismiss?.();
+            // Double check mounted state before calling onDismiss
+            if (mountedRef.current && onDismiss) {
+                try {
+                    onDismiss();
+                } catch (error) {
+                    console.warn('Toast onDismiss error:', error);
+                }
+            }
         });
     };
 

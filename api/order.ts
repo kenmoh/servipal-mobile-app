@@ -407,12 +407,15 @@ export const riderDeclineBooking = async (
 
 // Rider pickup Delivery
 export const riderPickupDelivery = async (
-  orderId: string
+  orderId: string,
+  riderId: string
 ): Promise<DeliveryDetail> => {
+
+  const params = new URLSearchParams({rider_id: riderId})
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${orderId}/pickup`,
+        `${BASE_URL}/${orderId}/pickup?${params.toString()}`,
         {},
         {
           headers: {
@@ -544,7 +547,7 @@ export const riderMarkDelivered = async (
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${deliveryId}/package-delivered?${params.toString}`,
+        `${BASE_URL}/${deliveryId}/package-delivered?${params.toString()}`,
         {},
         {
           headers: {

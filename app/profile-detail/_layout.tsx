@@ -32,12 +32,7 @@ const ProfileLayout = () => {
 
             }} >
 
-                <Stack.Screen name='index' options={{
-                    title: '',
-                    headerShown: false,
-
-
-                }} />
+            
                 <Stack.Screen name='addRider' options={{
                     title: 'Add Rider',
 

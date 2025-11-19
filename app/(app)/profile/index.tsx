@@ -47,7 +47,7 @@ const profile = () => {
   const { colorScheme, setColorScheme } = useColorScheme();
   const queryClient = useQueryClient();
   const [theme, setTheme] = useState<themeType>('dark');
-  const { showError, showSuccess, dismissAllToasts } = useToast();
+  const { showError, showSuccess } = useToast();
   const { signOut } = useUserStore();
   const [isOnline, setIsOnline] = useState(true)
   const ICON_COLOR = theme === 'dark' ? '#eee' : "gray"
@@ -235,25 +235,23 @@ const profile = () => {
   }
 
   const handleLogout = async () => {
-    dismissAllToasts();
     try {
-      // First, call the logout API and wait for completion
-      // This ensures the server-side logout happens before UI changes
+
+      // Call the logout API
       mutate(undefined, {
         onSuccess: async () => {
-          // After server logout, clean up local storage and state
+          // Clean up local storage and state
           await authStorage.removeProfile();
           signOut();
         },
         onError: async () => {
-          // Even if server logout fails, clean up locally
           await authStorage.removeProfile();
           signOut();
+          router.push('/sign-in')
         },
       });
     } catch (error) {
-      console.error("Logout error:", error);
-      // Fallback: still clean up locally even if everything fails
+
       try {
         await authStorage.removeProfile();
         signOut();
@@ -409,3 +407,27 @@ const profile = () => {
 export default profile;
 
 const styles = StyleSheet.create({});
+
+
+// Warning: TypeError: Cannot read property 'props' of undefined
+
+// This error is located at:
+
+//   25 |
+//   26 | export const ToastProvider: React.FC<ToastProviderProps> = ({ 
+// > 27 |     children, 
+//      |             ^
+//   28 |     maxToasts = 3 
+//   29 | }) => {
+//   30 |
+
+// Call Stack
+//   ToastProvider (components/ToastProvider.tsx:27:13)
+//   NetworkProvider (components/NetworkProvider.tsx:8:43)
+//   NotificationProvider (components/NotificationProvider.tsx:40:11)
+//   RNGestureHandlerRootView (<anonymous>)
+//   KeyboardControllerView (<anonymous>)
+//   RootLayout (app/_layout.tsx:51:37)
+//   RootApp(./_layout.tsx) (<anonymous>)
+//   RNCSafeAreaProvider (<anonymous>)
+//   App (<anonymous>)

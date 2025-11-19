@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode, useMemo, useCallback, useRef, useEffect } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
-import Toast, { ToastProps, ToastType } from './Toast';
+import Toast, { ToastProps } from './Toast';
 
 interface ToastContextType {
     showToast: (toast: Omit<ToastProps, 'onDismiss'>) => void;
@@ -23,39 +23,61 @@ interface ToastProviderProps {
     maxToasts?: number;
 }
 
-export const ToastProvider: React.FC<ToastProviderProps> = ({ 
-    children, 
-    maxToasts = 3 
+export const ToastProvider: React.FC<ToastProviderProps> = ({
+    children,
+    maxToasts = 3
 }) => {
+
+
     const [toasts, setToasts] = useState<ToastItem[]>([]);
     const mountedRef = useRef(true);
+    const toastsRef = useRef<ToastItem[]>([]);
 
     useEffect(() => {
+        mountedRef.current = true;
         return () => {
             mountedRef.current = false;
+            // Immediately clear toasts to prevent render issues during unmount
+            setToasts([]);
+            toastsRef.current = [];
         };
     }, []);
+
+    // const [toasts, setToasts] = useState<ToastItem[]>([]);
+    // const mountedRef = useRef(true);
+
+    // useEffect(() => {
+    //     return () => {
+    //         mountedRef.current = false;
+    //     };
+    // }, []);
 
     const generateId = useCallback(() => Math.random().toString(36).substr(2, 9), []);
 
     const showToast = useCallback((toast: Omit<ToastProps, 'onDismiss'>) => {
         if (!mountedRef.current) return;
-        
+
         const id = toast.id || generateId();
         const newToast: ToastItem = { ...toast, id };
 
-        setToasts((prevToasts) => {
-            if (!mountedRef.current) return prevToasts;
-            
-            let updatedToasts = [...prevToasts, newToast];
-            
-            // Limit the number of toasts
-            if (updatedToasts.length > maxToasts) {
-                updatedToasts = updatedToasts.slice(-maxToasts);
-            }
-            
-            return updatedToasts;
-        });
+        // Use a try-catch to prevent errors during unmount
+        try {
+            setToasts((prevToasts) => {
+                if (!mountedRef.current) return prevToasts;
+
+                let updatedToasts = [...prevToasts, newToast];
+
+                if (updatedToasts.length > maxToasts) {
+                    updatedToasts = updatedToasts.slice(-maxToasts);
+                }
+
+                toastsRef.current = updatedToasts;
+                return updatedToasts;
+            });
+        } catch (error) {
+            // Silently ignore errors during unmount
+            console.warn('Toast update failed (component may be unmounting):', error);
+        }
     }, [generateId, maxToasts]);
 
     const showSuccess = useCallback((title: string, message?: string, duration: number = 4000) => {
@@ -96,12 +118,40 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
 
     const dismissToast = useCallback((id: string) => {
         if (!mountedRef.current) return;
-        setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
+
+        try {
+            setToasts((prevToasts) => {
+                if (!mountedRef.current) return prevToasts;
+                const filtered = prevToasts.filter((toast) => toast.id !== id);
+                toastsRef.current = filtered;
+                return filtered;
+            });
+        } catch (error) {
+            // Silently ignore errors during unmount
+            console.warn('Toast dismiss failed (component may be unmounting):', error);
+        }
     }, []);
 
     const dismissAllToasts = useCallback(() => {
-        setToasts([]);
+        if (!mountedRef.current) return;
+
+        try {
+            setToasts([]);
+            toastsRef.current = [];
+        } catch (error) {
+            // Silently ignore errors during unmount
+            console.warn('Toast dismiss all failed (component may be unmounting):', error);
+        }
     }, []);
+
+    // const dismissToast = useCallback((id: string) => {
+    //     if (!mountedRef.current) return;
+    //     setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
+    // }, []);
+
+    // const dismissAllToasts = useCallback(() => {
+    //     setToasts([]);
+    // }, []);
 
     const value = useMemo<ToastContextType>(() => ({
         showToast,
