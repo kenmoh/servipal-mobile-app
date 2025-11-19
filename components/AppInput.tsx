@@ -12,9 +12,10 @@ interface InputProp extends TextInputProps {
     errorMessage?: string
     borderRadius?: number
     onPressIn?: () => void;
+    onPress?: () => void;
     showPasswordToggle?: boolean;
 }
-const AppTextInput = ({ label, numberOfLines, multiline, value, onPressIn, placeholder, onBlur, onChangeText, errorMessage, width = '100%', borderRadius = 10, height = 45, keyboardType = 'default', editable = true, secureTextEntry = false, showPasswordToggle = false }: InputProp) => {
+const AppTextInput = ({ label, numberOfLines, multiline, value, onPressIn, onPress, placeholder, onBlur, onChangeText, errorMessage, width = '100%', borderRadius = 10, height = 45, keyboardType = 'default', editable = true, secureTextEntry = false, showPasswordToggle = false }: InputProp) => {
     const [showPassword, setShowPassword] = useState(false);
 
     const togglePasswordVisibility = () => {
@@ -24,32 +25,42 @@ const AppTextInput = ({ label, numberOfLines, multiline, value, onPressIn, place
     const shouldShowToggle = showPasswordToggle && secureTextEntry;
     const isPasswordVisible = shouldShowToggle ? showPassword : false;
 
+    const inputElement = (
+        <TextInput
+            editable={editable}
+            value={value}
+            onPressIn={onPressIn}
+            style={{
+                height,
+                borderRadius,
+                width,
+            }}
+            multiline={multiline}
+            textAlignVertical={multiline ? 'top' : 'center'}
+            numberOfLines={numberOfLines}
+            className="bg-input px-4 text-primary text-base font-mono w-full focus:border-[0.7px] border-border-subtle focus:border-button-primary"
+            keyboardType={keyboardType}
+            secureTextEntry={shouldShowToggle ? !isPasswordVisible : false}
+            onBlur={onBlur}
+            onChangeText={onChangeText}
+            placeholder={placeholder}
+            placeholderTextColor="#aaa"
+        />
+    );
+
     return (
         <View className="w-[90%] my-2 items-center self-center">
             {label && (
                 <Text className="text-muted mb-1 self-start font-poppins text-sm">{label}</Text>
             )}
             <View className="w-full relative flex-row items-center">
-                <TextInput
-                    editable={editable}
-                    value={value}
-                    onPressIn={onPressIn}
-                    style={{
-                        height,
-                        borderRadius,
-                        width,
-                    }}
-                    multiline={multiline}
-                    textAlignVertical={multiline ? 'top' : 'center'}
-                    numberOfLines={numberOfLines}
-                    className="bg-input px-4 text-primary text-base font-mono w-full focus:border-[0.7px] border-border-subtle focus:border-button-primary"
-                    keyboardType={keyboardType}
-                    secureTextEntry={shouldShowToggle ? !isPasswordVisible : false}
-                    onBlur={onBlur}
-                    onChangeText={onChangeText}
-                    placeholder={placeholder}
-                    placeholderTextColor="#aaa"
-                />
+                {onPress ? (
+                    <TouchableOpacity onPress={onPress} style={{ width: '100%' }} activeOpacity={0.7}>
+                        {inputElement}
+                    </TouchableOpacity>
+                ) : (
+                    inputElement
+                )}
                 {shouldShowToggle && (
                     <TouchableOpacity
                         onPress={togglePasswordVisibility}

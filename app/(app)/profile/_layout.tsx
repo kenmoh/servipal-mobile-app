@@ -38,7 +38,7 @@ const ProfileLayout = () => {
 
 
                 }} />
-                <Stack.Screen name='addRider' options={{
+                {/* <Stack.Screen name='addRider' options={{
                     title: 'Add Rider',
 
                 }} />
@@ -93,7 +93,7 @@ const ProfileLayout = () => {
                     animation: 'slide_from_right',
 
 
-                }} />
+                }} /> */}
 
             </Stack>
         </View>

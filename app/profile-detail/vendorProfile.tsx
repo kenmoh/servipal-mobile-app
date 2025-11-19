@@ -148,8 +148,26 @@ const Profile = () => {
       keyboardShouldPersistTaps="handled"
     // nestedScrollEnabled={false}
     >
-      <View className="flex-1 bg-background mb-5">
-        <View className="flex-row">
+      <View className="flex-1 bg-background mb-20">
+        {/* Company Name - First */}
+        <Controller
+          control={control}
+          name="companyName"
+          render={({ field }) => (
+            <AppTextInput
+              placeholder="Company Name"
+              editable={profile?.profile?.business_name === null}
+              onChangeText={field.onChange}
+              autoCapitalize="words"
+              label="Company Name"
+              value={field.value}
+              errorMessage={errors.companyName?.message}
+            />
+          )}
+        />
+
+        {/* Phone Number and State - Side by Side */}
+        <View className="flex-row w-[95%] mx-auto">
           <View className="w-[50%]">
             <Controller
               control={control}
@@ -167,10 +185,28 @@ const Profile = () => {
                 />
               )}
             />
-
           </View>
           <View className="w-[50%]">
+            <Controller
+              control={control}
+              name="state"
+              render={({ field: { onChange, value } }) => (
+                <AppPicker
+                  items={states}
+                  isBank={false}
+                  isState={true}
+                  value={value}
+                  onValueChange={onChange}
+                  label="State"
+                />
+              )}
+            />
+          </View>
+        </View>
 
+        {/* Company Reg No and Account Number - Side by Side */}
+        <View className="flex-row w-[95%] mx-auto">
+          <View className="w-[50%]">
             <Controller
               control={control}
               name="companyRegNo"
@@ -189,27 +225,52 @@ const Profile = () => {
               )}
             />
           </View>
+          <View className="w-[50%]">
+            <Controller
+              control={control}
+              name="accountNumber"
+              render={({ field }) => (
+                <AppTextInput
+                  placeholder="Account Number"
+                  onChangeText={field.onChange}
+                  value={field.value}
+                  label="Account Number"
+                  keyboardType={"number-pad"}
+                  errorMessage={errors.accountNumber?.message}
+                />
+              )}
+            />
+          </View>
         </View>
 
+        {/* Bank Name - Full Width */}
+        <View className="">
+          <Controller
+            control={control}
+            name="bankName"
+            render={({ field }) => (
+              <AppPicker
+                items={data || []}
+                isBank
+                label="Bank Name"
+                value={field.value || ""}
+                onValueChange={field.onChange}
+              />
+            )}
+          />
+        </View>
+
+        {/* Business Address */}
         <Controller
           control={control}
           name="location"
           render={({ field }) => (
-            // <AppTextInput
-            //   placeholder="Business Location"
-            //   editable={false}
-            //   label="Business Address"
-            //   onChangeText={field.onChange}
-            //   value={field.value}
-            //   errorMessage={errors.location?.message}
-            // />
-
             <GoogleTextInput
               placeholder="Destination"
               label="Business Address"
               value={field.value}
               error={errors.location?.message}
-              scrollEnabled={true}
+              scrollEnabled={false}
               onChangeText={field.onChange}
               onPlaceSelect={(lat, lng, address) => {
                 handleLocationSet(address, [lat, lng])
@@ -219,23 +280,6 @@ const Profile = () => {
         />
         <View className="my-1" />
         <CurrentLocationButton onLocationSet={handleLocationSet} />
-
-        <Controller
-          control={control}
-          name="companyName"
-          render={({ field }) => (
-            <AppTextInput
-              placeholder="Company Name"
-              editable={profile?.profile?.business_name === null}
-              onChangeText={field.onChange}
-              autoCapitalize="words"
-              label="Company Name"
-              value={field.value}
-              errorMessage={errors.companyName?.message}
-            />
-          )}
-        />
-
 
         {/* Pickup/Delivery Toggle */}
         <Controller
@@ -253,7 +297,6 @@ const Profile = () => {
                   <Info color={"orange"} size={18} />
                 </TouchableOpacity>
               </View>
-
 
               {(user?.user_type === "restaurant_vendor" || user?.user_type === "laundry_vendor") && <Checkbox
                 style={{
@@ -274,21 +317,17 @@ const Profile = () => {
                 }}
                 hitSlop={35}
               />}
-
-
             </View>
           )}
         />
 
         {/* Conditional Pickup Charge Input */}
         {canPickup && (
-
-
           <Controller
             control={control}
             name="pickupCharge"
             render={({ field: { value, onChange } }) => (
-              <Animated.View style={{ width: '100%', alignSelf: 'center' }} entering={FadeInDown.duration(300).delay(100)}>
+              <Animated.View entering={FadeInDown.duration(300).delay(100)}>
                 <AppTextInput
                   placeholder="0.00"
                   onChangeText={(text) => {
@@ -297,18 +336,17 @@ const Profile = () => {
                   }}
                   value={value?.toString() || ""}
                   keyboardType="numeric"
-                  width={"40%"}
                   label="Delivery Charge/km"
                   errorMessage={errors.pickupCharge?.message}
                 />
               </Animated.View>
             )}
           />
-
         )}
 
-        <View className="w-[95%] flex-row items-center ">
-          <View className="flex-1">
+        {/* Opening and Closing Hours - Side by Side */}
+        <View className="flex-row w-[95%] mx-auto">
+          <View className="w-[50%]">
             <Controller
               control={control}
               name="openingHour"
@@ -320,15 +358,12 @@ const Profile = () => {
                   value={field.value}
                   onChangeText={field.onChange}
                   errorMessage={errors.openingHour?.message}
+                  onPress={() => setShowOpeningHour(true)}
                 />
               )}
             />
           </View>
-          <TimeSelectorBtn onPress={() => setShowOpeningHour(true)} />
-        </View>
-
-        <View className="flex-row items-center w-[95%]">
-          <View className="flex-1">
+          <View className="w-[50%]">
             <Controller
               control={control}
               name="closingHour"
@@ -340,54 +375,12 @@ const Profile = () => {
                   label="Closing Hour"
                   onChangeText={field.onChange}
                   errorMessage={errors.closingHour?.message}
+                  onPress={() => setShowClosingHour(true)}
                 />
               )}
             />
           </View>
-
-          <TimeSelectorBtn onPress={() => setShowClosingHour(true)} />
         </View>
-
-        <Controller
-          control={control}
-          name="accountNumber"
-          render={({ field }) => (
-            <AppTextInput
-              placeholder="Account Number"
-              onChangeText={field.onChange}
-              value={field.value}
-              label="Account Number"
-              keyboardType={"number-pad"}
-              errorMessage={errors.accountNumber?.message}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="state"
-          render={({ field: { onChange, value } }) => (
-            <AppPicker
-              items={states}
-              isBank={false}
-              isState={true}
-              value={value}
-              onValueChange={onChange}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="bankName"
-          render={({ field }) => (
-            <AppPicker
-              items={data || []}
-              isBank
-              label="Bank Name"
-              value={field.value || ""}
-              onValueChange={field.onChange}
-            />
-          )}
-        />
 
         <AppVariantButton
           label="Update Profile"

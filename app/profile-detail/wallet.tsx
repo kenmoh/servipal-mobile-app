@@ -101,11 +101,18 @@ function ActionBtn({
 }) {
     return (
         <TouchableOpacity
-            className="rounded-full flex-row gap-2 p-3 bg-white mt-3"
+            className="rounded-2xl flex-row gap-2 p-3 bg-white items-center justify-center shadow-lg"
             onPress={onPress}
+            style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 8,
+                elevation: 4,
+            }}
         >
             {icon}
-            <Text className="text-sm font-poppins-light text-gray-800">{label}</Text>
+            <Text className="text-sm font-poppins-medium text-gray-800">{label}</Text>
         </TouchableOpacity>
     );
 }
@@ -127,17 +134,35 @@ const Header = ({
     withdraw,
 }: HeaderProps) => {
     return (
-
-        <View className="self-center rounded-b-lg overflow-hidden w-full">
+        <View className="w-full">
             <LinearGradient
                 colors={["#ff9966", "#ff5e62", "#ff7955", "#ffb347"]}
-                style={[styles.background, { height: "auto", paddingBottom: 16 }]}
+                style={styles.background}
                 start={[0, 0]}
                 end={[1, 1]}
             >
-                <View className="flex-row justify-between items-center">
-                    <View className="">
-                        <View className=" gap-2 flex-row">
+                {/* Back Button Section */}
+                <View className="flex-row items-center mb-4 pt-10">
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        className="mr-3 p-1.5 rounded-full bg-white/20"
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                        <ArrowUpCircle
+                            color="white"
+                            size={22}
+                            style={{ transform: [{ rotate: '-90deg' }] }}
+                        />
+                    </TouchableOpacity>
+                    <Text className="text-white font-poppins-semibold text-lg">
+                        My Wallet
+                    </Text>
+                </View>
+
+                {/* Balance Section */}
+                <View className="flex-row justify-between items-center mb-4">
+                    <View className="flex-1">
+                        <View className="gap-2 flex-row items-center">
                             <Text style={styles.label}>Main Balance</Text>
                             <TouchableOpacity hitSlop={35} onPress={hideOrShowBalance}>
                                 {isBalanceHidden ? (
@@ -147,7 +172,7 @@ const Header = ({
                                 )}
                             </TouchableOpacity>
                         </View>
-                        <View className="flex-row items-baseline gap-2 mt-2">
+                        <View className="flex-row items-baseline gap-2 mt-1">
                             <Text style={styles.currency}>₦</Text>
                             {isFetching ? (
                                 <BalanceShimmer width={80} height={24} borderRadius={8} />
@@ -160,7 +185,7 @@ const Header = ({
                             )}
                         </View>
                     </View>
-                    <View className="">
+                    <View className="flex-1 items-end">
                         <Text style={[styles.label]}>Escrow Balance</Text>
                         <View className="flex-row items-baseline gap-2 mt-1">
                             <Text style={[styles.currency, { fontFamily: "Poppins-Thin" }]}>
@@ -179,31 +204,47 @@ const Header = ({
                     </View>
                 </View>
 
-                <View className="gap-3 mt-1">
+                {/* Account Info Section */}
+                <View className="gap-1.5 mb-4 bg-white/10 p-3 rounded-xl">
                     {profile?.profile?.bank_account_number && (
-                        <Text className="text-white font-poppins-medium">
-                            Account: {profile?.profile?.bank_account_number}
-                        </Text>
+                        <View className="flex-row items-center">
+                            <Text className="text-white/70 font-poppins text-xs w-20">
+                                Account:
+                            </Text>
+                            <Text className="text-white font-poppins-medium text-xs">
+                                {profile?.profile?.bank_account_number}
+                            </Text>
+                        </View>
                     )}
                     {(profile?.profile?.bank_name ||
                         profile?.profile?.business_name) && (
-                            <Text className="text-white font-poppins">
-                                Name:{" "}
-                                {profile?.profile?.full_name || profile?.profile.business_name}
-                            </Text>
+                            <View className="flex-row items-center">
+                                <Text className="text-white/70 font-poppins text-xs w-20">
+                                    Name:
+                                </Text>
+                                <Text className="text-white font-poppins-medium text-xs">
+                                    {profile?.profile?.full_name || profile?.profile.business_name}
+                                </Text>
+                            </View>
                         )}
                 </View>
-                <View className="flex-row gap-6 mt-2 pb-2">
-                    <ActionBtn
-                        label="Withdraw"
-                        icon={<ArrowUpCircle color={"gray"} size={20} />}
-                        onPress={withdraw}
-                    />
-                    <ActionBtn
-                        label="Deposit"
-                        icon={<ArrowDownCircle color={"gray"} size={20} />}
-                        onPress={() => router.push({ pathname: "/profile-detail/fund-wallet" })}
-                    />
+
+                {/* Action Buttons */}
+                <View className="flex-row gap-4">
+                    <View className="flex-1">
+                        <ActionBtn
+                            label="Withdraw"
+                            icon={<ArrowUpCircle color={"#ff5e62"} size={20} />}
+                            onPress={withdraw}
+                        />
+                    </View>
+                    <View className="flex-1">
+                        <ActionBtn
+                            label="Deposit"
+                            icon={<ArrowDownCircle color={"#10B981"} size={20} />}
+                            onPress={() => router.push({ pathname: "/profile-detail/fund-wallet" })}
+                        />
+                    </View>
                 </View>
             </LinearGradient>
         </View>
@@ -215,9 +256,8 @@ export default index;
 const styles = StyleSheet.create({
     background: {
         height: "auto",
-        // position: "relative",
         paddingHorizontal: 20,
-        paddingVertical: 40
+        paddingBottom: 24,
     },
     label: {
         color: "white",

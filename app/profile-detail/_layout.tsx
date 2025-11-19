@@ -32,7 +32,7 @@ const ProfileLayout = () => {
 
             }} >
 
-            
+
                 <Stack.Screen name='addRider' options={{
                     title: 'Add Rider',
 
@@ -52,7 +52,6 @@ const ProfileLayout = () => {
                     headerShadowVisible: false,
                     headerShown: true,
 
-                    // headerTintColor: theme === 'dark' ? '#fff' : '#000',
                     contentStyle: {
                         backgroundColor: theme === 'dark' ? HEADER_BG_DARK : HEADER_BG_LIGHT,
                     },
