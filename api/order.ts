@@ -344,12 +344,15 @@ export const customerConfirmOrderReceived = async (
 
 // Rider Accept Delivery
 export const riderAcceptBooking = async (
-  orderId: string
+  orderId: string,
+  riderId: string
 ): Promise<DeliveryDetail> => {
+
+  const params = new URLSearchParams({rider_id: riderId})
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${orderId}/accept-booking`,
+        `${BASE_URL}/${orderId}/accept-booking?${params.toString()}`,
         {},
         {
           headers: {
@@ -375,12 +378,14 @@ export const riderAcceptBooking = async (
 };
 // Rider Decline Booking
 export const riderDeclineBooking = async (
-  orderId: string
+  orderId: string,
+  riderId: string
 ): Promise<DeliveryDetail> => {
+  const params = new URLSearchParams({rider_id: riderId})
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${orderId}/decline-booking`,
+        `${BASE_URL}/${orderId}/decline-booking?${params.toString()}`,
         {},
         {
           headers: {
@@ -442,12 +447,14 @@ export const riderPickupDelivery = async (
 
 // Vendor pickup laundry
 export const vendorPickupLaundry = async (
-  orderId: string
+  orderId: string,
+  vendorId: string
 ): Promise<DeliveryDetail> => {
+  const params = new URLSearchParams({vendor_id: vendorId})
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${orderId}/pickup-laundry`,
+        `${BASE_URL}/${orderId}/pickup-laundry?${params.toString()}`,
         {},
         {
           headers: {
@@ -474,12 +481,14 @@ export const vendorPickupLaundry = async (
 
 // Vendor return laundry
 export const vendorReturnLaundry = async (
-  orderId: string
+  orderId: string,
+  vendorId: string
 ): Promise<DeliveryDetail> => {
+  const params = new URLSearchParams({vendor_id: vendorId})
   try {
     const response: ApiResponse<DeliveryDetail | ErrorResponse> =
       await apiClient.put(
-        `${BASE_URL}/${orderId}/laundry-returned`,
+        `${BASE_URL}/${orderId}/laundry-returned?${params.toString()}`,
         {},
         {
           headers: {

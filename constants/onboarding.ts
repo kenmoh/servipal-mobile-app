@@ -4,7 +4,9 @@ import hand from "@/assets/images/3dhand.png";
 import linen from "@/assets/images/3dlinen.png";
 import food from "@/assets/images/food3d.png";
 import payment from "@/assets/images/payment.png";
+
 type Position = "top" | "bottom";
+
 export const onboardingSlides = [
   {
     title: "Welcome to ServiPal",

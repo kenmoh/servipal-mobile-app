@@ -194,3 +194,29 @@ export const useToast = (): ToastContextType => {
 };
 
 export default ToastProvider;
+
+
+
+// Warning: TypeError: Cannot read property 'props' of undefined
+
+// This error is located at:
+
+//   25 |
+//   26 | export const ToastProvider: React.FC<ToastProviderProps> = ({
+// > 27 |     children,
+//      |             ^
+//   28 |     maxToasts = 3
+//   29 | }) => {
+//   30 |
+
+// Call Stack
+//   ToastProvider (components/ToastProvider.tsx:27:13)
+//   NetworkProvider (components/NetworkProvider.tsx:8:43)
+//   NotificationProvider (components/NotificationProvider.tsx:40:11)
+//   RNGestureHandlerRootView (<anonymous>)
+//   KeyboardControllerView (<anonymous>)
+//   RootLayout (app/_layout.tsx:51:37)
+//   RootApp(./_layout.tsx) (<anonymous>)
+//   RNCSafeAreaProvider (<anonymous>)
+//   App (<anonymous>)
+//   ErrorOverlay (<anonymous>)

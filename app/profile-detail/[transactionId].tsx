@@ -150,10 +150,10 @@ const TransactionDetails = () => {
                         <Text className="text-sm text-primary">{toUser}</Text>
                     </View>
                 )}
-                <View className="flex-row items-center justify-between mb-2">
+               {/* <View className="flex-row items-center justify-between mb-2">
                     <Text className="text-base text-muted">Transaction Type:</Text>
                     <Text className="text-sm text-primary">{transactionType}</Text>
-                </View>
+                </View>*/}
             </View>
             {paymentStatus === "pending" && (
                 <AppButton

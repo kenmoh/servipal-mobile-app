@@ -180,6 +180,40 @@ export const getBanks = async (): Promise<Bank[]> => {
   }
 };
 
+
+
+interface Status {
+  status: string
+}
+// Verify bank transfer
+export const verifyBankTransfer = async (txRef: string): Promise<Status> => {
+
+  try {
+    const response: ApiResponse<Status | ErrorResponse> = await apiClient.get(
+      `/verify-bank-transfer`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok || !response.data || "detail" in response.data) {
+      const errorMessage =
+        response.data && "detail" in response.data
+          ? response.data.detail
+          : "Transfer verification failed. Please contact support if you were debited.";
+      throw new Error(errorMessage);
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
 export const generateTransactionPaymentLink = async (
   transactionId: string
 ): Promise<PaymentLink> => {

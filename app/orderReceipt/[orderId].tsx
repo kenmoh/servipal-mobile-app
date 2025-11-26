@@ -39,7 +39,6 @@ const OrderReceiptPage = () => {
         queryFn: () => fetchOrder(orderId as string),
     });
 
-    console.log("Order Receipt Data:", data?.order?.order_items[0].price);
 
     const handleGotoPayment = () => {
         router.push({
@@ -260,6 +259,12 @@ const OrderReceiptPage = () => {
                 : ""
             }
                           
+                            ${(user?.user_type === 'laundry_vendor' || user?.user_type === 'restaurant_vendor') ? `
+                            <div class="row">
+                                <span>Amount Due Vendor</span>
+                                <span class="amount">₦${Number(data?.order?.amount_due_vendor).toFixed(2)}</span>
+                            </div>
+                            ` : ''}
                             <div class="row total">
                                 <span>Total Amount</span>
                                 <span class="amount">₦${Number(
@@ -350,7 +355,7 @@ const OrderReceiptPage = () => {
         },
     });
     const vendorPickupMutation = useMutation({
-        mutationFn: () => vendorPickupLaundry(data?.order?.id as string),
+        mutationFn: () => vendorPickupLaundry(data?.order?.id as string, user?.sub as string),
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: ["order", orderId],
@@ -373,7 +378,7 @@ const OrderReceiptPage = () => {
         },
     });
     const vendorReturnLaundryMutation = useMutation({
-        mutationFn: () => vendorReturnLaundry(data?.order?.id as string),
+        mutationFn: () => vendorReturnLaundry(data?.order?.id as string, user?.sub as string),
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: ["order", orderId],
@@ -413,6 +418,7 @@ const OrderReceiptPage = () => {
             queryClient.invalidateQueries({ queryKey: ["laundryVendors"] });
 
             showSuccess("Success", "Order received!");
+            router.back();
         },
         onError: (error: Error) => {
             showError("Error", error.message);
@@ -604,6 +610,16 @@ const OrderReceiptPage = () => {
                         </View>
                     </View>
                 </View>
+                {(user?.user_type === 'laundry_vendor' || user?.user_type === 'restaurant_vendor') && <View className="p-4 bg-input border border-border-subtle rounded-lg">
+
+                    <View className="flex-row justify-between">
+                        <Text className="font-poppins text-primary">Amount Due Vendor</Text>
+                        <Text className="font-poppins text-primary">
+                            ₦{Number(data?.order?.amount_due_vendor)}
+                        </Text>
+                    </View>
+
+                </View>}
 
                 {data?.order?.order_items && data.order.order_items.length > 0 && (
                     <View className="p-4 bg-input border border-border-subtle rounded-lg">

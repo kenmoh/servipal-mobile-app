@@ -178,7 +178,7 @@ const ItemDetails = () => {
   });
 
   const acceptDeliveryMutation = useMutation({
-    mutationFn: (deliveryId: string) => riderAcceptBooking(deliveryId),
+    mutationFn: (deliveryId: string) => riderAcceptBooking(deliveryId, user?.sub as string),
     onSuccess: async (_, deliveryId) => {
       Sentry.addBreadcrumb({
         message: 'Delivery accepted successfully',
@@ -230,6 +230,7 @@ const ItemDetails = () => {
     },
   });
 
+
   const pickupDeliveryMutation = useMutation({
     mutationFn: (deliveryId: string) => riderPickupDelivery(deliveryId, user?.sub as string),
     onSuccess: async (_, deliveryId) => {
@@ -278,7 +279,7 @@ const ItemDetails = () => {
   });
 
   const declineBookingMutation = useMutation({
-    mutationFn: (orderId: string) => riderDeclineBooking(orderId),
+    mutationFn: (orderId: string) => riderDeclineBooking(orderId, user?.sub as string),
     onSuccess: async (_, orderId) => {
       Sentry.addBreadcrumb({
         message: 'Booking declined',
@@ -456,7 +457,6 @@ const ItemDetails = () => {
   };
 
   const onSubmit = (data: CancelFormData) => {
-    console.log("Submitting form data:", data);
     cancelDeliveryMutation.mutate(data);
     closeSheet();
   };
@@ -538,7 +538,6 @@ const ItemDetails = () => {
               useLocationStore.getState().setRiderLocation(deliveryId, [lat, lng]);
             }
           } catch (e) {
-            console.error("WebSocket message error:", e);
             Sentry.captureException(e, {
               extra: {
                 deliveryId: data?.delivery?.id,
@@ -618,12 +617,12 @@ const ItemDetails = () => {
       return [
         {
           label: "Accept",
-          onPress: () => acceptDeliveryMutation.mutate(order.id!),
+          onPress: () => acceptDeliveryMutation.mutate(order.id!, user?.sub as string),
           loading: acceptDeliveryMutation.isPending,
         },
         {
           label: "Decline",
-          onPress: () => declineBookingMutation.mutate(order.id!),
+          onPress: () => declineBookingMutation.mutate(order.id!, user?.sub as string),
           loading: declineBookingMutation.isPending,
           variant: "outline" as const,
         },
@@ -852,7 +851,7 @@ const ItemDetails = () => {
                   Delivery Address
                 </Text>
               </View>
-              <Text className=" mx-7 text-primary text-sm font-poppins-light">
+              <Text className=" mx-7 text-xs text-muted font-poppins-light">
                 {data?.delivery?.destination}
               </Text>
             </View>
@@ -1082,6 +1081,10 @@ const ItemDetails = () => {
               src={data?.order?.order_items[0]?.images[0].url}
               style={{ width: '100%', height: IMAGE_HEIGHT, resizeMode: 'cover' }}
             />
+          </View>
+          <View className="my-6 self-start px-5">
+            <Text className='text-primary font-poppins'>Description</Text>
+            <Text className="text-sm text-muted font-poppins">{data?.order?.order_items[0].description}</Text>
           </View>
         </TouchableOpacity>
       </Modal>
