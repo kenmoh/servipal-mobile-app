@@ -432,11 +432,6 @@ const DeliveryScreen = () => {
 
   if (isLoading || !riders) {
     return (
-      // <View className="bg-background flex-1 p-2" >
-      //   <SearchBarSkeleton />
-      //   <HDivider />
-      //   <DeliveryListSkeleton />
-      // </View>
       <LoadingIndicator />
     );
   }
@@ -474,10 +469,6 @@ const DeliveryScreen = () => {
         initialNumToRender={10}
         getItemLayout={getItemLayout}
       />
-
-
-
-      {/* <RiderProfile ref={bottomSheetRef} riderData={selectedRider} showButton onPress={handleBookRider} /> */}
 
 
 

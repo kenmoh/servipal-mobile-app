@@ -262,7 +262,7 @@ const ItemDetails = () => {
       // Start tracking
       await startDeliveryTracking(data?.delivery?.id!, user?.sub!);
 
-      router.back();
+      // router.back();
     },
     onError: (error: Error) => {
       showError("Error", error.message);
@@ -313,7 +313,7 @@ const ItemDetails = () => {
 
       // Then navigate and show warning
       showWarning("Decline", "Booking declined!");
-      router.back();
+      // router.back();
     },
     onError: (error: Error) => {
       showError("Error", error.message);
@@ -363,7 +363,7 @@ const ItemDetails = () => {
 
       // Then navigate and show success
       showSuccess("Success", "Item delivered.");
-      router.back();
+      // router.back();
     },
     onError: (error: Error) => {
       showError("Error", error.message);
@@ -410,7 +410,7 @@ const ItemDetails = () => {
 
       // Then navigate and show info
       showInfo("Delivery cancelled!");
-      router.back();
+      // router.back();
     },
     onError: (error: Error) => {
       showError("Error", error.message);

@@ -89,8 +89,6 @@ const ReviewPage = () => {
     const { mutate: productReviewMutation, isPending: isProductReviewPending } = useMutation({
         mutationFn: createItemReview,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["delivery", deliveryId] });
-            queryClient.invalidateQueries({ queryKey: ["riders", user?.sub] });
             if (orderType === 'food') {
                 queryClient.invalidateQueries({ queryKey: ["restaurants"] });
             }
